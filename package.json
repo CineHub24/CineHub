@@ -16,7 +16,8 @@
 		"db:start": "docker compose up",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"db:startWithPodman": "podman compose up --detach && drizzle-kit push"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.45.3",

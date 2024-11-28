@@ -1,4 +1,6 @@
-# CineHub# sv
+# CineHub
+
+Nach dem Clonen zur lokalen Ausführung .env-File erstellen.
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
