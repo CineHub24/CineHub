@@ -1,11 +1,5 @@
 import { pgTable, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
 
-export const user = pgTable('user', {
-	id: text('id').primaryKey(),
-	age: integer('age'),
-	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull()
-});
 
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
@@ -19,118 +13,116 @@ export type Session = typeof session.$inferSelect;
 
 export type User = typeof user.$inferSelect;
 
-
-
 export const film = pgTable('Film', {
   id: text('id').primaryKey(),
   title: text('title'),
   genre: text('genre'),
-  regisseur: text('regisseur'), 
-  laufzeit: integer('laufzeit'),
-  alterfreigabe: text('alterfreigabe'),
-  getVorstellungen: text('getVorstellungen'),
-  erstelleVorstellung: text('erstelleVorstellung'),
+  director: text('director'), 
+  runtime: integer('runtime'),
+  ageRating: text('ageRating'),
+  getShowings: text('getShowings'),
+  createShowing: text('createShowing'),
   getFilm: text('getFilm'),
   getFilmById: text('getFilmById')
 });
 
-export const kino = pgTable('Kino', {
+export const cinema = pgTable('Cinema', {
   id: text('id').primaryKey(),
   name: text('name'),
-  adresse: text('adresse'),
-  anzahlSaele: integer('anzahlSaele')
+  address: text('address'),
+  numScreens: integer('numScreens')
 });
 
-export const kinosaal = pgTable('Kinosaal', {
+export const cinemaHall = pgTable('CinemaHall', {
   id: text('id').primaryKey(),
-  saalnummer: integer('saalnummer'),
-  kapazitaet: integer('kapazitaet'),
-  deaktiviereSitz: text('deaktiviereSitz'),
-  aktiviereSitz: text('aktiviereSitz'),
-  kinoId: text('kinoId')
+  hallNumber: integer('hallNumber'),
+  capacity: integer('capacity'),
+  deactivatedSeats: text('deactivatedSeats'),
+  activatedSeats: text('activatedSeats'),
+  cinemaId: text('cinemaId')
 });
 
-export const preisset = pgTable('Preisset', {
+export const priceSet = pgTable('PriceSet', {
   id: text('id').primaryKey(),
-  grundpreisStzKategorie: integer('grundpreisStzKategorie'),
-  faktorenTicketarten: integer('faktorenTicketarten'),
-  getDefaultPreisset: text('getDefaultPreisset'),
-  berechnePreis: text('berechnePreis')
+  basePricePerCategory: integer('basePricePerCategory'),
+  ticketTypeFactor: integer('ticketTypeFactor'),
+  getDefaultPriceSet: text('getDefaultPriceSet'),
+  calculatePrice: text('calculatePrice')
 });
 
-export const abschlussart = pgTable('Abschlussart', {
+export const paymentType = pgTable('PaymentType', {
   id: text('id').primaryKey(),
-  art: text('art'),
-  wert: integer('wert')
+  type: text('type'),
+  value: integer('value')
 });
 
-export const preisabschlag = pgTable('Preisabschlag', {
+export const priceDiscount = pgTable('PriceDiscount', {
   id: text('id').primaryKey(),
   code: text('code'), 
-  abschlussartId: text('abschlussartId'),
-  betragGesPercentsprei: decimal('betragGesPercentsprei'),
-  stornierenTicket: boolean('stornierenTicket'),
-  storniertGesamt: boolean('storniertGesamt'),
-  bezahleBuchung: boolean('bezahleBuchung'),
-  terminExportieren: boolean('terminExportieren'),
-  erinnereUser: boolean('erinnereUser'),
-  staticGetPreisabschlag: text('staticGetPreisabschlag')
+  paymentTypeId: text('paymentTypeId'),
+  totalAmountPercentage: decimal('totalAmountPercentage'),
+  cancelTicket: boolean('cancelTicket'),
+  cancelTotal: boolean('cancelTotal'),
+  payBooking: boolean('payBooking'),
+  exportTerminal: boolean('exportTerminal'),
+  remindUser: boolean('remindUser'),
+  staticGetPriceDiscount: text('staticGetPriceDiscount')
 });
 
 export const ticket = pgTable('Ticket', {
   id: text('id').primaryKey(),
-  zustand: text('zustand'),
-  art: text('art'),
-  vorstellungsId: text('vorstellungsId'),
-  validerern: boolean('validerern'),
-  loeschen: boolean('loeschen'),
-  stornieren: boolean('stornieren'),
-  generierteQRCode: text('generierteQRCode'),
-  berechnePreis: text('berechnePreis')
+  status: text('status'),
+  type: text('type'),
+  showingId: text('showingId'),
+  validate: boolean('validate'),
+  delete: boolean('delete'),
+  cancel: boolean('cancel'),
+  generatedQRCode: text('generatedQRCode'),
+  calculatePrice: text('calculatePrice')
 });
 
-export const benutzer = pgTable('Benutzer', {
+export const user = pgTable('User', {
   id: text('id').primaryKey(),
-  name: text('name'),
-  vorname: text('vorname'),
-  adresse: text('adresse'),
+  lastName: text('lastName'),
+  firstName: text('firstName'),
+  address: text('address'),
   email: text('email'),
   username: text('username'),
   password: text('password'),
-  anmelden: boolean('anmelden'),
-  abmelden: boolean('abmelden'),
-  registrieren: boolean('registrieren')
+  login: boolean('login'),
+  logout: boolean('logout'),
+  register: boolean('register')
 });
 
-export const buchung = pgTable('Buchung', {
+export const booking = pgTable('Booking', {
   id: text('id').primaryKey(),
-  datum: date('datum'),
-  uhrzeit: time('uhrzeit'),
-  gesamtpreis: decimal('gesamtpreis'),
-  berechneGesPercentsprei: decimal('berechneGesPercentsprei'),
-  stornierenTicket: boolean('stornierenTicket'),
-  storniertGesamt: boolean('storniertGesamt'),
-  bezahleBuchung: boolean('bezahleBuchung'),
-  terminExportieren: boolean('terminExportieren'),
-  erinnereUser: boolean('erinnereUser'),
-  getPreisabschlag: text('getPreisabschlag'),
-  getBezahlmethode: text('getBezahlmethode'),
-  benutzerID: text('benutzerID')
+  date: date('date'),
+  time: time('time'),
+  totalPrice: decimal('totalPrice'),
+  calculateTotalPercentagePrice: decimal('calculateTotalPercentagePrice'),
+  cancelTicket: boolean('cancelTicket'),
+  cancelTotal: boolean('cancelTotal'),
+  payBooking: boolean('payBooking'),
+  exportTerminal: boolean('exportTerminal'),
+  remindUser: boolean('remindUser'),
+  getPriceDiscount: text('getPriceDiscount'),
+  getPaymentMethod: text('getPaymentMethod'),
+  userId: text('userId')
 });
 
-export const sitzKategorie = pgTable('SitzKategorie', {
+export const seatCategory = pgTable('SeatCategory', {
   id: text('id').primaryKey(),
-  vorne: boolean('vorne'),
-  mitte: boolean('mitte'),
-  hinten: boolean('hinten'),
-  buchbar: boolean('buchbar'),
+  front: boolean('front'),
+  middle: boolean('middle'),
+  rear: boolean('rear'),
+  bookable: boolean('bookable'),
   premium: boolean('premium')
 });
 
-export const zustand = pgTable('Zustand', {
+export const status = pgTable('Status', {
   id: text('id').primaryKey(),
-  reserviert: boolean('reserviert'),
-  gebucht: boolean('gebucht'),
-  validiert: boolean('validiert'), 
-  widerrufn: boolean('widerrufn')
+  reserved: boolean('reserved'),
+  booked: boolean('booked'),
+  validated: boolean('validated'), 
+  cancelled: boolean('cancelled')
 });
