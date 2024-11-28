@@ -6,6 +6,7 @@
 </script>
 
 <h1>Login/Register</h1>
+<a href="/demo/lucia/login/google">Sign in with Google</a>
 <form method="post" action="?/login" use:enhance>
 	<label>
 		Username
