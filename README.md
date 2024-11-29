@@ -2,6 +2,9 @@
 
 Nach dem Clonen zur lokalen Ausführung .env-File erstellen.
 
+Für das Lokale Testing wird docker-compose sowie Podman benötigt.
+Die DB kann dann mit npm run db:startWithPodman gestartet werden.
+
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
 ## Creating a project

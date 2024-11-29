@@ -88,6 +88,7 @@ export const ticket = pgTable('Ticket', {
 
 export const user = pgTable('User', {
   id: text('id').primaryKey(),
+  googleId: text('google_id'),
   lastName: text('lastName'),
   firstName: text('firstName'),
   address: text('address'),
