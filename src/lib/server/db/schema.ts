@@ -1,3 +1,5 @@
+import { relations } from 'drizzle-orm';
+
 import { pgTable, pgEnum, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
 import * as t from "drizzle-orm/pg-core";
 
@@ -16,7 +18,7 @@ export type User = typeof user.$inferSelect;
 export const rolesEnum = pgEnum('roles', ['user', 'admin','guest']);
 
 export const film = pgTable('Film', {
-  id: t.text('id').primaryKey().generatedAlwaysAs(''),
+  id: serial('id').primaryKey(),
   title: text('title'),
   genre: text('genre'),
   director: text('director'), 
@@ -25,14 +27,38 @@ export const film = pgTable('Film', {
   poster: text('poster'),
   description: text('description'),
   releaseDate: date('releaseDate'),
+
 //   getShowings: text('getShowings'),
 //   createShowing: text('createShowing'),
 //   getFilm: text('getFilm'),
 //   getFilmById: text('getFilmById')
 });
 
+export const filmRelations = relations(film, ({ many }) => ({
+	showings: many(showing),
+}));
+
+
+export const showing = pgTable('Showing', {
+	id: serial("id").primaryKey(),
+	f_id: text('film_id'),
+	date: date('date'),
+	time: timestamp('time'),
+	language: text('language'),
+	dimension: text('dimension'),
+	absage: text('absage'),
+	soldTickets: text('soldTickets'),
+	});
+
+export const showingRelations = relations(showing, ({ one }) => ({
+	film: one(film, {
+		fields: [showing.f_id],
+		references: [film.id]
+	}),
+}));
+
 export const cinema = pgTable('Cinema', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name'),
   address: text('address'),
   numScreens: integer('numScreens')
@@ -133,3 +159,5 @@ export const status = pgTable('Status', {
   validated: boolean('validated'), 
   cancelled: boolean('cancelled')
 });
+
+
