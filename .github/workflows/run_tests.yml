@@ -37,8 +37,8 @@ jobs:
           name: coverage-report
           path: ./coverage # TODO: fix
 
-      - name: Publish coverage summary
-        run: cat ./coverage/index.html
+      # - name: Publish coverage summary
+      #   run: cat ./coverage/index.html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
