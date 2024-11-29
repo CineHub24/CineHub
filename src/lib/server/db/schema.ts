@@ -1,14 +1,5 @@
-import { pgTable, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
-
-
-export const user = pgTable('user', {
-	id: text('id').primaryKey(),
-	age: integer('age'),
-	googleId: text('google_id'),
-	username: text('username').notNull().unique(),
-	passwordHash: text('password_hash').notNull()
-});
-
+import { pgTable, pgEnum, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
+import * as t from "drizzle-orm/pg-core";
 
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
@@ -22,17 +13,22 @@ export type Session = typeof session.$inferSelect;
 
 export type User = typeof user.$inferSelect;
 
+export const rolesEnum = pgEnum('roles', ['user', 'admin','guest']);
+
 export const film = pgTable('Film', {
-  id: text('id').primaryKey(),
+  id: t.text('id').primaryKey().generatedAlwaysAs(''),
   title: text('title'),
   genre: text('genre'),
   director: text('director'), 
   runtime: integer('runtime'),
   ageRating: text('ageRating'),
-  getShowings: text('getShowings'),
-  createShowing: text('createShowing'),
-  getFilm: text('getFilm'),
-  getFilmById: text('getFilmById')
+  poster: text('poster'),
+  description: text('description'),
+  releaseDate: date('releaseDate'),
+//   getShowings: text('getShowings'),
+//   createShowing: text('createShowing'),
+//   getFilm: text('getFilm'),
+//   getFilmById: text('getFilmById')
 });
 
 export const cinema = pgTable('Cinema', {
@@ -92,15 +88,17 @@ export const ticket = pgTable('Ticket', {
 
 export const user = pgTable('User', {
   id: text('id').primaryKey(),
+  googleId: text('google_id'),
   lastName: text('lastName'),
   firstName: text('firstName'),
   address: text('address'),
   email: text('email'),
   username: text('username'),
   password: text('password'),
-  login: boolean('login'),
-  logout: boolean('logout'),
-  register: boolean('register')
+  role: rolesEnum("role").default('guest').notNull()
+//   login: boolean('login'),
+//   logout: boolean('logout'),
+//   register: boolean('register')
 });
 
 export const booking = pgTable('Booking', {
