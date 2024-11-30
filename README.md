@@ -2,11 +2,11 @@
 
 # Lokale Ausführung
 
-## Voraussetzungen
+### Voraussetzungen
 - [**Docker Compose**](https://formulae.brew.sh/formula/docker-compose)
 - [**Podman**](https://podman.io/)
 
-## Einrichtung
+### Einrichtung
 1. **Repository klonen**
 ```bash
    git clone https://github.com/CineHub24/CineHub  //Repo Klonen
