@@ -3,8 +3,8 @@
 # Lokale Ausführung
 
 ## Voraussetzungen
-- **Docker Compose**
-- **Podman**
+- [**Docker Compose**](https://formulae.brew.sh/formula/docker-compose)
+- [**Podman**](https://podman.io/)
 
 ## Einrichtung
 1. **Repository klonen**
