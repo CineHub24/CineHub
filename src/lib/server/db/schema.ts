@@ -41,6 +41,7 @@ export const filmRelations = relations(film, ({ many }) => ({
 
 export const showing = pgTable('Showing', {
 	id: serial("id").primaryKey(),
+  film: integer('film').references(() => film.id, {onDelete: 'cascade'}),
 	f_id: text('film_id'),
 	date: date('date'),
 	time: timestamp('time'),

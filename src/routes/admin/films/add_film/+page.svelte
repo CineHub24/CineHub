@@ -3,7 +3,7 @@
     import { goto } from '$app/navigation';
   
     let searchQuery = '';
-    let searchResults: { id: string; title: string; genre: string; director: string, poster:string }[] = [];
+    let searchResults: { id: string; title: string; genre: string; director: string, poster:string, short:string }[] = [];
     let isLoading = false;
   
     async function fetchFilms() {
@@ -13,7 +13,7 @@
       try {
         const res = await fetch(`/api/films/search?query=${encodeURIComponent(searchQuery)}`);
         const data = await res.json();
-        searchResults = data.results || [];
+        searchResults = data;
       } catch (err) {
         console.error('Error fetching films:', err);
       } finally {
