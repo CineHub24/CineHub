@@ -1,5 +1,9 @@
+import { film } from '$lib/server/db/schema';
 import type { Actions } from './$types';
 import { error } from '@sveltejs/kit';
+
+
+let films:{id:number, title:string}[] = [];
 
 export const actions = {
     
@@ -14,9 +18,10 @@ export const actions = {
             const res = await fetch(`http://www.omdbapi.com/?apikey=b97fe887&s=${query}`);
             const data = await res.json();
             console.log(data)
-            return {
-              movies: data.Search
-            };
+            films = data.Search.map((movie: { imdbID: any; Title: any; }) =>({
+                id: movie.imdbID,
+                title: movie.Title
+            }));
         } catch(e) {
             throw error(500, "API")
         }
@@ -35,7 +40,7 @@ export const actions = {
 export const load = async (event) => {
    
     return{
-        movies: actions.search(event)
+        movies: films
     }
 
   };

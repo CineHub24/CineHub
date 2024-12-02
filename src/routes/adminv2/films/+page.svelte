@@ -1,7 +1,6 @@
 <script lang="ts">
 	export let data;
 	//   export let form;
-	const movies:{id: string; title: string; genre: string; director: string, poster:string, short:string} = [];
 	const {movies} = data
 </script>
 
@@ -11,5 +10,11 @@
 </form>
 
 {#if movies}
-	
+
+{#each movies as movie}
+	<!-- <h1>{movies.title}</h1> Muss angepasst werden -->
+{/each}
+
 {/if}
+
+
