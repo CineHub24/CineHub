@@ -18,8 +18,9 @@ export const actions = {
               movies: data.Search
             };
         } catch(e) {
-
+            throw error(500, "API")
         }
+        
         
 
     },
@@ -31,8 +32,12 @@ export const actions = {
 
 
 
-export const load = async () => {
+export const load = async (event) => {
    
+    return{
+        movies: actions.search(event)
+    }
+
   };
 
 // export const load = async() => {
