@@ -1,9 +1,11 @@
 import { film } from '$lib/server/db/schema';
+import { year } from 'drizzle-orm/mysql-core';
 import type { Actions } from './$types';
 import { error } from '@sveltejs/kit';
+import { db } from '$lib/server/db';
 
 
-let films:{id:number, title:string}[] = [];
+let films:{id:number, title:string, type:string, year: number, poster:string}[];
 
 export const actions = {
     
@@ -18,10 +20,16 @@ export const actions = {
             const res = await fetch(`http://www.omdbapi.com/?apikey=b97fe887&s=${query}`);
             const data = await res.json();
             console.log(data)
-            films = data.Search.map((movie: { imdbID: any; Title: any; }) =>({
+            films = data.Search.map((movie: { imdbID: any; Title: any; Type:any; Year:any; Poster:string }) =>({
                 id: movie.imdbID,
-                title: movie.Title
+                title: movie.Title,
+                type: movie.Type,
+                year: movie.Year,
+                poster: movie.Poster
             }));
+            // return{
+            //     movies: films
+            // }
         } catch(e) {
             throw error(500, "API")
         }
@@ -29,11 +37,15 @@ export const actions = {
         
 
     },
-    save: async (event) => {
-        console.log("save")
+    save: async ({}) => {
+       console.log("save")
+
+
+        
     }
     
 } satisfies Actions;
+
 
 
 
@@ -44,18 +56,3 @@ export const load = async (event) => {
     }
 
   };
-
-// export const load = async() => {
-
-
-//     const fetchMovies = async() =>{
-//         const res  = await fetch("http://www.omdbapi.com/?apikey=b97fe887&s=barbie")
-//         const data = await res.json() as {Search: Movie[]}
-//         // console.log(data)
-//         return data.Search
-//     }
-
-//     return{
-//         movies: fetchMovies()
-//     }
-// };
