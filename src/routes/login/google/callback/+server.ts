@@ -6,10 +6,10 @@ import {
 } from '$lib/server/auth';
 import { ObjectParser } from '@pilcrowjs/object-parser';
 import { decodeIdToken } from 'arctic';
-import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { generateUserId } from '$lib/utils/user';
 
 import type { RequestEvent } from './$types';
 import type { OAuth2Tokens } from 'arctic';
@@ -44,8 +44,11 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const claimsParser = new ObjectParser(claims);
 
 	const googleId = claimsParser.getString('sub');
-	const name = claimsParser.getString('name');
-	const picture = claimsParser.getString('picture');
+	//const name = claimsParser.getString('name');
+	//const picture = claimsParser.getString('picture');
+	const email = claimsParser.getString('email');
+	const firstName = claimsParser.getString('given_name');
+	const lastName = claimsParser.getString('family_name');
 
 	const existingUser = (
 		await db.select().from(table.user).where(eq(table.user.googleId, googleId))
@@ -64,7 +67,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	}
 
 	const userId = generateUserId();
-	await db.insert(table.user).values({ id: userId, googleId, username: name, passwordHash: '' });
+	await db.insert(table.user).values({ id: userId, googleId: googleId, firstName: firstName, lastName: lastName, email: email });
 
 	const sessionToken = generateSessionToken();
 	const session = createSession(sessionToken, userId);
@@ -75,11 +78,4 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			Location: '/'
 		}
 	});
-}
-
-function generateUserId() {
-	// ID with 120 bits of entropy, or about the same as UUID v4.
-	const bytes = crypto.getRandomValues(new Uint8Array(15));
-	const id = encodeBase32LowerCase(bytes);
-	return id;
 }

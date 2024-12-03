@@ -9,14 +9,17 @@ const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 export const sessionCookieName = 'auth-session';
 
-import { Google } from 'arctic';
+import { Google, GitHub } from 'arctic';
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '$env/static/private';
+import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
 
 export const google = new Google(
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET,
-	'http://localhost:5173/demo/lucia/login/google/callback'
+	'http://localhost:5173/login/google/callback'
 );
+
+export const github = new GitHub(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, null);
 
 export function generateSessionToken() {
 	const bytes = crypto.getRandomValues(new Uint8Array(18));
@@ -40,7 +43,7 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, username: table.user.username },
+			user: { id: table.user.id, email: table.user.email, role: table.user.role },
 			session: table.session
 		})
 		.from(table.session)
