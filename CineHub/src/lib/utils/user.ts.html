@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for CineHub/src/lib/paraglide/messages/en.js</title>
+    <title>Code coverage report for CineHub/src/lib/utils/user.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.png" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../../sort-arrow-sprite.png);
+            background-image: url(../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">CineHub/src/lib/paraglide/messages</a> en.js</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">CineHub/src/lib/utils</a> user.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -81,17 +81,9 @@
 <a name='L16'></a><a href='#L16'>16</a>
 <a name='L17'></a><a href='#L17'>17</a>
 <a name='L18'></a><a href='#L18'>18</a>
-<a name='L19'></a><a href='#L19'>19</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -99,25 +91,39 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >/* eslint-disable */<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-<span class="cstat-no" title="statement not covered" >/** </span>
-<span class="cstat-no" title="statement not covered" > * This file contains language specific message functions for tree-shaking. </span>
-<span class="cstat-no" title="statement not covered" > * </span>
-<span class="cstat-no" title="statement not covered" > *! WARNING: Only import messages from this file if you want to manually</span>
-<span class="cstat-no" title="statement not covered" > *! optimize your bundle. Else, import from the `messages.js` file. </span>
-<span class="cstat-no" title="statement not covered" > * </span>
-<span class="cstat-no" title="statement not covered" > * Your bundler will (in the future) automatically replace the index function </span>
-<span class="cstat-no" title="statement not covered" > * with a language specific message function in the build step. </span>
-<span class="cstat-no" title="statement not covered" > */</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { encodeBase32LowerCase } from "@oslojs/encoding";<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
 &nbsp;
+<span class="cstat-no" title="statement not covered" >export function validateEmail(email: unknown): email is string {</span>
+<span class="cstat-no" title="statement not covered" >	return (</span>
+<span class="cstat-no" title="statement not covered" >		typeof email === 'string' &amp;&amp;</span>
+<span class="cstat-no" title="statement not covered" >		email.length &gt;= 5 &amp;&amp;</span>
+<span class="cstat-no" title="statement not covered" >		email.length &lt;= 254 &amp;&amp; // Maximale Länge einer E-Mail-Adresse laut Standard</span>
+<span class="cstat-no" title="statement not covered" >		/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) // Basis-Validierung für E-Mail-Adressen</span>
+	);
+<span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >/**</span>
-<span class="cstat-no" title="statement not covered" > * @param {{ name: NonNullable&lt;unknown&gt; }} params</span>
-<span class="cstat-no" title="statement not covered" > * @returns {string}</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" >/* @__NO_SIDE_EFFECTS__ */</span>
-<span class="cstat-no" title="statement not covered" >export const hello_world = (params) =&gt; `Hello, ${params.name} from en!`</span>
-&nbsp;</pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >export function validatePassword(password: unknown): password is string {</span>
+<span class="cstat-no" title="statement not covered" >	return typeof password === 'string' &amp;&amp; password.length &gt;= 6 &amp;&amp; password.length &lt;= 255;</span>
+<span class="cstat-no" title="statement not covered" >}</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >export function generateUserId() {</span>
+	// ID with 120 bits of entropy, or about the same as UUID v4.
+<span class="cstat-no" title="statement not covered" >	const bytes = crypto.getRandomValues(new Uint8Array(15));</span>
+<span class="cstat-no" title="statement not covered" >	const id = encodeBase32LowerCase(bytes);</span>
+<span class="cstat-no" title="statement not covered" >	return id;</span>
+<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
@@ -126,14 +132,14 @@
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
                 at 2024-12-03T09:18:21.533Z
             </div>
-        <script src="../../../../../prettify.js"></script>
+        <script src="../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../../sorter.js"></script>
-        <script src="../../../../../block-navigation.js"></script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
     </body>
 </html>
     

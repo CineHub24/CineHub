@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for CineHub/src/routes/demo/lucia/+page.server.ts</title>
+    <title>Code coverage report for CineHub/src/routes/login/github/+server.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">CineHub/src/routes/demo/lucia</a> +page.server.ts</h1>
+        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">CineHub/src/routes/login/github</a> +server.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -89,6 +89,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -102,41 +107,36 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import * as auth from '$lib/server/auth';</span></span></span>
-import { fail, redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { generateState } from "arctic";</span></span></span>
+import { github } from "$lib/server/auth";
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export const load: PageServerLoad = async (event) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >	if (!event.locals.user) {</span>
-<span class="cstat-no" title="statement not covered" >		return redirect(302, '/demo/lucia/login');</span>
-<span class="cstat-no" title="statement not covered" >	}</span>
-<span class="cstat-no" title="statement not covered" >	return { user: event.locals.user };</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+import type { RequestEvent } from "@sveltejs/kit";
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export const actions: Actions = {</span>
-<span class="cstat-no" title="statement not covered" >	logout: async (event) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >		if (!event.locals.session) {</span>
-<span class="cstat-no" title="statement not covered" >			return fail(401);</span>
+<span class="cstat-no" title="statement not covered" >export async function GET(event: RequestEvent): Promise&lt;Response&gt; {</span>
+<span class="cstat-no" title="statement not covered" >	const state = generateState();</span>
+<span class="cstat-no" title="statement not covered" >	const url = github.createAuthorizationURL(state, ["user:email"]);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >	event.cookies.set("github_oauth_state", state, {</span>
+<span class="cstat-no" title="statement not covered" >		path: "/",</span>
+<span class="cstat-no" title="statement not covered" >		httpOnly: true,</span>
+<span class="cstat-no" title="statement not covered" >		maxAge: 60 * 10,</span>
+<span class="cstat-no" title="statement not covered" >		sameSite: "lax"</span>
+<span class="cstat-no" title="statement not covered" >	});</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >	return new Response(null, {</span>
+<span class="cstat-no" title="statement not covered" >		status: 302,</span>
+<span class="cstat-no" title="statement not covered" >		headers: {</span>
+<span class="cstat-no" title="statement not covered" >			Location: url.toString()</span>
 <span class="cstat-no" title="statement not covered" >		}</span>
-<span class="cstat-no" title="statement not covered" >		await auth.invalidateSession(event.locals.session.id);</span>
-<span class="cstat-no" title="statement not covered" >		auth.deleteSessionTokenCookie(event);</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >		return redirect(302, '/demo/lucia/login');</span>
-<span class="cstat-no" title="statement not covered" >	}</span>
-<span class="cstat-no" title="statement not covered" >};</span>
-&nbsp;</pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >	});</span>
+<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-02T10:29:59.023Z
+                at 2024-12-03T09:18:21.533Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
