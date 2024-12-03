@@ -1,9 +1,36 @@
 <h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
 
-<script>
-    let imgUrl = 'https://m.media-amazon.com/images/M/MV5BOGUwMDk0Y2MtNjBlNi00NmRiLTk2MWYtMGMyMDlhYmI4ZDBjXkEyXkFqcGc@._V1_SX300.jpg'
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import type { PageServerData } from './$types';
+
+	let { data }: { data: PageServerData } = $props();
+
+
+
+	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
+	import { i18n } from '$lib/i18n';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import * as m from '$lib/paraglide/messages.js';
+
+	function switchToLanguage(newLanguage: AvailableLanguageTag) {
+		const canonicalPath = i18n.route($page.url.pathname);
+		const localisedPath = i18n.resolveRoute(canonicalPath, newLanguage);
+		goto(localisedPath);
+	}
 </script>
 
-<p>Press <a href="/admin/films/display_films">ADMIN</a> tto get to the admin page</p>
-<img src= {imgUrl} />
+<h1>Hi, {data.user.email}!</h1>
+<h2>{data.user.role}</h2>
+<p>Your user ID is {data.user.id}.</p>
+<form method="post" action="?/logout" use:enhance>
+	<button>Sign out</button>
+</form>
+
+
+<h1>{m.hello_world({ name: 'SvelteKit User' })}</h1>
+<div>
+	<button onclick={() => switchToLanguage('en')}>en</button>
+	<button onclick={() => switchToLanguage('de')}>de</button>
+</div>

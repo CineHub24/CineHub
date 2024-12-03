@@ -3,6 +3,24 @@ import { relations } from 'drizzle-orm';
 import { pgTable, pgEnum, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
 import * as t from "drizzle-orm/pg-core";
 
+export const rolesEnum = pgEnum('roles', ['user', 'admin']);
+
+export const user = pgTable('User', {
+  id: text('id').primaryKey(),
+  googleId: text('google_id').unique(),
+  githubId: text('github_id').unique(),
+  lastName: text('lastName'),
+  firstName: text('firstName'),
+  address: text('address'),
+  email: text('email').unique(),
+  password: text('password'),
+  role: rolesEnum("role").default('user').notNull()
+//   login: boolean('login'),
+//   logout: boolean('logout'),
+//   register: boolean('register')
+});
+
+
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
@@ -15,7 +33,6 @@ export type Session = typeof session.$inferSelect;
 
 export type User = typeof user.$inferSelect;
 
-export const rolesEnum = pgEnum('roles', ['user', 'admin','guest']);
 
 export const film = pgTable('Film', {
   id: serial('id').primaryKey(),
@@ -111,21 +128,6 @@ export const ticket = pgTable('Ticket', {
   cancel: boolean('cancel'),
   generatedQRCode: text('generatedQRCode'),
   calculatePrice: text('calculatePrice')
-});
-
-export const user = pgTable('User', {
-  id: text('id').primaryKey(),
-  googleId: text('google_id'),
-  lastName: text('lastName'),
-  firstName: text('firstName'),
-  address: text('address'),
-  email: text('email'),
-  username: text('username'),
-  password: text('password'),
-  role: rolesEnum("role").default('guest').notNull()
-//   login: boolean('login'),
-//   logout: boolean('logout'),
-//   register: boolean('register')
 });
 
 export const booking = pgTable('Booking', {
