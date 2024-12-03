@@ -39,11 +39,11 @@ export const film = pgTable('Film', {
   title: text('title'),
   genre: text('genre'),
   director: text('director'), 
-  runtime: integer('runtime'),
+  runtime: text('runtime'),
   ageRating: text('ageRating'),
   poster: text('poster'),
   description: text('description'),
-  releaseDate: date('releaseDate'),
+  releaseDate: text('releaseDate'),
 
 //   getShowings: text('getShowings'),
 //   createShowing: text('createShowing'),
