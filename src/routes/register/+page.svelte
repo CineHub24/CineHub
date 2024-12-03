@@ -5,18 +5,21 @@
 	let { form }: { form: ActionData } = $props();
 </script>
 
-<h1>Login/Register</h1>
-<a href="/demo/lucia/login/google">Sign in with Google</a>
-<form method="post" action="?/login" use:enhance>
+<h1>Register</h1>
+
+<a href="/login/google">Sign in with Google</a>
+<a href="/login/github">Sign in with GitHub</a>
+
+<form method="post" action="?/register" use:enhance>
 	<label>
-		Username
-		<input name="username" />
+		Email
+		<input name="email" />
 	</label>
 	<label>
 		Password
 		<input type="password" name="password" />
 	</label>
-	<button>Login</button>
-	<button formaction="?/register">Register</button>
+	<button>Register</button>
 </form>
+<a href="/login">Login</a>
 <p style="color: red">{form?.message ?? ''}</p>
