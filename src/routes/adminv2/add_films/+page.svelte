@@ -1,6 +1,7 @@
 <script lang="ts">
 
 	export let data;
+	
 	let render:boolean = false;
 	//   export let form;
 	

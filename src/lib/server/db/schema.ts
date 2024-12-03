@@ -86,8 +86,8 @@ export const cinemaHall = pgTable('CinemaHall', {
   id: text('id').primaryKey(),
   hallNumber: integer('hallNumber'),
   capacity: integer('capacity'),
-  deactivatedSeats: text('deactivatedSeats'),
-  activatedSeats: text('activatedSeats'),
+  // deactivatedSeats: text('deactivatedSeats'),  -> warum?
+  // activatedSeats: text('activatedSeats'),
   cinemaId: text('cinemaId')
 });
 
