@@ -29,7 +29,9 @@
 </form>
 
 
-<h1>{m.hello_world({ name: 'SvelteKit User' })}</h1>
+<h1>{m.hello_world({ name: data.user.email ?? 'User' })}</h1>
+<h1>{m.goodbye({ name: data.user.email ?? 'User' })}</h1>
+
 <div>
 	<button onclick={() => switchToLanguage('en')}>en</button>
 	<button onclick={() => switchToLanguage('de')}>de</button>
