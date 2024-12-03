@@ -28,9 +28,9 @@
         
         <form method="post" action="?/update" name="update">
             <div class="form-group">
-                <label for="titel">Titel:</label>
+                <label for="title">Titel:</label>
                 <input 
-                    id="titel" 
+                    name="title" 
                     bind:value={film.title} 
                     type="text" 
                     required
@@ -40,7 +40,7 @@
             <div class="form-group">
                 <label for="genre">Genre:</label>
                 <input 
-                    id="genre" 
+                    name="genre" 
                     bind:value={film.genre} 
                     type="text" 
                     required
@@ -48,13 +48,29 @@
             </div>
 
             <div class="form-group">
-                <label for="bewertung">Bewertung:</label>
+                <label for="runtime">Laufzeit:</label>
                 <input 
-                    id="bewertung" 
-                    bind:value={film.genre}
-                    type="number" 
-                    min="0" 
-                    max="10" 
+                    name="runtime" 
+                    bind:value={film.runtime} 
+                    type="text" 
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="director">Regiseur:</label>
+                <input 
+                    name="director" 
+                    bind:value={film.director} 
+                    type="text" 
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="description">Beschreibung:</label>
+                <input 
+                    name="description" 
+                    bind:value={film.description} 
+                    type="text" 
                     required
                 >
             </div>

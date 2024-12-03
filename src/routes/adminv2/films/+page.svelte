@@ -15,6 +15,7 @@
             <div class="film-item">
                 <a href="/adminv2/films/film/{film.id}">
                     {film.title} - {film.genre}
+					<img src={film.poster} alt= {film.title}>
                 </a>
             </div>
         {/each}
