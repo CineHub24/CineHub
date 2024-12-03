@@ -1,14 +1,13 @@
 <script lang="ts">
+	let { data, form } = $props();
 
-	export let data;
 	let render:boolean = false;
-	//   export let form;
-	
 		
-	
 	console.log( "client:" + data.movies)
-	const {movies} = data
+	const { movies } = data
 </script>
+
+
 <form method="POST" action="?/search">
 	<input name="query" type="text" placeholder="Enter Film-Name" />
 	<button>Search</button>
@@ -16,22 +15,25 @@
 <form action="">
 	<input type="text" name="description" id="">
 </form>
-
-
-
-
-
-<div>
-	{#each movies as movie}
-	  <div class="film">
+{#await data}
+	<h1>Loading...</h1>
+	{:then {movies}}
+		{#if movies.length === 0}
+			<h1>No movies found</h1>
+		{:else}
+			{#each movies as movie}
+			div class="film">
 		<h3>{movie.title}</h3>
 		<img src={movie.poster} alt={movie.title} width="200" height="400"/>
 		<p><strong>Year:</strong> {movie.year}</p>
 		<form method="POST" action="?/save">
-		<button name="id" value= {movie.id}>Save to Database</button>
-	</form>
-	</div>
-	{/each}
-  </div>
+			<button name="id" value= {movie.id}>Save to Database</button>
+		</form>
+			{/each}
+		{/if}
+	{:catch error}
+		<h1>{error.message}</h1>
+{/await}
+
 
 
