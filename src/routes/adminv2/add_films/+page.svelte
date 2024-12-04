@@ -5,6 +5,7 @@
     const props = $props();
     
     let movies: Movie[] = $state([]);
+    let selectedMovie : Movie | undefined = $state();
     let isLoading = $state(false);
 </script>
 
@@ -29,12 +30,34 @@
 		<div>
 			<h3>{movie.title}</h3>
 			<p>Year: {movie.year}</p>
-			<form method="POST" action="?/save">
+			<button type="submit" onclick={
+                () =>{console.log(movie);
+                    selectedMovie = movie}
+            }>select</button>
+
+			<!-- <form method="POST" action="?/save">
 				<input type="hidden" name="id" value={movie.id} />
-				<button type="submit">Save Movie</button>
-			</form>
+				<button type="submit">select</button>
+			</form> -->
 		</div>
 	{/each}
 {:else}
 	<p>No movies found.</p>
 {/if}
+
+{#if selectedMovie != undefined}
+<form action="?/seave" method="GET">
+    <label for="year">Year:</label>
+    <input type="text" id="year" name="year" value={selectedMovie.year}/>
+
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" value={selectedMovie.title} />
+
+    <button type="submit">Save</button>
+
+</form>
+{:else}
+	<p>No Movie Preset Selected</p>
+{/if}
+
+

@@ -51,9 +51,6 @@ export const actions = {
         } catch(e:unknown){ 
             throw error(500, "searchError: " + e)   
         }
-        
-        
-
     },
     save: async ({request}) => {
        console.log("save")
