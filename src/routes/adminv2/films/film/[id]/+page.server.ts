@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { film } from '$lib/server/db/schema';
+import { film, showing } from '$lib/server/db/schema';
 import type { Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 export const load = async ({ url }) => {
@@ -10,9 +10,13 @@ export const load = async ({ url }) => {
 		.select()
 		.from(film)
 		.where(eq(film.id, <number>id));
+	const shows  = await db
+	.select()
+	.from(showing).leftJoin(film,eq(showing.id,film.id)).where(eq(showing.filmid, <number>id))
 
 	return {
-		filme: movies
+		filme: movies,
+		shows: shows
 	};
 };
 

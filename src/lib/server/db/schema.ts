@@ -44,22 +44,16 @@ export const film = pgTable('Film', {
   poster: text('poster'),
   description: text('description'),
   releaseDate: text('releaseDate'),
-
-//   getShowings: text('getShowings'),
-//   createShowing: text('createShowing'),
-//   getFilm: text('getFilm'),
-//   getFilmById: text('getFilmById')
 });
 
-export const filmRelations = relations(film, ({ many }) => ({
-	showings: many(showing),
-}));
+// export const filmRelations = relations(film, ({ many }) => ({
+// 	showings: many(showing),
+// }));
 
 
 export const showing = pgTable('Showing', {
 	id: serial("id").primaryKey(),
-  film: integer('film').references(() => film.id, {onDelete: 'cascade'}),
-	f_id: text('film_id'),
+  filmid: integer('film_id').references(() => film.id, {onDelete: 'cascade'}),
 	date: date('date'),
 	time: timestamp('time'),
 	language: text('language'),
@@ -68,12 +62,12 @@ export const showing = pgTable('Showing', {
 	soldTickets: text('soldTickets'),
 	});
 
-export const showingRelations = relations(showing, ({ one }) => ({
-	film: one(film, {
-		fields: [showing.f_id],
-		references: [film.id]
-	}),
-}));
+// export const showingRelations = relations(showing, ({ one }) => ({
+// 	film: one(film, {
+// 		fields: [showing.f_id],
+// 		references: [film.id]
+// 	}),
+// }));
 
 export const cinema = pgTable('Cinema', {
   id: serial('id').primaryKey(),
