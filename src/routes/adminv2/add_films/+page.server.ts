@@ -1,11 +1,9 @@
 import { film } from '$lib/server/db/schema';
-import { year } from 'drizzle-orm/mysql-core';
 import { db } from '$lib/server/db';
 import { error, type Actions, type RequestEvent } from '@sveltejs/kit';
 
-import * as table from '$lib/server/db/schema';
 
-type Movie = {
+export type Movie = {
     id: number;
     title: string;
     year: number;
@@ -24,8 +22,6 @@ type CompleteMovieInformation = {
     Release:Date 
 };
 
-let movies:Movie[];
-let completeMovieInformation:CompleteMovieInformation[];
 
 export const actions = {
     
@@ -40,16 +36,18 @@ export const actions = {
             const res = await fetch(`http://www.omdbapi.com/?apikey=b97fe887&s=${query}`);
             const data = await res.json();
             console.log(data)
-            movies  = data.Search.map((movie: any) =>({
+            const movies: Movie[] = data.Search.map((movie: any) => ({
                 id: movie.imdbID,
                 title: movie.Title,
                 type: movie.Type,
                 year: movie.Year,
                 poster: movie.Poster
             }));
-            // return{
-            //     movies: films
-            // }
+
+            return {
+                movies: movies
+            }
+
         } catch(e:unknown){ 
             throw error(500, "searchError: " + e)   
         }
@@ -71,7 +69,7 @@ export const actions = {
         }
 
         const data = await res.json();
-        completeMovieInformation = data.map((movie:CompleteMovieInformation) => ({
+           const completeMovieInformation: CompleteMovieInformation[] = data.map((movie: CompleteMovieInformation) => ({
                 title: movie.Title,
                 type: movie.Type,
                 year: movie.Year,
@@ -85,6 +83,9 @@ export const actions = {
         }));
 
         await db.insert(film).values(data)
+
+           //    return { completeMovieInformation };
+
        }catch(e){
         console.log("error" + e)
        }
@@ -93,12 +94,3 @@ export const actions = {
 } satisfies Actions;
 
 
-
-
-export const load = async (event) => {
-
-    return{
-        movies: movies
-    }
-
-  };
