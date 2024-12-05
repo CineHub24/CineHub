@@ -53,6 +53,7 @@ export const film = pgTable('Film', {
 export const showing = pgTable('Showing', {
 	id: serial("id").primaryKey(),
   filmid: integer('film_id').references(() => film.id, {onDelete: 'cascade'}),
+  hallid: integer("hall_id").references(() => cinemaHall.id, {onDelete: 'cascade'}),
 	date: date('date'),
   time: time('time'),
 	language: text('language'),
@@ -69,10 +70,10 @@ export const cinema = pgTable('Cinema', {
 });
 
 export const cinemaHall = pgTable('CinemaHall', {
-  id: text('id').primaryKey(),
+  id: serial("id").primaryKey(),
   hallNumber: integer('hallNumber'),
   capacity: integer('capacity'),
-  cinemaId: text('cinemaId')
+  cinemaId: integer('cinemaid').references(() => cinema.id, {onDelete: 'cascade'})
 });
 
 export const priceSet = pgTable('PriceSet', {
