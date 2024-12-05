@@ -1,10 +1,12 @@
 <script>
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	
 
 	export let data;
-
+	let showAddShowForm = false;
+	function toggleShowForm() {
+		showAddShowForm = !showAddShowForm;
+	}
 	let { filme } = data;
 	let { shows } = data;
 
@@ -48,18 +50,41 @@
 				<label for="description">Beschreibung:</label>
 				<input name="description" bind:value={film.description} type="text" required />
 			</div>
-
-			<h1>Vorstellungen</h1>
-
-			{#each shows as show}
-				<a href="/adminv2/films/show/{show.Showing.id}">{show.Showing.id}</a>
-			{/each}
 			<div class="actions">
 				<button type="submit">Speichern</button>
 				<button type="button" on:click={zurueck}>Zurück</button>
 			</div>
 		</form>
 	</div>
+	<div>
+		<h1>Vorstellungen</h1>
+	</div>
+	<div class="actions">
+		<button on:click={toggleShowForm}>+</button>
+	</div>
+
+	{#if showAddShowForm}
+		<div>
+			<form method="post" action="?/create" name="create">
+				<div class="form-group">
+					<label for="date">Datum:</label>
+					<input name="date" type="date" required />
+				</div>
+
+				<div class="form-group">
+					<label for="time">Startzeit:</label>
+					<input name="time" type="time" required />
+				</div>
+				<div class="actions"><button>Erstellen</button></div>
+			</form>
+		</div>
+	{/if}
+
+	{#each shows as show}
+		<div class="container">
+			<a href="/adminv2/films/show/{show.Showing.id}">{show.Showing.id}</a>
+		</div>
+	{/each}
 {:else}
 	<p>Film nicht gefunden</p>
 {/if}

@@ -53,5 +53,20 @@ export const actions = {
 		await db.update(film).set({genre: genre,title: titel, runtime:runtime, description:description, director:director}).where(eq(film.id, <number>id))
 
 		// Optional: Erfolgsrückmeldung zurückgeben
+	},
+
+	create: async ({url, request}) => {
+		let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
+		const formData = await request.formData()
+		let date = formData.get('date') as string;
+		let timeString = formData.get('time') as string;
+		
+		try{
+			await db.insert(showing).values({date: date, time:timeString, filmid:id as number})
+		} catch(e){
+			console.log(e)
+		}
+
+
 	}
 } satisfies Actions;
