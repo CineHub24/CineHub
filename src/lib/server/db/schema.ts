@@ -55,19 +55,12 @@ export const showing = pgTable('Showing', {
 	id: serial("id").primaryKey(),
   filmid: integer('film_id').references(() => film.id, {onDelete: 'cascade'}),
 	date: date('date'),
-	time: timestamp('time'),
+  time: time('time'),
 	language: text('language'),
 	dimension: text('dimension'),
 	absage: text('absage'),
 	soldTickets: text('soldTickets'),
 	});
-
-// export const showingRelations = relations(showing, ({ one }) => ({
-// 	film: one(film, {
-// 		fields: [showing.f_id],
-// 		references: [film.id]
-// 	}),
-// }));
 
 export const cinema = pgTable('Cinema', {
   id: serial('id').primaryKey(),
@@ -80,8 +73,6 @@ export const cinemaHall = pgTable('CinemaHall', {
   id: text('id').primaryKey(),
   hallNumber: integer('hallNumber'),
   capacity: integer('capacity'),
-  // deactivatedSeats: text('deactivatedSeats'),  -> warum?
-  // activatedSeats: text('activatedSeats'),
   cinemaId: text('cinemaId')
 });
 
@@ -89,8 +80,6 @@ export const priceSet = pgTable('PriceSet', {
   id: text('id').primaryKey(),
   basePricePerCategory: integer('basePricePerCategory'),
   ticketTypeFactor: integer('ticketTypeFactor'),
-  getDefaultPriceSet: text('getDefaultPriceSet'),
-  calculatePrice: text('calculatePrice')
 });
 
 export const paymentType = pgTable('PaymentType', {
@@ -134,9 +123,6 @@ export const booking = pgTable('Booking', {
   cancelTotal: boolean('cancelTotal'),
   payBooking: boolean('payBooking'),
   exportTerminal: boolean('exportTerminal'),
-  remindUser: boolean('remindUser'),
-  getPriceDiscount: text('getPriceDiscount'),
-  getPaymentMethod: text('getPaymentMethod'),
   userId: text('userId')
 });
 

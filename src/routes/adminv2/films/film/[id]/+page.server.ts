@@ -12,7 +12,7 @@ export const load = async ({ url }) => {
 		.where(eq(film.id, <number>id));
 	const shows  = await db
 	.select()
-	.from(showing).leftJoin(film,eq(showing.id,film.id)).where(eq(showing.filmid, <number>id))
+	.from(showing).leftJoin(film,eq(showing.filmid,film.id)).where(eq(showing.filmid, <number>id))
 
 	return {
 		filme: movies,
