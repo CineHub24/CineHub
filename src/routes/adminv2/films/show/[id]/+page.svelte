@@ -28,6 +28,9 @@ function zurueck() {
 				<button type="button" on:click={zurueck}>Zurück</button>
 			</div>
 		</form>
+		<form action="?/delete" method="POST">
+			<button type="submit">Cancel</button>
+		</form>
 	</div>
 {:else}
 	<p>Vorstellung nicht gefunden</p>
