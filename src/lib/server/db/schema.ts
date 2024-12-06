@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 import { pgTable, pgEnum, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
 import * as t from "drizzle-orm/pg-core";
@@ -36,14 +36,22 @@ export type User = typeof user.$inferSelect;
 
 export const film = pgTable('Film', {
   id: serial('id').primaryKey(),
+  imdbID: text('imdbID'),
   title: text('title'),
-  genre: text('genre'),
+  genres: text("genres")
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  // Actors: text("actors")
+  //   .array()
+  //   .notNull()
+  //   .default(sql`'{}'::text[]`),
   director: text('director'), 
   runtime: text('runtime'),
   ageRating: text('ageRating'),
   poster: text('poster'),
   description: text('description'),
-  releaseDate: text('releaseDate'),
+  year: text('year'),
 
 //   getShowings: text('getShowings'),
 //   createShowing: text('createShowing'),
