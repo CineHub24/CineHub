@@ -1,7 +1,8 @@
 import { db } from '$lib/server/db';
 import { film, showing } from '$lib/server/db/schema';
 import type { Actions } from '@sveltejs/kit';
-import { eq, lt, gte, ne } from 'drizzle-orm';
+import { eq, lt, gte, ne, sql } from 'drizzle-orm';
+import { timestamp } from 'drizzle-orm/mysql-core';
 export const load = async ({ url }) => {
 	console.log(url.pathname);
 	let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
@@ -62,7 +63,9 @@ export const actions = {
 		let timeString = formData.get('time') as string;
 		
 		try{
-			await db.insert(showing).values({date: date, time:timeString, filmid:id as number})
+			// await db.insert(showing).values({date: date, time:timeString, filmid:id as number})
+			await db.insert(showing).values({date: date, time: timeString,filmid: id as number, endTime: sql`(${timeString}::time + (SELECT (runtime || ' minutes')::interval FROM ${film} WHERE id =${id as number} ))`
+  })
 		} catch(e){
 			console.log(e)
 		}
