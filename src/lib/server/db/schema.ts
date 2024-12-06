@@ -1,7 +1,6 @@
 import { relations, sql } from 'drizzle-orm';
 
 import { pgTable, pgEnum, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
-import * as t from "drizzle-orm/pg-core";
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin']);
 
@@ -59,29 +58,22 @@ export const film = pgTable('Film', {
 //   getFilmById: text('getFilmById')
 });
 
-export const filmRelations = relations(film, ({ many }) => ({
-	showings: many(showing),
-}));
+// export const filmRelations = relations(film, ({ many }) => ({
+// 	showings: many(showing),
+// }));
 
 
 export const showing = pgTable('Showing', {
 	id: serial("id").primaryKey(),
-  film: integer('film').references(() => film.id, {onDelete: 'cascade'}),
-	f_id: text('film_id'),
+  filmid: integer('film_id').references(() => film.id, {onDelete: 'cascade'}),
+  hallid: integer("hall_id").references(() => cinemaHall.id, {onDelete: 'cascade'}),
 	date: date('date'),
-	time: timestamp('time'),
+  time: time('time'),
 	language: text('language'),
 	dimension: text('dimension'),
 	absage: text('absage'),
 	soldTickets: text('soldTickets'),
 	});
-
-export const showingRelations = relations(showing, ({ one }) => ({
-	film: one(film, {
-		fields: [showing.f_id],
-		references: [film.id]
-	}),
-}));
 
 export const cinema = pgTable('Cinema', {
   id: serial('id').primaryKey(),
@@ -91,20 +83,16 @@ export const cinema = pgTable('Cinema', {
 });
 
 export const cinemaHall = pgTable('CinemaHall', {
-  id: text('id').primaryKey(),
+  id: serial("id").primaryKey(),
   hallNumber: integer('hallNumber'),
   capacity: integer('capacity'),
-  // deactivatedSeats: text('deactivatedSeats'),  -> warum?
-  // activatedSeats: text('activatedSeats'),
-  cinemaId: text('cinemaId')
+  cinemaId: integer('cinemaid').references(() => cinema.id, {onDelete: 'cascade'})
 });
 
 export const priceSet = pgTable('PriceSet', {
   id: text('id').primaryKey(),
   basePricePerCategory: integer('basePricePerCategory'),
   ticketTypeFactor: integer('ticketTypeFactor'),
-  getDefaultPriceSet: text('getDefaultPriceSet'),
-  calculatePrice: text('calculatePrice')
 });
 
 export const paymentType = pgTable('PaymentType', {
@@ -148,9 +136,6 @@ export const booking = pgTable('Booking', {
   cancelTotal: boolean('cancelTotal'),
   payBooking: boolean('payBooking'),
   exportTerminal: boolean('exportTerminal'),
-  remindUser: boolean('remindUser'),
-  getPriceDiscount: text('getPriceDiscount'),
-  getPaymentMethod: text('getPaymentMethod'),
   userId: text('userId')
 });
 

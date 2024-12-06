@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { film } from '$lib/server/db/schema';
+import { film, showing } from '$lib/server/db/schema';
 import type { Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 export const load = async ({ url }) => {
@@ -10,9 +10,13 @@ export const load = async ({ url }) => {
 		.select()
 		.from(film)
 		.where(eq(film.id, <number>id));
+	const shows  = await db
+	.select()
+	.from(showing).leftJoin(film,eq(showing.filmid,film.id)).where(eq(showing.filmid, <number>id))
 
 	return {
-		filme: movies
+		filme: movies,
+		shows: shows
 	};
 };
 
@@ -49,5 +53,20 @@ export const actions = {
 		await db.update(film).set({genre: genre,title: titel, runtime:runtime, description:description, director:director}).where(eq(film.id, <number>id))
 
 		// Optional: Erfolgsrückmeldung zurückgeben
+	},
+
+	create: async ({url, request}) => {
+		let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
+		const formData = await request.formData()
+		let date = formData.get('date') as string;
+		let timeString = formData.get('time') as string;
+		
+		try{
+			await db.insert(showing).values({date: date, time:timeString, filmid:id as number})
+		} catch(e){
+			console.log(e)
+		}
+
+
 	}
 } satisfies Actions;
