@@ -16,7 +16,7 @@ export type CompleteMovieInformation = {
     title: string;
     year: number;
     poster: string;
-    runtime: string;
+    runtime: number;
     genre: string[];
     ageRating: string,
     director: string;
@@ -95,14 +95,20 @@ export const actions = {
     save: async ({ request }) => {
         const formData = await request.formData();
 
+        function extractNumberFromRuntime(runtime: string | null | undefined): number | null {
+            if (!runtime) return null;
 
+            // Use a regex to extract the first number from the string
+            const match = runtime.match(/\d+/);
+            return match ? Number(match[0]) : null;
+        }
 
         const movieToSave: filmForInsert = {
             imdbID: formData.get("imdbID")?.toString(),
             title: formData.get("title")?.toString(),
             genres: formData.get("genres")?.toString().split(',').map(e => e.trim()), 
             director: formData.get("director")?.toString(),
-            runtime: formData.get("runtime")?.toString(),
+            runtime: extractNumberFromRuntime(formData.get("runtime")?.toString()),
             ageRating: formData.get("actors")?.toString(),
             poster: formData.get("poster")?.toString(),
             description: formData.get("plot")?.toString(),
