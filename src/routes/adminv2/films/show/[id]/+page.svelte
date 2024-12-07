@@ -23,6 +23,10 @@ function zurueck() {
 				<label for="time">Startzeit:</label>
 				<input name="time" bind:value={show.time} type="time" required />
 			</div>
+			<div class="form-group">
+				<label for="time">Endzeit:</label>
+				<input name="time" bind:value={show.endTime} type="time" readonly />
+			</div>
 			<div class="actions">
 				<button type="submit">Speichern</button>
 				<button type="button" on:click={zurueck}>Zurück</button>

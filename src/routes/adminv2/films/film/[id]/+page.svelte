@@ -1,5 +1,4 @@
 <script>
-	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 
 	export let data;
@@ -7,17 +6,9 @@
 	function toggleShowForm() {
 		showAddShowForm = !showAddShowForm;
 	}
-	let { filme } = data;
+	let { film } = data;
 	let { shows } = data;
-
-	$: film = filme.find((f) => f.id === parseInt($page.params.id));
-
-	function speichern() {
-		// In einer echten Anwendung würden Sie hier die Daten speichern
-		console.log('Film gespeichert:', film);
-		goto('/');
-	}
-
+	
 	function zurueck() {
 		goto('/adminv2/films');
 	}
@@ -67,10 +58,18 @@
 		<div>
 			<form method="post" action="?/create" name="create">
 				<div class="form-group">
+					<label for="hall">Datum:</label>
+					<select name="hall">
+						<option value="1">Saal 1</option>
+						<option value="2">Saal 2</option>
+						<option value="3">Saal 3</option>
+					</select>
+				</div>
+				<div class="form-group">
 					<label for="date">Datum:</label>
 					<input name="date" type="date" required />
 				</div>
-
+				
 				<div class="form-group">
 					<label for="time">Startzeit:</label>
 					<input name="time" type="time" required />
@@ -82,7 +81,7 @@
 
 	{#each shows as show}
 		<div class="container">
-			<a href="/adminv2/films/show/{show.Showing.id}">{show.Showing.id}</a>
+			<a href="/adminv2/films/show/{show.id}">{show.time} - {show.endTime}</a>
 		</div>
 	{/each}
 {:else}

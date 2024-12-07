@@ -13,7 +13,7 @@ function getID(url:string){
 export const load = async ({ url }) => {
 
 	const show = await db
-		.select({ date: showing.date, time: showing.time, filmid: film.id, film_name: film.title })
+		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, filmid: film.id, film_name: film.title })
 		.from(showing)
 		.leftJoin(film, eq(showing.filmid, film.id))
 		.where(eq(showing.id, getID(url.pathname)));
