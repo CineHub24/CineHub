@@ -46,7 +46,7 @@ export const film = pgTable('Film', {
   //   .notNull()
   //   .default(sql`'{}'::text[]`),
   director: text('director'), 
-  runtime: text('runtime'),
+  runtime: integer('runtime'),
   ageRating: text('ageRating'),
   poster: text('poster'),
   description: text('description'),
@@ -69,6 +69,7 @@ export const showing = pgTable('Showing', {
   hallid: integer("hall_id").references(() => cinemaHall.id, {onDelete: 'cascade'}),
 	date: date('date'),
   time: time('time'),
+  endTime: time('endTime'),
 	language: text('language'),
 	dimension: text('dimension'),
 	absage: text('absage'),
