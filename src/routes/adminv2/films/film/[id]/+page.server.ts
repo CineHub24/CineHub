@@ -1,7 +1,8 @@
 import { db } from '$lib/server/db';
 import { film, showing } from '$lib/server/db/schema';
-import type { Actions } from '@sveltejs/kit';
-import { eq, lt, gte, ne } from 'drizzle-orm';
+import { error, type Actions } from '@sveltejs/kit';
+import { eq, lt, gte, ne, sql } from 'drizzle-orm';
+import { timestamp } from 'drizzle-orm/mysql-core';
 export const load = async ({ url }) => {
 	console.log(url.pathname);
 	let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
@@ -28,7 +29,15 @@ export const actions = {
 		// Einzelne Werte extrahieren
 		const titel:string = <string>formData.get('title');
 		const genre:string = <string>formData.get('genre');
-        const runtime:string = <string>formData.get('runtime')
+		const runtimeString = formData.get('runtime') as string;
+
+		let runtime: number | null = null;
+		if (/^\d+$/.test(runtimeString)) {
+			runtime = Number(runtimeString);
+		} else {
+			throw error(400, 'Ungültige Eingabe');
+		}
+
         const director:string = <string>formData.get("director")
         const description:string = <string>formData.get("description")
 		let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
@@ -62,7 +71,10 @@ export const actions = {
 		let timeString = formData.get('time') as string;
 		
 		try{
-			await db.insert(showing).values({date: date, time:timeString, filmid:id as number})
+			// await db.insert(showing).values({date: date, time:timeString, filmid:id as number})
+			await db.insert(showing).values({
+				date: date, time: timeString, filmid: id as number, endTime: sql`(${timeString}::time + (SELECT (runtime || ' minutes')::interval FROM ${film} WHERE id =${id as number} ))`
+			})
 		} catch(e){
 			console.log(e)
 		}

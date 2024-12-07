@@ -82,7 +82,7 @@ async function getSelectedMovie(movie: Movie): Promise<CompleteMovieInformation 
     <label for="id">id:</label>
     <input type="text" id="id" name="imdbID" value={fullMovieDetails.imdbID}/>
 
-    <input type="hidden" id="genre" name="genre" value={fullMovieDetails.genre} />
+    <input type="hidden" id="genres" name="genres" value={fullMovieDetails.genre} />
     <input type="hidden" id="plot" name="plot" value={fullMovieDetails.description} />
     <input type="hidden" id="poster" name="poster" value={fullMovieDetails.poster} />
     <input type="hidden" id="director" name="director" value={fullMovieDetails.director} />

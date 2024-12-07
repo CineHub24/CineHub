@@ -35,7 +35,7 @@
 
 			<div class="form-group">
 				<label for="genre">Genre:</label>
-				<input name="genre" bind:value={film.genre} type="text" required />
+				<input name="genre" bind:value={film.genres} type="text" required />
 			</div>
 
 			<div class="form-group">

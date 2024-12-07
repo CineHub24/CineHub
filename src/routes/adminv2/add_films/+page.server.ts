@@ -23,6 +23,8 @@ export type CompleteMovieInformation = {
     description: string;
 };
 
+type filmForInsert = typeof film.$inferInsert;
+
 
 export const actions = {
     
@@ -93,10 +95,12 @@ export const actions = {
     save: async ({ request }) => {
         const formData = await request.formData();
 
-        const movieToSave = {
+
+
+        const movieToSave: filmForInsert = {
             imdbID: formData.get("imdbID")?.toString(),
             title: formData.get("title")?.toString(),
-            genre: formData.get("genre")?.toString(),
+            genres: formData.get("genres")?.toString().split(',').map(e => e.trim()), 
             director: formData.get("director")?.toString(),
             runtime: formData.get("runtime")?.toString(),
             ageRating: formData.get("actors")?.toString(),
@@ -105,21 +109,25 @@ export const actions = {
             year: formData.get("year")?.toString()
         };
 
+        let success = false;
+        let filmId: number;
+
         try {
-            // Validate required fields
-            if (!movieToSave.imdbID || !movieToSave.title) {
+            if (!movieToSave.imdbID || !movieToSave.title) {    // Maybe add more
                 throw error(400, 'Missing required movie information');
             }
 
-            // Insert the movie into the database
-            await db.insert(film).values(movieToSave);
+            [{ filmId }] = await db.insert(film).values(movieToSave).returning({ filmId: film.id });;
 
-            redirect(200, "/");
+            console.log(filmId)
+
+            success = true;
 
         } catch (e) {
             console.error("Error saving movie:", e);
             throw error(500, 'Failed to save movie');
         }
+        if (success) throw redirect(302, `/adminv2/films/film/${filmId}`);
     }
 } satisfies Actions;
 

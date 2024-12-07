@@ -9,12 +9,13 @@
 
 <div class="container">
     <h1>Filme</h1>
-    
-    <div class="film-liste">
+    <a href="/adminv2/add_films">Filme Hinzufügen</a>
+    <div class="film-liste">    
         {#each filme as film (film.id)}
             <div class="film-item">
                 <a href="/adminv2/films/film/{film.id}">
-                    {film.title} - {film.genre}
+                    {film.title} - {film.genres}        
+                    <!-- TODO - genres is a array  -->
 					<img src={film.poster} alt= {film.title}>
                 </a>
             </div>
