@@ -1,30 +1,8 @@
 <script>
     import { page } from '$app/stores';
-    import { goto } from '$app/navigation';
-    const movieTitle = "The Wolf of Wall Street";
-    const ageRating = "FSK 16";
-    const releaseYear = 2013;
-    const genre = "Komödie/Thriller";
-    const duration = "3 Stunden";
-    const description = `Mit Anfang 20 gründet der Aktienhändler Jordan Belfort seine eigene Firma, die schnell zum großen Erfolg wird. 
-    Er wird zum Multimillionär und Star an der New Yorker Börse, der von allen nur "Wolf of Wall Street" genannt wird. 
-    Jordan genießt sein ausschweifendes Luxusleben in vollen Zügen und fühlt sich unbesiegbar. 
-    Seine unstillbare Gier nach mehr Geld bringt ihn schließlich dazu, sich gemeinsam mit seinen Freunden auf illegale Geschäfte einzulassen. 
-    Doch das FBI ist ihm bald auf den Fersen.`;
-    const releaseDate = "16. Januar 2014";
-  
-    const showtimes = [
-      { date: "Freitag 17. Mai", time: "17:00 Uhr" },
-      { date: "Freitag 17. Mai", time: "18:30 Uhr" },
-      { date: "Freitag 17. Mai", time: "20:15 Uhr" },
-      { date: "Freitag 17. Mai", time: "22:00 Uhr" },
-      { date: "Samstag 17. Mai", time: "17:00 Uhr" },
-      { date: "Sonntag 17. Mai", time: "19:00 Uhr" },
-    ];
     export let data;
     const {movie} = data
     const {shows} = data;
-
   </script>
   
   <style>
