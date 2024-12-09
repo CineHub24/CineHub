@@ -2,8 +2,9 @@ import { db } from '$lib/server/db';
 import { film, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
+import { date } from 'drizzle-orm/mysql-core';
 let freeSlots: {
-	 start: string; end: string; 
+	 start: string; end: string; date:string; hallid: number; 
 }[] = []
 export const load = async ({ url }) => {
 	console.log(url.pathname);
@@ -31,7 +32,7 @@ export const actions = {
 
 		// Einzelne Werte extrahieren
 		const titel:string = <string>formData.get('title');
-		const genre:string = <string>formData.get('genre');
+		const genre = [formData.get('genre') as string];
 		const runtimeString = formData.get('runtime') as string;
 
 		let runtime: number | null = null;
@@ -62,7 +63,7 @@ export const actions = {
             runtime,
             description
 		});
-		await db.update(film).set({genre: genre,title: titel, runtime:runtime, description:description, director:director}).where(eq(film.id, <number>id))
+		await db.update(film).set({genres: genre,title: titel, runtime:runtime, description:description, director:director}).where(eq(film.id, <number>id))
 
 		// Optional: Erfolgsrückmeldung zurückgeben
 	},
@@ -101,8 +102,27 @@ export const actions = {
 // 		}
 
 
-	}
-} satisfies Actions;const getFreeTimeSlots = async (
+	},
+	save: async ({request, url}) => {
+
+		const formData = await request.formData()
+		let date = formData.get('date') as string;
+		let start = formData.get('slotStart') as string;
+		let end = formData.get('slotEnd') as string;
+		let hall = formData.get('hall') as unknown as number;
+		let filmId = formData.get('filmId') as unknown as number;
+
+		// console.log('save' + date + start + end + hall + filmId)
+
+		try{
+			await db.insert(showing).values({hallid: hall ,date: date, time: start,filmid: filmId, endTime: end})
+		} catch(e){
+			console.log(e)
+		}
+	}	
+} satisfies Actions;
+
+const getFreeTimeSlots = async (
 	database: typeof db, 
 	hallId: number, 
 	filmDate: string, 
@@ -168,11 +188,13 @@ export const actions = {
 	  if (isSlotFree) {
 		freeSlots.push({
 		  start: startTime,
-		  end: endTime
+		  end: endTime,
+		  date: filmDate,
+		  hallid: hallId
 		})
 	  }
 	}
-  
+	
 	return freeSlots
   }
   

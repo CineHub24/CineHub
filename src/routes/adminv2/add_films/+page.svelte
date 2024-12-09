@@ -64,7 +64,7 @@ async function getSelectedMovie(movie: Movie): Promise<CompleteMovieInformation 
                      fullMovieDetails = await getSelectedMovie(movie);
                      console.log(fullMovieDetails)
                  }
-             }>select</button> -->
+             }>select</button>
 		</div>
 	{/each}
 {:else}

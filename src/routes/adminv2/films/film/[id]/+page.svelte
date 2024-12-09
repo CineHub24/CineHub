@@ -83,9 +83,15 @@
 		<div class="slots-container">
 			<ul class="scrollable-list">
 				{#each slots as slot}
-					<li 
-					>
-						<form action="?/save" method="POST"><button type="submit">{slot.start} - {slot.end}</button></form>
+					<li>
+						<form action="?/save" method="POST">
+						<input type="hidden" name="filmId" value="{film.id}">
+						<input type="hidden" name="slotStart" value="{slot.start}">
+						<input type="hidden" name="slotEnd" value="{slot.end}">
+						<input type="hidden" name="hall" value="{slot.hallid}">
+						<input type="hidden" name="date" value="{slot.date}">
+						<button>{slot.start} - {slot.end}</button>
+						</form>
 					</li>
 				{/each}
 			</ul>
