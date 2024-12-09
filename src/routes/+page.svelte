@@ -1,28 +1,27 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { PageServerData } from './$types';
+	// import type { PageServerData } from './$types';
 
-	let { data }: { data: PageServerData } = $props();
+	// let { data }: { data: PageServerData } = $props();
 
+    
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
 	import { i18n } from '$lib/i18n';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as m from '$lib/paraglide/messages.js';
-
+    
 	function switchToLanguage(newLanguage: AvailableLanguageTag) {
-		const canonicalPath = i18n.route($page.url.pathname);
+        const canonicalPath = i18n.route($page.url.pathname);
 		const localisedPath = i18n.resolveRoute(canonicalPath, newLanguage);
 		goto(localisedPath);
 	}
+    
+    export let data; 
 
-	let movies = [
-		{ title: 'The Dark Knight', description: 'A superhero film directed by Christopher Nolan.', poster: '/images/dark-knight.jpg' },
-		{ title: 'Inception', description: 'A sci-fi thriller directed by Christopher Nolan.', poster: '/images/inception.jpg' },
-		{ title: 'Interstellar', description: 'A space exploration drama directed by Christopher Nolan.', poster: '/images/interstellar.jpg' },
-		{ title: 'Dune', description: 'A science fiction film directed by Denis Villeneuve.', poster: '/images/dune.jpg' },
-		{ title: 'Avatar: The Way of Water', description: 'The sequel to the blockbuster hit Avatar.', poster: '/images/avatar2.jpg' },
-	];
+    const {movies} = data;
+    const {user} = data;
+    
 
 	function goToLogin() {
 		goto('/login');
@@ -100,9 +99,9 @@
 </div>
 
 
-<h1>Hi, {data.user.email}!</h1>
-<h2>{data.user.role}</h2>
-<p>Your user ID is {data.user.id}.</p>
+<h1>Hi, {user.email}!</h1>
+<h2>{user.role}</h2>
+<p>Your user ID is {user.id}.</p>
 <form method="post" action="?/logout" use:enhance>
 	<button>Sign out</button>
 </form>
@@ -117,7 +116,13 @@
 
 <div class="movies-container">
 	{#each movies as movie}
-		<div class="movie-card">
+		<div 
+            class="movie-card"
+            tabindex="0"
+            role="button"
+            onclick={() => goto(`/film/${movie.id}`)}
+            onkeydown={(e) => e.key === 'Enter' && goto(`/film/${movie.id}`)}
+        >
 			<img src={movie.poster} alt="{movie.title} Poster">
 			<div class="details">
 				<h3 class="title">{movie.title}</h3>

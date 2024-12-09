@@ -5,7 +5,6 @@ import { eq, lt, gte, ne } from 'drizzle-orm';
 
 export const load = async ({ url }) => {
 	let id = <unknown>url.pathname.replace('/film/', '');
-    const movieId = Number(id);
     try{
         const movie = await db
             .select()
