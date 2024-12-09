@@ -2,21 +2,25 @@ import { db } from '$lib/server/db';
 import { film, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
+let freeSlots: {
+	 start: string; end: string; 
+}[] = []
 export const load = async ({ url }) => {
 	console.log(url.pathname);
 	let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
 	console.log(id);
 	const movies = await db
-		.select()
-		.from(film)
-		.where(eq(film.id, <number>id));
+			.select()
+			.from(film)
+			.where(eq(film.id, <number>id));
 	const shows  = await db
 	.select()
 	.from(showing).where(eq(showing.filmid, <number>id))
 
 	return {
 		film: movies[0],
-		shows: shows
+		shows: shows,
+		slots: freeSlots
 	};
 };
 
@@ -69,12 +73,16 @@ export const actions = {
 		let date = formData.get('date') as string;
 		let timeString = formData.get('time') as string;
 		let hall = formData.get('hall') as unknown as number;
-		
-		const freeSlots = await getFreeTimeSlots(
+
+		const filmRuntime = await db.select({runtime: film
+			.runtime
+		}).from(film).where(eq(film.id, id as number)).limit(1);
+		const {runtime} = filmRuntime[0]
+		 freeSlots = await getFreeTimeSlots(
 			db,               // Drizzle Datenbank-Instanz
 			hall,                // Saal-ID
 			date,       // Datum
-			30,               // Filmdauer in Minuten
+			runtime as number,               // Filmdauer in Minuten
 			15,                // Standard 15 Minuten Reinigung
 			15                 // Standard 15 Minuten Werbung
 		  )

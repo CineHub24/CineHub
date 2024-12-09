@@ -8,7 +8,8 @@
 	}
 	let { film } = data;
 	let { shows } = data;
-	
+	let { slots } = data;
+
 	function zurueck() {
 		goto('/adminv2/films');
 	}
@@ -47,9 +48,7 @@
 			</div>
 		</form>
 	</div>
-	<div>
-		<h1>Vorstellungen</h1>
-	</div>
+
 	<div class="actions">
 		<button on:click={toggleShowForm}>+</button>
 	</div>
@@ -70,15 +69,32 @@
 					<input name="date" type="date" required />
 				</div>
 				
-				<div class="form-group">
+				<!-- <div class="form-group">
 					<label for="time">Startzeit:</label>
 					<input name="time" type="time" required />
-				</div>
+				</div> -->
 				<div class="actions"><button>Erstellen</button></div>
 			</form>
 		</div>
 	{/if}
 
+	<h1>Freie Slots</h1>
+	{#if slots && slots.length > 0}
+		<div class="slots-container">
+			<ul class="scrollable-list">
+				{#each slots as slot}
+					<li 
+					>
+						<form action="?/save" method="POST"><button type="submit">{slot.start} - {slot.end}</button></form>
+					</li>
+				{/each}
+			</ul>
+		</div>
+	{:else}
+		<p>Keine freien Slots verfügbar</p>
+	{/if}
+
+	<h1>Vorstellungen</h1>
 	{#each shows as show}
 		<div class="container">
 			<a href="/adminv2/films/show/{show.id}">{show.time} - {show.endTime}</a>
@@ -124,5 +140,35 @@
 	}
 	button[type='button'] {
 		background-color: #f0f0f0;
+	}
+
+	/* Neue Styles für scrollbare Slots-Liste */
+	.slots-container {
+		max-width: 400px;
+		margin: 0 auto;
+	}
+
+	.scrollable-list {
+		height: 200px; /* Anpassbare Höhe */
+		overflow-y: auto;
+		border: 1px solid #ccc;
+		padding: 0;
+		list-style-type: none;
+	}
+
+	.scrollable-list li {
+		padding: 10px;
+		border-bottom: 1px solid #eee;
+		cursor: pointer;
+		transition: background-color 0.3s ease;
+	}
+
+	.scrollable-list li:hover {
+		background-color: #f0f0f0;
+	}
+
+	.scrollable-list li:focus {
+		outline: 2px solid blue;
+		background-color: #e0e0e0;
 	}
 </style>
