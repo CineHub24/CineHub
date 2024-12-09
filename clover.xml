@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1733752088138" clover="3.2.0">
-  <project timestamp="1733752088138" name="All files">
+<coverage generated="1733752315086" clover="3.2.0">
+  <project timestamp="1733752315086" name="All files">
     <metrics statements="737" coveredstatements="0" conditionals="28" coveredconditionals="1" methods="28" coveredmethods="1" elements="793" coveredelements="2" complexity="0" loc="737" ncloc="737" packages="15" files="28" classes="28"/>
     <package name="CineHub">
       <metrics statements="53" coveredstatements="0" conditionals="5" coveredconditionals="0" methods="5" coveredmethods="0"/>
