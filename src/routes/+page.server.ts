@@ -3,11 +3,12 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	if (!event.locals.user) {
-		return redirect(302, '/login');
-	}
-	return { user: event.locals.user };
+    // Automatische Weiterleitung auf die Loginseite entfernt: Man soll die Website ja auch ohne Anmeldung nutzen können (Jonathan)
+    return {
+        user: event.locals.user || { email: 'guest@example.com', role: 'Guest', id: 0 },
+    };
 };
+
 
 export const actions: Actions = {
 	logout: async (event) => {
