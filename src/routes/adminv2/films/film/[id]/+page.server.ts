@@ -32,15 +32,15 @@ export const actions = {
 		// Einzelne Werte extrahieren
 		const titel:string = <string>formData.get('title');
 		const genre:string = <string>formData.get('genre');
-       	const runtimeString = formData.get('runtime') as string;
-		
+		const runtimeString = formData.get('runtime') as string;
+
 		let runtime: number | null = null;
 		if (/^\d+$/.test(runtimeString)) {
 			runtime = Number(runtimeString);
 		} else {
 			throw error(400, 'Ungültige Eingabe');
 		}
-		
+
         const director:string = <string>formData.get("director")
         const description:string = <string>formData.get("description")
 		let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
