@@ -73,7 +73,11 @@ export const cinemaHall = pgTable('CinemaHall', {
   id: serial("id").primaryKey(),
   hallNumber: integer('hallNumber'),
   capacity: integer('capacity'),
-  cinemaId: integer('cinemaid').references(() => cinema.id, {onDelete: 'cascade'})
+  deactivatedSeats: text('deactivatedSeats'),
+  activatedSeats: text('activatedSeats'),
+  cinemaId: text('cinemaId')
+    .notNull()
+    .references(() => cinema.id, {onDelete: 'cascade'}) 
 });
 
 export const priceSet = pgTable('PriceSet', {
