@@ -62,6 +62,8 @@ export const cinemaHall = pgTable('CinemaHall', {
   deactivatedSeats: text('deactivatedSeats'),
   activatedSeats: text('activatedSeats'),
   cinemaId: text('cinemaId')
+    .notNull()
+    .references(() => cinema.id)  // Add this line
 });
 
 export const priceSet = pgTable('PriceSet', {
