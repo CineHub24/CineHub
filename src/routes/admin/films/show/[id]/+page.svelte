@@ -4,7 +4,7 @@
 export let data;
 let {show} = data
 function zurueck() {
-		goto(`/adminv2/films/film/${show.filmid}`)
+		goto(`/admin/films/film/${show.filmid}`)
 	}
 </script>
 

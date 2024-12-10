@@ -6,7 +6,7 @@
 	import type { Film, freeSlots, Showing } from './+page.server.js';
 
 	let { data }: { data: PageData } = $props();
-	let { film, shows } = data;
+	let { film, shows, halls } = data;
 
 	let showAddShowForm = $state(false);
 	function toggleShowForm() {
@@ -16,8 +16,13 @@
 	let slots: freeSlots[] = $state([]);
 
 	function zurueck() {
-		goto('/adminv2/films');
+		goto('/admin/films');
 	}
+	function handleSubmit(event: Event) {
+        toggleShowForm();
+        const form = event.target as HTMLFormElement;
+        form.submit();
+    }
 </script>
 
 {#if film}
@@ -76,21 +81,18 @@
 				<div class="form-group">
 					<label for="hall">Datum:</label>
 					<select name="hall">
-						<option value="1">Saal 1</option>
-						<option value="2">Saal 2</option>
-						<option value="3">Saal 3</option>
+						{#each halls as hall}
+							<option value={hall.id}>Saal {hall.hallNumber}</option>
+						{/each}
 					</select>
 				</div>
 				<div class="form-group">
 					<label for="date">Datum:</label>
 					<input name="date" type="date" required />
 				</div>
-
-				<!-- <div class="form-group">
-					<label for="time">Startzeit:</label>
-					<input name="time" type="time" required />
-				</div> -->
-				<div class="actions"><button>Erstellen</button></div>
+				<div class="actions">
+					<button type="submit">Erstellen</button>
+				</div>
 			</form>
 		</div>
 	{/if}

@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 import { get } from 'svelte/store';
 
 function getID(url:string){ 
-	let id = url.replace('/adminv2/films/show/', '') as unknown;
+	let id = url.replace('/admin/films/show/', '') as unknown;
 	return id as number;
 }
 

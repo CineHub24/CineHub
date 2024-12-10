@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { film, showing } from '$lib/server/db/schema';
+import { cinemaHall, film, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
 import { date } from 'drizzle-orm/mysql-core';
@@ -8,9 +8,12 @@ export type freeSlots ={
 };
 export type Film = typeof film.$inferSelect;
 export type Showing = typeof showing.$inferSelect;
+export type CinemaHall = typeof cinemaHall.$inferSelect;
+
+
 export const load = async ({ url }) => {
 	console.log(url.pathname);
-	let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
+	let id = <unknown>url.pathname.replace('/admin/films/film/', '');
 	console.log(id);
 	const movies: Film[] = await db
 		.select({
@@ -30,11 +33,13 @@ export const load = async ({ url }) => {
 	const shows  = await db
 	.select()
 	.from(showing).where(eq(showing.filmid, <number>id))
-		console.log(movies[0]);
+		
+	const halls = await db.select().from(cinemaHall);
 	return {
 		
 		film: movies[0] as Film,
 		shows: shows,
+		halls: halls
 		
 	};
 };
@@ -58,7 +63,7 @@ export const actions = {
 
         const director:string = <string>formData.get("director")
         const description:string = <string>formData.get("description")
-		let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
+		let id = <unknown>url.pathname.replace('/admin/films/film/', '');
 		console.log(id);
 		console.log(titel);
         //TODO: Checks einbauen damit nur veränderte Werte erkannt werden
@@ -83,7 +88,7 @@ export const actions = {
 	},
 
 	create: async ({url, request}) => {
-		let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
+		let id = <unknown>url.pathname.replace('/admin/films/film/', '');
 		const formData = await request.formData()
 		let date = formData.get('date') as string;
 		let timeString = formData.get('time') as string;

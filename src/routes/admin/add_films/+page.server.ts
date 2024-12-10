@@ -133,7 +133,7 @@ export const actions = {
             console.error("Error saving movie:", e);
             throw error(500, 'Failed to save movie');
         }
-        if (success) throw redirect(302, `/adminv2/films/film/${filmId}`);
+        if (success) throw redirect(302, `/admin/films/film/${filmId}`);
     }
 } satisfies Actions;
 

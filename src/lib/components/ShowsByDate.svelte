@@ -69,7 +69,7 @@
 					<div class="scrollable-content">
 						{#each groupedShows[date] as show}
 							<div class="show-item">
-								<a href="/adminv2/films/show/{show.id}">{formatShowDetails(show)}</a>
+								<a href="/admin/films/show/{show.id}">{formatShowDetails(show)}</a>
 								{#if show.hallid}
 									<span class="hall-info">Saal {show.hallid}</span>
 								{/if}
