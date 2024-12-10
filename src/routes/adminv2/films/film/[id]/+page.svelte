@@ -1,19 +1,26 @@
-<script>
+<script lang="ts">
+	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import { type PageData } from './$types';
+	import type { Film, freeSlots, Showing } from './+page.server.js';
 
-	export let data;
-	let showAddShowForm = false;
+	let { data }: { data: PageData } = $props();
+	let { film, shows } = data;
+
+
+	let showAddShowForm = $state(false);
 	function toggleShowForm() {
 		showAddShowForm = !showAddShowForm;
 	}
-	let { film } = data;
-	let { shows } = data;
-	let { slots } = data;
+	
+	let slots: freeSlots[] = $state([]);
+	
 
 	function zurueck() {
 		goto('/adminv2/films');
 	}
 </script>
+
 
 {#if film}
 	<div class="container">
@@ -44,18 +51,48 @@
 			</div>
 			<div class="actions">
 				<button type="submit">Speichern</button>
-				<button type="button" on:click={zurueck}>Zurück</button>
-			</div>
+				<button type="button" onclick={zurueck}>Zurück</button>
+			</div>			<script lang="ts">
+				import { enhance } from '$app/forms';
+				import { goto } from '$app/navigation';
+				import { type PageData } from './$types';
+				import type { Film, FreeSlot, Showing } from './+page.server.js';
+			
+				let { data }: { data: PageData } = $props();
+				let { film, shows } = data;
+			
+				let showAddShowForm = $state(false);
+				function toggleShowForm() {
+					showAddShowForm = !showAddShowForm;
+				}
+				
+				let slots: FreeSlot[] = $state([]);
+			
+				function zurueck() {
+					goto('/adminv2/films');
+				}
+			</script>
+			
+			{#if film}
+				<!-- Weitere Darstellung des Films -->
+			{/if}
 		</form>
 	</div>
 
 	<div class="actions">
-		<button on:click={toggleShowForm}>+</button>
+		<button onclick={toggleShowForm}>+</button>
 	</div>
 
 	{#if showAddShowForm}
 		<div>
-			<form method="post" action="?/create" name="create">
+			<form method="post" action="?/create" name="create" use:enhance={() => {
+				return async ({ result, update }) => {
+					if (result.type === 'success' && result.data?.slots) {
+						slots = result.data.slots as freeSlots[];
+					}
+					await update();
+				};
+			}}>
 				<div class="form-group">
 					<label for="hall">Datum:</label>
 					<select name="hall">
