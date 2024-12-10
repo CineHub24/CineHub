@@ -1,4 +1,7 @@
+
 import { relations, sql } from 'drizzle-orm';
+
+
 
 import { pgTable, pgEnum, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
 
@@ -46,16 +49,13 @@ export const film = pgTable('Film', {
   //   .notNull()
   //   .default(sql`'{}'::text[]`),
   director: text('director'), 
-  runtime: integer('runtime'),
+  runtime: text('runtime'),
   ageRating: text('ageRating'),
   poster: text('poster'),
   description: text('description'),
+
   year: text('year'),
 
-//   getShowings: text('getShowings'),
-//   createShowing: text('createShowing'),
-//   getFilm: text('getFilm'),
-//   getFilmById: text('getFilmById')
 });
 
 // export const filmRelations = relations(film, ({ many }) => ({
