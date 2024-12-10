@@ -1,4 +1,7 @@
-import { relations } from 'drizzle-orm';
+
+import { relations, sql } from 'drizzle-orm';
+
+
 
 import { pgTable, pgEnum, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
 
@@ -35,14 +38,24 @@ export type User = typeof user.$inferSelect;
 
 export const film = pgTable('Film', {
   id: serial('id').primaryKey(),
+  imdbID: text('imdbID'),
   title: text('title'),
-  genre: text('genre'),
+  genres: text("genres")
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  // Actors: text("actors")
+  //   .array()
+  //   .notNull()
+  //   .default(sql`'{}'::text[]`),
   director: text('director'), 
   runtime: text('runtime'),
   ageRating: text('ageRating'),
   poster: text('poster'),
   description: text('description'),
-  releaseDate: text('releaseDate'),
+
+  year: text('year'),
+
 });
 
 // export const filmRelations = relations(film, ({ many }) => ({
@@ -54,8 +67,9 @@ export const showing = pgTable('Showing', {
 	id: serial("id").primaryKey(),
   filmid: integer('film_id').references(() => film.id, {onDelete: 'cascade'}),
   hallid: integer("hall_id").references(() => cinemaHall.id, {onDelete: 'cascade'}),
-	date: date('date'),
+	date: date('date').notNull(),
   time: time('time'),
+  endTime: time('endTime'),
 	language: text('language'),
 	dimension: text('dimension'),
 	absage: text('absage'),
@@ -73,11 +87,7 @@ export const cinemaHall = pgTable('CinemaHall', {
   id: serial("id").primaryKey(),
   hallNumber: integer('hallNumber'),
   capacity: integer('capacity'),
-  deactivatedSeats: text('deactivatedSeats'),
-  activatedSeats: text('activatedSeats'),
-  cinemaId: text('cinemaId')
-    .notNull()
-    .references(() => cinema.id, {onDelete: 'cascade'}) 
+  cinemaId: integer('cinemaid').references(() => cinema.id, {onDelete: 'cascade'})
 });
 
 export const priceSet = pgTable('PriceSet', {
@@ -146,3 +156,5 @@ export const status = pgTable('Status', {
   validated: boolean('validated'), 
   cancelled: boolean('cancelled')
 });
+
+

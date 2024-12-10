@@ -1,11 +1,21 @@
 # CineHub
 
-Nach dem Clonen zur lokalen Ausführung .env-File erstellen.
+# Lokale Ausführung
 
-Für das Lokale Testing wird docker-compose sowie Podman benötigt.
-Die DB kann dann mit npm run db:startWithPodman gestartet werden.
+### Voraussetzungen
+- [**Docker Compose**](https://formulae.brew.sh/formula/docker-compose)
+- [**Podman**](https://podman.io/)
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+### Einrichtung
+1. **Repository klonen**
+```bash
+   git clone https://github.com/CineHub24/CineHub  //Repo Klonen
+   cd CineHub
+
+   cp .env.example .env    //env datei anlegen
+
+   npm run db:startWithPodman    // datenbank mit Podman Starten
+```
 
 ## Creating a project
 
