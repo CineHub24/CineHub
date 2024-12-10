@@ -3,25 +3,39 @@ import { film, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
 import { date } from 'drizzle-orm/mysql-core';
-let freeSlots: {
+export type freeSlots ={
 	 start: string; end: string; date:string; hallid: number; 
-}[] = []
+};
+export type Film = typeof film.$inferSelect;
+export type Showing = typeof showing.$inferSelect;
 export const load = async ({ url }) => {
 	console.log(url.pathname);
 	let id = <unknown>url.pathname.replace('/adminv2/films/film/', '');
 	console.log(id);
-	const movies = await db
-			.select()
-			.from(film)
-			.where(eq(film.id, <number>id));
+	const movies: Film[] = await db
+		.select({
+			id: film.id,
+			imdbID: film.imdbID,
+			title: film.title,
+			genres: film.genres,
+			director: film.director,
+			runtime: film.runtime,
+			ageRating: film.ageRating,
+			poster: film.poster,
+			description: film.description,
+			year: film.year
+		})
+		.from(film)
+		.where(eq(film.id, <number>id));
 	const shows  = await db
 	.select()
 	.from(showing).where(eq(showing.filmid, <number>id))
-
+		console.log(movies[0]);
 	return {
-		film: movies[0],
+		
+		film: movies[0] as Film,
 		shows: shows,
-		slots: freeSlots
+		
 	};
 };
 
@@ -79,7 +93,7 @@ export const actions = {
 			.runtime
 		}).from(film).where(eq(film.id, id as number)).limit(1);
 		const {runtime} = filmRuntime[0]
-		 freeSlots = await getFreeTimeSlots(
+		 let freeSlots = await getFreeTimeSlots(
 			db,               // Drizzle Datenbank-Instanz
 			hall,                // Saal-ID
 			date,       // Datum
@@ -89,6 +103,9 @@ export const actions = {
 		  )
 		  for (const slot of freeSlots) {
 			console.log(`Freier Slot: ${slot.start} - ${slot.end}`)
+		  }
+		  return {
+			slots:freeSlots
 		  }
 		
 
