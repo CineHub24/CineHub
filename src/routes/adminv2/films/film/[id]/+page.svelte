@@ -94,10 +94,11 @@
 			</form>
 		</div>
 	{/if}
+	
+	{#if slots && slots.length > 0}
 	<div class="container">
 		<h1>Freie Slots</h1>
 	</div>
-	{#if slots && slots.length > 0}
 		<div class="slots-container">
 			<ul class="scrollable-list">
 				{#each slots as slot}
@@ -113,10 +114,6 @@
 					</li>
 				{/each}
 			</ul>
-		</div>
-	{:else}
-		<div class="container">
-			<p>Keine freien Slots verfügbar</p>
 		</div>
 	{/if}
 	<div class="container">

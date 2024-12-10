@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { showing } from "$lib/server/db/schema";
+	import type { showing } from '$lib/server/db/schema';
 
 	type Show = typeof showing.$inferSelect;
 
@@ -7,63 +7,69 @@
 
 	let expandedDates: { [key: string]: boolean } = {};
 
+	// Filtere Shows, deren Datum nicht in der Vergangenheit liegt
+	$: filteredShows = shows.filter((show) => {
+		const showDate = new Date(show.date);
+		const today = new Date();
+		today.setHours(0, 0, 0, 0); // Setze die Zeit auf 00:00:00 für den Vergleich
+		return showDate >= today;
+	});
+
 	// Gruppiere Shows nach Datum
-	$: groupedShows = shows.reduce((acc, show) => {
-		if (show.date) {
-			if (!acc[show.date]) {
-				acc[show.date] = [];
+	$: groupedShows = filteredShows.reduce(
+		(acc, show) => {
+			if (show.date) {
+				if (!acc[show.date]) {
+					acc[show.date] = [];
+				}
+				acc[show.date].push(show);
 			}
-			acc[show.date].push(show);
-		}
-		return acc;
-	}, {} as { [key: string]: Show[] });
+			return acc;
+		},
+		{} as { [key: string]: Show[] }
+	);
 
 	// Sortiere Daten
-	$: sortedDates = Object.keys(groupedShows).sort((a, b) => 
-		new Date(a).getTime() - new Date(b).getTime()
+	$: sortedDates = Object.keys(groupedShows).sort(
+		(a, b) => new Date(a).getTime() - new Date(b).getTime()
 	);
+	// Hilfsfunktion zum Formatieren von Datum und Zeit
+	function formatShowDetails(show: Show) {
+		const timeStr = show.time ? show.time.slice(0, 5) : 'Keine Zeit';
+		const endTimeStr = show.endTime ? show.endTime.slice(0, 5) : 'Keine Zeit';
+		const languageStr = show.language ? `${show.language}` : '';
+		const dimensionStr = show.dimension ? `${show.dimension}` : '';
+
+		return `${timeStr} - ${endTimeStr} ${languageStr} ${dimensionStr}`.trim();
+	}
 
 	function toggleDate(date: string) {
 		expandedDates[date] = !expandedDates[date];
 		expandedDates = expandedDates;
-	}
-
-	// Hilfsfunktion zum Formatieren von Datum und Zeit
-	function formatShowDetails(show: Show) {
-		const timeStr = show.time ? show.time.slice(0, 5) : 'Keine Zeit';
-        const endTimeStr = show.endTime ? show.endTime.slice(0, 5) : 'Keine Zeit';
-		const languageStr = show.language ? `${show.language}` : '';
-		const dimensionStr = show.dimension ? `${show.dimension}` : '';
-		
-		return `${timeStr} - ${endTimeStr} ${languageStr} ${dimensionStr}`.trim();
 	}
 </script>
 
 <div class="shows-container">
 	{#each sortedDates as date}
 		<div class="collapsible-date-list">
-			<button 
-				class="date-header" 
-				on:click={() => toggleDate(date)}
-			>
-				{new Date(date).toLocaleDateString('de-DE', { 
-					weekday: 'long', 
-					year: 'numeric', 
-					month: 'long', 
-					day: 'numeric' 
+			<button class="date-header" on:click={() => toggleDate(date)}>
+				{new Date(date).toLocaleDateString('de-DE', {
+					weekday: 'long',
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric'
 				})}
 				<span class="toggle-icon">
 					{expandedDates[date] ? '▼' : '►'}
 				</span>
 			</button>
-			
+
 			{#if expandedDates[date]}
 				<div class="list-content">
 					<div class="scrollable-content">
 						{#each groupedShows[date] as show}
 							<div class="show-item">
-                                <a href="/adminv2/films/show/{show.id}">{formatShowDetails(show)}</a>
-
+								<a href="/adminv2/films/show/{show.id}">{formatShowDetails(show)}</a>
 								{#if show.hallid}
 									<span class="hall-info">Saal {show.hallid}</span>
 								{/if}
