@@ -1,26 +1,24 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import ShowsByDate from '$lib/components/ShowsByDate.svelte';
 	import { type PageData } from './$types';
 	import type { Film, freeSlots, Showing } from './+page.server.js';
 
 	let { data }: { data: PageData } = $props();
 	let { film, shows } = data;
 
-
 	let showAddShowForm = $state(false);
 	function toggleShowForm() {
 		showAddShowForm = !showAddShowForm;
 	}
-	
+
 	let slots: freeSlots[] = $state([]);
-	
 
 	function zurueck() {
 		goto('/adminv2/films');
 	}
 </script>
-
 
 {#if film}
 	<div class="container">
@@ -52,47 +50,29 @@
 			<div class="actions">
 				<button type="submit">Speichern</button>
 				<button type="button" onclick={zurueck}>Zurück</button>
-			</div>			<script lang="ts">
-				import { enhance } from '$app/forms';
-				import { goto } from '$app/navigation';
-				import { type PageData } from './$types';
-				import type { Film, FreeSlot, Showing } from './+page.server.js';
-			
-				let { data }: { data: PageData } = $props();
-				let { film, shows } = data;
-			
-				let showAddShowForm = $state(false);
-				function toggleShowForm() {
-					showAddShowForm = !showAddShowForm;
-				}
-				
-				let slots: FreeSlot[] = $state([]);
-			
-				function zurueck() {
-					goto('/adminv2/films');
-				}
-			</script>
-			
-			{#if film}
-				<!-- Weitere Darstellung des Films -->
-			{/if}
+			</div>
 		</form>
 	</div>
-
-	<div class="actions">
-		<button onclick={toggleShowForm}>+</button>
+	<div class="container">
+		<div class="actions">
+			<button onclick={toggleShowForm}>+</button>
+		</div>
 	</div>
-
 	{#if showAddShowForm}
 		<div>
-			<form method="post" action="?/create" name="create" use:enhance={() => {
-				return async ({ result, update }) => {
-					if (result.type === 'success' && result.data?.slots) {
-						slots = result.data.slots as freeSlots[];
-					}
-					await update();
-				};
-			}}>
+			<form
+				method="post"
+				action="?/create"
+				name="create"
+				use:enhance={() => {
+					return async ({ result, update }) => {
+						if (result.type === 'success' && result.data?.slots) {
+							slots = result.data.slots as freeSlots[];
+						}
+						await update();
+					};
+				}}
+			>
 				<div class="form-group">
 					<label for="hall">Datum:</label>
 					<select name="hall">
@@ -105,7 +85,7 @@
 					<label for="date">Datum:</label>
 					<input name="date" type="date" required />
 				</div>
-				
+
 				<!-- <div class="form-group">
 					<label for="time">Startzeit:</label>
 					<input name="time" type="time" required />
@@ -114,35 +94,35 @@
 			</form>
 		</div>
 	{/if}
-
-	<h1>Freie Slots</h1>
+	<div class="container">
+		<h1>Freie Slots</h1>
+	</div>
 	{#if slots && slots.length > 0}
 		<div class="slots-container">
 			<ul class="scrollable-list">
 				{#each slots as slot}
 					<li>
 						<form action="?/save" method="POST">
-						<input type="hidden" name="filmId" value="{film.id}">
-						<input type="hidden" name="slotStart" value="{slot.start}">
-						<input type="hidden" name="slotEnd" value="{slot.end}">
-						<input type="hidden" name="hall" value="{slot.hallid}">
-						<input type="hidden" name="date" value="{slot.date}">
-						<button>{slot.start} - {slot.end}</button>
+							<input type="hidden" name="filmId" value={film.id} />
+							<input type="hidden" name="slotStart" value={slot.start} />
+							<input type="hidden" name="slotEnd" value={slot.end} />
+							<input type="hidden" name="hall" value={slot.hallid} />
+							<input type="hidden" name="date" value={slot.date} />
+							<button>{slot.start} - {slot.end}</button>
 						</form>
 					</li>
 				{/each}
 			</ul>
 		</div>
 	{:else}
-		<p>Keine freien Slots verfügbar</p>
-	{/if}
-
-	<h1>Vorstellungen</h1>
-	{#each shows as show}
 		<div class="container">
-			<a href="/adminv2/films/show/{show.id}">{show.time} - {show.endTime}</a>
+			<p>Keine freien Slots verfügbar</p>
 		</div>
-	{/each}
+	{/if}
+	<div class="container">
+		<h1>Vorstellungen</h1>
+	</div>
+	<ShowsByDate {shows} />
 {:else}
 	<p>Film nicht gefunden</p>
 {/if}
