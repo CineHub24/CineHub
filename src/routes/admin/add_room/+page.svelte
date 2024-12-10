@@ -95,6 +95,8 @@
         };
     };
 </script>
+<a href="/admin/films">Navigate to films</a><br>
+<a href="/admin/add_films">Navigate to add_films</a><br>
 
 <div class="seat-grid-editor">
     <form method="POST" action="?/saveKinosaal" use:enhance={handleSubmit}>

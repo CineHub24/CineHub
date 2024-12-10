@@ -35,7 +35,8 @@
     }
 }
 </script>
-
+<a href="/admin/films">Navigate to films</a><br>
+<a href="/admin/add_room">Navigate to add_room</a><br>
 <form method="POST" action="?/save">
     <label for="year">Year:</label>
     <input type="text" id="year" name="year" value={fullMovieDetails != null ? fullMovieDetails.year : ""}/>

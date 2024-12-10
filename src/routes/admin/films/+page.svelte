@@ -1,15 +1,12 @@
 <script>
 	export let data;
     const {filme} = data
-	// [
-    //     { id: 1, titel: 'Inception', genre: 'Sci-Fi', bewertung: 9 },
-    //     { id: 2, titel: 'The Matrix', genre: 'Action', bewertung: 8 }
-    // ];
 </script>
 
 <div class="container">
     <h1>Filme</h1>
-    <a href="/admin/add_films">Filme Hinzufügen</a>
+    <a href="/admin/add_films">Filme Hinzufügen</a><br>
+    <a href="/admin/add_room">Kinosaal Hinzufügen</a><br>
     <div class="film-liste">    
         {#each filme as film (film.id)}
             <div class="film-item">
