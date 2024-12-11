@@ -31,7 +31,7 @@ function zurueck() {
 			</div>
 			<div class="actions">
 				<button type="submit">Speichern</button>
-				<button type="button" on:click={zurueck}>Zurück</button>
+				<button type="button" onclick={zurueck}>Zurück</button>
 			</div>
 		</form>
 		<form action="?/delete" method="POST">

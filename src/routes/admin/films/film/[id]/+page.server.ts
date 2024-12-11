@@ -66,7 +66,6 @@ export const actions = {
 		let id = <unknown>url.pathname.replace('/admin/films/film/', '');
 		console.log(id);
 		console.log(titel);
-        //TODO: Checks einbauen damit nur veränderte Werte erkannt werden
 		// Typsicherheit und Validierung
 		if (typeof titel !== 'string' || typeof genre !== 'string') {
 			return {
@@ -112,18 +111,7 @@ export const actions = {
 		  return {
 			slots:freeSlots
 		  }
-		
-
-
-// 		try{
-// 			// await db.insert(showing).values({date: date, time:timeString, filmid:id as number})
-// 			await db.insert(showing).values({hallid: hall ,date: date, time: timeString,filmid: id as number, endTime: sql`(${timeString}::time + (SELECT (runtime || ' minutes')::interval FROM ${film} WHERE id =${id as number} ))`
-//   })
-// 		} catch(e){
-// 			console.log(e)
-// 		}
-
-
+	
 	},
 	save: async ({request, url}) => {
 
@@ -134,12 +122,11 @@ export const actions = {
 		let hall = formData.get('hall') as unknown as number;
 		let filmId = formData.get('filmId') as unknown as number;
 
-		// console.log('save' + date + start + end + hall + filmId)
 
 		try{
 			await db.insert(showing).values({hallid: hall ,date: date, time: start,filmid: filmId, endTime: end})
 		} catch(e){
-			console.log(e)
+			throw error(500, 'Failed to save showing');
 		}
 	}	
 } satisfies Actions;
