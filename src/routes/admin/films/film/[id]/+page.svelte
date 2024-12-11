@@ -76,10 +76,10 @@
 						}
 						await update();
 					};
-				}}
-			>
+				}}>
+			
 				<div class="form-group">
-					<label for="hall">Datum:</label>
+					<label for="hall">Saal:</label>
 					<select name="hall">
 						{#each halls as hall}
 							<option value={hall.id}>Saal {hall.hallNumber}</option>

@@ -48,7 +48,7 @@ export const film = pgTable('Film', {
   //   .notNull()
   //   .default(sql`'{}'::text[]`),
   director: text('director'), 
-  runtime: text('runtime'),
+  runtime: integer('runtime'),
   ageRating: text('ageRating'),
   poster: text('poster'),
   description: text('description'),
