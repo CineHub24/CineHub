@@ -3,21 +3,25 @@
 
 	type Show = typeof showing.$inferSelect;
 
-	export let shows: Show[] = [];
+	let { shows } = $props();
 
-	let expandedDates: { [key: string]: boolean } = {};
+	let expandedDates: { [key: string]: boolean } = $state({});
 
 	// Filtere Shows, deren Datum nicht in der Vergangenheit liegt
-	$: filteredShows = shows.filter((show) => {
-		const showDate = new Date(show.date);
-		const today = new Date();
-		today.setHours(0, 0, 0, 0); // Setze die Zeit auf 00:00:00 für den Vergleich
-		return showDate >= today;
-	});
+	const filteredShows = $derived.by(() => 
+        shows.filter((show: { date: string | number | Date; }) => {
+            const showDate = new Date(show.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return showDate >= today;
+        })
+    );
+
 
 	// Gruppiere Shows nach Datum
-	$: groupedShows = filteredShows.reduce(
-		(acc, show) => {
+	const groupedShows = $derived.by(() => {
+		return filteredShows.reduce(
+		(acc: { [x: string]: any[]; }, show: { date: string | number; }) => {
 			if (show.date) {
 				if (!acc[show.date]) {
 					acc[show.date] = [];
@@ -28,11 +32,14 @@
 		},
 		{} as { [key: string]: Show[] }
 	);
+	})
 
-	// Sortiere Daten
-	$: sortedDates = Object.keys(groupedShows).sort(
+	// Sortiere Daten nach Datum
+	const sortedDates = $derived.by(() => {
+		return Object.keys(groupedShows).sort(
 		(a, b) => new Date(a).getTime() - new Date(b).getTime()
-	);
+		);
+	});
 	// Hilfsfunktion zum Formatieren von Datum und Zeit
 	function formatShowDetails(show: Show) {
 		const timeStr = show.time ? show.time.slice(0, 5) : 'Keine Zeit';
@@ -52,7 +59,7 @@
 <div class="shows-container">
 	{#each sortedDates as date}
 		<div class="collapsible-date-list">
-			<button class="date-header" on:click={() => toggleDate(date)}>
+			<button class="date-header" onclick={() => toggleDate(date)}>
 				{new Date(date).toLocaleDateString('de-DE', {
 					weekday: 'long',
 					year: 'numeric',

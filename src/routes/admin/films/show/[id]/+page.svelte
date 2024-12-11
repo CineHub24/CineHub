@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { type PageData } from './$types';
 
-export let data;
+
+let {data}: {data:PageData} = $props()
 let {show} = data
 function zurueck() {
 		goto(`/admin/films/film/${show.filmid}`)

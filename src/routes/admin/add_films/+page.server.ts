@@ -3,13 +3,8 @@ import { db } from '$lib/server/db';
 import { error, redirect, type Actions, type RequestEvent } from '@sveltejs/kit';
 import type { year } from 'drizzle-orm/mysql-core';
 
+export type Movie = typeof film.$inferSelect;
 
-export type Movie = {
-    imdbID: string; // IMDb ID
-    title: string;
-    year: number;
-    poster: string;
-};
 
 export type CompleteMovieInformation = {
     imdbID: string;
