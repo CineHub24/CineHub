@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for CineHub/src/routes/admin/films/show/[id]/+page.server.ts</title>
+    <title>Code coverage report for CineHub/src/routes/film/[id]/showing/[id]/+page.server.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../../../../base.css" />
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../../../../index.html">All files</a> / <a href="index.html">CineHub/src/routes/admin/films/show/[id]</a> +page.server.ts</h1>
+        <h1><a href="../../../../../../../index.html">All files</a> / <a href="index.html">CineHub/src/routes/film/[id]/showing/[id]</a> +page.server.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/38</span>
+                <span class='fraction'>0/39</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/38</span>
+                <span class='fraction'>0/39</span>
             </div>
         
             
@@ -113,23 +113,15 @@
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a>
-<a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a>
-<a name='L56'></a><a href='#L56'>56</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -145,15 +137,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -165,77 +151,76 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { goto } from '$app/navigation';</span></span></span>
-import { db } from '$lib/server/db';
-import { film, showing } from '$lib/server/db/schema';
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { db } from '$lib/server/db';</span></span></span>
+import { film, showing, priceSet, seatCategory, ticketType, cinemaHall } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
-import { get } from 'svelte/store';
-&nbsp;
-<span class="cstat-no" title="statement not covered" >function getID(url:string){ </span>
-<span class="cstat-no" title="statement not covered" >	let id = url.replace('/admin/films/show/', '') as unknown;</span>
-<span class="cstat-no" title="statement not covered" >	return id as number;</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+import { eq, lt, gte, ne } from 'drizzle-orm';
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export const load = async ({ url }) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    let tmp = url.pathname.split('/');</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >	const show = await db</span>
-<span class="cstat-no" title="statement not covered" >		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, filmid: film.id, film_name: film.title })</span>
-<span class="cstat-no" title="statement not covered" >		.from(showing)</span>
-<span class="cstat-no" title="statement not covered" >		.leftJoin(film, eq(showing.filmid, film.id))</span>
-<span class="cstat-no" title="statement not covered" >		.where(eq(showing.id, getID(url.pathname)));</span>
-<span class="cstat-no" title="statement not covered" >	console.log(show[0]);</span>
-<span class="cstat-no" title="statement not covered" >	return {</span>
-<span class="cstat-no" title="statement not covered" >		show: show[0]</span>
-<span class="cstat-no" title="statement not covered" >	};</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+<span class="cstat-no" title="statement not covered" >    const movieId = tmp[2];</span>
+<span class="cstat-no" title="statement not covered" >    const showingId = tmp[4];</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export const actions = {</span>
-<span class="cstat-no" title="statement not covered" >	update: async ({ request, url }) =&gt; {</span>
-		// Formular-Daten auslesen
-<span class="cstat-no" title="statement not covered" >		const formData = await request.formData();</span>
-		// Einzelne Werte extrahieren
+<span class="cstat-no" title="statement not covered" >    try{</span>
+<span class="cstat-no" title="statement not covered" >        const movie = await db</span>
+<span class="cstat-no" title="statement not covered" >            .select()</span>
+<span class="cstat-no" title="statement not covered" >            .from(film)</span>
+<span class="cstat-no" title="statement not covered" >            .where(eq(film.id, parseInt(movieId, 10)));</span>
+<span class="cstat-no" title="statement not covered" >        const show  = await db</span>
+<span class="cstat-no" title="statement not covered" >            .select()</span>
+<span class="cstat-no" title="statement not covered" >            .from(showing)</span>
+<span class="cstat-no" title="statement not covered" >            .innerJoin(priceSet,eq(showing.priceSetId, priceSet.id))</span>
+<span class="cstat-no" title="statement not covered" >            .where(eq(showing.id, parseInt(showingId, 10)))</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >		let date = formData.get('date') as string;</span>
+<span class="cstat-no" title="statement not covered" >        const seatCategories = [];</span>
+<span class="cstat-no" title="statement not covered" >        const ticketTypes = [];</span>
+<span class="cstat-no" title="statement not covered" >        for (let i = 0; i &lt; show[0].PriceSet.seatCategoryPrices.length; i++) {</span>
+<span class="cstat-no" title="statement not covered" >            const category = await db</span>
+<span class="cstat-no" title="statement not covered" >                .select()</span>
+<span class="cstat-no" title="statement not covered" >                .from(seatCategory)</span>
+<span class="cstat-no" title="statement not covered" >                .where(eq(seatCategory.id, show[0].PriceSet.seatCategoryPrices[i]));</span>
+<span class="cstat-no" title="statement not covered" >            seatCategories.push(category[0]);</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >        const hall = await db</span>
+<span class="cstat-no" title="statement not covered" >            .select()</span>
+<span class="cstat-no" title="statement not covered" >            .from(cinemaHall)</span>
+<span class="cstat-no" title="statement not covered" >            .where(eq(cinemaHall.id, &lt;number&gt;show[0].Showing.hallid));</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >		let timeString = formData.get('time') as string;</span>
-&nbsp;
-&nbsp;
-<span class="cstat-no" title="statement not covered" >		try {</span>
-<span class="cstat-no" title="statement not covered" >			await db</span>
-<span class="cstat-no" title="statement not covered" >				.update(showing)</span>
-<span class="cstat-no" title="statement not covered" >				.set({ date: date, time: timeString })</span>
-<span class="cstat-no" title="statement not covered" >				.where(eq(showing.id, getID(url.pathname)));</span>
-<span class="cstat-no" title="statement not covered" >		} catch (e) {</span>
-<span class="cstat-no" title="statement not covered" >			console.log('Fehler' + e);</span>
-<span class="cstat-no" title="statement not covered" >		}</span>
-		// Optional: Erfolgsrückmeldung zurückgeben
-<span class="cstat-no" title="statement not covered" >	},</span>
-<span class="cstat-no" title="statement not covered" >	delete: async ({url}) =&gt;{</span>
-		
-<span class="cstat-no" title="statement not covered" >		try{</span>
-<span class="cstat-no" title="statement not covered" >			await db.delete(showing).where(eq(showing.id,getID(url.pathname)))</span>
-<span class="cstat-no" title="statement not covered" >		} catch(e){</span>
-<span class="cstat-no" title="statement not covered" >			console.log("error" + e)</span>
-<span class="cstat-no" title="statement not covered" >		}</span>
-<span class="cstat-no" title="statement not covered" >	}</span>
-<span class="cstat-no" title="statement not covered" >} satisfies Actions;</span>
-&nbsp;</pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >        return {</span>
+<span class="cstat-no" title="statement not covered" >            movie: movie[0],</span>
+<span class="cstat-no" title="statement not covered" >            show: show[0],</span>
+<span class="cstat-no" title="statement not covered" >            seatCategories,</span>
+<span class="cstat-no" title="statement not covered" >            hall: hall[0]</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+        // const set = await db
+        //     .select()
+        //     .from(priceSet)
+        //     .where(eq(priceSet.id, shows[0].priceSetId));
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >    catch(e){</span>
+<span class="cstat-no" title="statement not covered" >        throw error(500, "Internal Server Error DB");</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >};</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-11T15:36:03.811Z
+                at 2024-12-11T15:36:09.354Z
             </div>
         <script src="../../../../../../../prettify.js"></script>
         <script>
