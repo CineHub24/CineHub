@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     export let data;
-    const { show, movie, seatCategories } = data;
+    const { show, movie, seatCategories, hall } = data;
 
     const prices = [];
 
@@ -64,14 +64,13 @@
       <h2>Vorstellungsdetails</h2>
       <p><strong>Datum:</strong> {show.Showing.date}</p>
       <p><strong>Uhrzeit:</strong> {show.Showing.time}</p>
-      <p><strong>Kino:</strong> {show.Showing.hallid}</p>
+      <p><strong>Kino:</strong> {hall.hallNumber}</p>
       <p><strong>Preis pro Ticket:</p>
         {#each seatCategories as category}
           <p>{category.name}: {category.price} €</p>
         {/each}
         <div class="showtime">
           <button
-          onclick={() => goto(`/film/${movie.id}/showing/${show.Showing.id}/`)}
           >
             Zur Buchung →</button>
         </div>

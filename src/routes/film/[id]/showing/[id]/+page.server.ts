@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { film, showing, priceSet, seatCategory, ticketType } from '$lib/server/db/schema';
+import { film, showing, priceSet, seatCategory, ticketType, cinemaHall } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 
@@ -29,11 +29,16 @@ export const load = async ({ url }) => {
                 .where(eq(seatCategory.id, show[0].PriceSet.seatCategoryPrices[i]));
             seatCategories.push(category[0]);
         }
+        const hall = await db
+            .select()
+            .from(cinemaHall)
+            .where(eq(cinemaHall.id, <number>show[0].Showing.hallid));
 
         return {
             movie: movie[0],
             show: show[0],
-            seatCategories
+            seatCategories,
+            hall: hall[0]
         }
         // const set = await db
         //     .select()
