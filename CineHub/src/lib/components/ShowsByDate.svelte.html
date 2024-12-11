@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/39</span>
+                <span class='fraction'>0/41</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/39</span>
+                <span class='fraction'>0/41</span>
             </div>
         
             
@@ -202,22 +202,21 @@
 <a name='L137'></a><a href='#L137'>137</a>
 <a name='L138'></a><a href='#L138'>138</a>
 <a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -225,9 +224,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -236,6 +232,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -346,21 +360,25 @@
 &nbsp;
 	type Show = typeof showing.$inferSelect;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >	export let shows: Show[] = [];</span>
+	let { shows } = $props();
 &nbsp;
-<span class="cstat-no" title="statement not covered" >	let expandedDates: { [key: string]: boolean } = {};</span>
+<span class="cstat-no" title="statement not covered" >	let expandedDates: { [key: string]: boolean } = $state({});</span>
 &nbsp;
 	// Filtere Shows, deren Datum nicht in der Vergangenheit liegt
-<span class="cstat-no" title="statement not covered" >	$: filteredShows = shows.filter((show) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >		const showDate = new Date(show.date);</span>
-<span class="cstat-no" title="statement not covered" >		const today = new Date();</span>
-<span class="cstat-no" title="statement not covered" >		today.setHours(0, 0, 0, 0); // Setze die Zeit auf 00:00:00 für den Vergleich</span>
-<span class="cstat-no" title="statement not covered" >		return showDate &gt;= today;</span>
-	});
+<span class="cstat-no" title="statement not covered" >	const filteredShows = $derived.by(() =&gt; </span>
+<span class="cstat-no" title="statement not covered" >        shows.filter((show: { date: string | number | Date; }) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            const showDate = new Date(show.date);</span>
+<span class="cstat-no" title="statement not covered" >            const today = new Date();</span>
+<span class="cstat-no" title="statement not covered" >            today.setHours(0, 0, 0, 0);</span>
+<span class="cstat-no" title="statement not covered" >            return showDate &gt;= today;</span>
+        })
+    );
+&nbsp;
 &nbsp;
 	// Gruppiere Shows nach Datum
-<span class="cstat-no" title="statement not covered" >	$: groupedShows = filteredShows.reduce(</span>
-<span class="cstat-no" title="statement not covered" >		(acc, show) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >	const groupedShows = $derived.by(() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >		return filteredShows.reduce(</span>
+<span class="cstat-no" title="statement not covered" >		(acc: { [x: string]: any[]; }, show: { date: string | number; }) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >			if (show.date) {</span>
 <span class="cstat-no" title="statement not covered" >				if (!acc[show.date]) {</span>
 <span class="cstat-no" title="statement not covered" >					acc[show.date] = [];</span>
@@ -371,11 +389,14 @@
 		},
 		{} as { [key: string]: Show[] }
 	);
+	})
 &nbsp;
-	// Sortiere Daten
-<span class="cstat-no" title="statement not covered" >	$: sortedDates = Object.keys(groupedShows).sort(</span>
+	// Sortiere Daten nach Datum
+<span class="cstat-no" title="statement not covered" >	const sortedDates = $derived.by(() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >		return Object.keys(groupedShows).sort(</span>
 <span class="cstat-no" title="statement not covered" >		(a, b) =&gt; new Date(a).getTime() - new Date(b).getTime()</span>
-	);
+		);
+	});
 	// Hilfsfunktion zum Formatieren von Datum und Zeit
 <span class="cstat-no" title="statement not covered" >	function formatShowDetails(show: Show) {</span>
 <span class="cstat-no" title="statement not covered" >		const timeStr = show.time ? show.time.slice(0, 5) : 'Keine Zeit';</span>
@@ -395,7 +416,7 @@
 &lt;div class="shows-container"&gt;
 <span class="cstat-no" title="statement not covered" >	{#each sortedDates as date}</span>
 		&lt;div class="collapsible-date-list"&gt;
-<span class="cstat-no" title="statement not covered" >			&lt;button class="date-header" on:click={() =&gt; toggleDate(date)}&gt;</span>
+<span class="cstat-no" title="statement not covered" >			&lt;button class="date-header" onclick={() =&gt; toggleDate(date)}&gt;</span>
 <span class="cstat-no" title="statement not covered" >				{new Date(date).toLocaleDateString('de-DE', {</span>
 <span class="cstat-no" title="statement not covered" >					weekday: 'long',</span>
 <span class="cstat-no" title="statement not covered" >					year: 'numeric',</span>
@@ -487,7 +508,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-10T15:03:53.498Z
+                at 2024-12-11T15:32:49.706Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
