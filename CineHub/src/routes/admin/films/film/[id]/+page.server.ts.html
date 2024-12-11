@@ -283,20 +283,7 @@
 <a name='L218'></a><a href='#L218'>218</a>
 <a name='L219'></a><a href='#L219'>219</a>
 <a name='L220'></a><a href='#L220'>220</a>
-<a name='L221'></a><a href='#L221'>221</a>
-<a name='L222'></a><a href='#L222'>222</a>
-<a name='L223'></a><a href='#L223'>223</a>
-<a name='L224'></a><a href='#L224'>224</a>
-<a name='L225'></a><a href='#L225'>225</a>
-<a name='L226'></a><a href='#L226'>226</a>
-<a name='L227'></a><a href='#L227'>227</a>
-<a name='L228'></a><a href='#L228'>228</a>
-<a name='L229'></a><a href='#L229'>229</a>
-<a name='L230'></a><a href='#L230'>230</a>
-<a name='L231'></a><a href='#L231'>231</a>
-<a name='L232'></a><a href='#L232'>232</a>
-<a name='L233'></a><a href='#L233'>233</a>
-<a name='L234'></a><a href='#L234'>234</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L221'></a><a href='#L221'>221</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -365,7 +352,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -411,17 +397,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -431,7 +406,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -597,7 +571,6 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >		let id = &lt;unknown&gt;url.pathname.replace('/admin/films/film/', '');</span>
 <span class="cstat-no" title="statement not covered" >		console.log(id);</span>
 <span class="cstat-no" title="statement not covered" >		console.log(titel);</span>
-        //TODO: Checks einbauen damit nur veränderte Werte erkannt werden
 		// Typsicherheit und Validierung
 <span class="cstat-no" title="statement not covered" >		if (typeof titel !== 'string' || typeof genre !== 'string') {</span>
 <span class="cstat-no" title="statement not covered" >			return {</span>
@@ -643,18 +616,7 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >		  return {</span>
 <span class="cstat-no" title="statement not covered" >			slots:freeSlots</span>
 <span class="cstat-no" title="statement not covered" >		  }</span>
-		
-&nbsp;
-&nbsp;
-// 		try{
-// 			// await db.insert(showing).values({date: date, time:timeString, filmid:id as number})
-// 			await db.insert(showing).values({hallid: hall ,date: date, time: timeString,filmid: id as number, endTime: sql`(${timeString}::time + (SELECT (runtime || ' minutes')::interval FROM ${film} WHERE id =${id as number} ))`
-//   })
-// 		} catch(e){
-// 			console.log(e)
-// 		}
-&nbsp;
-&nbsp;
+	
 <span class="cstat-no" title="statement not covered" >	},</span>
 <span class="cstat-no" title="statement not covered" >	save: async ({request, url}) =&gt; {</span>
 &nbsp;
@@ -665,12 +627,11 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >		let hall = formData.get('hall') as unknown as number;</span>
 <span class="cstat-no" title="statement not covered" >		let filmId = formData.get('filmId') as unknown as number;</span>
 &nbsp;
-		// console.log('save' + date + start + end + hall + filmId)
 &nbsp;
 <span class="cstat-no" title="statement not covered" >		try{</span>
 <span class="cstat-no" title="statement not covered" >			await db.insert(showing).values({hallid: hall ,date: date, time: start,filmid: filmId, endTime: end})</span>
 <span class="cstat-no" title="statement not covered" >		} catch(e){</span>
-<span class="cstat-no" title="statement not covered" >			console.log(e)</span>
+<span class="cstat-no" title="statement not covered" >			throw error(500, 'Failed to save showing');</span>
 <span class="cstat-no" title="statement not covered" >		}</span>
 <span class="cstat-no" title="statement not covered" >	}	</span>
 <span class="cstat-no" title="statement not covered" >} satisfies Actions;</span>
@@ -769,7 +730,7 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-11T15:46:50.281Z
+                at 2024-12-11T16:26:00.755Z
             </div>
         <script src="../../../../../../../prettify.js"></script>
         <script>
