@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for CineHub/src/routes/film/[id]/+page.svelte</title>
+    <title>Code coverage report for CineHub/src/routes/film/[id]/showing/[id]/+page.svelte</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.png" />
+    <link rel="stylesheet" href="../../../../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../../sort-arrow-sprite.png);
+            background-image: url(../../../../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">CineHub/src/routes/film/[id]</a> +page.svelte</h1>
+        <h1><a href="../../../../../../../index.html">All files</a> / <a href="index.html">CineHub/src/routes/film/[id]/showing/[id]</a> +page.svelte</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -145,22 +145,13 @@
 <a name='L80'></a><a href='#L80'>80</a>
 <a name='L81'></a><a href='#L81'>81</a>
 <a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L83'></a><a href='#L83'>83</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -208,11 +199,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -221,12 +208,15 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -241,90 +231,85 @@
 	import { goto } from '$app/navigation';
     import { page } from '$app/stores';
 <span class="cstat-no" title="statement not covered" >    export let data;</span>
-<span class="cstat-no" title="statement not covered" >    const {movie} = data</span>
-<span class="cstat-no" title="statement not covered" >    const {shows} = data;</span>
-  &lt;/script&gt;
-  
-  &lt;style&gt;
-    /* Optional: Styling für die Seite */
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    .poster {
-      max-width: 100%;
-      border-radius: 8px;
-    }
-    .details {
-      margin: 1rem 0;
-    }
-    .showtimes {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-    }
-    .showtime {
-      padding: 1rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      text-align: center;
-      background: #fff;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    .showtime button {
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #000;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-  &lt;/style&gt;
-  
-  &lt;div class="container"&gt;
-    &lt;div class="header"&gt;
-<span class="cstat-no" title="statement not covered" >      &lt;a href="/"&gt;Home&lt;/a&gt;</span>
-<span class="cstat-no" title="statement not covered" >      &lt;a href="/cart"&gt;Einkaufswagen&lt;/a&gt;</span>
-    &lt;/div&gt;
-  
-    &lt;img
-      class="poster"
-<span class="cstat-no" title="statement not covered" >      src="{movie.poster}"</span>
-<span class="cstat-no" title="statement not covered" >      alt={movie.title}</span>
-    /&gt;
-  
-<span class="cstat-no" title="statement not covered" >    {#if movie}</span>
+<span class="cstat-no" title="statement not covered" >    const { show, movie, seatCategories, hall } = data;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    const prices = [];</span>
+&nbsp;
+&lt;/script&gt;
+&nbsp;
+&lt;style&gt;
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .poster {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+  .details {
+    margin: 1rem 0;
+  }
+  .show-details {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+  }
+  .showtime {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+&lt;/style&gt;
+&nbsp;
+&lt;div class="container"&gt;
+  &lt;div class="header"&gt;
+<span class="cstat-no" title="statement not covered" >    &lt;a href="/"&gt;Home&lt;/a&gt;</span>
+<span class="cstat-no" title="statement not covered" >    &lt;a href="/cart"&gt;Einkaufswagen&lt;/a&gt;</span>
+  &lt;/div&gt;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  &lt;img class="poster" src="{movie.poster}" alt={movie.title} /&gt;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  {#if show}</span>
     &lt;div class="details"&gt;
 <span class="cstat-no" title="statement not covered" >      &lt;h1&gt;{movie?.title ?? $page.params.id}&lt;/h1&gt;</span>
 <span class="cstat-no" title="statement not covered" >      &lt;p&gt;{movie.description}&lt;/p&gt;</span>
 <span class="cstat-no" title="statement not covered" >      &lt;p&gt;&lt;strong&gt;Erscheinungsdatum:&lt;/strong&gt; {movie.releaseDate}&lt;/p&gt;</span>
     &lt;/div&gt;
-    &lt;div class="showtimes"&gt;
-<span class="cstat-no" title="statement not covered" >      {#each shows as show}</span>
+    &lt;div class="show-details"&gt;
+      &lt;h2&gt;Vorstellungsdetails&lt;/h2&gt;
+<span class="cstat-no" title="statement not covered" >      &lt;p&gt;&lt;strong&gt;Datum:&lt;/strong&gt; {show.Showing.date}&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" >      &lt;p&gt;&lt;strong&gt;Uhrzeit:&lt;/strong&gt; {show.Showing.time}&lt;/p&gt;</span>
+<span class="cstat-no" title="statement not covered" >      &lt;p&gt;&lt;strong&gt;Kino:&lt;/strong&gt; {hall.hallNumber}&lt;/p&gt;</span>
+      &lt;p&gt;&lt;strong&gt;Preis pro Ticket:&lt;/p&gt;
+<span class="cstat-no" title="statement not covered" >        {#each seatCategories as category}</span>
+<span class="cstat-no" title="statement not covered" >          &lt;p&gt;{category.name}: {category.price} €&lt;/p&gt;</span>
+        {/each}
         &lt;div class="showtime"&gt;
-<span class="cstat-no" title="statement not covered" >          &lt;p&gt;&lt;strong&gt;{show.date}&lt;/strong&gt;&lt;/p&gt;</span>
-<span class="cstat-no" title="statement not covered" >          &lt;p&gt;{show.time}&lt;/p&gt;</span>
           &lt;button
-<span class="cstat-no" title="statement not covered" >            onclick={() =&gt; goto(`/film/${movie.id}/showing/${show.id}/`)}</span>
-            &gt;
+          &gt;
             Zur Buchung →&lt;/button&gt;
         &lt;/div&gt;
-      {/each}
+&nbsp;
     &lt;/div&gt;
-    {:else}
-    &lt;p&gt;Der Film wurde nicht gefunden.&lt;/p&gt;
-    {/if}
-  
-  &lt;/div&gt;
-  </pre></td></tr></table></pre>
+  {:else}
+    &lt;p&gt;Die Vorstellung wurde nicht gefunden.&lt;/p&gt;
+  {/if}
+&lt;/div&gt;
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
@@ -333,14 +318,14 @@
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
                 at 2024-12-11T15:46:42.833Z
             </div>
-        <script src="../../../../../prettify.js"></script>
+        <script src="../../../../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../../sorter.js"></script>
-        <script src="../../../../../block-navigation.js"></script>
+        <script src="../../../../../../../sorter.js"></script>
+        <script src="../../../../../../../block-navigation.js"></script>
     </body>
 </html>
     
