@@ -1,243 +1,161 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import type { SubmitFunction } from '@sveltejs/kit';
-    import { writable } from 'svelte/store';
-
-    interface Sitz {
-        sitznummer: number;
-        reihe: number;
-        spalte: number;
-        buchbar: boolean;
-    }
-
-    interface Kinosaal {
-        hallNumber: string;
-        sitze: Sitz[];
-    }
-
-    export let sitze = writable<Sitz[]>([
-        {
-        sitznummer: 0,
-        reihe: 0,
-        spalte: 1,
-        buchbar: true
-    }]);
-
-    export let kinosaal = writable<Kinosaal>({
-        hallNumber: '',
-        sitze: []
-    });
-
-    let isSaving = false;
-    let saveError: string | null = null;
-
-    let nextSitznummer = 0;
-
+  
+    // Initial seat data: an array of rows, each containing seat objects
+    let seatPlan : ({
+        id: string;
+        type: string;
+    } | null)[][] = $state([
+        [ { id: 'A1', type: 'single' }, { id: 'A2', type: 'single' }, { id: 'A3', type: 'double' }, { id: 'A4', type: 'double' } ],
+        [ { id: 'B1', type: 'single' }, { id: 'B2', type: 'single' }, { id: 'B3', type: 'single' }, { id: 'B4', type: 'single' } ],
+    ]);
+  
     function addRow() {
-        const currentMaxRow = Math.max(...$sitze.map(s => s.reihe), -1);
-        const columnCount = Math.max(...$sitze.map(s => s.spalte), 0) + 1;
-
-        const newRowSeats: Sitz[] = Array.from({length: columnCount}, (_, spalte) => ({
-            sitznummer: nextSitznummer++,
-            reihe: currentMaxRow + 1,
-            spalte,
-            buchbar: true
-        }));
-
-        sitze.update(current => [...current, ...newRowSeats]);
+      const newRowIndex = seatPlan.length;
+      const newRow = Array.from({ length: seatPlan[0].length }, (_, i) => ({
+        id: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`,
+        type: 'single'
+      }));
+      seatPlan = [...seatPlan, newRow];
     }
-
+  
     function addColumn() {
-        const currentMaxCol = Math.max(...$sitze.map(s => s.spalte), -1);
-        const rowCount = Math.max(...$sitze.map(s => s.reihe), 0) + 1;
-
-        const newColumnSeats: Sitz[] = Array.from({length: rowCount}, (_, reihe) => ({
-            sitznummer: nextSitznummer++,
-            reihe,
-            spalte: currentMaxCol + 1,
-            buchbar: true
-        }));
-
-        sitze.update(current => [...current, ...newColumnSeats]);
+      seatPlan = seatPlan.map((row, rowIndex) => [
+        ...row,
+        { id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: 'single' }
+      ]);
     }
 
-    function addSeat(reihe: number, spalte: number) {
-        console.log("sitze")
-        sitze.update(current => {
-            // Check if seat already exists
-            const existingSeat = current.find(s => s.reihe === reihe && s.spalte === spalte);
-            if (existingSeat) return current;
-
-            return [...current, {
-                sitznummer: nextSitznummer++,
-                reihe,
-                spalte,
-                buchbar: true
-            }];
-        });
-        console.log(sitze)
+    function removeRow(rowIndex: number) {
+      seatPlan = seatPlan.filter((_, rIdx) => rIdx !== rowIndex);
     }
 
-    function removeSeat(sitznummer: number) {
-        sitze.update(current => current.filter(s => s.sitznummer !== sitznummer));
+    function removeColumn(colIndex: number) {
+      seatPlan = seatPlan.map(row => row.filter((_, cIdx) => cIdx !== colIndex));
     }
 
-    $: maxRow = Math.max(...$sitze.map(s => s.reihe), -1);
-    $: maxCol = Math.max(...$sitze.map(s => s.spalte), -1);
 
+    function removeSeat(rowIndex: number, colIndex: number) {
+        const updatedPlan = seatPlan.map((row, rIdx) =>
+        rIdx === rowIndex
+            ? row.map((seat, cIdx) => (cIdx === colIndex ? null : seat))
+            : row
+        );
+        seatPlan = updatedPlan;
+    }
 
-    const handleSubmit: SubmitFunction = ({ formElement, formData, action, cancel }) => {
-        // Optional client-side enhancement
-        return async ({ result, update }) => {
-            if (result.type === 'success') {
-                // Handle successful submission
-            }
-        };
-    };
-</script>
-<a href="/admin/films">Navigate to films</a><br>
-<a href="/admin/add_films">Navigate to add_films</a><br>
+    function restoreSeat(rowIndex: number, colIndex: number) {
+        const originalId = `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`;
+        const updatedPlan = seatPlan.map((row, rIdx) =>
+        rIdx === rowIndex
+            ? row.map((seat, cIdx) => (cIdx === colIndex ? { id: originalId, type: "single" } : seat))
+            : row
+        );
+        seatPlan = updatedPlan;
+    }
 
-<div class="seat-grid-editor">
-    <form method="POST" action="?/saveKinosaal" use:enhance={handleSubmit}>
+    function removeSeatRow(rowIndex: number) {
+        const updatedPlan = seatPlan.map((row, rIdx) =>
+        rIdx === rowIndex ? row.map(() => null) : row
+        );
+        seatPlan = updatedPlan;
+    }
 
-    <div class="kinosaal-name">
-        <label for="kinosaal-number">Kinosaal Name:</label>
-        <input 
-            type="text" 
-            name="hall-number" 
-            id="hall-number"
-            bind:value={$kinosaal.hallNumber}
-            placeholder="Enter Kinosaal nummer"
-        />
-    </div>
+    function removeSeatColumn(colIndex: number) {
+        const updatedPlan = seatPlan.map(row =>
+        row.map((seat, cIdx) => (cIdx === colIndex ? null : seat))
+        );
+        seatPlan = updatedPlan;
+    }
+
     
-    <div class="grid">
-        {#each Array(maxRow + 1) as _, row}
-            <div class="seat-row">
-                {#each Array(maxCol + 1) as _, col}
-                    {@const seat = $sitze.find(s => s.reihe === row && s.spalte === col)}
-                    {#if seat}
-                        <div class="seat-container">
-                            <button 
-                                class="seat" 
-                                class:available={seat.buchbar}
-                            >
-                                {seat.sitznummer}
-                            </button>
-                            <button 
-                                class="remove-seat" 
-                                on:click={() => removeSeat(seat.sitznummer)}
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    {:else}
-                        <button 
-                            class="add-seat" 
-                            on:click={() => addSeat(row, col)}
-                        >
-                            +
-                        </button>
-                    {/if}
-                {/each}
-            </div>
-        {/each}
-    </div>
 
-    <div class="controls">
-        <button on:click={addRow}>Add Row</button>
-        <button on:click={addColumn}>Add Column</button>
+  </script>
 
-        <input 
-        type="hidden" 
-        name="sitze" 
-        value={JSON.stringify($sitze)} 
-        />
-
-        <button type="submit" on:click={() => console.log($sitze)}>Save Kinosaal</button>
-        
-    </div>
-
-    {#if saveError}
-        <div class="error-message">
-            {saveError}
-        </div>
-    {/if}
-
-    </form>
-</div>
-
-<style>
-    .seat-grid-editor {
+    <style>
+    .container {
         display: flex;
-        flex-direction: column;
-        gap: 10px;
+        justify-content: center;
         align-items: center;
-    }
-
-    .grid {
-        display: flex;
+        height: 100vh;
         flex-direction: column;
-        gap: 10px;
+        background-color: #f5f5f5;
     }
 
-    .seat-row {
+    .seat-plan {
+        display: grid;
+        gap: 5px;
+        margin-top: 20px;
+    }
+
+    .row {
         display: flex;
-        gap: 10px;
-    }
-
-    .seat-container {
-        position: relative;
+        align-items: center;
     }
 
     .seat {
         width: 50px;
         height: 50px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
+        background-color: #ddd;
+        border: 1px solid #888;
+        text-align: center;
+        line-height: 50px;
+        margin-right: 5px;
         cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
     }
 
-    .remove-seat {
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        background-color: red;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
+    .seat.double {
+        width: 105px; /* Double the width of a single seat plus margin */
+        background-color: #bbb;
     }
 
-    .add-seat {
-        width: 50px;
-        height: 50px;
-        background-color: #2196F3;
-        color: white;
-        border: none;
-        border-radius: 5px;
+    button {
+        padding: 8px 12px;
+        margin: 5px;
         cursor: pointer;
     }
+    </style>
 
-    .controls {
-        display: flex;
-        gap: 10px;
-    }
+  
 
-    .controls button {
-        padding: 10px;
-        background-color: #2196F3;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-</style>
+  <div class="controls">
+    <button onclick={addRow}>Add Row</button>
+    <button onclick={addColumn}>Add Column</button>
+    <button onclick={() => removeRow(seatPlan.length - 1)}>Remove Last Row</button>
+    <button onclick={() => removeColumn(seatPlan[0]?.length - 1)}>Remove Last Column</button>
+  </div>
+
+  <div class="container">
+
+    {#if seatPlan[0]}
+        <div class="column-controls">
+        {#each seatPlan[0] as _, colIndex}
+            <button onclick={() => removeSeatColumn(colIndex)}>Remove Col {colIndex + 1}</button>
+        {/each}
+        </div>
+    {/if}
+
+
+    <div class="seat-plan">
+      {#each seatPlan as row, rowIndex}
+        <div class="row">
+          {#each row as seat, colIndex}
+            {#if seat}
+                <div class="seat" onclick={() => removeSeat(rowIndex, colIndex)}>
+                    {seat.id}
+                </div>
+            {:else}
+                <div class="seat placeholder">
+                    <button onclick={() => restoreSeat(rowIndex, colIndex)}>Restore</button>
+                </div>
+            {/if}
+          {/each}
+          <button onclick={() => removeSeatRow(rowIndex)}>Remove Row {rowIndex + 1}</button>
+        </div>
+      {/each}
+    </div>
+
+   
+  </div>
+  
