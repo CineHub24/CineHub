@@ -113,6 +113,11 @@
 	<button onclick={() => switchToLanguage('de')}>de</button>
 </div>
 
+<a href="/admin/films">Navigate to films</a><br>
+<a href="/admin/add_films">Navigate to add_films</a><br>
+<a href="/admin/add_room">Navigate to add_room</a><br>
+
+
 
 <div class="movies-container">
 	{#each movies as movie}
@@ -131,3 +136,4 @@
 		</div>
 	{/each}
 </div>
+
