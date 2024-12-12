@@ -7,6 +7,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import * as m from '$lib/paraglide/messages.js';
+	import type { PageServerData } from './$types';
     
 	function switchToLanguage(newLanguage: AvailableLanguageTag) {
 		const canonicalPath = i18n.route($page.url.pathname);
@@ -22,10 +23,8 @@
 		goto('/profile');
 	}
     
-	export let data;
-
-	const { movies } = data;
-	const { user } = data;
+	const {data}:{data:PageServerData} = $props();
+	const { movies, user } = data;
 </script>
 
 <style>

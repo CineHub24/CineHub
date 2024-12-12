@@ -1,10 +1,5 @@
 <script lang="ts">
-	export let movie: {
-		id: number;
-		title: string;
-		description: string;
-		poster: string;
-	};
+	let { movie } = $props();
 
 	import { goto } from '$app/navigation';
 
