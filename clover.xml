@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1734011288880" clover="3.2.0">
-  <project timestamp="1734011288881" name="All files">
-    <metrics statements="1508" coveredstatements="0" conditionals="50" coveredconditionals="1" methods="50" coveredmethods="1" elements="1608" coveredelements="2" complexity="0" loc="1508" ncloc="1508" packages="25" files="50" classes="50"/>
+<coverage generated="1734014679712" clover="3.2.0">
+  <project timestamp="1734014679712" name="All files">
+    <metrics statements="1504" coveredstatements="0" conditionals="50" coveredconditionals="1" methods="50" coveredmethods="1" elements="1604" coveredelements="2" complexity="0" loc="1504" ncloc="1504" packages="25" files="50" classes="50"/>
     <package name="CineHub">
       <metrics statements="53" coveredstatements="0" conditionals="5" coveredconditionals="0" methods="5" coveredmethods="0"/>
       <file name="drizzle.config.ts" path="/home/runner/work/CineHub/CineHub/drizzle.config.ts">
@@ -116,7 +116,7 @@
       </file>
     </package>
     <package name="CineHub.src.lib.components">
-      <metrics statements="74" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="4" coveredmethods="0"/>
+      <metrics statements="72" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="4" coveredmethods="0"/>
       <file name="ShowsByDate.svelte" path="/home/runner/work/CineHub/CineHub/src/lib/components/ShowsByDate.svelte">
         <metrics statements="41" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -191,17 +191,15 @@
         <line num="116" count="0" type="stmt"/>
       </file>
       <file name="movie_card.svelte" path="/home/runner/work/CineHub/CineHub/src/lib/components/movie_card.svelte">
-        <metrics statements="10" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="8" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="2" count="0" type="stmt"/>
         <line num="7" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
         <line num="50" count="0" type="stmt"/>
         <line num="51" count="0" type="stmt"/>
-        <line num="53" count="0" type="stmt"/>
-        <line num="55" count="0" type="stmt"/>
-        <line num="56" count="0" type="stmt"/>
       </file>
     </package>
     <package name="CineHub.src.lib.paraglide">
@@ -652,7 +650,7 @@
       </file>
     </package>
     <package name="CineHub.src.routes">
-      <metrics statements="37" coveredstatements="0" conditionals="3" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <metrics statements="35" coveredstatements="0" conditionals="3" coveredconditionals="0" methods="3" coveredmethods="0"/>
       <file name="+layout.svelte" path="/home/runner/work/CineHub/CineHub/src/routes/+layout.svelte">
         <metrics statements="1" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
@@ -680,24 +678,22 @@
         <line num="28" count="0" type="stmt"/>
       </file>
       <file name="+page.svelte" path="/home/runner/work/CineHub/CineHub/src/routes/+page.svelte">
-        <metrics statements="17" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <metrics statements="15" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="cond" truecount="0" falsecount="1"/>
-        <line num="11" count="0" type="stmt"/>
         <line num="12" count="0" type="stmt"/>
         <line num="13" count="0" type="stmt"/>
         <line num="14" count="0" type="stmt"/>
-        <line num="17" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
         <line num="18" count="0" type="stmt"/>
-        <line num="21" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
         <line num="22" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
         <line num="27" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
         <line num="41" count="0" type="stmt"/>
         <line num="42" count="0" type="stmt"/>
         <line num="43" count="0" type="stmt"/>
-        <line num="44" count="0" type="stmt"/>
-        <line num="48" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
       </file>
     </package>
     <package name="CineHub.src.routes.admin.add_films">
