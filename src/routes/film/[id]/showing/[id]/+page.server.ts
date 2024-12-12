@@ -21,7 +21,6 @@ export const load = async ({ url }) => {
             .where(eq(showing.id, parseInt(showingId, 10)))
 
         const seatCategories = [];
-        const ticketTypes = [];
         for (let i = 0; i < show[0].PriceSet.seatCategoryPrices.length; i++) {
             const category = await db
                 .select()
@@ -40,10 +39,6 @@ export const load = async ({ url }) => {
             seatCategories,
             hall: hall[0]
         }
-        // const set = await db
-        //     .select()
-        //     .from(priceSet)
-        //     .where(eq(priceSet.id, shows[0].priceSetId));
     }
     catch(e){
         throw error(500, "Internal Server Error DB");

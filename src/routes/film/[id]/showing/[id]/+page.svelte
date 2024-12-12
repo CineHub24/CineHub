@@ -3,9 +3,6 @@
     import { page } from '$app/stores';
     export let data;
     const { show, movie, seatCategories, hall } = data;
-
-    const prices = [];
-
 </script>
 
 <style>
