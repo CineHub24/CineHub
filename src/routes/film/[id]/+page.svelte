@@ -1,4 +1,5 @@
 <script>
+	import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     export let data;
     const {movie} = data
@@ -72,7 +73,10 @@
         <div class="showtime">
           <p><strong>{show.date}</strong></p>
           <p>{show.time}</p>
-          <button>Zur Buchung →</button>
+          <button
+            onclick={() => goto(`/film/${movie.id}/showing/${show.id}/`)}
+            >
+            Zur Buchung →</button>
         </div>
       {/each}
     </div>
