@@ -66,7 +66,9 @@ export const showing = pgTable('Showing', {
 	id: serial("id").primaryKey(),
   filmid: integer('film_id').references(() => film.id, {onDelete: 'cascade'}),
   hallid: integer("hall_id").references(() => cinemaHall.id, {onDelete: 'cascade'}),
-  priceSetId: integer('priceSetId').references(() => priceSet.id),
+  priceSetId: integer('priceSetId')
+    .references(() => priceSet.id)
+    .default(sql`'1'::integer`),
 	date: date('date').notNull(),
   time: time('time'),
   endTime: time('endTime'),
