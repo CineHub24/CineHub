@@ -1,3 +1,15 @@
+<!-- HOW TO USE THIS BUTTON
+
+<script lang="ts">
+  import Button from '../components/Button.svelte';
+</script>
+
+<Button type="submit" onClick={() => console.log('Submitted')}>
+  Submit
+</Button>
+
+-->
+
 <script lang="ts">
     export let type: 'button' | 'submit' | 'reset' = 'button';
     export let onClick: () => void = () => {};
@@ -29,15 +41,3 @@
   <button type={type} on:click={onClick} disabled={disabled}>
     <slot />
   </button>
-
-<!-- HOW TO USE THIS BUTTON
-
-<script lang="ts">
-  import Button from '../components/Button.svelte';
-</script>
-
-<Button type="submit" onClick={() => console.log('Submitted')}>
-  Submit
-</Button>
-
--->

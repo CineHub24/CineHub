@@ -1,3 +1,14 @@
+<!-- HOW TO USE
+<MovieCard
+  movie={{
+    id: 42,
+    title: "Der große Abenteuerfilm",
+    description: "Eine packende Geschichte über Mut und Freundschaft.",
+    poster: "/images/abenteuer_poster.jpg"
+  }}
+/>
+-->
+
 <script lang="ts">
 	export let movie: {
 		id: number;
