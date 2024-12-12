@@ -1,11 +1,14 @@
 <script lang="ts">
-	let { movie } = $props();
+		import { goto } from '$app/navigation';
+	
+	
+	let { movie, url } = $props();
+	
 
-	import { goto } from '$app/navigation';
 
 	// Navigation logic
 	function navigateToMovie() {
-		goto(`/film/${movie.id}`);
+		goto(`${url}`);
 	}
 </script>
 

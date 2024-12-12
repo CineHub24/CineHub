@@ -45,6 +45,6 @@
 
 <div class="movies-container">
 	{#each movies as movie}
-		<MovieCard {movie} />
+		<MovieCard movie = {movie} url= "film/{movie.id}" />
 	{/each}
 </div>
