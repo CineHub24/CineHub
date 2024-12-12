@@ -66,7 +66,7 @@
     <div class="details">
       <h1>{movie?.title ?? $page.params.id}</h1>
       <p>{movie.description}</p>
-      <p><strong>Erscheinungsdatum:</strong> {movie.releaseDate}</p>
+      <p><strong>Erscheinungsdatum:</strong> {movie.year}</p>
     </div>
     <div class="showtimes">
       {#each shows as show}

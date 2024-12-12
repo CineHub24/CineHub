@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { cinemaHall, film, showing } from '$lib/server/db/schema';
+import { cinemaHall, film, priceSet, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
 import { date } from 'drizzle-orm/mysql-core';
@@ -35,11 +35,14 @@ export const load = async ({ url }) => {
 	.from(showing).where(eq(showing.filmid, <number>id))
 		
 	const halls = await db.select().from(cinemaHall);
+	const priceSets = await db.select().from(priceSet);
 	return {
 		
 		film: movies[0] as Film,
 		shows: shows,
-		halls: halls
+		halls: halls,
+		priceSets: priceSets
+
 		
 	};
 };

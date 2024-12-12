@@ -108,6 +108,8 @@ export const priceSet = pgTable('PriceSet', {
     .array()
     .notNull()
     .default(sql`ARRAY [1,2,3,4,5]`),
+  priceFactor: decimal('priceFactor', { precision: 10, scale: 3 })
+    .default(sql`'1'::integer`)
 });
 
 export const seatCategory = pgTable('seatCategory', {

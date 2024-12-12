@@ -6,7 +6,7 @@
 	import type { Film, freeSlots, Showing } from './+page.server.js';
 
 	let { data }: { data: PageData } = $props();
-	let { film, shows, halls } = data;
+	let { film, shows, halls, priceSets } = data;
 
 	let showAddShowForm = $state(false);
 	function toggleShowForm() {
@@ -83,6 +83,14 @@
 					<select name="hall">
 						{#each halls as hall}
 							<option value={hall.id}>Saal {hall.hallNumber}</option>
+						{/each}
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="priceSet">Preisset:</label>
+					<select name="priceSet">
+						{#each priceSets as set}
+							<option value={set.id}>{set.name}</option>
 						{/each}
 					</select>
 				</div>

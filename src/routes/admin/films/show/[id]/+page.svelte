@@ -3,9 +3,9 @@
 	import { type PageData } from './$types';
 
 
-let {data}: {data:PageData} = $props()
-let {show} = data
-function zurueck() {
+	let {data}: {data:PageData} = $props()
+	let {show, priceSets} = data
+	function zurueck() {
 		goto(`/admin/films/film/${show.filmid}`)
 	}
 </script>
@@ -28,6 +28,14 @@ function zurueck() {
 			<div class="form-group">
 				<label for="time">Endzeit:</label>
 				<input name="time" bind:value={show.endTime} type="time" readonly />
+			</div>
+			<div class="form-group">
+				<label for="priceSet">Preisset:</label>
+				<select name="priceSet">
+					{#each priceSets as set}
+						<option value={set.id} selected={set.id == show.priceSet}>{set.name} </option>
+					{/each}
+				</select>
 			</div>
 			<div class="actions">
 				<button type="submit">Speichern</button>
