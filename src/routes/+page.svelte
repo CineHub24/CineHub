@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Header from '../lib/components/header.svelte';
 	import MovieCard from '../lib/components/movie_card.svelte';
+	import Footer from '../lib/components/footer.svelte';
 	import { enhance } from '$app/forms';
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
 	import { i18n } from '$lib/i18n';
@@ -48,3 +49,6 @@
 		<MovieCard {movie} />
 	{/each}
 </div>
+
+
+<Footer />

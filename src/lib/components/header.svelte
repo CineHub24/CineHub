@@ -1,3 +1,12 @@
+<!-- HOW TO USE
+<Header 
+  user={currentUser}
+  onLoginClick={handleLoginClick}
+  onProfileClick={handleProfileClick}
+  onLanguageSwitch={handleLanguageSwitch}
+/>
+-->
+
 <script lang="ts">
     import { goto } from '$app/navigation';
 
