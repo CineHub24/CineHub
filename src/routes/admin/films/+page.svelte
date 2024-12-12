@@ -1,4 +1,6 @@
 <script>
+	import MovieCard from '$lib/components/movie_card.svelte';
+
 	export let data;
     const {filme} = data
 </script>
@@ -8,13 +10,16 @@
     <a href="/admin/add_films">Filme Hinzufügen</a><br>
     <a href="/admin/add_room">Kinosaal Hinzufügen</a><br>
     <div class="film-liste">    
-        {#each filme as film (film.id)}
-            <div class="film-item">
+        {#each filme as movie}
+            <!-- <div class="film-item">
                 <a href="/admin/films/film/{film.id}">
                     {film.title} - {film.genres}        
-                    <!-- TODO - genres is a array  -->
+                    TODO - genres is a array  
 					<img src={film.poster} alt= {film.title}>
                 </a>
+            </div> -->
+            <div class="movies-container">
+                <MovieCard {movie} url="/admin/films/film/{movie.id}" />
             </div>
         {/each}
     </div>

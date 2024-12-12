@@ -1,9 +1,12 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
     import { page } from '$app/stores';
-    export let data;
-    const {movie} = data
-    const {shows} = data;
+	import type { PageServerData } from './$types';
+    // export let data;
+    // const {movie} = data
+    // const {shows} = data;
+    const {data}:{data:PageServerData} = $props();
+    const { movie, shows } = data;
   </script>
   
   <style>
@@ -66,7 +69,7 @@
     <div class="details">
       <h1>{movie?.title ?? $page.params.id}</h1>
       <p>{movie.description}</p>
-      <p><strong>Erscheinungsdatum:</strong> {movie.releaseDate}</p>
+      <p><strong>Erscheinungsdatum:</strong> {movie.year}</p>
     </div>
     <div class="showtimes">
       {#each shows as show}
