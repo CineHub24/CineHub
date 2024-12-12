@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for CineHub/src/lib/paraglide/messages.js</title>
+    <title>Code coverage report for CineHub/src/routes/profile/+page.server.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../../prettify.css" />
     <link rel="stylesheet" href="../../../../base.css" />
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">CineHub/src/lib/paraglide</a> messages.js</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">CineHub/src/routes/profile</a> +page.server.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>0/25</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>0/25</span>
             </div>
         
             
@@ -89,10 +89,24 @@
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
 <a name='L26'></a><a href='#L26'>26</a>
-<a name='L27'></a><a href='#L27'>27</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -102,12 +116,16 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -115,32 +133,47 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >/* eslint-disable */</span></span></span>
-import { languageTag } from "./runtime.js"
-import * as en from "./messages/en.js"
-import * as de from "./messages/de.js"
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import * as auth from '$lib/server/auth';<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
+import { fail, redirect } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 &nbsp;
+<span class="cstat-no" title="statement not covered" >export const load: PageServerLoad = async (event) =&gt; {</span>
+    // Fetch user information from locals
+<span class="cstat-no" title="statement not covered" >    const user = event.locals.user || { email: 'guest@example.com', role: 'Guest', id: 0 };</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >/**</span>
-<span class="cstat-no" title="statement not covered" > * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).</span>
-<span class="cstat-no" title="statement not covered" > *</span>
-<span class="cstat-no" title="statement not covered" > * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),</span>
-<span class="cstat-no" title="statement not covered" > *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.</span>
-<span class="cstat-no" title="statement not covered" > * </span>
-<span class="cstat-no" title="statement not covered" > * - The params are NonNullable&lt;unknown&gt; because the inlang SDK does not provide information on the type of a param (yet).</span>
-<span class="cstat-no" title="statement not covered" > * </span>
-<span class="cstat-no" title="statement not covered" > * @param {{ name: NonNullable&lt;unknown&gt; }} params</span>
-<span class="cstat-no" title="statement not covered" > * @param {{ languageTag?: "en" | "de" }} options</span>
-<span class="cstat-no" title="statement not covered" > * @returns {string}</span>
-<span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" >/* @__NO_SIDE_EFFECTS__ */</span>
-<span class="cstat-no" title="statement not covered" >export const hello_world = (params , options = {}) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >	return {</span>
-<span class="cstat-no" title="statement not covered" >		de: de.hello_world,</span>
-<span class="cstat-no" title="statement not covered" >		en: en.hello_world</span>
-<span class="cstat-no" title="statement not covered" >	}[options.languageTag ?? languageTag()](params)</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+    // Return data to the page
+<span class="cstat-no" title="statement not covered" >    return {</span>
+<span class="cstat-no" title="statement not covered" >        user,</span>
+<span class="cstat-no" title="statement not covered" >        m: {</span>
+<span class="cstat-no" title="statement not covered" >            hello_world: ({ name }: { name: string }) =&gt; `Hello, ${name}!`</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >    };</span>
+<span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
+<span class="cstat-no" title="statement not covered" >export const actions: Actions = {</span>
+<span class="cstat-no" title="statement not covered" >    logout: async (event) =&gt; {</span>
+        // Check if a session exists
+<span class="cstat-no" title="statement not covered" >        if (!event.locals.session) {</span>
+<span class="cstat-no" title="statement not covered" >            return fail(401, { message: 'Unauthorized' });</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        try {</span>
+            // Invalidate session
+<span class="cstat-no" title="statement not covered" >            await auth.invalidateSession(event.locals.session.id);</span>
+<span class="cstat-no" title="statement not covered" >            auth.deleteSessionTokenCookie(event);</span>
+<span class="cstat-no" title="statement not covered" >        } catch (error) {</span>
+<span class="cstat-no" title="statement not covered" >            console.error('Error during logout:', error);</span>
+<span class="cstat-no" title="statement not covered" >            return fail(500, { message: 'Internal Server Error' });</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+&nbsp;
+        // Redirect to the homepage after logout
+<span class="cstat-no" title="statement not covered" >        throw redirect(303, '/');</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
