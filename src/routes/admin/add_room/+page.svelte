@@ -1,161 +1,519 @@
 <script lang="ts">
-  
-    // Initial seat data: an array of rows, each containing seat objects
-    let seatPlan : ({
-        id: string;
-        type: string;
-    } | null)[][] = $state([
-        [ { id: 'A1', type: 'single' }, { id: 'A2', type: 'single' }, { id: 'A3', type: 'double' }, { id: 'A4', type: 'double' } ],
-        [ { id: 'B1', type: 'single' }, { id: 'B2', type: 'single' }, { id: 'B3', type: 'single' }, { id: 'B4', type: 'single' } ],
-    ]);
-  
-    function addRow() {
-      const newRowIndex = seatPlan.length;
-      const newRow = Array.from({ length: seatPlan[0].length }, (_, i) => ({
-        id: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`,
-        type: 'single'
-      }));
-      seatPlan = [...seatPlan, newRow];
-    }
-  
-    function addColumn() {
-      seatPlan = seatPlan.map((row, rowIndex) => [
-        ...row,
-        { id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: 'single' }
-      ]);
-    }
+	type SeatType = 'single' | 'double' | 'premium';
 
-    function removeRow(rowIndex: number) {
-      seatPlan = seatPlan.filter((_, rIdx) => rIdx !== rowIndex);
-    }
+	interface Seat {
+		id: string;
+		type: SeatType;
+	}
 
-    function removeColumn(colIndex: number) {
-      seatPlan = seatPlan.map(row => row.filter((_, cIdx) => cIdx !== colIndex));
-    }
+	// Initial seat data: an array of rows, each containing seat objects
+	let seatPlan: (Seat | null)[][] = $state([
+		[
+			{ id: 'A1', type: 'single' },
+			{ id: 'A2', type: 'single' },
+			{ id: 'A3', type: 'single' },
+			{ id: 'A4', type: 'single' }
+		],
+		[
+			{ id: 'B1', type: 'single' },
+			{ id: 'B2', type: 'single' },
+			{ id: 'B3', type: 'single' },
+			{ id: 'B4', type: 'single' }
+		]
+	]);
+
+  let data = $props();
+
+  let hallNumber:number;
+
+	// Mode: 'removeRestore' or 'changeType'
+	let mode: 'removeRestore' | 'changeType' = $state('removeRestore');
+
+	function toggleMode(newMode: 'removeRestore' | 'changeType') {
+		mode = newMode;
+	}
+
+	function toggleSeat(rowIndex: number, colIndex: number) {
+		seatPlan = seatPlan.map((row, rIdx) =>
+			rIdx === rowIndex
+				? row.map((seat, cIdx) => {
+						if (cIdx === colIndex) {
+							if (mode === 'removeRestore') {
+								return seat
+									? null
+									: { id: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`, type: 'single' };
+							} else if (mode === 'changeType' && seat) {
+								return changeSeatType(seat);
+							}
+						}
+						return seat;
+					})
+				: row
+		);
+	}
+
+	function changeSeatType(seat: Seat): Seat {
+		const nextType: Record<SeatType, SeatType> = {
+			single: 'double',
+			double: 'premium',
+			premium: 'single'
+		};
+		console.log('changing seat type');
+		return { ...seat, type: nextType[seat.type] };
+	}
+
+	function getSeatEmoji(type: SeatType): string {
+		switch (type) {
+			case 'single':
+				return '🪑'; // Single seat emoji
+			case 'double':
+				return '👫'; // Double seat emoji
+			case 'premium':
+				return '💺'; // Premium seat emoji
+			default:
+				return '';
+		}
+	}
+
+	function toggleRow(rowIndex: number) {
+		const emptySeats = seatPlan[rowIndex].filter((seat) => seat === null).length;
+		const totalSeats = seatPlan[rowIndex].length;
+
+		if (emptySeats >= totalSeats / 2) {
+			// If half or more seats are empty, restore the row
+			restoreSeatRow(rowIndex);
+		} else {
+			// Otherwise, remove the row
+			removeSeatRow(rowIndex);
+		}
+	}
+
+	function toggleColumn(colIndex: number) {
+		const emptySeats = seatPlan.filter((row) => row[colIndex] === null).length;
+		const totalSeats = seatPlan.length;
+
+		if (emptySeats >= totalSeats / 2) {
+			// If half or more seats are empty, restore the column
+			restoreSeatColumn(colIndex);
+		} else {
+			// Otherwise, remove the column
+			removeSeatColumn(colIndex);
+		}
+	}
+
+	function addRow() {
+		const newRowIndex = seatPlan.length;
+		const newRow = Array.from(
+			{ length: seatPlan[0].length },
+			(_, i) =>
+				({
+					id: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`,
+					type: 'single'
+				}) as Seat
+		);
+		seatPlan = [...seatPlan, newRow];
+	}
+
+	function addColumn() {
+		seatPlan = seatPlan.map((row, rowIndex) => [
+			...row,
+			{ id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: 'single' }
+		]);
+	}
+
+	function removeRow(rowIndex: number) {
+		seatPlan = seatPlan.filter((_, rIdx) => rIdx !== rowIndex);
+	}
+
+	function removeColumn(colIndex: number) {
+		seatPlan = seatPlan.map((row) => row.filter((_, cIdx) => cIdx !== colIndex));
+	}
+
+	function removeSeat(rowIndex: number, colIndex: number) {
+		const updatedPlan = seatPlan.map((row, rIdx) =>
+			rIdx === rowIndex ? row.map((seat, cIdx) => (cIdx === colIndex ? null : seat)) : row
+		);
+		seatPlan = updatedPlan;
+	}
+
+	function restoreSeat(rowIndex: number, colIndex: number) {
+		const originalId = `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`;
+		const updatedPlan = seatPlan.map((row, rIdx) =>
+			rIdx === rowIndex
+				? row.map((seat, cIdx) =>
+						cIdx === colIndex ? ({ id: originalId, type: 'single' } as Seat) : seat
+					)
+				: row
+		);
+		seatPlan = updatedPlan;
+	}
+
+	function removeSeatRow(rowIndex: number) {
+		const updatedPlan = seatPlan.map((row, rIdx) =>
+			rIdx === rowIndex ? row.map(() => null) : row
+		);
+		seatPlan = updatedPlan;
+	}
+
+	function removeSeatColumn(colIndex: number) {
+		const updatedPlan = seatPlan.map((row) =>
+			row.map((seat, cIdx) => (cIdx === colIndex ? null : seat))
+		);
+		seatPlan = updatedPlan;
+	}
+
+	function restoreSeatRow(rowIndex: number) {
+		const updatedPlan = seatPlan.map((row, rIdx) =>
+			rIdx === rowIndex
+				? row.map(
+						(_, cIdx) =>
+							({
+								id: `${String.fromCharCode(65 + rowIndex)}${cIdx + 1}`,
+								type: 'single'
+							}) as Seat
+					)
+				: row
+		);
+		seatPlan = updatedPlan;
+	}
+
+	function restoreSeatColumn(colIndex: number) {
+		const updatedPlan = seatPlan.map((row, rIdx) =>
+			row.map((seat, cIdx) =>
+				cIdx === colIndex
+					? ({ id: `${String.fromCharCode(65 + rIdx)}${colIndex + 1}`, type: 'single' } as Seat)
+					: seat
+			)
+		);
+		seatPlan = updatedPlan;
+	}
 
 
-    function removeSeat(rowIndex: number, colIndex: number) {
-        const updatedPlan = seatPlan.map((row, rIdx) =>
-        rIdx === rowIndex
-            ? row.map((seat, cIdx) => (cIdx === colIndex ? null : seat))
-            : row
-        );
-        seatPlan = updatedPlan;
-    }
 
-    function restoreSeat(rowIndex: number, colIndex: number) {
-        const originalId = `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`;
-        const updatedPlan = seatPlan.map((row, rIdx) =>
-        rIdx === rowIndex
-            ? row.map((seat, cIdx) => (cIdx === colIndex ? { id: originalId, type: "single" } : seat))
-            : row
-        );
-        seatPlan = updatedPlan;
-    }
+  function prepareSeatData() {
+    const seats: { seatNumber: string; row: string; type: "single" | "double" | "premium"; categoryId: number; }[] = [];
+    seatPlan.forEach((row, rowIndex) => {
+      row.forEach((seat, colIndex) => {
+        if (seat) {
+          seats.push({
+            seatNumber: seat.id,
+            row: String.fromCharCode(65 + rowIndex),
+            type: seat.type,
+            categoryId: 1, // Replace with appropriate category ID based on your logic
+          });
+        }
+      });
+    });
 
-    function removeSeatRow(rowIndex: number) {
-        const updatedPlan = seatPlan.map((row, rIdx) =>
-        rIdx === rowIndex ? row.map(() => null) : row
-        );
-        seatPlan = updatedPlan;
-    }
+    return JSON.stringify(seats);
+  }
+</script>
 
-    function removeSeatColumn(colIndex: number) {
-        const updatedPlan = seatPlan.map(row =>
-        row.map((seat, cIdx) => (cIdx === colIndex ? null : seat))
-        );
-        seatPlan = updatedPlan;
-    }
 
-    
+<div class="legend">
+  <div class="legend-item">
+    <span class="emoji">🪑</span>
+    <span class="label">Single Seat</span>
+  </div>
+  <div class="legend-item">
+    <span class="emoji">👫</span>
+    <span class="label">Double Seat</span>
+  </div>
+  <div class="legend-item">
+    <span class="emoji">💺</span>
+    <span class="label">Premium Seat</span>
+  </div>
+</div>
 
-  </script>
 
-    <style>
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        flex-direction: column;
-        background-color: #f5f5f5;
-    }
 
-    .seat-plan {
-        display: grid;
-        gap: 5px;
-        margin-top: 20px;
-    }
-
-    .row {
-        display: flex;
-        align-items: center;
-    }
-
-    .seat {
-        width: 50px;
-        height: 50px;
-        background-color: #ddd;
-        border: 1px solid #888;
-        text-align: center;
-        line-height: 50px;
-        margin-right: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 14px;
-    }
-
-    .seat.double {
-        width: 105px; /* Double the width of a single seat plus margin */
-        background-color: #bbb;
-    }
-
-    button {
-        padding: 8px 12px;
-        margin: 5px;
-        cursor: pointer;
-    }
-    </style>
-
-  
-
-  <div class="controls">
-    <button onclick={addRow}>Add Row</button>
-    <button onclick={addColumn}>Add Column</button>
-    <button onclick={() => removeRow(seatPlan.length - 1)}>Remove Last Row</button>
-    <button onclick={() => removeColumn(seatPlan[0]?.length - 1)}>Remove Last Column</button>
+<form method="POST" action="?/saveSeats">
+  <div>
+    <label for="hallNumber">Hall Number:</label>
+    <input type="text" id="hallNumber" name="hallNumber" bind:value={hallNumber} required />
   </div>
 
-  <div class="container">
+  <input type="hidden" name="seatPlanData" value={prepareSeatData()} />
 
-    {#if seatPlan[0]}
-        <div class="column-controls">
-        {#each seatPlan[0] as _, colIndex}
-            <button onclick={() => removeSeatColumn(colIndex)}>Remove Col {colIndex + 1}</button>
-        {/each}
-        </div>
-    {/if}
+  <button type="submit">Save Seat Plan</button>
+</form>
 
 
-    <div class="seat-plan">
-      {#each seatPlan as row, rowIndex}
-        <div class="row">
-          {#each row as seat, colIndex}
-            {#if seat}
-                <div class="seat" onclick={() => removeSeat(rowIndex, colIndex)}>
-                    {seat.id}
-                </div>
-            {:else}
-                <div class="seat placeholder">
-                    <button onclick={() => restoreSeat(rowIndex, colIndex)}>Restore</button>
-                </div>
-            {/if}
-          {/each}
-          <button onclick={() => removeSeatRow(rowIndex)}>Remove Row {rowIndex + 1}</button>
-        </div>
-      {/each}
-    </div>
 
-   
-  </div>
-  
+{#if data?.success}
+  <p class="success">{data.message}</p>
+{:else if data?.error}
+  <p class="error">{data.message}</p>
+{/if}
+
+
+<div class="controls">
+	<button onclick={addRow}>Add Row</button>
+	<button onclick={addColumn}>Add Column</button>
+	<button onclick={() => removeRow(seatPlan.length - 1)}>Remove Last Row</button>
+	<button onclick={() => removeColumn(seatPlan[0]?.length - 1)}>Remove Last Column</button>
+
+	<button
+		onclick={() => toggleMode('removeRestore')}
+		class={mode === 'removeRestore' ? 'active' : ''}
+	>
+		Remove/Restore Seats
+	</button>
+	<button onclick={() => toggleMode('changeType')} class={mode === 'changeType' ? 'active' : ''}>
+		Change Seat Type
+	</button>
+</div>
+
+<div class="container">
+	{#if seatPlan[0]}
+		<div class="column-controls">
+			{#each seatPlan[0] as _, colIndex}
+				<button onclick={() => toggleColumn(colIndex)}>Remove/Restore Col {colIndex + 1}</button>
+			{/each}
+		</div>
+	{/if}
+
+	<div class="seat-plan">
+		{#each seatPlan as row, rowIndex}
+			<div class="row">
+				{#each row as seat, colIndex}
+					{#if seat}
+						<!-- dont use div, use button -->
+						<div class="seat" onclick={() => toggleSeat(rowIndex, colIndex)}>
+							{seat.id}<br />
+							{getSeatEmoji(seat.type)}
+						</div>
+					{:else}
+						<div class="seat placeholder" onclick={() => toggleSeat(rowIndex, colIndex)}></div>
+					{/if}
+				{/each}
+				<button class="row-btn" onclick={() => toggleRow(rowIndex)}
+					>Remove/Restore Row {rowIndex + 1}</button
+				>
+			</div>
+		{/each}
+	</div>
+</div>
+<style>
+/* Container for the entire seat plan layout */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: #f5f5f5;
+  padding: 20px;
+  position: relative;
+  max-width: fit-content;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+/* Controls for adding/removing rows and columns */
+.controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.controls button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.controls button:hover {
+  background-color: #0056b3;
+}
+
+.controls button.active {
+  background-color: #0056b3;
+  color: white;
+  font-weight: bold;
+}
+
+/* Column controls for toggling columns */
+.column-controls {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+  justify-content: flex-start;
+  width: fit-content;
+}
+
+.column-controls button {
+  width: 70px;           /* Match the width of the seat */
+  height: 70px;          /* Match the height of the seat */
+  font-size: 14px;       /* Adjust font size for readability */
+  background-color: #ff5555;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;   /* Center the text vertically */
+  padding: 0;
+}
+
+.column-controls button:hover {
+  background-color: #d94444;
+}
+
+
+/* Seat plan grid layout */
+.seat-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Each row of seats */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Individual seat styling */
+.seat {
+  width: 70px;
+  height: 70px;
+  border: 2px solid #888;
+  background-color: #f0f0f0;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s, border-color 0.3s;
+  line-height: 1.2;
+}
+
+.seat:hover {
+  background-color: #d0d0d0;
+  border-color: #555;
+}
+
+/* Placeholder seat for removed seats */
+.seat.placeholder {
+  background-color: #e0e0e0;
+  color: #888;
+  border: 2px dashed #ccc;
+  cursor: pointer;
+}
+
+.seat.placeholder:hover {
+  background-color: #d0d0d0;
+}
+
+/* Row buttons for removing/restoring rows */
+.row-btn {
+  width: 150px;          /* Increase the width to align with row content */
+  height: 70px;          /* Match the height of the seat */
+  background-color: #ff5555;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;   /* Center the text vertically */
+  padding: 0;
+}
+
+
+.row-btn:hover {
+  background-color: #d94444;
+}
+
+
+.legend {
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.legend-item .emoji {
+  font-size: 24px;
+}
+
+.legend-item .label {
+  font-weight: bold;
+  color: #555;
+}
+
+.success {
+    color: green;
+    font-weight: bold;
+  }
+
+  .error {
+    color: red;
+    font-weight: bold;
+  }
+
+
+/* Unified hover effect for buttons in controls and row/column buttons */
+.controls button:hover,
+.column-controls button:hover,
+.row-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Design: Adjust for smaller screens */
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .controls button {
+    width: 100%;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .seat {
+    width: 100%;
+  }
+
+  .column-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .column-controls button {
+    width: 100%;
+  }
+}
+</style>
+

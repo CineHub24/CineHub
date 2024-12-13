@@ -1,49 +1,63 @@
 import { db } from '$lib/server/db';
-import * as table from '$lib/server/db/schema';
+import { seat, cinemaHall } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 import { fail, type Actions } from '@sveltejs/kit';
 
-interface Sitz {
-    sitznummer: number;
-    reihe: number;
-    spalte: number;
-    buchbar: boolean;
+interface SeatPlan {
+    seatNumber: string;
+    row: string;
+    type: string;
 }
 
 export const actions = {
-    saveKinosaal: async ({ request }: Request) => {
-        const data = await request.formData();
-        const hallNumber = data.get('hall-number')?.toString();
-        const sitzeJson = data.get('sitze')?.toString();
-
-        if (!name || !sitzeJson) {
-            return fail(400, {
-                name,
-                missing: !name ? 'name' : 'sitze'
-            });
-        }
-
+    saveSeats: async ({ request }) => {
         try {
-            const sitze = JSON.parse(sitzeJson) as Sitz[];
+            const formData = await request.formData();
+            const seatPlanData = formData.get('seatPlanData');
+            const hallNumber = formData.get('hallNumber');
 
-            await db.insert(table.cinemaHall).values({
-                hallNumber: hallNumber,
-                capacity: sitze.length,
-                cinemaId: "asd"
-            });
+            if (!hallNumber) throw new Error('No hall number provided');
+
+            if (typeof seatPlanData !== 'string') throw new Error('Invalid seat plan data');
+
+            const seats: SeatPlan[] = JSON.parse(seatPlanData);
+
+            const existingHall = await db
+                .select({
+                    id: cinemaHall.id,
+                    hallNumber: cinemaHall.hallNumber,
+                })
+                .from(cinemaHall)
+                .where(eq(cinemaHall.hallNumber, Number(hallNumber)));
+
+            let cinemaHallId;
+            if (existingHall.length === 0) {
+                const insertedHall = await db
+                    .insert(cinemaHall)
+                    .values({ hallNumber: Number(hallNumber), capacity: 100 }) // Default capacity; adjust as needed
+                    .returning({ id: cinemaHall.id });
+
+                cinemaHallId = insertedHall[0].id;
+            } else {
+                cinemaHallId = existingHall[0].id;
+            }
 
 
-            // TODO: Add your database save logic here
-            // For example:
-            // const savedKinosaal = await db.kinosaal.create({
-            //     data: { name, sitze }
-            // });
+            // Map seat data with cinemaHall ID
+            const seatsWithHall = seats.map((seat) => ({
+                seatNumber: seat.seatNumber,
+                row: seat.row,
+                type: seat.type,
+                cinemaHall: cinemaHallId,
+            }));
 
-            return { success: true };
+            // Insert seat data into the database using Drizzle
+            await db.insert(seat).values(seatsWithHall);
+
+            return { success: true, message: 'Seat plan saved successfully!' };
         } catch (error) {
-            return fail(500, {
-                name,
-                error: 'Failed to save Kinosaal'
-            });
+            console.error('Error saving seats:', error);
+            return fail(500, { error: true, message: error.message || 'Failed to save seat plan.' });
         }
-    }
+    },
 } satisfies Actions;

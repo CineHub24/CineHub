@@ -87,12 +87,28 @@ export const cinemaHall = pgTable('CinemaHall', {
   id: serial("id").primaryKey(),
   hallNumber: integer('hallNumber'),
   capacity: integer('capacity'),
-  deactivatedSeats: text('deactivatedSeats'),
-  activatedSeats: text('activatedSeats'),
-  cinemaId: integer('cinemaId')
-    .notNull()
-    .references(() => cinema.id, {onDelete: 'cascade'}) 
 
+
+  // cinemaId: integer('cinemaId')
+  //   .notNull()
+  //   .references(() => cinema.id, {onDelete: 'cascade'}) 
+
+});
+
+export const seat = pgTable('seat', {
+  id: serial('id').primaryKey(),
+  seatNumber: text('seatNumber').notNull(),
+  row: text('row').notNull(),
+  type: text('type').notNull(), // single, double, or premium
+  cinemaHall: integer('cinemaHall').notNull().references(() => cinemaHall.id),
+  // categoryId: integer('categoryId').references(() => seatCategory.id),
+});
+
+export const seatCategory = pgTable('seatCategory', {
+  id: serial('id').primaryKey(),
+  name: text('name'),
+  description: text('description'),
+  price: decimal('price', { precision: 10, scale: 2 })
 });
 
 export const priceSet = pgTable('PriceSet', {
@@ -108,12 +124,7 @@ export const priceSet = pgTable('PriceSet', {
     .default(sql`ARRAY [1,2,3,4,5]`),
 });
 
-export const seatCategory = pgTable('seatCategory', {
-  id: serial('id').primaryKey(),
-  name: text('name'),
-  description: text('description'),
-  price: decimal('price',{ precision: 10, scale: 2 })
-});
+
 
 export const ticketType = pgTable('TicketType', {
   id: serial('id').primaryKey(),
