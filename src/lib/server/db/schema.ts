@@ -101,7 +101,7 @@ export const seat = pgTable('seat', {
   row: text('row').notNull(),
   type: text('type').notNull(), // single, double, or premium
   cinemaHall: integer('cinemaHall').notNull().references(() => cinemaHall.id),
-  // categoryId: integer('categoryId').references(() => seatCategory.id),
+  categoryId: integer('categoryId').notNull().references(() => seatCategory.id),
 });
 
 export const seatCategory = pgTable('seatCategory', {

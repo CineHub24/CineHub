@@ -1,7 +1,8 @@
 import { db } from '$lib/server/db';
-import { seat, cinemaHall } from '$lib/server/db/schema';
+import { seat, cinemaHall, seatCategory } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail, type Actions } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
 
 interface SeatPlan {
     seatNumber: string;
@@ -61,3 +62,10 @@ export const actions = {
         }
     },
 } satisfies Actions;
+
+
+
+export const load: PageServerLoad = async () => {
+    const categories = await db.select().from(seatCategory);
+    return { categories };
+};

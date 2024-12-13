@@ -1,9 +1,8 @@
 <script lang="ts">
-	type SeatType = 'single' | 'double' | 'premium';
 
 	interface Seat {
 		id: string;
-		type: SeatType;
+		type: string;
 	}
 
 	// Initial seat data: an array of rows, each containing seat objects
@@ -26,7 +25,15 @@
 
   let hallNumber:number;
 
-	// Mode: 'removeRestore' or 'changeType'
+  let seatTypes: string[] = [];
+
+  if (data.categories && data.categories.length > 0) {
+    seatTypes = data.categories.map((category) => category.name);
+  } else {
+    console.warn('Error: No seat categories provided. Using default seat type.');
+    seatTypes = ['single']; 
+  }
+
 	let mode: 'removeRestore' | 'changeType' = $state('removeRestore');
 
 	function toggleMode(newMode: 'removeRestore' | 'changeType') {
@@ -52,18 +59,14 @@
 		);
 	}
 
-	function changeSeatType(seat: Seat): Seat {
-		const nextType: Record<SeatType, SeatType> = {
-			single: 'double',
-			double: 'premium',
-			premium: 'single'
-		};
-		console.log('changing seat type');
-		return { ...seat, type: nextType[seat.type] };
-	}
+  function changeSeatType(seat: Seat): Seat {
+    const currentIndex = seatTypes.indexOf(seat.type);
+    const nextIndex = (currentIndex + 1) % seatTypes.length;
+    return { ...seat, type: seatTypes[nextIndex] };
+  }
 
-	function getSeatEmoji(type: SeatType): string {
-		switch (type) {
+	function getSeatEmoji(type: String): string {
+		switch (type.toLowerCase()) {
 			case 'single':
 				return '🪑'; // Single seat emoji
 			case 'double':
@@ -71,9 +74,10 @@
 			case 'premium':
 				return '💺'; // Premium seat emoji
 			default:
-				return '';
+				return '❓';
 		}
 	}
+
 
 	function toggleRow(rowIndex: number) {
 		const emptySeats = seatPlan[rowIndex].filter((seat) => seat === null).length;
@@ -189,17 +193,20 @@
 	}
 
 
-
-  function prepareSeatData() {
-    const seats: { seatNumber: string; row: string; type: "single" | "double" | "premium"; categoryId: number; }[] = [];
+    function prepareSeatData() {
+    const seats: { seatNumber: string; row: string; type: string; categoryId: number }[] = [];
     seatPlan.forEach((row, rowIndex) => {
-      row.forEach((seat, colIndex) => {
+      row.forEach((seat) => {
         if (seat) {
+          let category
+          if(data.categories){
+            category = data.categories.find((cat) => cat.name === seat.type);
+          }
           seats.push({
             seatNumber: seat.id,
             row: String.fromCharCode(65 + rowIndex),
             type: seat.type,
-            categoryId: 1, // Replace with appropriate category ID based on your logic
+            categoryId: category ? category.id : 1, // Fallback to 1 if not found
           });
         }
       });
@@ -211,19 +218,24 @@
 
 
 <div class="legend">
-  <div class="legend-item">
-    <span class="emoji">🪑</span>
-    <span class="label">Single Seat</span>
-  </div>
-  <div class="legend-item">
-    <span class="emoji">👫</span>
-    <span class="label">Double Seat</span>
-  </div>
-  <div class="legend-item">
-    <span class="emoji">💺</span>
-    <span class="label">Premium Seat</span>
-  </div>
+  {#if data && Array.isArray(data.categories) && data.categories.length > 0}
+    {#each data.categories as category}
+      <div class="legend-item">
+        <span class="emoji">{getSeatEmoji(category.name)}</span>
+        <span class="label">{category.name}</span>
+      </div>
+    {/each}
+  {:else}
+    <div class="legend-item">
+      <span class="emoji">❓</span>
+      <span class="label">No Categories Available you should add one: <a href="/admin/add_seat_category">Create New Seat Category</a>
+	  </span>
+    </div>
+  {/if}
 </div>
+
+<a href="/admin/add_seat_category">Create New Seat Category</a>
+
 
 
 
@@ -240,10 +252,10 @@
 
 
 
-{#if data?.success}
-  <p class="success">{data.message}</p>
-{:else if data?.error}
-  <p class="error">{data.message}</p>
+{#if data?.form?.error}
+  <p class="error">{data.form.message || 'An unexpected error occurred.'}</p>
+{:else if data?.form?.success}
+  <p class="success">{data.form.success.message}</p>
 {/if}
 
 
@@ -294,8 +306,10 @@
 		{/each}
 	</div>
 </div>
+
+
+
 <style>
-/* Container for the entire seat plan layout */
 .container {
   display: flex;
   flex-direction: column;
