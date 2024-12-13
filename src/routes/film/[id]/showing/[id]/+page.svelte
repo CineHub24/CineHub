@@ -66,7 +66,7 @@
       <p><strong>Preis pro Ticket:</p>
         {#if seatCategories}
             {#each seatCategories as category}
-            <p>{category.name}: {parseFloat(category.price ?? '0.0') * parseFloat(show.PriceSet.priceFactor ?? '1')} €</p>
+            <p><strong>{category.name}: {Math.ceil(parseFloat(category.price ?? '0.0') * parseFloat(show.PriceSet.priceFactor ?? '1')) - 0.01} €</p>
             {/each}
         {/if}
         <div class="showtime">

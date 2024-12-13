@@ -34,14 +34,13 @@ export const actions = {
 		// Einzelne Werte extrahieren
 
 		let date = formData.get('date') as string;
-
 		let timeString = formData.get('time') as string;
-
+		let priceSetId = formData.get('priceSet') as unknown as number;
 
 		try {
 			await db
 				.update(showing)
-				.set({ date: date, time: timeString })
+				.set({ date: date, time: timeString, priceSetId: priceSetId })
 				.where(eq(showing.id, getID(url.pathname)));
 		} catch (e) {
 			console.log('Fehler' + e);

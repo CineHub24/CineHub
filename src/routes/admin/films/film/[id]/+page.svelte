@@ -119,6 +119,7 @@
 							<input type="hidden" name="slotEnd" value={slot.end} />
 							<input type="hidden" name="hall" value={slot.hallid} />
 							<input type="hidden" name="date" value={slot.date} />
+							<input type="hidden" name="priceSet" value={slot.priceSetId} />
 							<button>{slot.start} - {slot.end}</button>
 						</form>
 					</li>
