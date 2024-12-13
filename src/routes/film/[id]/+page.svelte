@@ -1,9 +1,12 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
     import { page } from '$app/stores';
-    export let data;
-    const {movie} = data
-    const {shows} = data;
+	import type { PageServerData } from './$types';
+    // export let data;
+    // const {movie} = data
+    // const {shows} = data;
+    const {data}:{data:PageServerData} = $props();
+    const { movie, shows } = data;
   </script>
   
   <style>
