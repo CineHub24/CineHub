@@ -1,14 +1,40 @@
-<script>
+<script lang="ts">
 	import MovieCard from '$lib/components/movie_card.svelte';
+    import Header from '$lib/components/header.svelte'
+    import { i18n } from '$lib/i18n';
+    import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
+    import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
 
 	export let data;
     const {filme} = data
+
+    function switchToLanguage(newLanguage: AvailableLanguageTag) {
+		const canonicalPath = i18n.route($page.url.pathname);
+		const localisedPath = i18n.resolveRoute(canonicalPath, newLanguage);
+		goto(localisedPath);
+	}
+
+    function onAddFilmClick() {
+        goto('/admin/add_films');
+    }
+
+    function onAddRoomClick() {
+        goto('/admin/add_room');
+    }
+
 </script>
 
+<Header 
+    user={{ email: 'Guest' }} 
+    onLanguageSwitch={() => switchToLanguage("en")} 
+    buttons={[
+        { label: 'Filme hinzufügen', onClick: onAddFilmClick },
+        { label: 'Kinosaal Hinzufügen', onClick: onAddRoomClick }
+    ]}
+    />
 <div class="container">
     <h1>Filme</h1>
-    <a href="/admin/add_films">Filme Hinzufügen</a><br>
-    <a href="/admin/add_room">Kinosaal Hinzufügen</a><br>
     <div class="film-liste">    
         {#each filme as movie}
             <!-- <div class="film-item">
