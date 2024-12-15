@@ -1,19 +1,20 @@
 <!-- HOW TO USE
 <Header 
-  user={currentUser}
-  onLoginClick={handleLoginClick}
-  onProfileClick={handleProfileClick}
-  onLanguageSwitch={handleLanguageSwitch}
+  user={{ email: user?.email || 'Guest' }}
+  onLanguageSwitch={() => switchToLanguage("en")}
+  buttons={[
+    { label: 'Action 1', onClick: handleAction1 },
+    { label: 'Action 2', onClick: handleAction2 },
+  ]}
 />
 -->
 
 <script lang="ts">
     import { goto } from '$app/navigation';
 
-    export let onLoginClick: () => void;
-    export let onProfileClick: () => void;
     export let onLanguageSwitch: () => void;
     export let user: { email: string };
+    export let buttons: Array<{ label: string; onClick: () => void }> | undefined;
 
     // Navigate to the login page or call the provided handler
     function goToLogin() {
@@ -33,10 +34,17 @@
         }
     }
 
+    function onLoginClick() {
+        goto('/login');
+    }
+
+    function onProfileClick() {
+        goto('/profile');
+    }
+
     // Extract the first letter of the user's email
     const userInitial = user?.email?.charAt(0)?.toUpperCase() || '?';
 </script>
-
 
 <style>
     .header {
@@ -115,6 +123,11 @@
 
 <div class="header">
     <div class="title">CineHub</div>
+    {#if buttons}
+                {#each buttons as { label, onClick }}
+                    <button onclick={onClick}>{label}</button>
+                {/each}
+            {/if}
     <div class="profile-container">
         <button class="profile-btn" onclick={onProfileClick}>
             <div class="profile-circle">{userInitial}</div>
