@@ -50,6 +50,11 @@
       <label for="price">Price:</label>
       <input type="number" id="price" name="price" step="0.01" bind:value={price} required />
     </div>
+
+    <div>
+        <label for="price">Emoji:</label>
+        <input type="number" id="price" name="price" step="0.01" bind:value={price} required />
+      </div>
   
     <button type="submit">Create Category</button>
   

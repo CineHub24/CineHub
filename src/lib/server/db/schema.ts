@@ -108,6 +108,7 @@ export const seatCategory = pgTable('seatCategory', {
   id: serial('id').primaryKey(),
   name: text('name'),
   description: text('description'),
+  emoji: text('emoji'),
   price: decimal('price', { precision: 10, scale: 2 })
 });
 
