@@ -33,8 +33,8 @@
     user={{ email: user?.email || 'Guest' }}
     onLanguageSwitch={() => switchToLanguage("en")}
     buttons={[
-        { label: 'Action 1', onClick: handleAction1 },
-        { label: 'Action 2', onClick: handleAction2 },
+        // { label: 'Action 1', onClick: handleAction1 },
+        // { label: 'Action 2', onClick: handleAction2 },
     ]}
 />
 
