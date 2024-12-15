@@ -1,4 +1,5 @@
 import { encodeBase32LowerCase } from '@oslojs/encoding';
+import { getRandomValues } from 'crypto';
 
 export function validateEmail(email: unknown): email is string {
 	return (
@@ -15,7 +16,7 @@ export function validatePassword(password: unknown): password is string {
 
 export function generateUserId() {
 	// ID with 120 bits of entropy, or about the same as UUID v4.
-	const bytes = crypto.getRandomValues(new Uint8Array(15));
+	const bytes = getRandomValues(new Uint8Array(15));
 	const id = encodeBase32LowerCase(bytes);
 	return id;
 }
