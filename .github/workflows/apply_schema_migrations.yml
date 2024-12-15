@@ -1,0 +1,37 @@
+name: Apply schema migrations
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  apply_migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies & tooling
+        run: |
+          npm install
+          npm install -g drizzle-kit pg
+
+      - name: Validate DATABASE_URL secret
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "ERROR: DATABASE_URL secret is not set!"
+            exit 1
+          fi
+
+      - name: Generate migrations
+        run: npx drizzle-kit generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Apply migrations
+        run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

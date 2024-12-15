@@ -1,5 +1,8 @@
-import { pgTable, pgEnum, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
-import * as t from "drizzle-orm/pg-core";
+import { desc, relations, sql } from 'drizzle-orm';
+import { int } from 'drizzle-orm/mysql-core';
+
+
+import { pgTable, pgEnum, serial, text, integer, timestamp, boolean, date, time, decimal } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin']);
 
@@ -33,43 +36,92 @@ export type User = typeof user.$inferSelect;
 
 
 export const film = pgTable('Film', {
-  id: t.text('id').primaryKey().generatedAlwaysAs(''),
+  id: serial('id').primaryKey(),
+  imdbID: text('imdbID'),
   title: text('title'),
-  genre: text('genre'),
+  genres: text("genres")
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  // Actors: text("actors")
+  //   .array()
+  //   .notNull()
+  //   .default(sql`'{}'::text[]`),
   director: text('director'), 
   runtime: integer('runtime'),
   ageRating: text('ageRating'),
   poster: text('poster'),
   description: text('description'),
-  releaseDate: date('releaseDate'),
-//   getShowings: text('getShowings'),
-//   createShowing: text('createShowing'),
-//   getFilm: text('getFilm'),
-//   getFilmById: text('getFilmById')
+
+  year: text('year'),
+
 });
 
+// export const filmRelations = relations(film, ({ many }) => ({
+// 	showings: many(showing),
+// }));
+
+
+export const showing = pgTable('Showing', {
+	id: serial("id").primaryKey(),
+  filmid: integer('film_id').references(() => film.id, {onDelete: 'cascade'}),
+  hallid: integer("hall_id").references(() => cinemaHall.id, {onDelete: 'cascade'}),
+  priceSetId: integer('priceSetId')
+    .references(() => priceSet.id)
+    .default(sql`'1'::integer`),
+	date: date('date').notNull(),
+  time: time('time'),
+  endTime: time('endTime'),
+	language: text('language'),
+	dimension: text('dimension'),
+	absage: text('absage'),
+	soldTickets: text('soldTickets'),
+	});
+
 export const cinema = pgTable('Cinema', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name'),
   address: text('address'),
   numScreens: integer('numScreens')
 });
 
 export const cinemaHall = pgTable('CinemaHall', {
-  id: text('id').primaryKey(),
+  id: serial("id").primaryKey(),
   hallNumber: integer('hallNumber'),
   capacity: integer('capacity'),
   deactivatedSeats: text('deactivatedSeats'),
   activatedSeats: text('activatedSeats'),
-  cinemaId: text('cinemaId')
+  cinemaId: integer('cinemaId')
+    .notNull()
+    .references(() => cinema.id, {onDelete: 'cascade'}) 
+
 });
 
 export const priceSet = pgTable('PriceSet', {
-  id: text('id').primaryKey(),
-  basePricePerCategory: integer('basePricePerCategory'),
-  ticketTypeFactor: integer('ticketTypeFactor'),
-  getDefaultPriceSet: text('getDefaultPriceSet'),
-  calculatePrice: text('calculatePrice')
+  id: serial('id').primaryKey(),
+  name: text('name'),
+  seatCategoryPrices: integer("seatCategoryPrices")
+    .array()
+    .notNull()
+    .default(sql`ARRAY [1,2,3,4,5]`),
+  ticketTypes: integer('ticketTypes')
+    .array()
+    .notNull()
+    .default(sql`ARRAY [1,2,3,4,5]`),
+});
+
+export const seatCategory = pgTable('seatCategory', {
+  id: serial('id').primaryKey(),
+  name: text('name'),
+  description: text('description'),
+  price: decimal('price',{ precision: 10, scale: 2 })
+});
+
+export const ticketType = pgTable('TicketType', {
+  id: serial('id').primaryKey(),
+  namne: text('name'),
+  description: text('description'),
+  factor: decimal('factor', { precision: 10, scale: 3 })
 });
 
 export const paymentType = pgTable('PaymentType', {
@@ -113,19 +165,7 @@ export const booking = pgTable('Booking', {
   cancelTotal: boolean('cancelTotal'),
   payBooking: boolean('payBooking'),
   exportTerminal: boolean('exportTerminal'),
-  remindUser: boolean('remindUser'),
-  getPriceDiscount: text('getPriceDiscount'),
-  getPaymentMethod: text('getPaymentMethod'),
   userId: text('userId')
-});
-
-export const seatCategory = pgTable('SeatCategory', {
-  id: text('id').primaryKey(),
-  front: boolean('front'),
-  middle: boolean('middle'),
-  rear: boolean('rear'),
-  bookable: boolean('bookable'),
-  premium: boolean('premium')
 });
 
 export const status = pgTable('Status', {
@@ -135,3 +175,5 @@ export const status = pgTable('Status', {
   validated: boolean('validated'), 
   cancelled: boolean('cancelled')
 });
+
+
