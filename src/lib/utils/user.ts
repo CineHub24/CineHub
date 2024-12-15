@@ -1,11 +1,11 @@
-import { encodeBase32LowerCase } from "@oslojs/encoding";
+import { encodeBase32LowerCase } from '@oslojs/encoding';
 
 export function validateEmail(email: unknown): email is string {
 	return (
 		typeof email === 'string' &&
 		email.length >= 5 &&
 		email.length <= 254 && // Maximale Länge einer E-Mail-Adresse laut Standard
-		/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) // Basis-Validierung für E-Mail-Adressen
+		/^[^\s@]+@[^\s@.]+\.[^\s@.]+(?:\.[^\s@.]+)*$/.test(email)
 	);
 }
 
