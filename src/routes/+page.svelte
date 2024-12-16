@@ -15,14 +15,6 @@
 		const localisedPath = i18n.resolveRoute(canonicalPath, newLanguage);
 		goto(localisedPath);
 	}
-
-	function handleLogin() {
-		goto('/login');
-	}
-
-	function goToProfile() {
-		goto('/profile');
-	}
     
 	const {data}:{data:PageServerData} = $props();
 	const { movies, user } = data;
@@ -38,11 +30,14 @@
 </style>
 
 <Header 
-	user={{ email: user?.email || 'Guest' }}
-	onLoginClick={handleLogin}
-	onProfileClick={goToProfile}
-	onLanguageSwitch={() => switchToLanguage("en")} 
+    user={{ email: user?.email || 'Guest' }}
+    onLanguageSwitch={() => switchToLanguage("en")}
+    buttons={[
+        // { label: 'Action 1', onClick: handleAction1 },
+        // { label: 'Action 2', onClick: handleAction2 },
+    ]}
 />
+
 
 <div class="movies-container">
 	{#each movies as movie}
