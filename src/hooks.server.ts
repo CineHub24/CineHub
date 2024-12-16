@@ -31,8 +31,9 @@ const handleAdmin: Handle = async ({ event, resolve }) => {
 	if (user && user.role === 'admin') {
 		return resolve(event);
 	} else {
-		return redirect(302, '/');
-		
+		const message = new Response("Forbidden", {status: 403, statusText: "Forbidden - You are not an admin"});
+		console.log(message, user);
+		return message;
 	}
 };
 
