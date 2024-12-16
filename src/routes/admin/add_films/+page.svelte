@@ -17,7 +17,7 @@
 
     async function setSelectedMovie(movie: Movie) {
     const formData = new FormData();
-    formData.append('id', movie.imdbID.toString());
+    formData.append('id', movie.imdbID?.toString() ?? '');
 
     try {
         const response = await fetch('?/fetchFullMovieDetails', {
@@ -56,13 +56,13 @@ function switchToLanguage(newLanguage: AvailableLanguageTag) {
 </script>
 
 <style>
-    body {
+    /* body {
         display: flex;
         flex-wrap: wrap;
         margin: 0;
         padding: 0;
         font-family: Arial, sans-serif;
-    }
+    } */
 
     .container {
         display: flex;
