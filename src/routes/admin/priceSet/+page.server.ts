@@ -29,60 +29,35 @@ export const load = async ({ url }) => {
     }
 }
 export const actions = {
-	// update: async ({ request, url }) => {
-	// 	// Formular-Daten auslesen
-	// 	// type title = typeof film.title.dataType
-	// 	const formData = await request.formData();
+	createPriceSet: async ({ request }) => {
+        console.log('createPriceSet');
 
-	// 	// Einzelne Werte extrahieren
-	// 	const titel = <string>formData.get('title');
-	// 	const genre = [formData.get('genre') as string];
-	// 	const runtimeString = formData.get('runtime') as string;
-	// 	const director:string = <string>formData.get("director")
-    //     const description:string = <string>formData.get("description")
-	// 	let id = <unknown>url.pathname.replace('/admin/films/film/', '');
+        const data = await request.formData();
 
-	// 	let runtime: number | null = null;
-	// 	if (/^\d+$/.test(runtimeString)) {
-	// 		runtime = Number(runtimeString);
-	// 	} else {
-	// 		throw error(400, 'Ungültige Eingabe');
-	// 	}
-
+        console.log(data);
         
-	// 	// Typsicherheit und Validierung
-	// 	if (typeof titel !== film.title.dataType || titel.length === 0) {
-	// 		console.log('Ungültiger Titel:', titel);
-	// 	}
-	// 	if (!Array.isArray(genre) || genre.length === 0) {
-	// 		console.log('Ungültiges Genre:', genre);
-	// 	}
-	// 	if ( typeof runtime !== film.runtime.dataType||runtime === null || runtime < 0) {
-			
-	// 		console.log('Ungültige Laufzeit:', runtime);
-	// 	}
-	// 	if (typeof director !== film.director.dataType || director.length === 0) {
-	// 		console.log('Ungültiger Regisseur:', director);
-	// 	}
-	// 	if (typeof description !== film.description.dataType || description.length === 0) {
-	// 		console.log('Ungültige Beschreibung:', description);
-	// 	}
-		
-		
-	// 	// Hier würden Sie normalerweise die Daten in der Datenbank speichern
-	// 	console.log('Empfangene Daten:', {
-	// 		titel,
-	// 		genre,
-    //         runtime,
-    //         description
-	// 	});
-	// 	try{
-	// 	await db.update(film).set({genres: genre,title: titel, runtime:runtime, description:description, director:director}).where(eq(film.id, <number>id))
-	// 	} catch(e)
-	// 	{
-	// 		console.log(e);
-	// 		throw error(500, 'Failed to update film');
-	// 	}
-	// 	// Optional: Erfolgsrückmeldung zurückgeben
-	// }
+        // Extract form data
+        const name = data.get('name') as string;
+        const priceFactor = data.get('priceFactor') as string;
+        const seatCategoryIds = data.getAll('seatCategoryPrices').map((id) => parseInt(id.toString())) as number[];
+        const ticketTypeIds = data.getAll('ticketTypes').map((id) => parseInt(id.toString())) as number[];
+        
+        const newPriceSet = {
+            name,
+            priceFactor,
+            seatCategoryPrices: seatCategoryIds,
+            ticketTypes: ticketTypeIds
+        };
+
+        console.log(newPriceSet);
+
+        try {
+            // Create price set in database
+            await db.insert(priceSet).values(newPriceSet).execute();
+
+        } catch (e) {
+            console.error('Fehler beim Erstellen des Preissets:', e);
+            return error(500, 'Fehler beim Erstellen des Preissets');
+        }
+    },
 } satisfies Actions;
