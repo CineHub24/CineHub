@@ -121,7 +121,7 @@ export const seatCategory = pgTable('seatCategory', {
 
 export const ticketType = pgTable('TicketType', {
   id: serial('id').primaryKey(),
-  namne: text('name'),
+  name: text('name'),
   description: text('description'),
   factor: decimal('factor', { precision: 10, scale: 3 })
 });
