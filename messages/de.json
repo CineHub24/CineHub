@@ -36,5 +36,6 @@
 	"register_new": "Konto registrieren",
 	"password_confirm": "Passwort bestätigen",
 	"enter_password_confirm": "Geben Sie Ihr Passwort erneut ein",
-	"already_account": "Haben Sie bereits ein Konto?"
+	"already_account": "Haben Sie bereits ein Konto?",
+	"admin_tools": "Admin-Tools"
 }
