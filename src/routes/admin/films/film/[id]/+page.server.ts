@@ -19,6 +19,8 @@ export const load = async ({ url }) => {
 		.select({
 			id: film.id,
 			imdbID: film.imdbID,
+			tmdbID: film.tmdbID,
+    		backdrop: film.backdrop,
 			title: film.title,
 			genres: film.genres,
 			director: film.director,
