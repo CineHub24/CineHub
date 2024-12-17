@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
@@ -107,23 +107,19 @@
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -151,50 +147,57 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >&lt;!-- HOW TO USE<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-&lt;script&gt;
-  import { showNotification } from '$lib/stores/notification';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >&lt;script lang="ts"&gt;<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
+  import { notification } from '$lib/stores/notification';
+  import { fly } from 'svelte/transition';
+  import { onDestroy } from 'svelte';
 &nbsp;
-  function handleClick() {
-    showNotification("Hallo! Dies ist eine Popup-Nachricht.");
-  }
+<span class="cstat-no" title="statement not covered" >  let message: string | null = null;</span>
+  
+<span class="cstat-no" title="statement not covered" >  const unsubscribe = notification.subscribe(value =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    console.log('Neue Nachricht:', value); // Diese Zeile sollte die Nachricht loggen</span>
+<span class="cstat-no" title="statement not covered" >    message = value;</span>
+  });
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  onDestroy(() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    unsubscribe(); // Abonnement beim Zerstören der Komponente aufheben</span>
+  });
 &lt;/script&gt;
 &nbsp;
-&lt;button on:click={handleClick}&gt;Zeige Popup&lt;/button&gt;
---&gt;
-&nbsp;
-&lt;script lang="ts"&gt;
-    import { notification } from '../stores/notification.js';
-    import { fly } from 'svelte/transition';
-  
-<span class="cstat-no" title="statement not covered" >    let message: string | null = null;</span>
-<span class="cstat-no" title="statement not covered" >    const unsubscribe = notification.subscribe(value =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      message = value;</span>
-    });
-  &lt;/script&gt;
-  
-<span class="cstat-no" title="statement not covered" >  {#if message}</span>
-<span class="cstat-no" title="statement not covered" >    &lt;div class="notification-overlay" transition:fly={{ y: -20, duration: 200 }}&gt;</span>
-      &lt;div class="notification-content"&gt;
-<span class="cstat-no" title="statement not covered" >        {message}</span>
-      &lt;/div&gt;
+<span class="cstat-no" title="statement not covered" >{#if message}</span>
+<span class="cstat-no" title="statement not covered" >  &lt;div class="notification-overlay" transition:fly={{ y: 100, duration: 500 }}&gt;</span>
+    &lt;div class="notification-content"&gt;
+<span class="cstat-no" title="statement not covered" >      {message}</span>
     &lt;/div&gt;
-  {/if}
-  
-  &lt;style&gt;
-    .notification-overlay {
-      position: fixed;
-      top: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 1rem 2rem;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      z-index: 9999;
-    }
-  &lt;/style&gt;
+  &lt;/div&gt;
+{/if}
+&nbsp;
+&lt;style&gt;
+  .notification-overlay {
+    position: fixed;
+    bottom: 1rem; /* Positionieren Sie es am unteren Rand */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f0f0f0; /* Heller Hintergrund für den Light Mode */
+    color: #333; /* Dunkle Textfarbe */
+    padding: 0.75rem;
+    border-radius: 8px; /* Abgerundete Ecken */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Leichter Schatten */
+    z-index: 9999;
+    font-size: 1rem;
+    border: 1px solid #ccc; /* Rand um die Benachrichtigung */
+  }
+&nbsp;
+  .notification-content {
+    font-weight: normal; /* Kein fetter Text */
+  }
+&lt;/style&gt;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -202,7 +205,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-17T16:17:45.297Z
+                at 2024-12-17T23:31:59.709Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

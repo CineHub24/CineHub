@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/33</span>
+                <span class='fraction'>0/35</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/33</span>
+                <span class='fraction'>0/35</span>
             </div>
         
             
@@ -261,7 +261,20 @@
 <a name='L196'></a><a href='#L196'>196</a>
 <a name='L197'></a><a href='#L197'>197</a>
 <a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -349,6 +362,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -459,7 +474,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >&lt;script lang="ts"&gt;<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >&lt;script lang="ts"&gt;</span></span></span>
 	import { fade } from 'svelte/transition';
 	import MovieCard from '../lib/components/movie_card.svelte';
 	import type { PageServerData } from './$types';
@@ -530,7 +556,7 @@
 	&lt;/div&gt;
 {/key}
 &nbsp;
-&lt;h2 class="p-4 text-xl font-bold"&gt;Movies&lt;/h2&gt;
+&lt;h2 class="px-5 text-xl font-bold"&gt;Movies&lt;/h2&gt;
 &lt;div class="movies-container"&gt;
 <span class="cstat-no" title="statement not covered" >	{#each movies as movie}</span>
 		&lt;div
@@ -544,14 +570,27 @@
 		&lt;/div&gt;
 	{/each}
 &lt;/div&gt;
+&lt;br /&gt;
+&lt;h2 class="px-5 text-xl font-bold"&gt;Showings&lt;/h2&gt;
+&lt;div class="movies-container"&gt;
+<span class="cstat-no" title="statement not covered" >	{#each movies as movie}</span>
+<span class="cstat-no" title="statement not covered" >		&lt;MovieCard {movie} url="film/{movie.id}" /&gt;</span>
+	{/each}
+&lt;/div&gt;
 &nbsp;
 &lt;style&gt;
 	.movies-container {
-		padding: 20px;
-		padding-top: 0;
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-		gap: 20px;
+		padding-top: 20px;
+		margin-left: 20px;
+		margin-right: 20px;
+		padding-bottom: 20px;
+		display: flex; /* Use flexbox for horizontal layout */
+		flex-wrap: nowrap; /* Prevent wrapping of items */
+		gap: 20px; /* Space between items */
+		overflow-x: auto; /* Enable horizontal scrolling */
+		scroll-behavior: smooth; /* Smooth scrolling effect */
+		width: auto; /* Full width for container */
+		box-sizing: border-box; /* Include padding in width */
 	}
 &nbsp;
 	.movie-details {
@@ -565,7 +604,7 @@
 &nbsp;
 	#background {
 		width: 100%;
-		height: 500px;
+		height: 450px;
 		object-fit: cover;
 	}
 &nbsp;
@@ -664,7 +703,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-17T16:17:45.297Z
+                at 2024-12-17T23:31:59.709Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
