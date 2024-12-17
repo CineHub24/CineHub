@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1734425678632" clover="3.2.0">
-  <project timestamp="1734425678632" name="All files">
-    <metrics statements="2766" coveredstatements="178" conditionals="61" coveredconditionals="12" methods="58" coveredmethods="7" elements="2885" coveredelements="197" complexity="0" loc="2766" ncloc="2766" packages="25" files="54" classes="54"/>
+<coverage generated="1734425811588" clover="3.2.0">
+  <project timestamp="1734425811588" name="All files">
+    <metrics statements="2800" coveredstatements="178" conditionals="62" coveredconditionals="13" methods="59" coveredmethods="8" elements="2921" coveredelements="199" complexity="0" loc="2800" ncloc="2800" packages="25" files="55" classes="55"/>
     <package name="CineHub">
       <metrics statements="53" coveredstatements="0" conditionals="5" coveredconditionals="0" methods="5" coveredmethods="0"/>
       <file name="drizzle.config.ts" path="/home/runner/work/CineHub/CineHub/drizzle.config.ts">
@@ -2527,7 +2527,7 @@
       </file>
     </package>
     <package name="CineHub.src.routes.film.[id]">
-      <metrics statements="36" coveredstatements="18" conditionals="3" coveredconditionals="1" methods="2" coveredmethods="1"/>
+      <metrics statements="70" coveredstatements="18" conditionals="4" coveredconditionals="2" methods="3" coveredmethods="2"/>
       <file name="+page.server.ts" path="/home/runner/work/CineHub/CineHub/src/routes/film/[id]/+page.server.ts">
         <metrics statements="22" coveredstatements="18" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
@@ -2569,6 +2569,43 @@
         <line num="77" count="0" type="stmt"/>
         <line num="78" count="0" type="stmt"/>
         <line num="80" count="0" type="stmt"/>
+      </file>
+      <file name="+page.ts" path="/home/runner/work/CineHub/CineHub/src/routes/film/[id]/+page.ts">
+        <metrics statements="34" coveredstatements="0" conditionals="1" coveredconditionals="1" methods="1" coveredmethods="1"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
       </file>
     </package>
     <package name="CineHub.src.routes.film.[id].showing.[id]">
