@@ -3,19 +3,67 @@
 	import MovieCard from '../lib/components/movie_card.svelte';
 	import type { PageServerData } from './$types';
 	import type { Film } from '$lib/server/db/schema';
+	import { onMount } from 'svelte';
+	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 	const { data }: { data: PageServerData } = $props();
-    let movies: Film[] = data.movies;
+	let movies: FilmWithTrailer[] = data.movies;
+	type FilmWithTrailer = Film & {
+		trailer?: string; // Optionales Trailer-Attribut
+	};
 
-	let hoveredMovie: Film = $state(movies[0]); // The currently hovered movie object
+	let hoveredMovie: FilmWithTrailer = $state(movies[0]); // The currently hovered movie object
+
+	async function getTrailers() {
+		for (const movie of movies) {
+			if (movie.tmdbID) {
+				const trailer = await fetchTrailer(movie.tmdbID);
+				movie.trailer = trailer;
+			}
+		}
+		hoveredMovie = { ...movies[0] }; // Update the hovered movie with the trailer
+	}
+
+	onMount(() => {
+		getTrailers();
+	});
+
+	async function fetchTrailer(tmdbId: string) {
+		if (tmdbId) {
+			const response = await fetch(
+				`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${apiKey}`
+			);
+			const data = await response.json();
+
+			if (data.results && data.results.length > 0) {
+				const trailer = data.results.find(
+					(video: { type: string; site: string }) =>
+						video.type === 'Trailer' && video.site === 'YouTube'
+				);
+				if (trailer) {
+					return `https://www.youtube.com/embed/${trailer.key}`;
+				}
+			}
+		}
+	}
 </script>
 
 {#key hoveredMovie}
 	<div class="movie-details" in:fade={{ duration: 1000 }}>
 		<img id="background" src={hoveredMovie.backdrop} alt="{hoveredMovie.title} Poster" />
-		<a href="/film/{hoveredMovie.id}">
+		<!-- <a href="/film/{hoveredMovie.id}">
 			<img id="poster" src={hoveredMovie.poster} alt="{hoveredMovie.title} Poster" /></a
-		>
+		> -->
+		<iframe
+			id="poster"
+			width="500"
+			height="300"
+			src={hoveredMovie.trailer}
+			frameborder="0"
+			allow="autoplay; encrypted-media"
+			allowfullscreen
+			title="Trailer"
+		></iframe>
 		<h3>{hoveredMovie.title}</h3>
 		<p>{hoveredMovie.description}</p>
 	</div>
@@ -62,18 +110,12 @@
 
 	#poster {
 		position: absolute;
-		top: 70px;
-		right: 250px;
-		width: 250px;
+		top: 100px;
+		right: 150px;
 		border-radius: 10px;
 		box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
 		transition: all 0.3s ease; /* Smooth resizing for responsiveness */
 		cursor: pointer; /* Change cursor to indicate interactivity */
-	}
-
-	/* Darken the poster and show the trailer icon on hover */
-	#poster:hover {
-		filter: brightness(0.4);
 	}
 
 	.movie-details h3,

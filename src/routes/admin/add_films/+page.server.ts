@@ -36,7 +36,7 @@ export const actions = {
 				imdbID: movie.imdbID,
 				title: movie.Title,
 				type: movie.Type,
-				releaseDate: movie.ReleaseDate,
+				year: movie.Year,
 				poster: movie.Poster
 			}));
 

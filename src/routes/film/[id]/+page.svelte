@@ -12,25 +12,11 @@
 	const showTrailer = writable(false);
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
-	async function fetchTmdbId(imdbId: string): Promise<string | null> {
-		try {
-			const response = await fetch(
-				`https://api.themoviedb.org/3/find/${imdbId}?api_key=${apiKey}&external_source=imdb_id`
-			);
-			const data = await response.json();
-			if (data.movie_results && data.movie_results.length > 0) {
-				return data.movie_results[0].id.toString();
-			}
-		} catch (error) {
-			console.error('Error fetching TMDB ID:', error);
-		}
-		return null;
-	}
 
 	async function fetchTrailer() {
 		if (!$trailerUrl) {
       
-			const tmdbId = await fetchTmdbId(movie.imdbID as string);
+			const tmdbId = movie.tmdbID;
 			if (tmdbId) {
 				const response = await fetch(
 					`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${apiKey}`
