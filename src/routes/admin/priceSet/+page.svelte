@@ -1,10 +1,14 @@
 <script lang="ts">
-	import { enhance } from "$app/forms";
 	import { goto } from "$app/navigation";
+    
 
     let selectedPriceSet: typeof priceSets[0] | null;
     let isCreatingNewPriceSet = false;
     export let data;
+
+    let saveError: string | null = null;
+
+
     const {priceSets, seatCategories, ticketTypes} = data;
     priceSets.sort((a, b) => a.name?.localeCompare(b.name??'') ?? 0);
     seatCategories.sort((a, b) => (parseFloat(a.price ?? '0')) - (parseFloat(b.price ?? '0')));
@@ -38,9 +42,14 @@
 
 <div class="container">
     <h1 class="page-title">Preissets Verwaltung</h1>
+    {#if saveError}
+        {console.log(saveError)}
+        <div class="error-message">{saveError}</div>
+    {/if}
     {#if !isCreatingNewPriceSet}
         <button class="new-priceset-btn" onclick={startNewPriceSet}>Neues Preisset anlegen</button>
     {/if}
+        
     <button class="new-priceset-btn" onclick={() => goto('/admin/seatCategory')}>Sitzkategorien verwalten</button>
     <button class="new-priceset-btn" onclick={() => goto('/admin/ticketType')}>TicketTypen verwalten</button>
     
@@ -358,5 +367,12 @@
     
     .btn-delete:hover {
         background-color: #c0392b;
+    }
+    .error-message {
+        background-color: #ffdddd;
+        color: #ff0000;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
     }
 </style>

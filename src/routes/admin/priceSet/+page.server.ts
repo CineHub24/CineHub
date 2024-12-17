@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { priceSet, seatCategory, ticketType } from '$lib/server/db/schema';
-import { error, type Actions } from '@sveltejs/kit';
+import { error, type Actions, fail } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 
 export const load = async ({ url }) => {
@@ -27,7 +27,7 @@ export const load = async ({ url }) => {
     }
     catch (e) {
         console.log(e);
-        throw error(500, "Internal Server Error DB");
+        error(500, "Internal Server Error DB");
     }
 }
 export const actions = {
@@ -40,6 +40,11 @@ export const actions = {
         const priceFactor = data.get('priceFactor') as string;
         const seatCategoryIds = data.getAll('seatCategoryPrices').map((id) => parseInt(id.toString())) as number[];
         const ticketTypeIds = data.getAll('ticketTypes').map((id) => parseInt(id.toString())) as number[];
+
+
+        if(!name || !priceFactor) {
+            return fail(400, { message: 'Missing inputs'});
+        }
         
         const newPriceSet = {
             name,
@@ -47,10 +52,8 @@ export const actions = {
             seatCategoryPrices: seatCategoryIds,
             ticketTypes: ticketTypeIds
         };
-
-
         try {
-            await db.insert(priceSet).values(newPriceSet).execute();
+            await db.insert(priceSet).values(newPriceSet);
 
         } catch (e) {
             console.error('Error creating the priceSet:', e);
@@ -77,9 +80,7 @@ export const actions = {
         const seatCategoryIds = data.getAll('seatCategoryPrices').map((id) => parseInt(id.toString())) as number[];
         const ticketTypeIds = data.getAll('ticketTypes').map((id) => parseInt(id.toString())) as number[];
 
-        console.log(data);
-
-        if (!id || !name) {
+        if (!id || !name || !priceFactor) {
             return error(400, 'Missing inputs'); 
         }
 
