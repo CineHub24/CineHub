@@ -1,17 +1,15 @@
 <script lang="ts">
 	import { enhance } from "$app/forms";
+	import { goto } from "$app/navigation";
 
     let selectedPriceSet: typeof priceSets[0] | null;
     let isCreatingNewPriceSet = false;
     export let data;
     const {priceSets, seatCategories, ticketTypes} = data;
+    priceSets.sort((a, b) => a.name?.localeCompare(b.name??'') ?? 0);
+    seatCategories.sort((a, b) => (parseFloat(a.price ?? '0')) - (parseFloat(b.price ?? '0')));
+    ticketTypes.sort((a, b) => (parseFloat(a.factor ?? '0')) - (parseFloat(b.factor ?? '0')));
 
-    let newPriceSet = {
-        name: '',
-        priceFactor: '1',
-        seatCategoryPrices: [1,2,3,4,5] as number[],
-        ticketTypes: [1,2,3,4,5] as number[]
-    };
     
     function handleEdit(priceSet: typeof priceSets[0]) {
         selectedPriceSet = priceSet;
@@ -30,12 +28,6 @@
     }
 
     function startNewPriceSet() {
-        newPriceSet = {
-            name: '',
-            priceFactor: '1',
-            seatCategoryPrices: [],
-            ticketTypes: []
-        };
         isCreatingNewPriceSet = true;
     }
     function cancelEdit() {
@@ -47,8 +39,10 @@
 <div class="container">
     <h1 class="page-title">Preissets Verwaltung</h1>
     {#if !isCreatingNewPriceSet}
-        <button class="new-priceset-btn" on:click={startNewPriceSet}>Neues Preisset anlegen</button>
+        <button class="new-priceset-btn" onclick={startNewPriceSet}>Neues Preisset anlegen</button>
     {/if}
+    <button class="new-priceset-btn" onclick={() => goto('/admin/seatCategory')}>Sitzkategorien verwalten</button>
+    <button class="new-priceset-btn" onclick={() => goto('/admin/ticketType')}>TicketTypen verwalten</button>
     
     <div class="priceset-grid">
         {#if isCreatingNewPriceSet}
@@ -62,8 +56,7 @@
                     <input 
                         class="form-input" 
                         placeholder="Name des Preissets" 
-                        id="name"
-                        value={newPriceSet.name}
+                        name="name"
                     />
                     <label for="priceFactor">Preisfaktor:</label>
                     <input 
@@ -71,19 +64,22 @@
                         type="number" 
                         step="0.01" 
                         placeholder="Preisfaktor (z.B. 1.0)" 
-                        id="priceFactor"
-                        value={newPriceSet.priceFactor}
+                        name="priceFactor"
                     />
                     <div class="priceset-detail">
                         <strong>Sitzkategorien auswählen:</strong>
                         <select 
                             multiple 
                             class="form-input"
-                            id="seatCategoryPrices"
-                            value={newPriceSet.seatCategoryPrices}
+                            name="seatCategoryPrices"
                             >
                             {#each seatCategories as category}
-                                <option value={category.id}>{category.name} (€{category.price})</option>
+                                <option 
+                                    value={category.id}
+                                    selected={category.id === 1 || category.id === 2 || category.id === 3 || category.id === 4 || category.id === 5}
+                                >
+                                {category.name} ({category.description}): {category.price}€
+                            </option>
                             {/each}
                         </select>
                     </div>
@@ -93,69 +89,99 @@
                         <select 
                             multiple 
                             class="form-input"
-                            id="ticketTypes"
-                            value={newPriceSet.ticketTypes}
+                            name="ticketTypes"
                         >
                             {#each ticketTypes as type}
-                                <option value={type.id}>{type.name} ({Math.round(parseFloat(type.factor ?? '1') * 100)}%)</option>
-                            {/each}
+                                <option 
+                                    value={type.id}
+                                    selected={type.id === 1 || type.id === 2 || type.id === 3 || type.id === 4 || type.id === 5}
+                                    >
+                                    {type.name} ({type.description}):  ({Math.round(parseFloat(type.factor ?? '1') * 100)}%)
+                                </option>
+                            {/each}s
                         </select>
                     </div>
                     <div class="form-actions">
                         <button class="btn btn-edit" type="submit">Speichern</button>
-                        <button class="btn btn-delete" on:click={cancelEdit}>Abbrechen</button>
+                        <button class="btn btn-delete" onclick={cancelEdit}>Abbrechen</button>
                     </div>
                 </form>
             </div>
         {/if}
         {#each priceSets as priceSet}
-        {@const { appliedSeatCategories, appliedTicketTypes } = getPriceSetDetails(priceSet)}
-        <div class="priceset-card">
-            {#if selectedPriceSet === priceSet}
-                    <input 
-                        class="form-input" 
-                        bind:value={priceSet.name}
-                        placeholder="Name des Preissets"
-                    />
-                    
-                    <input 
-                        class="form-input" 
-                        type="number" 
-                        step="0.01" 
-                        bind:value={priceSet.priceFactor}
-                        placeholder="Preisfaktor"
-                    />
-                    
-                    <div class="priceset-detail">
-                        <strong>Sitzkategorien:</strong>
-                        <select 
-                            multiple 
-                            class="form-input"
-                            bind:value={priceSet.seatCategoryPrices}
-                        >
-                            {#each seatCategories as category}
-                                <option value={category.id}>{category.name} (€{category.price})</option>
-                            {/each}
-                        </select>
-                    </div>
-                    
-                    <div class="priceset-detail">
-                        <strong>Tickettypen:</strong>
-                        <select 
-                            multiple 
-                            class="form-input"
-                            bind:value={priceSet.ticketTypes}
-                        >
-                            {#each ticketTypes as type}
-                                <option value={type.id}>{type.name} ({Math.round(parseFloat(type.factor ?? '1') * 100)}%)</option>
-                            {/each}
-                        </select>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button class="btn btn-edit" >Speichern</button>
-                        <button class="btn btn-delete" on:click={cancelEdit} >Abbrechen</button>
-                    </div>
+            {@const { appliedSeatCategories, appliedTicketTypes } = getPriceSetDetails(priceSet)}
+            <div class="priceset-card">
+                {#if selectedPriceSet === priceSet}
+                    <form
+                        method="POST"
+                        action="?/updatePriceSet"
+                        name="updatePriceSet"
+                    >
+                        <input type="hidden" name="id" value={priceSet.id} />
+                        <div class="priceset-detail">
+                            <label for="name">Name des Preissets:</label>
+                            <input 
+                                class="form-input" 
+                                placeholder="Name des Preissets"
+                                name="name"
+                                type="text"
+                                value={priceSet.name}
+                            />
+                        </div>
+                        <div class="priceset-detail">
+                            <label for="priceFactor">Preisfaktor:</label>
+                            <input 
+                                class="form-input" 
+                                type="number" 
+                                step="0.01" 
+                                name="priceFactor"
+                                placeholder="Preisfaktor"
+                                value={priceSet.priceFactor}
+                            />
+                        </div>
+                        <div class="priceset-detail">
+                            <strong>Sitzkategorien:</strong>
+                            <select 
+                                multiple 
+                                class="form-input"
+                                name="seatCategoryPrices"
+                                required
+                            >
+                                {#each seatCategories as category}
+                                    <option 
+                                        value={category.id}
+                                        selected={appliedSeatCategories.some(cat => cat?.id === category.id)}
+                                    >
+                                        {category.name} ({category.description}): {category.price}€
+                                    </option>
+                                {/each}
+                            </select>
+                        </div>
+                        
+                        <div class="priceset-detail">
+                            <strong>Tickettypen:</strong>
+                            <select 
+                                multiple 
+                                class="form-input"
+                                name="ticketTypes"
+                                required
+                            >
+                                {#each ticketTypes as type}
+                                    <option 
+                                        value={type.id}
+                                        selected={appliedTicketTypes.some(ty => ty?.id === type.id)}
+                                    >
+                                        {type.name} ({type.description}): ({Math.round(parseFloat(type.factor ?? '1') * 100)}%)
+                                    </option>
+                                {/each}
+                            </select>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn btn-edit" type="submit" >Speichern</button>
+                            <button class="btn btn-delete" onclick={cancelEdit} >Abbrechen</button>
+                        </div>
+                    </form>
                 {:else}
                     <h2 class="priceset-title">{priceSet.name}</h2>
                     <p>Preisfaktor auf Basispreise: {Math.round(parseFloat(priceSet.priceFactor ?? '1') * 100)}%</p>
@@ -165,7 +191,7 @@
                         <ul>
                         {#each appliedSeatCategories as category}
                             {#if category }
-                                <li>{category.name}: {category.price}€</li>
+                                <li>{category.name} ({category.description}): {category.price}€</li>
                             {/if}
                         {/each}
                         </ul>
@@ -176,7 +202,7 @@
                         <ul>
                             {#each appliedTicketTypes as type}
                                 {#if type}
-                                    <li>{type.name}: {Math.round(parseFloat(type.factor ?? '1') * 100)}%</li>
+                                    <li>{type.name} ({type.description}): {Math.round(parseFloat(type.factor ?? '1') * 100)}%</li>
                                 {/if}
                             {/each}
                         </ul>
@@ -185,20 +211,14 @@
                     <div class="card-actions">
                         <button 
                             class="btn btn-edit" 
-                            on:click={() => handleEdit(priceSet)}
+                            onclick={() => handleEdit(priceSet)}
                         >
                             Bearbeiten
                         </button>
-                        <button 
-                        class="btn btn-delete" 
-                        on:click={() => {
-                            if (confirm('Sind Sie sicher, dass Sie dieses Preisset löschen möchten?')) {
-                            // Hier würde der Löschvorgang an den Server gesendet
-                            }
-                        }}
-                        >
-                        Löschen
-                        </button>
+                        <form action="?/delete" method="POST">
+                            <input type="hidden" name="priceSetId" value={priceSet.id} />
+                            <button class="btn btn-delete" type="submit">Löschen</button>
+                        </form>
                     </div>
                 {/if}
             </div>
@@ -264,6 +284,7 @@
     
     .priceset-detail {
         margin-bottom: 1rem;
+        flex-direction: column;
     }
     
     .priceset-detail strong {
@@ -284,6 +305,28 @@
         margin-bottom: 0.25rem;
         border-radius: 3px;
         color: #2c3e50;
+    }
+    .priceset-detail select {
+    border: 2px solid #3498db; 
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    }
+
+    .priceset-detail select option {
+        white-space: normal;
+        word-wrap: break-word;
+        
+        border-bottom: 1px solid #e0e0e0; 
+        padding: 0.25rem;
+    }
+
+    .priceset-detail select option:last-child {
+        border-bottom: none; 
+    }
+
+    .priceset-detail select option:hover {
+        background-color: #f0f0f0; 
     }
     
     .card-actions {
