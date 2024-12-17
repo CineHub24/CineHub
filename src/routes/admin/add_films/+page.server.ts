@@ -5,6 +5,7 @@ import type { year } from 'drizzle-orm/mysql-core';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export type Movie = typeof film.$inferSelect;
+const apiKey = import.meta.env.VITE_OMDB_API_KEY;
 
 export type CompleteMovieInformation = {
 	imdbID: string;
@@ -25,19 +26,20 @@ export const actions = {
 		const formdata = await request.formData();
 		const query = formdata.get('query');
 
-		if (!query) throw error(400, 'Query is required');
+        if (!query) throw error(400,"Query is required");
 
-		try {
-			const res = await fetch(`http://www.omdbapi.com/?apikey=b97fe887&s=${query}`);
-			const data = await res.json();
-			if (data.Error) return {};
-			const movies: Movie[] = data.Search.map((movie: any) => ({
-				imdbID: movie.imdbID,
-				title: movie.Title,
-				type: movie.Type,
-				year: movie.Year,
-				poster: movie.Poster
-			}));
+        
+        try {
+            const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
+            const data = await res.json();
+            console.log(data)
+            const movies: Movie[] = data.Search.map((movie: any) => ({
+                imdbID: movie.imdbID,
+                title: movie.Title,
+                type: movie.Type,
+                releaseDate: movie.ReleaseDate,
+                poster: movie.Poster
+            }));
 
 			return {
 				movies: movies
@@ -51,10 +53,10 @@ export const actions = {
 		const data = await request.formData();
 		const movieId = data.get('id');
 
-		try {
-			// Fetch full movie details from OMDB API
-			const response = await fetch(`http://www.omdbapi.com/?i=${movieId}&apikey=b97fe887&`);
-			const fullMovieDetails = await response.json();
+        try {
+            // Fetch full movie details from OMDB API
+            const response = await fetch(`http://www.omdbapi.com/?i=${movieId}&apikey=${apiKey}`);
+            const fullMovieDetails = await response.json();
 
 			const movieResponse: CompleteMovieInformation = {
 				imdbID: fullMovieDetails.imdbID,
