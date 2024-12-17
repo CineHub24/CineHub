@@ -2,7 +2,6 @@
 	import type { Movie, CompleteMovieInformation } from './+page.server';
     import { enhance } from '$app/forms';
 	import { ConsoleLogWriter } from 'drizzle-orm';
-    import Header from '$lib/components/header.svelte'
     import { i18n } from '$lib/i18n';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
@@ -184,16 +183,6 @@ function switchToLanguage(newLanguage: AvailableLanguageTag) {
         }
     }
 </style>
-
-<Header 
-    user={{ email: 'Guest' }} 
-    onLanguageSwitch={() => switchToLanguage("en")} 
-    buttons={[
-        { label: 'Filme anzeigen', onClick: onFilmClick },
-        { label: 'Kinosaal hinzufügen', onClick: onAddRoomClick }
-    ]}
-    />
-    
     <div class="container">
         <div class="form-container">
             <form class="form" method="POST" action="?/search" use:enhance={() => {

@@ -6,10 +6,11 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 import { validatePassword, validateEmail } from '$lib/utils/user';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
-		return redirect(302, '/');
+		return languageAwareRedirect(302, '/');
 	}
 	return {};
 };
@@ -53,6 +54,6 @@ export const actions: Actions = {
 		const session = await auth.createSession(sessionToken, existingUser.id);
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
-		return redirect(302, '/');
+		return languageAwareRedirect(302, '/');
 	}
 };

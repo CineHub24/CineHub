@@ -2,6 +2,7 @@ import { film } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { error, redirect, type Actions, type RequestEvent } from '@sveltejs/kit';
 import type { year } from 'drizzle-orm/mysql-core';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export type Movie = typeof film.$inferSelect;
 
@@ -128,7 +129,7 @@ export const actions = {
             console.error("Error saving movie:", e);
             throw error(500, 'Failed to save movie');
         }
-        if (success) throw redirect(302, `/admin/films/film/${filmId}`);
+        if (success) throw languageAwareRedirect(302, `/admin/films/film/${filmId}`);
     }
 } satisfies Actions;
 

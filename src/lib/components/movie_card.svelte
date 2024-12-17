@@ -62,6 +62,6 @@
 	<img src={movie.poster} alt="{movie.title} Poster">
 	<div class="details">
 		<h3 class="title">{movie.title}</h3>
-		<p class="description">{movie.description}</p>
+		<!-- <p class="description">{movie.description}</p> -->
 	</div>
 </div>
