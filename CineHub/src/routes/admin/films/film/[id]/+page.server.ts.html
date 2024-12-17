@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/187</span>
+                <span class='fraction'>0/179</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/187</span>
+                <span class='fraction'>0/179</span>
             </div>
         
             
@@ -299,17 +299,7 @@
 <a name='L234'></a><a href='#L234'>234</a>
 <a name='L235'></a><a href='#L235'>235</a>
 <a name='L236'></a><a href='#L236'>236</a>
-<a name='L237'></a><a href='#L237'>237</a>
-<a name='L238'></a><a href='#L238'>238</a>
-<a name='L239'></a><a href='#L239'>239</a>
-<a name='L240'></a><a href='#L240'>240</a>
-<a name='L241'></a><a href='#L241'>241</a>
-<a name='L242'></a><a href='#L242'>242</a>
-<a name='L243'></a><a href='#L243'>243</a>
-<a name='L244'></a><a href='#L244'>244</a>
-<a name='L245'></a><a href='#L245'>245</a>
-<a name='L246'></a><a href='#L246'>246</a>
-<a name='L247'></a><a href='#L247'>247</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L237'></a><a href='#L237'>237</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -347,13 +337,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -422,7 +409,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -442,7 +428,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -452,9 +437,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -466,7 +448,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -530,7 +511,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -556,12 +536,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { db } from '$lib/server/db';</span></span></span>
-import { cinemaHall, film, priceSet, showing } from '$lib/server/db/schema';
+import { cinemaHall, film, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
 import { date } from 'drizzle-orm/mysql-core';
 export type freeSlots ={
-	 start: string; end: string; date:string; hallid: number; priceSetId: number;
+	 start: string; end: string; date:string; hallid: number; 
 };
 export type Film = typeof film.$inferSelect;
 export type Showing = typeof showing.$inferSelect;
@@ -592,14 +572,11 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >	.from(showing).where(eq(showing.filmid, &lt;number&gt;id))</span>
 		
 <span class="cstat-no" title="statement not covered" >	const halls = await db.select().from(cinemaHall);</span>
-<span class="cstat-no" title="statement not covered" >	const priceSets = await db.select().from(priceSet);</span>
 <span class="cstat-no" title="statement not covered" >	return {</span>
 		
 <span class="cstat-no" title="statement not covered" >		film: movies[0] as Film,</span>
 <span class="cstat-no" title="statement not covered" >		shows: shows,</span>
-<span class="cstat-no" title="statement not covered" >		halls: halls,</span>
-<span class="cstat-no" title="statement not covered" >		priceSets: priceSets</span>
-&nbsp;
+<span class="cstat-no" title="statement not covered" >		halls: halls</span>
 		
 <span class="cstat-no" title="statement not covered" >	};</span>
 <span class="cstat-no" title="statement not covered" >};</span>
@@ -668,7 +645,6 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >		let date = formData.get('date') as string;</span>
 <span class="cstat-no" title="statement not covered" >		let timeString = formData.get('time') as string;</span>
 <span class="cstat-no" title="statement not covered" >		let hall = formData.get('hall') as unknown as number;</span>
-<span class="cstat-no" title="statement not covered" >		let priceSetId = formData.get('priceSet') as unknown as number;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >		const filmRuntime = await db.select({runtime: film</span>
 <span class="cstat-no" title="statement not covered" >			.runtime</span>
@@ -677,7 +653,6 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >		 let freeSlots = await getFreeTimeSlots(</span>
 <span class="cstat-no" title="statement not covered" >			db,               // Drizzle Datenbank-Instanz</span>
 <span class="cstat-no" title="statement not covered" >			hall,                // Saal-ID</span>
-<span class="cstat-no" title="statement not covered" >			priceSetId,</span>
 <span class="cstat-no" title="statement not covered" >			date,       // Datum</span>
 <span class="cstat-no" title="statement not covered" >			runtime as number,               // Filmdauer in Minuten</span>
 <span class="cstat-no" title="statement not covered" >			15,                // Standard 15 Minuten Reinigung</span>
@@ -699,13 +674,10 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >		let end = formData.get('slotEnd') as string;</span>
 <span class="cstat-no" title="statement not covered" >		let hall = formData.get('hall') as unknown as number;</span>
 <span class="cstat-no" title="statement not covered" >		let filmId = formData.get('filmId') as unknown as number;</span>
-<span class="cstat-no" title="statement not covered" >		let priceSet = formData.get('priceSet') as unknown as number;</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >		console.log(priceSet);</span>
 &nbsp;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >		try{</span>
-<span class="cstat-no" title="statement not covered" >			await db.insert(showing).values({hallid: hall ,date: date, time: start,filmid: filmId, endTime: end, priceSetId: priceSet})</span>
+<span class="cstat-no" title="statement not covered" >			await db.insert(showing).values({hallid: hall ,date: date, time: start,filmid: filmId, endTime: end})</span>
 <span class="cstat-no" title="statement not covered" >		} catch(e){</span>
 <span class="cstat-no" title="statement not covered" >			throw error(500, 'Failed to save showing');</span>
 <span class="cstat-no" title="statement not covered" >		}</span>
@@ -715,7 +687,6 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >const getFreeTimeSlots = async (</span>
 <span class="cstat-no" title="statement not covered" >	database: typeof db, </span>
 <span class="cstat-no" title="statement not covered" >	hallId: number, </span>
-<span class="cstat-no" title="statement not covered" >	priceSetId: number,</span>
 <span class="cstat-no" title="statement not covered" >	filmDate: string, </span>
 <span class="cstat-no" title="statement not covered" >	filmDuration: number, </span>
 <span class="cstat-no" title="statement not covered" >	cleaningTime: number = 15,    </span>
@@ -781,8 +752,7 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 <span class="cstat-no" title="statement not covered" >		  start: startTime,</span>
 <span class="cstat-no" title="statement not covered" >		  end: endTime,</span>
 <span class="cstat-no" title="statement not covered" >		  date: filmDate,</span>
-<span class="cstat-no" title="statement not covered" >		  hallid: hallId,</span>
-<span class="cstat-no" title="statement not covered" >		  priceSetId: priceSetId</span>
+<span class="cstat-no" title="statement not covered" >		  hallid: hallId</span>
 <span class="cstat-no" title="statement not covered" >		})</span>
 <span class="cstat-no" title="statement not covered" >	  }</span>
 <span class="cstat-no" title="statement not covered" >	}</span>
@@ -808,7 +778,7 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-17T14:50:22.061Z
+                at 2024-12-17T15:10:47.817Z
             </div>
         <script src="../../../../../../../prettify.js"></script>
         <script>

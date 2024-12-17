@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/42</span>
+                <span class='fraction'>0/38</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/42</span>
+                <span class='fraction'>0/38</span>
             </div>
         
             
@@ -118,10 +118,7 @@
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a>
-<a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L56'></a><a href='#L56'>56</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -140,10 +137,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -157,8 +150,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -181,7 +175,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { goto } from '$app/navigation';</span></span></span>
 import { db } from '$lib/server/db';
-import { film, priceSet, showing } from '$lib/server/db/schema';
+import { film, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { get } from 'svelte/store';
@@ -194,17 +188,13 @@ import { get } from 'svelte/store';
 <span class="cstat-no" title="statement not covered" >export const load = async ({ url }) =&gt; {</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >	const show = await db</span>
-<span class="cstat-no" title="statement not covered" >		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, filmid: film.id, film_name: film.title, priceSet: showing.priceSetId })</span>
+<span class="cstat-no" title="statement not covered" >		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, filmid: film.id, film_name: film.title })</span>
 <span class="cstat-no" title="statement not covered" >		.from(showing)</span>
 <span class="cstat-no" title="statement not covered" >		.leftJoin(film, eq(showing.filmid, film.id))</span>
 <span class="cstat-no" title="statement not covered" >		.where(eq(showing.id, getID(url)));</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >	const priceSets = await db</span>
-<span class="cstat-no" title="statement not covered" >		.select()</span>
-<span class="cstat-no" title="statement not covered" >		.from(priceSet);</span>
+<span class="cstat-no" title="statement not covered" >	console.log(show[0]);</span>
 <span class="cstat-no" title="statement not covered" >	return {</span>
-<span class="cstat-no" title="statement not covered" >		show: show[0],</span>
-<span class="cstat-no" title="statement not covered" >		priceSets: priceSets</span>
+<span class="cstat-no" title="statement not covered" >		show: show[0]</span>
 <span class="cstat-no" title="statement not covered" >	};</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 &nbsp;
@@ -215,13 +205,14 @@ import { get } from 'svelte/store';
 		// Einzelne Werte extrahieren
 &nbsp;
 <span class="cstat-no" title="statement not covered" >		let date = formData.get('date') as string;</span>
+&nbsp;
 <span class="cstat-no" title="statement not covered" >		let timeString = formData.get('time') as string;</span>
-<span class="cstat-no" title="statement not covered" >		let priceSetId = formData.get('priceSet') as unknown as number;</span>
+&nbsp;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >		try {</span>
 <span class="cstat-no" title="statement not covered" >			await db</span>
 <span class="cstat-no" title="statement not covered" >				.update(showing)</span>
-<span class="cstat-no" title="statement not covered" >				.set({ date: date, time: timeString, priceSetId: priceSetId })</span>
+<span class="cstat-no" title="statement not covered" >				.set({ date: date, time: timeString })</span>
 <span class="cstat-no" title="statement not covered" >				.where(eq(showing.id, getID(url)));</span>
 <span class="cstat-no" title="statement not covered" >		} catch (e) {</span>
 <span class="cstat-no" title="statement not covered" >			console.log('Fehler' + e);</span>
@@ -244,7 +235,7 @@ import { get } from 'svelte/store';
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-17T14:50:22.061Z
+                at 2024-12-17T15:10:47.817Z
             </div>
         <script src="../../../../../../../prettify.js"></script>
         <script>
