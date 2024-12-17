@@ -5,8 +5,8 @@ import { error, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { get } from 'svelte/store';
 
-function getID(url:string){ 
-	let id = url.replace('/admin/films/show/', '') as unknown;
+function getID(url: URL) { 
+	const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 	return id as number;
 }
 
@@ -16,7 +16,7 @@ export const load = async ({ url }) => {
 		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, filmid: film.id, film_name: film.title, priceSet: showing.priceSetId })
 		.from(showing)
 		.leftJoin(film, eq(showing.filmid, film.id))
-		.where(eq(showing.id, getID(url.pathname)));
+		.where(eq(showing.id, getID(url)));
 
 	const priceSets = await db
 		.select()
@@ -41,7 +41,7 @@ export const actions = {
 			await db
 				.update(showing)
 				.set({ date: date, time: timeString, priceSetId: priceSetId })
-				.where(eq(showing.id, getID(url.pathname)));
+				.where(eq(showing.id, getID(url)));
 		} catch (e) {
 			console.log('Fehler' + e);
 		}
@@ -50,7 +50,7 @@ export const actions = {
 	delete: async ({url}) =>{
 		
 		try{
-			await db.delete(showing).where(eq(showing.id,getID(url.pathname)))
+			await db.delete(showing).where(eq(showing.id,getID(url)))
 		} catch(e){
 			console.log("error" + e)
 		}

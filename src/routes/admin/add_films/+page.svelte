@@ -2,7 +2,6 @@
 	import type { Movie, CompleteMovieInformation } from './+page.server';
     import { enhance } from '$app/forms';
 	import { ConsoleLogWriter } from 'drizzle-orm';
-    import Header from '$lib/components/header.svelte'
     import { i18n } from '$lib/i18n';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
@@ -17,7 +16,7 @@
 
     async function setSelectedMovie(movie: Movie) {
     const formData = new FormData();
-    formData.append('id', movie.imdbID.toString());
+    formData.append('id', movie.imdbID?.toString() ?? '');
 
     try {
         const response = await fetch('?/fetchFullMovieDetails', {
@@ -56,13 +55,13 @@ function switchToLanguage(newLanguage: AvailableLanguageTag) {
 </script>
 
 <style>
-    body {
+    /* body {
         display: flex;
         flex-wrap: wrap;
         margin: 0;
         padding: 0;
         font-family: Arial, sans-serif;
-    }
+    } */
 
     .container {
         display: flex;
@@ -184,16 +183,6 @@ function switchToLanguage(newLanguage: AvailableLanguageTag) {
         }
     }
 </style>
-
-<Header 
-    user={{ email: 'Guest' }} 
-    onLanguageSwitch={() => switchToLanguage("en")} 
-    buttons={[
-        { label: 'Filme anzeigen', onClick: onFilmClick },
-        { label: 'Kinosaal hinzufügen', onClick: onAddRoomClick }
-    ]}
-    />
-    
     <div class="container">
         <div class="form-container">
             <form class="form" method="POST" action="?/search" use:enhance={() => {
