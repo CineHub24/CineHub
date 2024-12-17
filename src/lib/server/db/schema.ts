@@ -85,9 +85,8 @@ export const cinema = pgTable('Cinema', {
 
 export const cinemaHall = pgTable('CinemaHall', {
   id: serial("id").primaryKey(),
-  hallNumber: integer('hallNumber'),
+  name: text('name'),
   capacity: integer('capacity'),
-
 
   // cinemaId: integer('cinemaId')
   //   .notNull()
@@ -99,8 +98,7 @@ export const seat = pgTable('seat', {
   id: serial('id').primaryKey(),
   seatNumber: text('seatNumber').notNull(),
   row: text('row').notNull(),
-  type: text('type').notNull(), // single, double, or premium
-  cinemaHall: integer('cinemaHall').notNull().references(() => cinemaHall.id),
+  cinemaHall: integer('cinemaHall').notNull().references(() => cinemaHall.id, { onDelete: 'cascade' }),
   categoryId: integer('categoryId').notNull().references(() => seatCategory.id),
 });
 

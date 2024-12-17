@@ -6,6 +6,7 @@
     let name = $state('');
     let description = $state('');
     let price = $state('');
+    let emoji = $state('');
   
 
   
@@ -52,8 +53,8 @@
     </div>
 
     <div>
-        <label for="price">Emoji:</label>
-        <input type="number" id="price" name="price" step="0.01" bind:value={price} required />
+        <label for="emoji">Emoji:</label>
+        <input type="text" id="emoji" name="emoji" bind:value={emoji} required />
       </div>
   
     <button type="submit">Create Category</button>

@@ -1,38 +1,33 @@
 <script lang="ts">
-
+	// Define interfaces for type safety
 	interface Seat {
 		id: string;
 		type: string;
 	}
 
-	// Initial seat data: an array of rows, each containing seat objects
-	let seatPlan: (Seat | null)[][] = $state([
-		[
-			{ id: 'A1', type: 'single' },
-			{ id: 'A2', type: 'single' },
-			{ id: 'A3', type: 'single' },
-			{ id: 'A4', type: 'single' }
-		],
-		[
-			{ id: 'B1', type: 'single' },
-			{ id: 'B2', type: 'single' },
-			{ id: 'B3', type: 'single' },
-			{ id: 'B4', type: 'single' }
-		]
-	]);
+	interface SeatCategory {
+		id: number;
+		name: string;
+		emoji: string;
+	}
 
-  let data = $props();
+	// Initialize seatPlan with an empty array
+	let seatPlan: (Seat | null)[][] = $state([]);
 
-  let hallNumber:number;
+	let data = $props();
 
-  let seatTypes: string[] = [];
+	let name: string;
 
-  if (data.categories && data.categories.length > 0) {
-    seatTypes = data.categories.map((category) => category.name);
-  } else {
-    console.warn('Error: No seat categories provided. Using default seat type.');
-    seatTypes = ['single']; 
-  }
+	// Properly typed seat types array
+	let seatTypes: SeatCategory[] = [];
+
+	// Safely populate seat types
+	if (data?.data?.categories && data.data.categories.length > 0) {
+		seatTypes = data.data.categories as SeatCategory[];
+		console.log(seatTypes);
+	} else {
+		console.warn('Error: No seat categories provided! - Snackbar!!!');
+	}
 
 	let mode: 'removeRestore' | 'changeType' = $state('removeRestore');
 
@@ -59,29 +54,28 @@
 		);
 	}
 
-  function changeSeatType(seat: Seat): Seat {
-    const currentIndex = seatTypes.indexOf(seat.type);
-    const nextIndex = (currentIndex + 1) % seatTypes.length;
-    return { ...seat, type: seatTypes[nextIndex] };
-  }
+	function changeSeatType(seat: Seat): Seat {
+		const currentIndex = seatTypes.findIndex(category => category.name === seat.type);
+		const nextIndex = (currentIndex + 1) % seatTypes.length;
+		const updatedSeat = { ...seat, type: seatTypes[nextIndex].name };
 
-	function getSeatEmoji(type: String): string {
-		switch (type.toLowerCase()) {
-			case 'single':
-				return '🪑'; // Single seat emoji
-			case 'double':
-				return '👫'; // Double seat emoji
-			case 'premium':
-				return '💺'; // Premium seat emoji
-			default:
-				return '❓';
-		}
+		// Logging the current and new seat type
+		console.log(`Changing seat type for Seat ID: ${seat.id}`);
+		console.log(`Current Type: ${seat.type}`);
+		console.log(`New Type: ${seatTypes[nextIndex].name}`);
+		console.log(`Updated Seat:`, updatedSeat);
+
+		return updatedSeat;
 	}
 
+	function getSeatEmoji(type: string): string {
+		const seatType = seatTypes.find((category) => category.name === type);
+		return seatType?.emoji || '❓';
+	}
 
 	function toggleRow(rowIndex: number) {
-		const emptySeats = seatPlan[rowIndex].filter((seat) => seat === null).length;
-		const totalSeats = seatPlan[rowIndex].length;
+		const emptySeats = seatPlan[rowIndex]?.filter((seat) => seat === null).length || 0;
+		const totalSeats = seatPlan[rowIndex]?.length || 0;
 
 		if (emptySeats >= totalSeats / 2) {
 			// If half or more seats are empty, restore the row
@@ -108,11 +102,11 @@
 	function addRow() {
 		const newRowIndex = seatPlan.length;
 		const newRow = Array.from(
-			{ length: seatPlan[0].length },
+			{ length: seatPlan.length > 0 ? seatPlan[0].length : 4 }, // Use 4 as the default number of seats per row
 			(_, i) =>
 				({
 					id: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`,
-					type: 'single'
+					type: seatTypes.length > 0 ? seatTypes[0].name : ''
 				}) as Seat
 		);
 		seatPlan = [...seatPlan, newRow];
@@ -121,7 +115,7 @@
 	function addColumn() {
 		seatPlan = seatPlan.map((row, rowIndex) => [
 			...row,
-			{ id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: 'single' }
+			{ id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: seatTypes.length > 0 ? seatTypes[0].name : '' }
 		]);
 	}
 
@@ -192,72 +186,64 @@
 		seatPlan = updatedPlan;
 	}
 
+	function prepareSeatData() {
+		const seats: { seatNumber: string; row: string; type: string; categoryId: number }[] = [];
+		seatPlan.forEach((row, rowIndex) => {
+			row.forEach((seat) => {
+				if (seat) {
+					let category;
+					if (data?.data?.categories) {
+						category = data.data.categories.find((cat) => cat.name === seat.type);
+					}
+					seats.push({
+						seatNumber: seat.id,
+						row: String.fromCharCode(65 + rowIndex),
+						type: seat.type,
+						categoryId: category ? category.id : 1, // Fallback to 1 if not found
+					});
+				}
+			});
+		});
 
-    function prepareSeatData() {
-    const seats: { seatNumber: string; row: string; type: string; categoryId: number }[] = [];
-    seatPlan.forEach((row, rowIndex) => {
-      row.forEach((seat) => {
-        if (seat) {
-          let category
-          if(data.categories){
-            category = data.categories.find((cat) => cat.name === seat.type);
-          }
-          seats.push({
-            seatNumber: seat.id,
-            row: String.fromCharCode(65 + rowIndex),
-            type: seat.type,
-            categoryId: category ? category.id : 1, // Fallback to 1 if not found
-          });
-        }
-      });
-    });
-
-    return JSON.stringify(seats);
-  }
+		return JSON.stringify(seats);
+	}
 </script>
 
-
 <div class="legend">
-  {#if data && Array.isArray(data.categories) && data.categories.length > 0}
-    {#each data.categories as category}
-      <div class="legend-item">
-        <span class="emoji">{getSeatEmoji(category.name)}</span>
-        <span class="label">{category.name}</span>
-      </div>
-    {/each}
-  {:else}
-    <div class="legend-item">
-      <span class="emoji">❓</span>
-      <span class="label">No Categories Available you should add one: <a href="/admin/add_seat_category">Create New Seat Category</a>
-	  </span>
-    </div>
-  {/if}
+	{#if data && Array.isArray(data.data.categories) && data.data.categories.length > 0}
+		{#each data.data.categories as category}
+			<div class="legend-item">
+				<span class="emoji">{category.emoji}</span>
+				<span class="label">{category.name}</span>
+			</div>
+		{/each}
+	{:else}
+		<div class="legend-item">
+			<span class="emoji">❓</span>
+			<span class="label">No Categories Available you should add one: <a href="/admin/add_seat_category">Create New Seat Category</a>
+			</span>
+		</div>
+	{/if}
 </div>
 
 <a href="/admin/add_seat_category">Create New Seat Category</a>
 
-
-
-
 <form method="POST" action="?/saveSeats">
-  <div>
-    <label for="hallNumber">Hall Number:</label>
-    <input type="text" id="hallNumber" name="hallNumber" bind:value={hallNumber} required />
-  </div>
+	<div>
+		<label for="name">Hall Name:</label>
+		<input type="text" id="name" name="name" bind:value={name} required />
+	</div>
 
-  <input type="hidden" name="seatPlanData" value={prepareSeatData()} />
+	<input type="hidden" name="seatPlanData" value={prepareSeatData()} />
 
-  <button type="submit">Save Seat Plan</button>
+	<button type="submit" >Save Seat Plan</button>
 </form>
 
-
-
 {#if data?.form?.error}
-  <p class="error">{data.form.message || 'An unexpected error occurred.'}</p>
+	<p class="error">{data.form.message || 'An unexpected error occurred.'}</p>
 {:else if data?.form?.success}
-  <p class="success">{data.form.success.message}</p>
+	<p class="success">{data.form.success.message}</p>
 {/if}
-
 
 <div class="controls">
 	<button onclick={addRow}>Add Row</button>
@@ -290,7 +276,6 @@
 			<div class="row">
 				{#each row as seat, colIndex}
 					{#if seat}
-						<!-- dont use div, use button -->
 						<div class="seat" onclick={() => toggleSeat(rowIndex, colIndex)}>
 							{seat.id}<br />
 							{getSeatEmoji(seat.type)}
