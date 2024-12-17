@@ -1,11 +1,11 @@
 import { film } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { error, redirect, type Actions, type RequestEvent } from '@sveltejs/kit';
-import type { year } from 'drizzle-orm/mysql-core';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export type Movie = typeof film.$inferSelect;
 const apiKey = import.meta.env.VITE_OMDB_API_KEY;
+const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 export type CompleteMovieInformation = {
 	imdbID: string;
@@ -26,20 +26,19 @@ export const actions = {
 		const formdata = await request.formData();
 		const query = formdata.get('query');
 
-        if (!query) throw error(400,"Query is required");
+		if (!query) throw error(400, 'Query is required');
 
-        
-        try {
-            const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
-            const data = await res.json();
-            console.log(data)
-            const movies: Movie[] = data.Search.map((movie: any) => ({
-                imdbID: movie.imdbID,
-                title: movie.Title,
-                type: movie.Type,
-                releaseDate: movie.ReleaseDate,
-                poster: movie.Poster
-            }));
+		try {
+			const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
+			const data = await res.json();
+			console.log(data);
+			const movies: Movie[] = data.Search.map((movie: any) => ({
+				imdbID: movie.imdbID,
+				title: movie.Title,
+				type: movie.Type,
+				releaseDate: movie.ReleaseDate,
+				poster: movie.Poster
+			}));
 
 			return {
 				movies: movies
@@ -53,10 +52,10 @@ export const actions = {
 		const data = await request.formData();
 		const movieId = data.get('id');
 
-        try {
-            // Fetch full movie details from OMDB API
-            const response = await fetch(`http://www.omdbapi.com/?i=${movieId}&apikey=${apiKey}`);
-            const fullMovieDetails = await response.json();
+		try {
+			// Fetch full movie details from OMDB API
+			const response = await fetch(`http://www.omdbapi.com/?i=${movieId}&apikey=${apiKey}`);
+			const fullMovieDetails = await response.json();
 
 			const movieResponse: CompleteMovieInformation = {
 				imdbID: fullMovieDetails.imdbID,
@@ -96,8 +95,46 @@ export const actions = {
 			return match ? Number(match[0]) : null;
 		}
 
+		async function gettmdbID(imdbID: string): Promise<string | null> {
+			try {
+				const response = await fetch(
+					`https://api.themoviedb.org/3/find/${imdbID}?api_key=${tmdbApiKey}&external_source=imdb_id`
+				);
+				const data = await response.json();
+				if (data.movie_results && data.movie_results.length > 0) {
+					return data.movie_results[0].id.toString();
+				}
+			} catch (error) {
+				console.error('Error fetching TMDB ID:', error);
+			}
+			return null;
+		}
+
+		const imdbID = formData.get('imdbID')?.toString();
+		if (!imdbID) throw error(400, 'IMDB ID is required');
+		const tmdbID = await gettmdbID(imdbID);
+
+		async function getBackdropImage(tmdbID: string): Promise<string | null> {
+			try {
+				const response = await fetch(
+					`https://api.themoviedb.org/3/movie/${tmdbID}/images?api_key=${tmdbApiKey}`
+				);
+				const data = await response.json();
+				if (data.backdrops && data.backdrops.length > 0) {
+					return `https://image.tmdb.org/t/p/original/${data.backdrops[0].file_path}`;
+				}
+			} catch (error) {
+				console.error('Error fetching backdrop image:', error);
+			}
+			return null;
+		}
+
+		const backdrop = tmdbID ? await getBackdropImage(tmdbID) : null;
+
 		const movieToSave: filmForInsert = {
-			imdbID: formData.get('imdbID')?.toString(),
+			imdbID: imdbID,
+			tmdbID: tmdbID,
+			backdrop: backdrop,
 			title: formData.get('title')?.toString(),
 			genres: formData
 				.get('genres')
