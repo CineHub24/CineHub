@@ -95,6 +95,7 @@
         {#each ticketTypes as ticketType}
             <div class="priceset-card">
                 {#if editingticketTypeId === ticketType.id}
+                
                     <form 
                         method="POST" 
                         action="?/updateTicketType" 

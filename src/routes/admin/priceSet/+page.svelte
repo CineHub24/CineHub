@@ -18,6 +18,7 @@
     
     function handleEdit(priceSet: typeof priceSets[0]) {
         selectedPriceSet = priceSet;
+        isCreatingNewPriceSet = false;
     }
     
     function getPriceSetDetails(set: typeof priceSets[0]) {
@@ -221,7 +222,7 @@
                     <div class="card-actions">
                         <button 
                             class="btn btn-edit" 
-                            onclick={() => handleEdit(priceSet)}
+                            onclick={() => {handleEdit(priceSet);}}
                         >
                             Bearbeiten
                         </button>
