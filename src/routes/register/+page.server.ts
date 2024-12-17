@@ -6,11 +6,9 @@ import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 import { generateUserId } from '$lib/utils/user';
 import { validateEmail, validatePassword } from '$lib/utils/user';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async (event) => {
-	if (event.locals.user) {
-		return redirect(302, '/');
-	}
 	return {};
 };
 
@@ -44,6 +42,6 @@ export const actions: Actions = {
 		} catch (e) {
 			return fail(500, { message: 'An error has occurred ' + e });
 		}
-		return redirect(302, '/');
+		return languageAwareRedirect(302, '/');
 	}
 };

@@ -1,94 +1,60 @@
-<!-- HOW TO USE
-<Footer />
--->
-
 <script>
-    let year = new Date().getFullYear();
-    let kinoName = "Dein Kino";
-  
-    const links = [
-      { title: "Programm", href: "/programm" },
-      { title: "Tickets", href: "/tickets" },
-      { title: "Über uns", href: "/ueber-uns" },
-      { title: "Kontakt", href: "/kontakt" }
-    ];
-  </script>
-  
-  <footer>
-    <div class="footer-content">
-      <div class="footer-left">
-        <h2>{kinoName}</h2>
-        <p>© {year} {kinoName}. Alle Rechte vorbehalten.</p>
+	import * as m from '$lib/paraglide/messages.js';
+  const currentYear = new Date().getFullYear();
+</script>
+
+<footer class="bg-gray-100 text-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- About Section -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">{m.about({})}</h3>
+        <p class="text-sm">
+          {m.about_us_text({})}
+        </p>
       </div>
-      <nav class="footer-nav">
-        <ul>
-          {#each links as link}
-            <li><a href={link.href}>{link.title}</a></li>
-          {/each}
+      <!-- Links Section -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">{m.quick_links({})}</h3>
+        <ul class="space-y-2">
+          <li><a href="/" class="hover:text-gray-600 transition">{m.home({})}</a></li>
+          <li><a href="/program" class="hover:text-gray-600 transition">{m.program({})}</a></li>
+          <li><a href="/tickets" class="hover:text-gray-600 transition">{m.tickets({})}</a></li>
+          <li><a href="/about" class="hover:text-gray-600 transition">{m.about({})}</a></li>
         </ul>
-      </nav>
-      <div class="footer-social">
-        <p>Folge uns:</p>
-        <ul>
-          <!-- Platzhalter für Social Icons -->
-          <li><a href="#" aria-label="Facebook-Link">Facebook</a></li>
-          <li><a href="#" aria-label="Instagram-Link">Instagram</a></li>
-          <li><a href="#" aria-label="Twitter-Link">Twitter</a></li>
+      </div>
+      <!-- Resources Section -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">{m.legal({})}</h3>
+        <ul class="space-y-2">
+          <li><a href="#" class="hover:text-gray-600 transition">{m.privacy_policy({})}</a></li>
+          <li><a href="#" class="hover:text-gray-600 transition">{m.terms_of_service({})}</a></li>
+          <li><a href="#" class="hover:text-gray-600 transition">{m.imprint({})}</a></li>
         </ul>
+      </div>
+      <!-- Newsletter Section -->
+      <div>
+        <h3 class="text-lg font-semibold mb-4">{m.stay_in_touch({})}</h3>
+        <p class="text-sm mb-4">
+          {m.newsletter_text({})}
+        </p>
+        <form class="flex space-x-2">
+          <input
+            type="email"
+            placeholder={m.your_email({})}
+            class="w-full px-3 py-2 rounded-md bg-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+          >
+            {m.subscribe({})}
+          </button>
+        </form>
       </div>
     </div>
-  </footer>
-  
-  <style>
-    footer {
-      background-color: #333;
-      color: #fff;
-      padding: 2rem;
-    }
-  
-    .footer-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-  
-    @media (min-width: 600px) {
-      .footer-content {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-      }
-    }
-  
-    .footer-left h2 {
-      margin: 0 0 0.5rem 0;
-    }
-  
-    .footer-nav ul,
-    .footer-social ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-  
-    .footer-nav ul li,
-    .footer-social ul li {
-      margin: 0.5rem 0;
-    }
-  
-    .footer-nav a,
-    .footer-social a {
-      color: #fff;
-      text-decoration: none;
-    }
-  
-    .footer-nav a:hover,
-    .footer-social a:hover {
-      text-decoration: underline;
-    }
-  
-    .footer-social p {
-      margin: 0 0 0.5rem 0;
-    }
-  </style>
-  
+    <div class="border-t border-gray-300 mt-8 pt-4 text-center text-sm">
+      <p>&copy; {currentYear} CineHub. {m.copy_right({})}</p>
+    </div>
+  </div>
+</footer>

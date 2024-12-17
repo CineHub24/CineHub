@@ -1,6 +1,7 @@
 import * as auth from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async (event) => {
     // Fetch user information from locals
@@ -32,6 +33,6 @@ export const actions: Actions = {
         }
 
         // Redirect to the homepage after logout
-        throw redirect(303, '/');
+        throw languageAwareRedirect(303, '/');
     }
 };

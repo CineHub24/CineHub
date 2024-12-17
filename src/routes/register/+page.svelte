@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
+	import * as m from '$lib/paraglide/messages.js';
+
 
 	let { form }: { form: ActionData } = $props();
 
@@ -40,21 +42,21 @@
 				class="h-20 w-20"
 			/>
 		</div>
-		<h2 class="mb-6 text-center text-2xl font-bold text-gray-800">Create Your Account</h2>
+		<h2 class="mb-6 text-center text-2xl font-bold text-gray-800">{m.register_new({})}</h2>
 		<form method="post" action="?/register" class="space-y-4" onsubmit={handleSubmit}>
 			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+				<label for="email" class="block text-sm font-medium text-gray-700">{m.email_address({})}</label>
 				<input
 					type="email"
 					id="email"
 					name="email"
 					required
 					class="mt-1 w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-					placeholder="Enter your email"
+					placeholder={m.enter_email({})}
 				/>
 			</div>
 			<div>
-				<label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+				<label for="password" class="block text-sm font-medium text-gray-700">{m.password({})}</label>
 				<input
 					type="password"
 					id="password"
@@ -62,11 +64,11 @@
 					bind:value={password}
 					required
 					class="mt-1 w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-					placeholder="Enter your password"
+					placeholder={m.enter_password({})}
 				/>
 			</div>
 			<div>
-				<label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+				<label for="confirm-password" class="block text-sm font-medium text-gray-700">{m.password_confirm({})}</label>
 				<input
 					type="password"
 					id="confirm-password"
@@ -74,7 +76,7 @@
 					bind:value={confirmPassword}
 					required
 					class="mt-1 w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200"
-					placeholder="Re-enter your password"
+					placeholder={m.enter_password_confirm({})}
 				/>
 			</div>
 
@@ -87,12 +89,12 @@
 				type="submit"
 				class="w-full rounded-md bg-indigo-600 py-2 text-white hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-200"
 			>
-				Sign Up
+				{m.sign_up({})}
 			</button>
 		</form>
 
 		<div class="mt-6 text-center text-sm text-gray-600">
-			Already have an account? <a href="/login" class="text-indigo-500 hover:underline">Login</a>
+		 	{m.already_account({})} <a href="/login" class="text-indigo-500 hover:underline">{m.login({})}</a>
 		</div>
 	</div>
 </div>
