@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>0/13</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>0/13</span>
             </div>
         
             
@@ -127,17 +127,7 @@
 <a name='L62'></a><a href='#L62'>62</a>
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -164,15 +154,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -184,6 +165,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -211,85 +193,76 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >&lt;script lang="ts"&gt;<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
 	import MovieCard from '$lib/components/movie_card.svelte';
-    import Header from '$lib/components/header.svelte'
-    import { i18n } from '$lib/i18n';
-    import { page } from '$app/stores';
-    import { goto } from '$app/navigation';
-    import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
+	import { i18n } from '$lib/i18n';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
 &nbsp;
 <span class="cstat-no" title="statement not covered" >	export let data;</span>
-<span class="cstat-no" title="statement not covered" >    const {filme} = data</span>
+<span class="cstat-no" title="statement not covered" >	const { filme } = data;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    function switchToLanguage(newLanguage: AvailableLanguageTag) {</span>
+<span class="cstat-no" title="statement not covered" >	function switchToLanguage(newLanguage: AvailableLanguageTag) {</span>
 <span class="cstat-no" title="statement not covered" >		const canonicalPath = i18n.route($page.url.pathname);</span>
 <span class="cstat-no" title="statement not covered" >		const localisedPath = i18n.resolveRoute(canonicalPath, newLanguage);</span>
 <span class="cstat-no" title="statement not covered" >		goto(localisedPath);</span>
 	}
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    function onAddFilmClick() {</span>
-<span class="cstat-no" title="statement not covered" >        goto('/admin/add_films');</span>
-    }
+<span class="cstat-no" title="statement not covered" >	function onAddFilmClick() {</span>
+<span class="cstat-no" title="statement not covered" >		goto('/admin/add_films');</span>
+	}
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    function onAddRoomClick() {</span>
-<span class="cstat-no" title="statement not covered" >        goto('/admin/add_room');</span>
-    }
-&nbsp;
+<span class="cstat-no" title="statement not covered" >	function onAddRoomClick() {</span>
+<span class="cstat-no" title="statement not covered" >		goto('/admin/add_room');</span>
+	}
 &lt;/script&gt;
 &nbsp;
-&lt;Header 
-<span class="cstat-no" title="statement not covered" >    user={{ email: 'Guest' }} </span>
-<span class="cstat-no" title="statement not covered" >    onLanguageSwitch={() =&gt; switchToLanguage("en")} </span>
-    buttons={[
-<span class="cstat-no" title="statement not covered" >        { label: 'Filme hinzufügen', onClick: onAddFilmClick },</span>
-<span class="cstat-no" title="statement not covered" >        { label: 'Kinosaal Hinzufügen', onClick: onAddRoomClick }</span>
-    ]}
-    /&gt;
 &lt;div class="container"&gt;
-    &lt;h1&gt;Filme&lt;/h1&gt;
-    &lt;div class="film-liste"&gt;    
-<span class="cstat-no" title="statement not covered" >        {#each filme as movie}</span>
-            &lt;!-- &lt;div class="film-item"&gt;
+	&lt;h1&gt;Filme&lt;/h1&gt;
+	&lt;div class="film-liste"&gt;
+<span class="cstat-no" title="statement not covered" >		{#each filme as movie}</span>
+			&lt;!-- &lt;div class="film-item"&gt;
                 &lt;a href="/admin/films/film/{film.id}"&gt;
                     {film.title} - {film.genres}        
                     TODO - genres is a array  
 					&lt;img src={film.poster} alt= {film.title}&gt;
                 &lt;/a&gt;
             &lt;/div&gt; --&gt;
-            &lt;div class="movies-container"&gt;
-<span class="cstat-no" title="statement not covered" >                &lt;MovieCard {movie} url="/admin/films/film/{movie.id}" /&gt;</span>
-            &lt;/div&gt;
-        {/each}
-    &lt;/div&gt;
-&lt;/div&gt;	
+			&lt;div class="movies-container"&gt;
+<span class="cstat-no" title="statement not covered" >				&lt;MovieCard {movie} url="/admin/films/film/{movie.id}" /&gt;</span>
+			&lt;/div&gt;
+		{/each}
+	&lt;/div&gt;
+&lt;/div&gt;
 &nbsp;
 &lt;style&gt;
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    .film-liste {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .film-item {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
-    a {
-        text-decoration: none;
-        color: #333;
-    }
-&lt;/style&gt;</pre></td></tr></table></pre>
+	.container {
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 20px;
+	}
+	.film-liste {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+	.film-item {
+		padding: 10px;
+		border: 1px solid #ddd;
+		border-radius: 5px;
+	}
+	a {
+		text-decoration: none;
+		color: #333;
+	}
+&lt;/style&gt;
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-16T21:52:47.525Z
+                at 2024-12-17T08:51:58.316Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
