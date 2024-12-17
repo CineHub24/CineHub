@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/76</span>
+                <span class='fraction'>0/78</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/76</span>
+                <span class='fraction'>0/78</span>
             </div>
         
             
@@ -157,7 +157,8 @@
 <a name='L92'></a><a href='#L92'>92</a>
 <a name='L93'></a><a href='#L93'>93</a>
 <a name='L94'></a><a href='#L94'>94</a>
-<a name='L95'></a><a href='#L95'>95</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -200,24 +201,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -235,7 +220,24 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -253,7 +255,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { db } from '$lib/server/db';</span></span></span>
 import { priceSet, seatCategory, ticketType } from '$lib/server/db/schema';
-import { error, type Actions } from '@sveltejs/kit';
+import { error, type Actions, fail } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export const load = async ({ url }) =&gt; {</span>
@@ -280,7 +282,7 @@ import { eq, lt, gte, ne } from 'drizzle-orm';
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >    catch (e) {</span>
 <span class="cstat-no" title="statement not covered" >        console.log(e);</span>
-<span class="cstat-no" title="statement not covered" >        throw error(500, "Internal Server Error DB");</span>
+<span class="cstat-no" title="statement not covered" >        error(500, "Internal Server Error DB");</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" >export const actions = {</span>
@@ -293,6 +295,11 @@ import { eq, lt, gte, ne } from 'drizzle-orm';
 <span class="cstat-no" title="statement not covered" >        const priceFactor = data.get('priceFactor') as string;</span>
 <span class="cstat-no" title="statement not covered" >        const seatCategoryIds = data.getAll('seatCategoryPrices').map((id) =&gt; parseInt(id.toString())) as number[];</span>
 <span class="cstat-no" title="statement not covered" >        const ticketTypeIds = data.getAll('ticketTypes').map((id) =&gt; parseInt(id.toString())) as number[];</span>
+&nbsp;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if(!name || !priceFactor) {</span>
+<span class="cstat-no" title="statement not covered" >            return fail(400, { message: 'Missing inputs'});</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
         
 <span class="cstat-no" title="statement not covered" >        const newPriceSet = {</span>
 <span class="cstat-no" title="statement not covered" >            name,</span>
@@ -300,10 +307,8 @@ import { eq, lt, gte, ne } from 'drizzle-orm';
 <span class="cstat-no" title="statement not covered" >            seatCategoryPrices: seatCategoryIds,</span>
 <span class="cstat-no" title="statement not covered" >            ticketTypes: ticketTypeIds</span>
 <span class="cstat-no" title="statement not covered" >        };</span>
-&nbsp;
-&nbsp;
 <span class="cstat-no" title="statement not covered" >        try {</span>
-<span class="cstat-no" title="statement not covered" >            await db.insert(priceSet).values(newPriceSet).execute();</span>
+<span class="cstat-no" title="statement not covered" >            await db.insert(priceSet).values(newPriceSet);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        } catch (e) {</span>
 <span class="cstat-no" title="statement not covered" >            console.error('Error creating the priceSet:', e);</span>
@@ -330,9 +335,7 @@ import { eq, lt, gte, ne } from 'drizzle-orm';
 <span class="cstat-no" title="statement not covered" >        const seatCategoryIds = data.getAll('seatCategoryPrices').map((id) =&gt; parseInt(id.toString())) as number[];</span>
 <span class="cstat-no" title="statement not covered" >        const ticketTypeIds = data.getAll('ticketTypes').map((id) =&gt; parseInt(id.toString())) as number[];</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        console.log(data);</span>
-&nbsp;
-<span class="cstat-no" title="statement not covered" >        if (!id || !name) {</span>
+<span class="cstat-no" title="statement not covered" >        if (!id || !name || !priceFactor) {</span>
 <span class="cstat-no" title="statement not covered" >            return error(400, 'Missing inputs'); </span>
 <span class="cstat-no" title="statement not covered" >        }</span>
 &nbsp;
@@ -352,7 +355,7 @@ import { eq, lt, gte, ne } from 'drizzle-orm';
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-17T12:41:49.262Z
+                at 2024-12-17T14:50:22.061Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

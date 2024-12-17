@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/65</span>
+                <span class='fraction'>0/69</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/65</span>
+                <span class='fraction'>0/69</span>
             </div>
         
             
@@ -424,13 +424,33 @@
 <a name='L359'></a><a href='#L359'>359</a>
 <a name='L360'></a><a href='#L360'>360</a>
 <a name='L361'></a><a href='#L361'>361</a>
-<a name='L362'></a><a href='#L362'>362</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L362'></a><a href='#L362'>362</a>
+<a name='L363'></a><a href='#L363'>363</a>
+<a name='L364'></a><a href='#L364'>364</a>
+<a name='L365'></a><a href='#L365'>365</a>
+<a name='L366'></a><a href='#L366'>366</a>
+<a name='L367'></a><a href='#L367'>367</a>
+<a name='L368'></a><a href='#L368'>368</a>
+<a name='L369'></a><a href='#L369'>369</a>
+<a name='L370'></a><a href='#L370'>370</a>
+<a name='L371'></a><a href='#L371'>371</a>
+<a name='L372'></a><a href='#L372'>372</a>
+<a name='L373'></a><a href='#L373'>373</a>
+<a name='L374'></a><a href='#L374'>374</a>
+<a name='L375'></a><a href='#L375'>375</a>
+<a name='L376'></a><a href='#L376'>376</a>
+<a name='L377'></a><a href='#L377'>377</a>
+<a name='L378'></a><a href='#L378'>378</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -463,10 +483,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -643,6 +668,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -786,12 +818,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >&lt;script lang="ts"&gt;<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
-	import { enhance } from "$app/forms";
 	import { goto } from "$app/navigation";
+    
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    let selectedPriceSet: typeof priceSets[0] | null;</span>
 <span class="cstat-no" title="statement not covered" >    let isCreatingNewPriceSet = false;</span>
 <span class="cstat-no" title="statement not covered" >    export let data;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    let saveError: string | null = null;</span>
+&nbsp;
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    const {priceSets, seatCategories, ticketTypes} = data;</span>
 <span class="cstat-no" title="statement not covered" >    priceSets.sort((a, b) =&gt; a.name?.localeCompare(b.name??'') ?? 0);</span>
 <span class="cstat-no" title="statement not covered" >    seatCategories.sort((a, b) =&gt; (parseFloat(a.price ?? '0')) - (parseFloat(b.price ?? '0')));</span>
@@ -825,9 +861,14 @@
 &nbsp;
 &lt;div class="container"&gt;
     &lt;h1 class="page-title"&gt;Preissets Verwaltung&lt;/h1&gt;
+<span class="cstat-no" title="statement not covered" >    {#if saveError}</span>
+<span class="cstat-no" title="statement not covered" >        {console.log(saveError)}</span>
+<span class="cstat-no" title="statement not covered" >        &lt;div class="error-message"&gt;{saveError}&lt;/div&gt;</span>
+    {/if}
 <span class="cstat-no" title="statement not covered" >    {#if !isCreatingNewPriceSet}</span>
 <span class="cstat-no" title="statement not covered" >        &lt;button class="new-priceset-btn" onclick={startNewPriceSet}&gt;Neues Preisset anlegen&lt;/button&gt;</span>
     {/if}
+        
 <span class="cstat-no" title="statement not covered" >    &lt;button class="new-priceset-btn" onclick={() =&gt; goto('/admin/seatCategory')}&gt;Sitzkategorien verwalten&lt;/button&gt;</span>
 <span class="cstat-no" title="statement not covered" >    &lt;button class="new-priceset-btn" onclick={() =&gt; goto('/admin/ticketType')}&gt;TicketTypen verwalten&lt;/button&gt;</span>
     
@@ -1146,6 +1187,13 @@
     .btn-delete:hover {
         background-color: #c0392b;
     }
+    .error-message {
+        background-color: #ffdddd;
+        color: #ff0000;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
 &lt;/style&gt;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -1153,7 +1201,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-12-17T12:41:49.262Z
+                at 2024-12-17T14:50:22.061Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
