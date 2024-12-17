@@ -5,7 +5,7 @@ import type { year } from 'drizzle-orm/mysql-core';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export type Movie = typeof film.$inferSelect;
-
+const apiKey = import.meta.env.VITE_OMDB_API_KEY;
 
 export type CompleteMovieInformation = {
     imdbID: string;
@@ -32,7 +32,7 @@ export const actions = {
 
         
         try {
-            const res = await fetch(`http://www.omdbapi.com/?apikey=b97fe887&s=${query}`);
+            const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
             const data = await res.json();
             console.log(data)
             const movies: Movie[] = data.Search.map((movie: any) => ({
@@ -58,7 +58,7 @@ export const actions = {
 
         try {
             // Fetch full movie details from OMDB API
-            const response = await fetch(`http://www.omdbapi.com/?i=${movieId}&apikey=b97fe887&`);
+            const response = await fetch(`http://www.omdbapi.com/?i=${movieId}&apikey=${apiKey}`);
             const fullMovieDetails = await response.json();
 
             const movieResponse: CompleteMovieInformation = {
