@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import type { PageServerData } from './$types';
 
-
-    export let data;
+    let{data}:{data:PageServerData} = $props()
 
     const {ticketTypes} = data;
 
-    let isCreatingNewticketType = false;
-    let editingticketTypeId: number | null = null;
+    let isCreatingNewticketType = $state(false);
+    let editingticketTypeId = $state<number | null>(null);
 
 
     function cancelEdit() {

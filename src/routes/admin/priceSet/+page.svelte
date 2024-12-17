@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-    
+	import type { PageServerData } from "./$types.js";
 
-    let selectedPriceSet: typeof priceSets[0] | null;
-    let isCreatingNewPriceSet = false;
-    export let data;
+
+    let{data}:{data:PageServerData} = $props()
+    let selectedPriceSet = $state<typeof priceSets[0] | null>(null);
+    let isCreatingNewPriceSet = $state(false);
 
     let saveError: string | null = null;
 

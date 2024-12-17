@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import type { PageServerData } from './$types';
 
-
-    export let data;
+    let{data}:{data:PageServerData} = $props()
 
     const {seatCategories} = data;
 
-    let isCreatingNewSeatCategory = false;
-    let editingSeatCategoryId: number | null = null;
+    let isCreatingNewSeatCategory = $state(false);
+    let editingSeatCategoryId = $state<number | null>(null);
 
 
     function cancelEdit() {
