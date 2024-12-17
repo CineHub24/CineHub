@@ -13,7 +13,7 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 
 export const load = async ({ url }) => {
 	console.log(url.pathname);
-	let id = <unknown>url.pathname.replace('/admin/films/film/', '');
+	const id = parseInt(url.pathname.split('/').pop() || '0', 10);
 	console.log(id);
 	const movies: Film[] = await db
 		.select({
@@ -56,7 +56,7 @@ export const actions = {
 		const runtimeString = formData.get('runtime') as string;
 		const director:string = <string>formData.get("director")
         const description:string = <string>formData.get("description")
-		let id = <unknown>url.pathname.replace('/admin/films/film/', '');
+		const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 
 		let runtime: number | null = null;
 		if (/^\d+$/.test(runtimeString)) {
@@ -103,7 +103,7 @@ export const actions = {
 	},
 
 	create: async ({url, request}) => {
-		let id = <unknown>url.pathname.replace('/admin/films/film/', '');
+		const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 		const formData = await request.formData()
 		let date = formData.get('date') as string;
 		let timeString = formData.get('time') as string;
