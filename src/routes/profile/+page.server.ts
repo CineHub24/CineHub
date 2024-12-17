@@ -5,14 +5,14 @@ import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async (event) => {
     // Fetch user information from locals
-    const user = event.locals.user || { email: 'guest@example.com', role: 'Guest', id: 0 };
+    if(!event.locals.user) {
+        return fail(401, { message: 'Unauthorized' });
+    }
+    const user = event.locals.user;
 
     // Return data to the page
     return {
-        user,
-        m: {
-            hello_world: ({ name }: { name: string }) => `Hello, ${name}!`
-        }
+        user
     };
 };
 

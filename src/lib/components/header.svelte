@@ -8,7 +8,6 @@
 
 	let lang = languageTag();
 
-
 	// Prop for website name
 	export let siteName = 'CineHub';
 
@@ -125,7 +124,7 @@
 
 		<!-- Dropdown Menu -->
 		{#if showMenu}
-			<div class="absolute right-0 mt-2 w-60 rounded-lg border border-gray-200 bg-white shadow-lg">
+			<div class="absolute z-50 right-0 mt-2 w-60 rounded-lg border border-gray-200 bg-white shadow-lg">
 				<ul class="text-sm">
 					<li>
 						{#if userName}
@@ -155,6 +154,15 @@
 							{m.switch_language({ language: lang === 'en' ? 'deutsch' : 'english' })}
 						</button>
 					</li>
+					{#if $page.data.user?.role === 'admin'}
+						<li>
+							<a
+								href="/admin"
+								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+								>{m.admin_tools({})}</a
+							>
+						</li>
+					{/if}
 					<li>
 						<a
 							href="/settings"

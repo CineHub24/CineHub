@@ -36,5 +36,6 @@
 	"register_new" : "Register Your Account",
 	"password_confirm" : "Confirm Password",
 	"enter_password_confirm" : "Re-enter your password",
-	"already_account" : "Already have an account?"
+	"already_account" : "Already have an account?",
+	"admin_tools" : "Admin Tools"
 }
