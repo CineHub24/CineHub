@@ -48,12 +48,13 @@
     <button class="close-button" on:click={close}>&times;</button>
     {#if url}
     <iframe
-    width="560"
-    height="315"
+    width="1120"
+    height="630"
     src={url}
     frameborder="0"
     allow="autoplay; encrypted-media"
     allowfullscreen
+    title="Trailer"
     ></iframe>
     {:else}
     <p>Trailer nicht verfügbar.</p>

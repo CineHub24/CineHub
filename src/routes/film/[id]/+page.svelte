@@ -8,7 +8,7 @@
 	const { data }: { data: PageServerData } = $props();
 	const { movie, shows } = data;
 
-	const trailerUrl = writable<string | null>(null);
+	const trailerUrl = writable<string | null>(null);	
 	const showTrailer = writable(false);
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -56,19 +56,34 @@
 	}
 </script>
 
-<div class="container">
-	<!-- ... Ihr bestehendes Template ... -->
+<img
+class="poster"
+src="{movie.poster}"
+alt={movie.title}
+/>
 
-	{#if movie}
-		<div class="details">
-			<h1>{movie?.title ?? $page.params.id}</h1>
-			<p>{movie.description}</p>
-			<p><strong>Erscheinungsdatum:</strong> {movie.year}</p>
-			<button class="trailer-button" onclick={fetchTrailer}>Trailer ansehen</button>
-		</div>
-		<!-- ... Rest Ihres Templates ... -->
-	{/if}
+{#if movie}
+<div class="details">
+<h1>{movie?.title ?? $page.params.id}</h1>
+<p>{movie.description}</p>
+<p><strong>Erscheinungsdatum:</strong> {movie.year}</p>
+<button class="trailer-button" onclick={fetchTrailer}>Trailer ansehen</button>
 </div>
+<div class="showtimes">
+{#each shows as show}
+  <div class="showtime">
+	<p><strong>{show.date}</strong></p>
+	<p>{show.time}</p>
+	<button
+	  onclick={() => goto(`/film/${movie.id}/showing/${show.id}/`)}
+	  >
+	  Zur Buchung →</button>
+  </div>
+{/each}
+</div>
+{:else}
+<p>Der Film wurde nicht gefunden.</p>
+{/if}
 
 {#if $showTrailer}
 	<TrailerPopup url={$trailerUrl ?? ''} on:close={closeTrailer} />
@@ -85,4 +100,44 @@
 		border-radius: 4px;
 		cursor: pointer;
 	}
+	.container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .poster {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    .details {
+      margin: 1rem 0;
+    }
+    .showtimes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .showtime {
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .showtime button {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 </style>
