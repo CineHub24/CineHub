@@ -32,17 +32,19 @@ export const actions = {
 			const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
 			const data = await res.json();
 			console.log(data);
-			const movies: Movie[] = data.Search.map((movie: any) => ({
-				imdbID: movie.imdbID,
-				title: movie.Title,
-				type: movie.Type,
-				year: movie.Year,
-				poster: movie.Poster
-			}));
-
-			return {
-				movies: movies
-			};
+			if(data.Response !== 'False') {
+				const movies: Movie[] = data.Search.map((movie: any) => ({
+					imdbID: movie.imdbID,
+					title: movie.Title,
+					type: movie.Type,
+					year: movie.Year,
+					poster: movie.Poster
+				}));
+	
+				return {
+					movies: movies
+				};
+			}
 		} catch (e: unknown) {
 			throw error(500, 'searchError: ' + e);
 		}

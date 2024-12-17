@@ -69,7 +69,7 @@
 	</div>
 {/key}
 
-<h2 class="p-4 text-xl font-bold">Movies</h2>
+<h2 class="px-5 text-xl font-bold">Movies</h2>
 <div class="movies-container">
 	{#each movies as movie}
 		<div
@@ -83,14 +83,27 @@
 		</div>
 	{/each}
 </div>
+<br />
+<h2 class="px-5 text-xl font-bold">Showings</h2>
+<div class="movies-container">
+	{#each movies as movie}
+		<MovieCard {movie} url="film/{movie.id}" />
+	{/each}
+</div>
 
 <style>
 	.movies-container {
-		padding: 20px;
-		padding-top: 0;
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-		gap: 20px;
+		padding-top: 20px;
+		margin-left: 20px;
+		margin-right: 20px;
+		padding-bottom: 20px;
+		display: flex; /* Use flexbox for horizontal layout */
+		flex-wrap: nowrap; /* Prevent wrapping of items */
+		gap: 20px; /* Space between items */
+		overflow-x: auto; /* Enable horizontal scrolling */
+		scroll-behavior: smooth; /* Smooth scrolling effect */
+		width: auto; /* Full width for container */
+		box-sizing: border-box; /* Include padding in width */
 	}
 
 	.movie-details {
@@ -104,7 +117,7 @@
 
 	#background {
 		width: 100%;
-		height: 500px;
+		height: 450px;
 		object-fit: cover;
 	}
 
