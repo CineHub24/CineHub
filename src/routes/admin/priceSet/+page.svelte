@@ -17,7 +17,6 @@
 
     
     function handleEdit(priceSet: typeof priceSets[0]) {
-        console.log(priceSet);
         selectedPriceSet = priceSet;
         isCreatingNewPriceSet = false;
     }
