@@ -6,7 +6,7 @@
 	let {data}: {data:PageData} = $props()
 	let {show, priceSets} = data
 	function zurueck() {
-		goto(`/admin/films/film/${show.filmid}`)
+		goto(`/admin/film/${show.filmid}`)
 	}
 </script>
 
