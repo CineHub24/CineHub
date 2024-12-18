@@ -6,7 +6,7 @@
 	import type { Film, freeSlots, Showing } from './+page.server.js';
 
 	let { data }: { data: PageData } = $props();
-	let { film, shows, halls } = data;
+	let { film, shows, halls, priceSets } = data;
 
 	let showAddShowForm = $state(false);
 	function toggleShowForm() {
@@ -87,6 +87,14 @@
 					</select>
 				</div>
 				<div class="form-group">
+					<label for="priceSet">Preisset:</label>
+					<select name="priceSet">
+						{#each priceSets as set}
+							<option value={set.id}>{set.name}</option>
+						{/each}
+					</select>
+				</div>
+				<div class="form-group">
 					<label for="date">Datum:</label>
 					<input name="date" type="date" required />
 				</div>
@@ -111,6 +119,7 @@
 							<input type="hidden" name="slotEnd" value={slot.end} />
 							<input type="hidden" name="hall" value={slot.hallid} />
 							<input type="hidden" name="date" value={slot.date} />
+							<input type="hidden" name="priceSet" value={slot.priceSetId} />
 							<button>{slot.start} - {slot.end}</button>
 						</form>
 					</li>

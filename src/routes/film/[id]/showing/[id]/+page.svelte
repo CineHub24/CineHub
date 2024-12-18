@@ -3,6 +3,7 @@
     import { page } from '$app/stores';
     export let data;
     const { show, movie, seatCategories, hall } = data;
+
 </script>
 
 <style>
@@ -55,7 +56,7 @@
     <div class="details">
       <h1>{movie?.title ?? $page.params.id}</h1>
       <p>{movie.description}</p>
-      <p><strong>Erscheinungsdatum:</strong> {movie.releaseDate}</p>
+      <p><strong>Erscheinungsdatum:</strong> {movie.year}</p>
     </div>
     <div class="show-details">
       <h2>Vorstellungsdetails</h2>
@@ -63,9 +64,11 @@
       <p><strong>Uhrzeit:</strong> {show.Showing.time}</p>
       <p><strong>Kino:</strong> {hall.hallNumber}</p>
       <p><strong>Preis pro Ticket:</p>
-        {#each seatCategories as category}
-          <p>{category.name}: {category.price} €</p>
-        {/each}
+        {#if seatCategories}
+            {#each seatCategories as category}
+            <p><strong>{category.name}: {Math.ceil(parseFloat(category.price ?? '0.0') * parseFloat(show.PriceSet.priceFactor ?? '1')) - 0.01} €</p>
+            {/each}
+        {/if}
         <div class="showtime">
           <button
           >
