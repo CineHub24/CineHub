@@ -33,6 +33,7 @@ export const load = async ({ url }) => {
             .from(cinemaHall)
             .where(eq(cinemaHall.id, <number>show[0].Showing.hallid));
 
+
         return {
             movie: movie[0],
             show: show[0],

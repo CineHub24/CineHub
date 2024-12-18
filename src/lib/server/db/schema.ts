@@ -107,16 +107,18 @@ export const cinemaHall = pgTable('CinemaHall', {
 });
 
 export const priceSet = pgTable('PriceSet', {
-	id: serial('id').primaryKey(),
-	name: text('name'),
-	seatCategoryPrices: integer('seatCategoryPrices')
-		.array()
-		.notNull()
-		.default(sql`ARRAY [1,2,3,4,5]`),
-	ticketTypes: integer('ticketTypes')
-		.array()
-		.notNull()
-		.default(sql`ARRAY [1,2,3,4,5]`)
+  id: serial('id').primaryKey(),
+  name: text('name'),
+  seatCategoryPrices: integer("seatCategoryPrices")
+    .array()
+    .notNull()
+    .default(sql`ARRAY [1,2,3,4,5]`),
+  ticketTypes: integer('ticketTypes')
+    .array()
+    .notNull()
+    .default(sql`ARRAY [1,2,3,4,5]`),
+  priceFactor: decimal('priceFactor', { precision: 10, scale: 3 })
+    .default(sql`'1'::integer`)
 });
 
 export const seatCategory = pgTable('seatCategory', {
@@ -127,10 +129,10 @@ export const seatCategory = pgTable('seatCategory', {
 });
 
 export const ticketType = pgTable('TicketType', {
-	id: serial('id').primaryKey(),
-	namne: text('name'),
-	description: text('description'),
-	factor: decimal('factor', { precision: 10, scale: 3 })
+  id: serial('id').primaryKey(),
+  name: text('name'),
+  description: text('description'),
+  factor: decimal('factor', { precision: 10, scale: 3 })
 });
 
 export const paymentType = pgTable('PaymentType', {
