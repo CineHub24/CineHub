@@ -39,5 +39,7 @@
 	"already_account": "Haben Sie bereits ein Konto?",
 	"admin_tools": "Admin-Tools",
 	"movies": "Filme",
-	"shows": "Shows"
+	"shows": "Shows",
+	"directed_by": "Regie von",
+	"released_in": "Veröffentlicht"
 }

@@ -166,13 +166,13 @@
 		</form>
 	</div>
 
-	{#if errorMessage}
+	<!-- {#if errorMessage}
 		<p class="error">{errorMessage}</p>
 	{/if}
 
 	{#if isLoading}
 		<p>Loading...</p>
-	{/if}
+	{/if} -->
 </div>
 
 <style>

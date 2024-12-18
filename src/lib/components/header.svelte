@@ -163,13 +163,13 @@
 							>
 						</li>
 					{/if}
-					<li>
+					<!-- <li>
 						<a
 							href="/settings"
 							class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
 							>{m.settings({})}</a
 						>
-					</li>
+					</li> -->
 				</ul>
 			</div>
 		{/if}
