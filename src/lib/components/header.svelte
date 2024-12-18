@@ -112,7 +112,7 @@
 	>
 		<a class="focus:outline-none" href="/profile" aria-label="Profile">
 			<span
-				class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-200 font-bold text-gray-800 transition-all hover:border-blue-500"
+				class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-200 font-bold text-gray-800 transition-all hover:border-blue-500"
 			>
 				{#if userName}
 					{userName.charAt(0).toUpperCase()}
@@ -124,7 +124,7 @@
 
 		<!-- Dropdown Menu -->
 		{#if showMenu}
-			<div class="absolute z-50 right-0 mt-2 w-60 rounded-lg border border-gray-200 bg-white shadow-lg">
+			<div class="absolute right-0 z-50 w-60 rounded-lg border border-gray-200 bg-white shadow-lg">
 				<ul class="text-sm">
 					<li>
 						{#if userName}
@@ -179,7 +179,11 @@
 <style>
 	header {
 		width: 100%;
+		height: 8vh;
 		margin: 0 auto;
+		position: sticky; /* Makes the header sticky */
+		top: 0; /* Sticks to the top of the viewport */
+		z-index: 1000; /* Ensures it stays above other elements */
 	}
 
 	/* Dropdown sichtbar bei Hover */
