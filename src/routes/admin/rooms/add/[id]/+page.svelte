@@ -3,6 +3,7 @@
 	interface Seat {
 		id: string;
 		type: string;
+		categoryId: number;
 	}
 
 	interface SeatCategory {
@@ -34,7 +35,6 @@
 	// Safely populate seat types
 	if (data?.data?.categories && data.data.categories.length > 0) {
 		seatTypes = data.data.categories as SeatCategory[];
-		console.log(seatTypes);
 	} else {
 		console.warn('Error: No seat categories provided! - Snackbar!!!');
 	}
@@ -53,7 +53,7 @@
 							if (mode === 'removeRestore') {
 								return seat
 									? null
-									: { id: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`, type: 'single' };
+									: { id: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`, type: 'standart', categoryId: 0 };
 							} else if (mode === 'changeType' && seat) {
 								return changeSeatType(seat);
 							}
@@ -64,10 +64,11 @@
 		);
 	}
 
+
 	function changeSeatType(seat: Seat): Seat {
-		const currentIndex = seatTypes.findIndex(category => category.name === seat.type);
+		const currentIndex = seatTypes.findIndex(category => category.id === seat.categoryId);
 		const nextIndex = (currentIndex + 1) % seatTypes.length;
-		const updatedSeat = { ...seat, type: seatTypes[nextIndex].name };
+		const updatedSeat = { ...seat, type: seatTypes[nextIndex].name, categoryId: seatTypes[nextIndex].id };
 
 		// Logging the current and new seat type
 		console.log(`Changing seat type for Seat ID: ${seat.id}`);
@@ -78,8 +79,8 @@
 		return updatedSeat;
 	}
 
-	function getSeatEmoji(type: string): string {
-		const seatType = seatTypes.find((category) => category.name === type);
+	function getSeatEmoji(id: number): string {
+		const seatType = seatTypes.find((category) => category.id === id);
 		return seatType?.emoji || '❓';
 	}
 
@@ -116,7 +117,8 @@
 			(_, i) =>
 				({
 					id: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`,
-					type: seatTypes.length > 0 ? seatTypes[0].name : ''
+					type: seatTypes.length > 0 ? seatTypes[0].name : '',
+					categoryId: 0
 				}) as Seat
 		);
 		seatPlan = [...seatPlan, newRow];
@@ -125,7 +127,7 @@
 	function addColumn() {
 		seatPlan = seatPlan.map((row, rowIndex) => [
 			...row,
-			{ id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: seatTypes.length > 0 ? seatTypes[0].name : '' }
+			{ id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: seatTypes.length > 0 ? seatTypes[0].name : '',  categoryId: 0 }
 		]);
 	}
 
@@ -177,7 +179,8 @@
 						(_, cIdx) =>
 							({
 								id: `${String.fromCharCode(65 + rowIndex)}${cIdx + 1}`,
-								type: 'single'
+								type: 'single',
+								categoryId: 0
 							}) as Seat
 					)
 				: row
@@ -189,7 +192,7 @@
 		const updatedPlan = seatPlan.map((row, rIdx) =>
 			row.map((seat, cIdx) =>
 				cIdx === colIndex
-					? ({ id: `${String.fromCharCode(65 + rIdx)}${colIndex + 1}`, type: 'single' } as Seat)
+					? ({ id: `${String.fromCharCode(65 + rIdx)}${colIndex + 1}`, type: 'single', categoryId: 0 } as Seat)
 					: seat
 			)
 		);
@@ -203,13 +206,13 @@
 				if (seat) {
 					let category;
 					if (data?.data?.categories) {
-						category = data.data.categories.find((cat) => cat.name === seat.type);
+						category = data.data.categories.find((cat) => cat.id === seat.categoryId);
 					}
 					seats.push({
 						seatNumber: seat.id,
 						row: String.fromCharCode(65 + rowIndex),
 						type: seat.type,
-						categoryId: category ? category.id : 1, // Fallback to 1 if not found
+						categoryId: category.id, // Fallback to 1 if not found
 					});
 				}
 			});
@@ -288,7 +291,7 @@
 					{#if seat}
 						<div class="seat" onclick={() => toggleSeat(rowIndex, colIndex)}>
 							{seat.id}<br />
-							{getSeatEmoji(seat.type)}
+							{getSeatEmoji(Number(seat.categoryId))}
 						</div>
 					{:else}
 						<div class="seat placeholder" onclick={() => toggleSeat(rowIndex, colIndex)}></div>

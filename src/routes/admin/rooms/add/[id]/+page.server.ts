@@ -2,7 +2,7 @@ import { db } from '$lib/server/db';
 import { seat, cinemaHall, seatCategory } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
-import type { PageServerLoad } from '../$types';
+import type { PageServerLoad } from '../../$types';
 
 interface SeatPlan {
     seatNumber: string;
@@ -63,7 +63,8 @@ export const actions = {
                 categoryId: seat.categoryId
             }));
 
-            // Insert seat data into the database using Drizzle
+            // delete existing seats and insert new ones
+            await db.delete(seat).where(eq(seat.cinemaHall, cinemaHallId));
             await db.insert(seat).values(seatsWithHall);
 
             shouldRedirect = true;
@@ -80,13 +81,22 @@ export const actions = {
 } satisfies Actions;
 
 export const load: PageServerLoad = async ({ params }) => {
+    //check if the hall exists and if not return an empty hall
     const categories = await db.select().from(seatCategory);
-    const cinemaHall = await db.select().from(cinemaHall).where(eq(cinemaHall.id, Number(params.id))).limit(1);
+    const hall = await db.select().from(cinemaHall).where(eq(cinemaHall.id, Number(params.id))).limit(1);
+    if (hall.length === 0) {
+        return {
+            categories,
+            cinemaHall: null,
+            seatPlan: null
+        };
+    }
     const seatPlan = await db.select().from(seat).where(eq(seat.cinemaHall, Number(params.id)));
+    //maybe only return the categories that are used in the hall by checking the Priceset
 
     return {
         categories,
-        cinemaHall: cinemaHall[0] || null,
+        cinemaHall: hall[0] || null,
         seatPlan: seatPlan.length > 0 ? organizeSeats(seatPlan) : null
     };
 };

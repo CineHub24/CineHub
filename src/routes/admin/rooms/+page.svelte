@@ -7,7 +7,7 @@
 
 <div class="container">
   <div class="header">
-    <a href="/admin/rooms/add" class="add-button">+</a>
+    <a href="/admin/rooms/add/9999" class="add-button">+</a>
   </div>
 
   <h2>Cinema Halls</h2>
@@ -21,7 +21,7 @@
             <span><strong>Capacity:</strong> {hall.capacity}</span>
           </div>
           <div class="button-group">
-            <a href={`/admin/rooms/edit/${hall.id}`} class="edit-button">Edit</a>
+            <a href={`/admin/rooms/add/${hall.id}`} class="edit-button">Edit</a>
             <form action="?/deleteCinemaHall" method="POST">
               <input type="hidden" name="hallId" value={hall.id} />
               <button class="delete-button" type="submit">Delete</button>
