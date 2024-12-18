@@ -91,8 +91,11 @@
 		</div>
 		<img class="poster" src={movie.poster} alt={movie.title} />
 	</div> -->
+	{#if shows.length > 0}
 	<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
 	<ShowsFilmDropdown {shows} movies={[movie]} />
+	{/if}
+
 {:else}
 	<p>Der Film wurde nicht gefunden.</p>
 {/if}
