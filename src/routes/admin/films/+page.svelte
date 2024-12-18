@@ -1,57 +1,25 @@
 <script lang="ts">
-	import MovieCard from '$lib/components/movie_card.svelte';
-	import { i18n } from '$lib/i18n';
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
-	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
+	import MovieCard from "$lib/components/movie_card.svelte";
 
-	export let data;
-	const { filme } = data;
 
-	function switchToLanguage(newLanguage: AvailableLanguageTag) {
-		const canonicalPath = i18n.route($page.url.pathname);
-		const localisedPath = i18n.resolveRoute(canonicalPath, newLanguage);
-		goto(localisedPath);
-	}
+	import { languageAwareGoto } from "$lib/utils/languageAware";
 
-	function onAddFilmClick() {
-		goto('/admin/film/create');
-	}
+    const { data } = $props();
+    const { movies } = data;
 
-	function onAddRoomClick() {
-		goto('/admin/room/create');
-	}
 </script>
-
-<div class="container">
-	<h1>Filme</h1>
-	<div class="film-liste">
-		{#each filme as movie}
-			<div class="movies-container">
-				<MovieCard {movie} url="/admin/film/{movie.id}" />
-			</div>
-		{/each}
-	</div>
+<div class="bg-white p-6 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-4">Filmverwaltung</h1>
+    <div class="flex justify-end mb-4">
+        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onclick={() => {
+            languageAwareGoto('/admin/film/create');
+        }}>
+            Neuer Film
+        </button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {#each movies as movie}
+            <MovieCard {movie} url="/admin/film/{movie.id}" />
+        {/each}
+    </div>
 </div>
-
-<style>
-	.container {
-		max-width: 800px;
-		margin: 0 auto;
-		padding: 20px;
-	}
-	.film-liste {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-	.film-item {
-		padding: 10px;
-		border: 1px solid #ddd;
-		border-radius: 5px;
-	}
-	a {
-		text-decoration: none;
-		color: #333;
-	}
-</style>
