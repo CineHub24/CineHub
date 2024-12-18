@@ -58,7 +58,7 @@ export const actions = {
 			console.log(e);
 			throw error(500, 'Failed to delete film');
 		}
-		return languageAwareRedirect(302, '/admin');
+		return languageAwareRedirect(302, '/admin/films');
 	},
 
 	update: async ({ request, url }) => {
