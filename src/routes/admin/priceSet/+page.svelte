@@ -17,6 +17,7 @@
 
     
     function handleEdit(priceSet: typeof priceSets[0]) {
+        console.log(priceSet);
         selectedPriceSet = priceSet;
         isCreatingNewPriceSet = false;
     }
@@ -122,7 +123,7 @@
         {#each priceSets as priceSet}
             {@const { appliedSeatCategories, appliedTicketTypes } = getPriceSetDetails(priceSet)}
             <div class="priceset-card">
-                {#if selectedPriceSet === priceSet}
+                {#if selectedPriceSet?.id == priceSet.id}
                     <form
                         method="POST"
                         action="?/updatePriceSet"
