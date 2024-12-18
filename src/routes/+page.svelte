@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import MovieCard from '../lib/components/movie_card.svelte';
-	import ShowsByDate from '$lib/components/ShowsByDate.svelte';
+	import ShowsFilmDropdown from '$lib/components/ShowsFilmDropdown.svelte';
 	import type { PageServerData } from './$types';
 	import type { Film, Showing } from '$lib/server/db/schema';
 	import { onMount } from 'svelte';
@@ -91,7 +91,7 @@
 </div>
 <br />
 <h2 class="px-5 text-xl font-bold">{m.shows({})}</h2>
-<ShowsByDate {shows} />
+<ShowsFilmDropdown shows={shows} movies={movies} />
 
 <style>
 	.movies-container {
