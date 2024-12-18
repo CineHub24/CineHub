@@ -90,8 +90,10 @@
 	{/each}
 </div>
 <br />
-<h2 class="px-5 text-xl font-bold">{m.shows({})}</h2>
-<ShowsFilmDropdown shows={shows} movies={movies} />
+{#if shows.length > 0}
+	<h2 class="px-5 text-xl font-bold">{m.shows({})}</h2>
+	<ShowsFilmDropdown {shows} {movies} />
+{/if}
 
 <style>
 	.movies-container {
