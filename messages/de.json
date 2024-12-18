@@ -37,5 +37,9 @@
 	"password_confirm": "Passwort bestätigen",
 	"enter_password_confirm": "Geben Sie Ihr Passwort erneut ein",
 	"already_account": "Haben Sie bereits ein Konto?",
-	"admin_tools": "Admin-Tools"
+	"admin_tools": "Admin-Tools",
+	"movies": "Filme",
+	"shows": "Shows",
+	"directed_by": "Regie von",
+	"released_in": "Veröffentlicht"
 }

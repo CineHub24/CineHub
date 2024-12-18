@@ -1,13 +1,19 @@
 import { db } from '$lib/server/db';
-import { film, showing } from '$lib/server/db/schema';
+import * as table from '$lib/server/db/schema';
+import { gt, asc } from 'drizzle-orm';
+
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	// Automatische Weiterleitung auf die Loginseite entfernt: Man soll die Website ja auch ohne Anmeldung nutzen können (Jonathan)
-	const movies = await db
-            .select()
-            .from(film)
-    return {
-		movies: movies
-    };
+	const movies = await db.select().from(table.film);
+
+	const shows = await db.select()
+  .from(table.showing)
+  .where(gt(table.showing.date, new Date().toISOString())) // Filter where showing.date is greater than today.
+  .orderBy(asc(table.showing.date));
+
+	return {
+		movies: movies,
+    shows: shows
+	};
 };

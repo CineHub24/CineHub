@@ -26,7 +26,7 @@ export const actions = {
 		const formdata = await request.formData();
 		const query = formdata.get('query');
 
-		if (!query) throw error(400, 'Query is required');
+		if (!query) return { movies: [] };
 
 		try {
 			const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
