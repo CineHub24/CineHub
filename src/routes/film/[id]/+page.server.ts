@@ -13,7 +13,7 @@ export const load = async ({ url }) => {
 		const shows = await db
 			.select()
 			.from(showing)
-			.where(eq(showing.filmid, <number>id))
+			.where(gte(showing.date, new Date().toISOString())) // Filter where showing.date is greater than today.
 			.orderBy(asc(showing.date));
 
 		return {
