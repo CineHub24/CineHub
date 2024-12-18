@@ -18,8 +18,18 @@
 
 	let name: string;
 
+	// Check if we are in edit mode (pre-existing hall data)
+	let isEditMode = data?.data?.cinemaHall && data?.data?.seatPlan;
+
+	if (isEditMode) {
+		name = data.data.cinemaHall.name;
+		seatPlan = data.data.seatPlan;
+	}
+
 	// Properly typed seat types array
 	let seatTypes: SeatCategory[] = [];
+
+
 
 	// Safely populate seat types
 	if (data?.data?.categories && data.data.categories.length > 0) {

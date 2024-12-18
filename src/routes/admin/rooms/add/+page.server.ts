@@ -79,7 +79,23 @@ export const actions = {
     },
 } satisfies Actions;
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ params }) => {
     const categories = await db.select().from(seatCategory);
-    return { categories };
+    const cinemaHall = await db.select().from(cinemaHall).where(eq(cinemaHall.id, Number(params.id))).limit(1);
+    const seatPlan = await db.select().from(seat).where(eq(seat.cinemaHall, Number(params.id)));
+
+    return {
+        categories,
+        cinemaHall: cinemaHall[0] || null,
+        seatPlan: seatPlan.length > 0 ? organizeSeats(seatPlan) : null
+    };
 };
+
+function organizeSeats(seats: any[]) {
+    const rows: Record<string, any[]> = {};
+    seats.forEach(seat => {
+        if (!rows[seat.row]) rows[seat.row] = [];
+        rows[seat.row].push(seat);
+    });
+    return Object.values(rows).map(row => row.sort((a, b) => a.seatNumber.localeCompare(b.seatNumber)));
+}
