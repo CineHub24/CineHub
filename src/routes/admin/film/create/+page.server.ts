@@ -169,6 +169,6 @@ export const actions = {
 			console.error('Error saving movie:', e);
 			throw error(500, 'Failed to save movie');
 		}
-		if (success) throw languageAwareRedirect(302, `/admin/films/film/${filmId}`);
+		if (success) throw languageAwareRedirect(302, `/admin/film/${filmId}`);
 	}
 } satisfies Actions;

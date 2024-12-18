@@ -15,11 +15,11 @@
 	}
 
 	function onAddFilmClick() {
-		goto('/admin/add_films');
+		goto('/admin/film/create');
 	}
 
 	function onAddRoomClick() {
-		goto('/admin/add_room');
+		goto('/admin/room/create');
 	}
 </script>
 
@@ -27,15 +27,8 @@
 	<h1>Filme</h1>
 	<div class="film-liste">
 		{#each filme as movie}
-			<!-- <div class="film-item">
-                <a href="/admin/films/film/{film.id}">
-                    {film.title} - {film.genres}        
-                    TODO - genres is a array  
-					<img src={film.poster} alt= {film.title}>
-                </a>
-            </div> -->
 			<div class="movies-container">
-				<MovieCard {movie} url="/admin/films/film/{movie.id}" />
+				<MovieCard {movie} url="/admin/film/{movie.id}" />
 			</div>
 		{/each}
 	</div>
