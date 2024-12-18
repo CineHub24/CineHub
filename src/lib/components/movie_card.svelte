@@ -1,27 +1,16 @@
-<!-- HOW TO USE
-<MovieCard
-  movie={{
-    id: 42,
-    title: "Der große Abenteuerfilm",
-    description: "Eine packende Geschichte über Mut und Freundschaft.",
-    poster: "/images/abenteuer_poster.jpg"
-  }}
-/>
--->
-
 <script lang="ts">
-		import { goto } from '$app/navigation';
-	
-	
 	let { movie, url } = $props();
-	
-
-
-	// Navigation logic
-	function navigateToMovie() {
-		goto(`${url}`);
-	}
 </script>
+
+<a href={url}>
+	<div class="movie-card">
+		<img src={movie.poster} alt="{movie.title} Poster" />
+		<div class="details">
+			<h3 class="title">{movie.title}</h3>
+			<!-- <p class="description">{movie.description}</p> -->
+		</div>
+	</div>
+</a>
 
 <style>
 	.movie-card {
@@ -31,6 +20,8 @@
 		overflow: hidden;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		transition: transform 0.2s;
+		height: 320px;
+		width: 175px;
 	}
 	.movie-card:hover {
 		transform: translateY(-5px);
@@ -43,25 +34,15 @@
 		padding: 15px;
 	}
 	.movie-card .title {
-		font-size: 1.2rem;
+		font-size: 1rem;
 		margin: 0 0 10px;
+		text-align: center;
+		white-space: nowrap; /* Prevent text wrapping */
+		overflow: hidden; /* Hide overflowing text */
+		text-overflow: ellipsis; /* Add "..." for overflow */
 	}
 	.movie-card .description {
 		font-size: 0.9rem;
 		color: #555;
 	}
 </style>
-
-<div 
-	class="movie-card"
-	tabindex="0"
-	role="button"
-	onclick={navigateToMovie}
-	onkeydown={(e) => e.key === 'Enter' && navigateToMovie()}
->
-	<img src={movie.poster} alt="{movie.title} Poster">
-	<div class="details">
-		<h3 class="title">{movie.title}</h3>
-		<p class="description">{movie.description}</p>
-	</div>
-</div>

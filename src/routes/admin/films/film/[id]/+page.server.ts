@@ -1,10 +1,10 @@
 import { db } from '$lib/server/db';
-import { cinemaHall, film, showing } from '$lib/server/db/schema';
+import { cinemaHall, film, priceSet, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
 import { date } from 'drizzle-orm/mysql-core';
 export type freeSlots ={
-	 start: string; end: string; date:string; hallid: number; 
+	 start: string; end: string; date:string; hallid: number; priceSetId: number;
 };
 export type Film = typeof film.$inferSelect;
 export type Showing = typeof showing.$inferSelect;
@@ -13,12 +13,14 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 
 export const load = async ({ url }) => {
 	console.log(url.pathname);
-	let id = <unknown>url.pathname.replace('/admin/films/film/', '');
+	const id = parseInt(url.pathname.split('/').pop() || '0', 10);
 	console.log(id);
 	const movies: Film[] = await db
 		.select({
 			id: film.id,
 			imdbID: film.imdbID,
+			tmdbID: film.tmdbID,
+    		backdrop: film.backdrop,
 			title: film.title,
 			genres: film.genres,
 			director: film.director,
@@ -35,11 +37,14 @@ export const load = async ({ url }) => {
 	.from(showing).where(eq(showing.filmid, <number>id))
 		
 	const halls = await db.select().from(cinemaHall);
+	const priceSets = await db.select().from(priceSet);
 	return {
 		
 		film: movies[0] as Film,
 		shows: shows,
-		halls: halls
+		halls: halls,
+		priceSets: priceSets
+
 		
 	};
 };
@@ -56,7 +61,7 @@ export const actions = {
 		const runtimeString = formData.get('runtime') as string;
 		const director:string = <string>formData.get("director")
         const description:string = <string>formData.get("description")
-		let id = <unknown>url.pathname.replace('/admin/films/film/', '');
+		const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 
 		let runtime: number | null = null;
 		if (/^\d+$/.test(runtimeString)) {
@@ -103,11 +108,12 @@ export const actions = {
 	},
 
 	create: async ({url, request}) => {
-		let id = <unknown>url.pathname.replace('/admin/films/film/', '');
+		const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 		const formData = await request.formData()
 		let date = formData.get('date') as string;
 		let timeString = formData.get('time') as string;
 		let hall = formData.get('hall') as unknown as number;
+		let priceSetId = formData.get('priceSet') as unknown as number;
 
 		const filmRuntime = await db.select({runtime: film
 			.runtime
@@ -116,6 +122,7 @@ export const actions = {
 		 let freeSlots = await getFreeTimeSlots(
 			db,               // Drizzle Datenbank-Instanz
 			hall,                // Saal-ID
+			priceSetId,
 			date,       // Datum
 			runtime as number,               // Filmdauer in Minuten
 			15,                // Standard 15 Minuten Reinigung
@@ -137,10 +144,13 @@ export const actions = {
 		let end = formData.get('slotEnd') as string;
 		let hall = formData.get('hall') as unknown as number;
 		let filmId = formData.get('filmId') as unknown as number;
+		let priceSet = formData.get('priceSet') as unknown as number;
+
+		console.log(priceSet);
 
 
 		try{
-			await db.insert(showing).values({hallid: hall ,date: date, time: start,filmid: filmId, endTime: end})
+			await db.insert(showing).values({hallid: hall ,date: date, time: start,filmid: filmId, endTime: end, priceSetId: priceSet})
 		} catch(e){
 			throw error(500, 'Failed to save showing');
 		}
@@ -150,6 +160,7 @@ export const actions = {
 const getFreeTimeSlots = async (
 	database: typeof db, 
 	hallId: number, 
+	priceSetId: number,
 	filmDate: string, 
 	filmDuration: number, 
 	cleaningTime: number = 15,    
@@ -215,7 +226,8 @@ const getFreeTimeSlots = async (
 		  start: startTime,
 		  end: endTime,
 		  date: filmDate,
-		  hallid: hallId
+		  hallid: hallId,
+		  priceSetId: priceSetId
 		})
 	  }
 	}

@@ -1,44 +1,45 @@
-<!-- HOW TO USE
-<script>
-  import { showNotification } from '$lib/stores/notification';
+<script lang="ts">
+  import { notification } from '$lib/stores/notification';
+  import { fly } from 'svelte/transition';
+  import { onDestroy } from 'svelte';
 
-  function handleClick() {
-    showNotification("Hallo! Dies ist eine Popup-Nachricht.");
-  }
+  let message: string | null = null;
+  
+  const unsubscribe = notification.subscribe(value => {
+    console.log('Neue Nachricht:', value); // Diese Zeile sollte die Nachricht loggen
+    message = value;
+  });
+
+  onDestroy(() => {
+    unsubscribe(); // Abonnement beim Zerstören der Komponente aufheben
+  });
 </script>
 
-<button on:click={handleClick}>Zeige Popup</button>
--->
-
-<script lang="ts">
-    import { notification } from '../stores/notification.js';
-    import { fly } from 'svelte/transition';
-  
-    let message: string | null = null;
-    const unsubscribe = notification.subscribe(value => {
-      message = value;
-    });
-  </script>
-  
-  {#if message}
-    <div class="notification-overlay" transition:fly={{ y: -20, duration: 200 }}>
-      <div class="notification-content">
-        {message}
-      </div>
+{#if message}
+  <div class="notification-overlay" transition:fly={{ y: 100, duration: 500 }}>
+    <div class="notification-content">
+      {message}
     </div>
-  {/if}
-  
-  <style>
-    .notification-overlay {
-      position: fixed;
-      top: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 1rem 2rem;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      z-index: 9999;
-    }
-  </style>
+  </div>
+{/if}
+
+<style>
+  .notification-overlay {
+    position: fixed;
+    bottom: 1rem; /* Positionieren Sie es am unteren Rand */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f0f0f0; /* Heller Hintergrund für den Light Mode */
+    color: #333; /* Dunkle Textfarbe */
+    padding: 0.75rem;
+    border-radius: 8px; /* Abgerundete Ecken */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Leichter Schatten */
+    z-index: 9999;
+    font-size: 1rem;
+    border: 1px solid #ccc; /* Rand um die Benachrichtigung */
+  }
+
+  .notification-content {
+    font-weight: normal; /* Kein fetter Text */
+  }
+</style>
