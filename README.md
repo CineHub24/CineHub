@@ -1,5 +1,8 @@
 # CineHub
 
+# Test Suite
+[https://cinehub24.github.io/CineHub/](https://cinehub24.github.io/CineHub/)
+
 # Lokale Ausführung
 
 ### Voraussetzungen
