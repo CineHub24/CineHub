@@ -21,6 +21,14 @@
 		{ id: 'cinemas', icon: Building, label: 'Kinos', path: '/admin/cinemas' },
 		{ id: 'halls', icon: Columns, label: 'Kinosäle', path: '/admin/room' }
 	];
+	$: currentPath = $page.url.pathname;
+
+function isActive(sectionPath: string) {
+if (sectionPath === '/admin') {
+return currentPath === '/admin' || currentPath === '/de/admin' || currentPath === '/en/admin';
+}
+return currentPath.startsWith(sectionPath) || currentPath.startsWith('/de' + sectionPath) || currentPath.startsWith('/en' + sectionPath);
+}
 
 	function handleMouseEnterSidebar() {
 		isMouseOverSidebar = true;
@@ -68,7 +76,7 @@
 				title={section.label}
 				class="
     flex w-full items-center p-3 transition hover:bg-gray-100
-    {$page.url.pathname === section.path ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}
+    {isActive(section.path) ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}
     {isMenuExpanded ? 'justify-start' : 'justify-center'}
     "
 			>
