@@ -16,9 +16,7 @@ export type Showing = typeof showing.$inferSelect;
 export type CinemaHall = typeof cinemaHall.$inferSelect;
 
 export const load = async ({ url }) => {
-	console.log(url.pathname);
 	const id = parseInt(url.pathname.split('/').pop() || '0', 10);
-	console.log(id);
 	const movies: Film[] = await db
 		.select({
 			id: film.id,
