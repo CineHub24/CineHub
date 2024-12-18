@@ -27,6 +27,11 @@
 		{#if film}
 			<div class="header">
 				<h2>Film bearbeiten: {film.title}</h2>
+				<form method="post" action="?/delete">
+					<div class="form-actions" style="margin: 0;">
+						<button style="background-color: red;">Löschen</button>
+					</div>
+				</form>
 			</div>
 
 			<!-- Tabs -->
