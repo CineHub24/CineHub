@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import { priceSet, seatCategory, ticketType } from '$lib/server/db/schema';
 import { error, type Actions, fail } from '@sveltejs/kit';
-import { eq, lt, gte, ne } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 export const load = async ({ url }) => {
 
@@ -60,15 +60,19 @@ export const actions = {
             return error(500, 'Error creating the priceSet');
         }
     },
-    delete: async ({request, url}) =>{
+    delete: async ({request}) =>{
 
         const data = await request.formData();
         const id = data.get('priceSetId') as unknown as number;
+
+        if(!id){
+            return fail(400, {message:'Missing inputs'});
+        }
 		
 		try{
 			await db.delete(priceSet).where(eq(priceSet.id,id))
 		} catch(e){
-			console.log("error" + e)
+			return fail(500, {message:'Error deleting price set'});
 		}
 	},
     updatePriceSet: async ({ request }) => {
@@ -81,7 +85,7 @@ export const actions = {
         const ticketTypeIds = data.getAll('ticketTypes').map((id) => parseInt(id.toString())) as number[];
 
         if (!id || !name || !priceFactor) {
-            return error(400, 'Missing inputs'); 
+            return fail(400, {message:'Missing inputs'}); 
         }
 
         try {
@@ -90,7 +94,7 @@ export const actions = {
                 .set({name: name, priceFactor: priceFactor, seatCategoryPrices: seatCategoryIds, ticketTypes: ticketTypeIds})
                 .where(eq(priceSet.id, id));
         } catch (e) {
-            return error(500, ('Error updating price set'));
+            return fail(500, {message:'Error updating price set'});
         }
     },
 } satisfies Actions;
