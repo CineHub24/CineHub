@@ -9,7 +9,8 @@ import {
 	boolean,
 	date,
 	time,
-	decimal
+	decimal,
+	jsonb
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin']);
@@ -193,4 +194,12 @@ export const status = pgTable('Status', {
 	booked: boolean('booked'),
 	validated: boolean('validated'),
 	cancelled: boolean('cancelled')
+});
+
+export const logs = pgTable('logs', {
+	id: serial('id').primaryKey(),
+	level: text('level').notNull(), // 'info', 'warn', 'error'
+	message: text('message').notNull(),
+	metadata: jsonb('metadata').default({}),
+	createdAt: timestamp('created_at').defaultNow(),
 });
