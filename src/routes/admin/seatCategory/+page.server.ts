@@ -72,7 +72,7 @@ export const actions = {
                 .set({name: name, price: price, description: description})
                 .where(eq(seatCategory.id, id));
         } catch (e) {
-            return error(500, ('Error updating price set'));
+            return error(500, ('Error updating seat category'));
         }
     },
 } satisfies Actions;
