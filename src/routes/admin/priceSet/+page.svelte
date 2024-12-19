@@ -128,7 +128,7 @@
                         action="?/updatePriceSet"
                         name="updatePriceSet"
                     >
-                        <input type="hidden" name="id" value={priceSet.id} />
+                        <input type="hidden" name="priceSetId" value={priceSet.id} />
                         <div class="priceset-detail">
                             <label for="name">Name des Preissets:</label>
                             <input 

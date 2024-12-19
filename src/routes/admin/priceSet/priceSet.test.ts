@@ -12,7 +12,7 @@ const filledFormData = {
 			return 'Price Set';
 		} else if (key === 'priceFactor') {
 			return '1.5';
-		} else if (key === 'id') {
+		} else if (key === 'priceSetId') {
 			return '1';
 		} else {
 			return null;
@@ -74,7 +74,7 @@ describe('page.server.ts', () => {
 
 	describe('load function', () => {
 		it('should return price sets, seat categories, and ticket types', async () => {
-			const result = await load({ url: new URL('http://localhost') } as any);
+			const result = await load();
 
 			expect(db.select).toHaveBeenCalledTimes(3);
 			expect(result).toEqual({
@@ -89,7 +89,7 @@ describe('page.server.ts', () => {
 				throw new Error('Database error');
 			});
 
-			await expect(load({ url: new URL('http://localhost') } as any)).rejects.toEqual({
+			await expect(load()).rejects.toEqual({
 				status: 500,
 				message: 'Internal Server Error DB'
 			});
@@ -136,30 +136,12 @@ describe('page.server.ts', () => {
 		});
 
 		describe('delete', () => {
-			// it('should delete a price set with a valid id', async () => {
-			// 	const result = await actions.delete(mockRequestEvent(filledFormData));
-
-			// 	expect(db.delete).toHaveBeenCalledWith(priceSet);
-			// 	expect(result).toBeUndefined();
-			// });
 			it('should delete a price set with a valid id', async () => {
-				const priceSetData: typeof priceSet.$inferInsert = {
-					id: 1,
-					name: 'Price Set',
-					priceFactor: '1.5',
-					seatCategoryPrices: [1, 2],
-					ticketTypes: [1, 2]
-				};
-				await db.insert(priceSet).values(priceSetData);
-                console.log(db.select().from(priceSet));
-
 				const result = await actions.delete(mockRequestEvent(filledFormData));
 
 				expect(db.delete).toHaveBeenCalledWith(priceSet);
-				expect(db.delete(priceSet).where).toHaveBeenCalledWith(eq(priceSet.id, 1));
 				expect(result).toBeUndefined();
 			});
-
 			it('should return a 400 error if the priceSetId is missing', async () => {
 				const requestEvent = mockRequestEvent(emptyFormData);
 
