@@ -26,7 +26,7 @@ export const actions = {
 		const formdata = await request.formData();
 		const query = formdata.get('query');
 
-		if (!query) throw error(400, 'Query is required');
+		if (!query) return { movies: [] };
 
 		try {
 			const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
@@ -169,6 +169,6 @@ export const actions = {
 			console.error('Error saving movie:', e);
 			throw error(500, 'Failed to save movie');
 		}
-		if (success) throw languageAwareRedirect(302, `/admin/films/film/${filmId}`);
+		if (success) throw languageAwareRedirect(302, `/admin/film/${filmId}`);
 	}
 } satisfies Actions;

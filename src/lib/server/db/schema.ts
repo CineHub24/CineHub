@@ -44,6 +44,8 @@ export type User = typeof user.$inferSelect;
 
 export type Film = typeof film.$inferSelect;
 
+export type Showing = typeof showing.$inferSelect;
+
 export const film = pgTable('Film', {
 	id: serial('id').primaryKey(),
 	imdbID: text('imdbID'),

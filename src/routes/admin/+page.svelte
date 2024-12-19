@@ -1,90 +1,40 @@
 <script lang="ts">
-    // Define any additional admin-related data here if needed
-  </script>
-  
-  <div class="admin-container">
-    <h1>Admin Overview</h1>
-    
-    <div class="admin-sections">
-      <div class="section-card">
-        <h2>Seat Categories</h2>
-        <p>Manage and update seat categories.</p>
-        <a href="/admin/rooms/seat_category" class="link-button">Go to Seat Category Settings</a>
-      </div>
-  
-      <div class="section-card">
-        <h2>User Management</h2>
-        <p>View and manage users.</p>
-        <a href="/admin/users" class="link-button">Go to User Management</a>
-      </div>
-  
-      <div class="section-card">
-        <h2>Room Settings</h2>
-        <p>Configure room-related settings.</p>
-        <a href="/admin/rooms" class="link-button">Go to Room Settings</a>
-      </div>
-  
-      <div class="section-card">
-        <h2>System Logs</h2>
-        <p>View system activity and logs.</p>
-        <a href="/admin/logs" class="link-button">Go to System Logs</a>
-      </div>
-    </div>
-  </div>
-  
-  <style>
-    .admin-container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 20px;
-      background-color: #f9f9f9;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-  
-    h1 {
-      color: #333;
-      margin-bottom: 30px;
-    }
-  
-    .admin-sections {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-  
-    .section-card {
-      background-color: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-      text-align: left;
-    }
-  
-    .section-card h2 {
-      margin-top: 0;
-      color: #444;
-    }
-  
-    .section-card p {
-      color: #666;
-      margin-bottom: 15px;
-    }
-  
-    .link-button {
-      display: inline-block;
-      padding: 10px 15px;
-      background-color: #4CAF50;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-  
-    .link-button:hover {
-      background-color: #45a049;
-    }
-  </style>
-  
+	import MovieCard from '$lib/components/movie_card.svelte';
+import { languageAwareGoto } from '$lib/utils/languageAware.js';
+	import { LayoutDashboard, Film, CalendarCheck, DollarSign, Building, Columns, ChevronRight, ChevronLeft } from 'lucide-svelte';
+
+	let activeSection = $state('dashboard');
+	let isMenuExpanded = $state(false);
+	let isMouseOverSidebar = false;
+
+	let { data } = $props();
+
+
+</script>
+
+	<!-- Main Content Area -->
+	<div class="flex-1 p-10 overflow-y-auto">
+		
+			<div class="bg-white p-6 rounded-lg shadow">
+				<h1 class="text-2xl font-bold mb-4">Dashboard</h1>
+				<div class="grid grid-cols-4 gap-4">
+					<div class="bg-blue-100 p-4 rounded">Filme Gesamt: 42</div>
+					<div class="bg-green-100 p-4 rounded">Shows diese Woche: 158</div>
+					<div class="bg-yellow-100 p-4 rounded">Umsatz: €12.456</div>
+					<div class="bg-red-100 p-4 rounded">Freie Plätze: 1.234</div>
+				</div>
+			</div>
+		
+		
+			<!-- <div class="bg-white p-6 rounded-lg shadow">
+				<h1 class="text-2xl font-bold mb-4">Preissets</h1>
+				<div class="flex justify-end mb-4">
+					<button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+						Neues Preisset
+					</button>
+				</div>
+			</div>
+			 -->
+		
+		
+	</div>

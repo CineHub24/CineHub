@@ -37,5 +37,9 @@
 	"password_confirm" : "Confirm Password",
 	"enter_password_confirm" : "Re-enter your password",
 	"already_account" : "Already have an account?",
-	"admin_tools" : "Admin Tools"
+	"admin_tools" : "Admin Tools",
+	"movies" : "Movies",
+	"shows" : "Shows",
+	"directed_by": "Directed by",
+	"released_in": "Released in"
 }

@@ -56,13 +56,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="factor">Preis:</label>
+                        <label for="factor">Faktor:</label>
                         <input 
                             class="form-input" 
                             type="number" 
                             step="0.01" 
                             name="factor"
-                            placeholder="Preis des Tickettypen"
+                            placeholder="Faktor des Tickettypen"
                             required
                         />
                     </div>
@@ -119,13 +119,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="factor">Preis:</label>
+                            <label for="factor">Faktor:</label>
                             <input 
                                 class="form-input" 
                                 type="number" 
                                 step="0.01" 
                                 name="factor"
-                                placeholder="Preis des Tickettypen"
+                                placeholder="Faktor des Tickettypen"
                                 value={ticketType.factor}
                                 required
                             />

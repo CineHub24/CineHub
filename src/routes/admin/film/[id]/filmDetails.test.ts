@@ -35,7 +35,7 @@ vi.mock('./+page.server', () => ({
 
 describe('load', () => {
 	it('should return the correct movie when given a valid id', async () => {
-		const url = { pathname: '/admin/films/film/1' };
+		const url = { pathname: '/admin/film/1' };
 		const expectedMovie = mockMovies[0];
 
 		const result = await load({ url });
@@ -44,7 +44,7 @@ describe('load', () => {
 	});
 
 	it('should return undefined when given an invalid id', async () => {
-		const url = { pathname: '/admin/films/film/999' };
+		const url = { pathname: '/admin/film/999' };
 
 		const result = await load({ url });
 

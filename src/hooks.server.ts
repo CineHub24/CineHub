@@ -24,7 +24,8 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	event.locals.user = user;
 	event.locals.session = session;
 
-	if (event.url.pathname === '/logout') {
+	const split = event.url.pathname.split('/');
+	if (split.includes('logout')) {
 		if (!event.locals.session) {
 			return new Response('Unauthorized', { status: 401 });
 		}

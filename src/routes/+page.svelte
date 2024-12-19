@@ -1,13 +1,19 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import MovieCard from '../lib/components/movie_card.svelte';
+	import ShowsFilmDropdown from '$lib/components/ShowsFilmDropdown.svelte';
 	import type { PageServerData } from './$types';
-	import type { Film } from '$lib/server/db/schema';
+	import type { Film, Showing } from '$lib/server/db/schema';
 	import { onMount } from 'svelte';
+	import * as m from '$lib/paraglide/messages.js';
+
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 	const { data }: { data: PageServerData } = $props();
+
 	let movies: FilmWithTrailer[] = data.movies;
+	let shows: Showing[] = data.shows;
+
 	type FilmWithTrailer = Film & {
 		trailer?: string; // Optionales Trailer-Attribut
 	};
@@ -49,7 +55,7 @@
 </script>
 
 {#key hoveredMovie}
-	<div class="movie-details" in:fade={{ duration: 1000 }}>
+	<div class="movie-details" in:fade={{ duration: 1500 }}>
 		<img id="background" src={hoveredMovie.backdrop} alt="{hoveredMovie.title} Poster" />
 		<!-- <a href="/film/{hoveredMovie.id}">
 			<img id="poster" src={hoveredMovie.poster} alt="{hoveredMovie.title} Poster" /></a
@@ -69,7 +75,7 @@
 	</div>
 {/key}
 
-<h2 class="px-5 text-xl font-bold">Movies</h2>
+<h2 class="px-5 text-xl font-bold">{m.movies({})}</h2>
 <div class="movies-container">
 	{#each movies as movie}
 		<div
@@ -84,12 +90,10 @@
 	{/each}
 </div>
 <br />
-<h2 class="px-5 text-xl font-bold">Showings</h2>
-<div class="movies-container">
-	{#each movies as movie}
-		<MovieCard {movie} url="film/{movie.id}" />
-	{/each}
-</div>
+{#if shows.length > 0}
+	<h2 class="px-5 text-xl font-bold">{m.shows({})}</h2>
+	<ShowsFilmDropdown {shows} {movies} />
+{/if}
 
 <style>
 	.movies-container {
