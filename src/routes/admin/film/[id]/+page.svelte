@@ -189,6 +189,7 @@
 	.film-edit-container {
 		width: 100%;
 		max-width: 1200px;
+		min-height: 75vh;
 		margin: 0 auto;
 		background-color: white;
 		padding: 40px;

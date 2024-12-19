@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { languageTag, type AvailableLanguageTag } from '$lib/paraglide/runtime';
+	import SearchBar from './SearchBar.svelte';
 
 	import { i18n } from '$lib/i18n';
 	import * as m from '$lib/paraglide/messages.js';
@@ -101,78 +102,83 @@
 	{/if}
 
 	<!-- Right: Profile Picture -->
-	<div
-		class="relative ml-auto"
-		role="button"
-		on:mouseover={showDropdown}
-		on:mouseleave={hideDropdown}
-		on:focus={showDropdown}
-		on:blur={hideDropdown}
-		tabindex="0"
-	>
-		<a class="focus:outline-none" href="/profile" aria-label="Profile">
-			<span
-				class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-200 font-bold text-gray-800 transition-all hover:border-blue-500"
-			>
-				{#if userName}
-					{userName.charAt(0).toUpperCase()}
-				{:else}
-					?
-				{/if}
-			</span>
-		</a>
-
-		<!-- Dropdown Menu -->
-		{#if showMenu}
-			<div class="absolute right-0 z-50 w-60 rounded-lg border border-gray-200 bg-white shadow-lg">
-				<ul class="text-sm">
-					<li>
-						{#if userName}
-							<a
-								href="/logout"
-								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-								>{m.logout({})}</a
-							>
-						{:else}
-							<a
-								href="/login"
-								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-							>
-								{m.login({})}
-							</a>
-						{/if}
-					</li>
-					<li>
-						<button
-							on:click={() => {
-								if (lang === 'de') switchToLanguage('en');
-								else switchToLanguage('de');
-								lang = i18n.getLanguageFromUrl($page.url);
-							}}
-							class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-						>
-							{m.switch_language({ language: lang === 'en' ? 'deutsch' : 'english' })}
-						</button>
-					</li>
-					{#if $page.data.user?.role === 'admin'}
-						<li>
-							<a
-								href="/admin"
-								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-								>{m.admin_tools({})}</a
-							>
-						</li>
+	<div class="relative ml-auto flex">
+		<SearchBar />
+		<div
+			class="relative ml-4"
+			role="button"
+			on:mouseover={showDropdown}
+			on:mouseleave={hideDropdown}
+			on:focus={showDropdown}
+			on:blur={hideDropdown}
+			tabindex="0"
+		>
+			<a class="focus:outline-none" href="/profile" aria-label="Profile">
+				<span
+					class="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-200 font-bold text-gray-800 transition-all hover:border-blue-500"
+				>
+					{#if userName}
+						{userName.charAt(0).toUpperCase()}
+					{:else}
+						?
 					{/if}
-					<!-- <li>
+				</span>
+			</a>
+
+			<!-- Dropdown Menu -->
+			{#if showMenu}
+				<div
+					class="absolute right-0 z-50 w-60 rounded-lg border border-gray-200 bg-white shadow-lg"
+				>
+					<ul class="text-sm">
+						<li>
+							{#if userName}
+								<a
+									href="/logout"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+									>{m.logout({})}</a
+								>
+							{:else}
+								<a
+									href="/login"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+								>
+									{m.login({})}
+								</a>
+							{/if}
+						</li>
+						<li>
+							<button
+								on:click={() => {
+									if (lang === 'de') switchToLanguage('en');
+									else switchToLanguage('de');
+									lang = i18n.getLanguageFromUrl($page.url);
+								}}
+								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+							>
+								{m.switch_language({ language: lang === 'en' ? 'deutsch' : 'english' })}
+							</button>
+						</li>
+						{#if $page.data.user?.role === 'admin'}
+							<li>
+								<a
+									href="/admin"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+									>{m.admin_tools({})}</a
+								>
+							</li>
+						{/if}
+						<!-- <li>
 						<a
 							href="/settings"
 							class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
 							>{m.settings({})}</a
 						>
 					</li> -->
-				</ul>
-			</div>
-		{/if}
+					</ul>
+				</div>
+			{/if}
+		</div>
 	</div>
 </header>
 
