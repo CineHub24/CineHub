@@ -31,7 +31,7 @@ export const load = async ({ url }) => {
 			ageRating: film.ageRating,
 			poster: film.poster,
 			description: film.description,
-			year: film.year
+			year: film.year,
 		})
 		.from(film)
 		.where(eq(film.id, <number>id));
@@ -174,7 +174,8 @@ export const actions = {
 					time: start,
 					filmid: filmId,
 					endTime: end,
-					priceSetId: priceSet
+					priceSetId: priceSet,
+					cancelled: false
 				});
 		} catch (e) {
 			throw error(500, 'Failed to save showing');

@@ -11,7 +11,6 @@ import {
 	time,
 	decimal,
 	jsonb
-	decimal,
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin']);
@@ -88,7 +87,7 @@ export const showing = pgTable('Showing', {
 	endTime: time('endTime'),
 	language: text('language'),
 	dimension: text('dimension'),
-	cancelled: boolean('cancelled'),
+	cancelled: boolean('cancelled').default(false),
 	soldTickets: text('soldTickets')
 });
 

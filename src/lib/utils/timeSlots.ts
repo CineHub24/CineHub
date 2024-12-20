@@ -1,6 +1,6 @@
-import { db } from "$lib/server/db";
-import { showing } from "$lib/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { db } from '$lib/server/db';
+import { showing } from '$lib/server/db/schema';
+import { eq, and, ne, or, gt, gte, lt, lte } from 'drizzle-orm';
 
 export const getFreeTimeSlots = async (
 	database: typeof db,
@@ -16,7 +16,9 @@ export const getFreeTimeSlots = async (
 	const existingShowings = await db
 		.select()
 		.from(showing)
-		.where(and(eq(showing.hallid, hallId), eq(showing.date, filmDate)))
+		.where(
+			and(and(eq(showing.hallid, hallId), eq(showing.date, filmDate)), ne(showing.cancelled, true))
+		)
 		.orderBy(showing.time);
 
 	const freeSlots = [];
@@ -97,4 +99,37 @@ export function calculateEndTime(startTime: string, durationInMinutes: number): 
 	const end = new Date(start.getTime() + durationInMinutes * 60000);
 
 	return end.toTimeString().slice(0, 5);
+}
+export const isTimeSlotAvailable = async (
+	hallId: number,
+	date: string,
+	startTime: string,
+	endTime: string
+) => {
+	const conflictingShowings = await db
+		.select()
+		.from(showing)
+		.where(
+			and(
+				eq(showing.hallid, hallId),
+				eq(showing.date, date),
+				eq(showing.cancelled, false),
+				or(
+					and(
+					    lte(showing.time,startTime),
+                        lt(showing.endTime, startTime)
+                    ),
+					and(
+                        lt(showing.time, endTime),
+                        gte(showing.endTime, endTime)
+                    ),
+					and(
+                        gte(showing.time, startTime),
+                        lte(showing.endTime, endTime)
+                    ),
+				)
+			)
+		);
+
+	return conflictingShowings.length === 0;
 }

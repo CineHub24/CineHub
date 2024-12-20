@@ -2,26 +2,33 @@ import { goto } from '$app/navigation';
 import { db } from '$lib/server/db';
 import { booking, cinemaHall, film, priceSet, showing, ticket, user } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { eq, and, ne, or } from 'drizzle-orm';
 import { get } from 'svelte/store';
 
-function getID(url: URL) { 
+function getID(url: URL) {
 	const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 	return id as number;
 }
 
 export const load = async ({ url }) => {
-
 	const show = await db
-		.select({ id: showing.id, date: showing.date, time: showing.time, endTime: showing.endTime, hall: cinemaHall.hallNumber, filmid: film.id, film_name: film.title, film_backdrop: film.backdrop, priceSet: showing.priceSetId })
+		.select({
+			id: showing.id,
+			date: showing.date,
+			time: showing.time,
+			endTime: showing.endTime,
+			filmid: film.id,
+			film_name: film.title,
+			film_backdrop: film.backdrop,
+			priceSet: showing.priceSetId,
+			cancelled: showing.cancelled
+		})
 		.from(showing)
 		.leftJoin(film, eq(showing.filmid, film.id))
 		.innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
 		.where(eq(showing.id, getID(url)));
 
-	const priceSets = await db
-		.select()
-		.from(priceSet);
+	const priceSets = await db.select().from(priceSet);
 	return {
 		show: show[0],
 		priceSets: priceSets
@@ -50,43 +57,60 @@ export const actions = {
 		}
 		// Optional: Erfolgsrückmeldung zurückgeben
 	},
-	delete: async ({url}) =>{
-		
-		try{
-			await db.delete(showing).where(eq(showing.id,getID(url)))
-		} catch(e){
-			console.log("error" + e)
+	delete: async ({ url }) => {
+		try {
+			await db.delete(showing).where(eq(showing.id, getID(url)));
+		} catch (e) {
+			console.log('error' + e);
 		}
 	},
-	cancel: async ({request, url}) =>{
+	cancel: async ({ request, url }) => {
 		const formData = await request.formData();
 
 		const showId = formData.get('showId') as unknown as number;
 
-		try{
-			await db.update(showing).set({cancelled: true}).where(eq(showing.id, showId));
-
+		try {
+			await db.update(showing).set({ cancelled: true }).where(eq(showing.id, showId));
 
 			const usersToNofity = await db
-				.selectDistinct({userEmail: user.email})
+				.selectDistinct({ userEmail: user.email })
 				.from(ticket)
 				.innerJoin(booking, eq(ticket.bookingId, booking.id))
 				.innerJoin(user, eq(booking.userId, user.id))
 				.where(eq(ticket.showingId, showId));
 
-			for (const user of usersToNofity){
+			for (const user of usersToNofity) {
 				//TODO: Send Email to user
 				//TODO: Grant refund
 				console.log(`Send Email to ${user.userEmail}`);
 			}
-
-			
-		}
-		catch(e){
-			console.log("error" + e)
+		} catch (e) {
+			console.log('error' + e);
 		}
 	},
-	reschedule: async ({url}) =>{
+	uncancel: async ({ request, url }) => {
+		const formData = await request.formData();
+		const showId = formData.get('showId') as unknown as number;
+		const hallId = formData.get('hallId') as unknown as number;
+		const date = formData.get('date') as string;
+		const time = formData.get('time') as string;
+		const endTime = formData.get('endTime') as string;
+
+		try {
+
+
+			await db.update(showing).set({ cancelled: false }).where(eq(showing.id, showId));
+
+			return {
+				success: true,
+				message: 'Die Vorstellung wurde erfolgreich wiederhergestellt.'
+			};
+		} catch (e) {
+			console.error('Fehler beim Wiederherstellen der Vorstellung:', e);
+			throw error(500, 'Interner Serverfehler');
+		}
+	},
+	reschedule: async ({ url }) => {
 		//reschedule show
 	}
 } satisfies Actions;

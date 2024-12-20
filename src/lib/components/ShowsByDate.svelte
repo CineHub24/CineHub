@@ -55,7 +55,7 @@
 <div class="shows-container">
 	{#each sortedDates as date}
 		<div class="date-group">
-			<button class="date-header" on:click={() => toggleDate(date)}>
+			<button class="date-header" onclick={() => toggleDate(date)}>
 				<span class="date-text">
 					{new Date(date).toLocaleDateString('de-DE', {
 						weekday: 'long',
@@ -73,7 +73,12 @@
 						<div class="show-item" transition:fade>
 							<a href="/admin/show/{show.id}" class="show-link">
 								<span class="show-details">
-									<span class="show-time">{formatShowDetails(show)}</span>
+									{#if show.cancelled}
+										<span class="show-time">{formatShowDetails(show)} (Abgesagt)</span>
+									{:else}
+										<span class="show-time">{formatShowDetails(show)}</span>
+									{/if}
+
 									{#if show.hallid}
 										<span class="hall-info">Saal {show.hallid}</span>
 									{/if}

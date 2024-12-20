@@ -5,6 +5,7 @@
 	let { data }: { data: PageData } = $props();
 	let { show, priceSets } = data;
 
+
 	function zurueck() {
 		goto(`/admin/film/${show.filmid}`);
 	}
@@ -14,10 +15,10 @@
 	<div class="show-edit-container">
 		{#if show}
 			<div class="header">
-				<h2>Vorstellung für Film {show.film_name}</h2>
+				<h2>Vorstellung für Film {show.film_name} {show.cancelled ? '(Abgesagt)' : ''}</h2>
 			</div>
 
-			<form method="post" name="update">
+			<form method="post" name="actions">
 				<input type="hidden" name="showId" value={show.id} />
 				<div class="form-columns">
 					<div class="form-column">
@@ -49,7 +50,11 @@
 				</div>
 				<div class="form-actions">
 					<button type="submit" formaction="?/update">Speichern</button>
-					<button type="submit" formaction="?/cancel">Absagen</button>
+					{#if show.cancelled}
+						<button type="submit" formaction="?/uncancel">Wiederherstellen</button>
+					{:else}
+						<button type="submit" formaction="?/cancel">Absagen</button>
+					{/if}
 					<button type="submit" formaction="?/reschedule">Verschieben</button>
 					<button type="button" onclick={zurueck}>Zurück</button>
 				</div>
@@ -88,28 +93,6 @@
 		margin: 0;
 		font-size: 1.8em;
 		color: #333;
-	}
-
-	.tabs {
-		display: flex;
-		margin-bottom: 30px;
-		border-bottom: 1px solid #ddd;
-	}
-
-	.tab {
-		padding: 12px 20px;
-		background: none;
-		border: none;
-		border-bottom: 3px solid transparent;
-		cursor: pointer;
-		color: #666;
-		font-weight: 600;
-		transition: all 0.3s ease;
-	}
-
-	.tab.active {
-		border-bottom-color: #007bff;
-		color: #007bff;
 	}
 
 	.form-columns {
@@ -162,12 +145,6 @@
 	.form-actions button:hover {
 		background-color: #0056b3;
 	}
-
-	.delete-section {
-		text-align: center;
-		padding: 20px;
-	}
-
 	.not-found {
 		text-align: center;
 		color: #666;
