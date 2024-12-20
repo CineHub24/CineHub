@@ -1,5 +1,5 @@
 <!-- GoogleAutocomplete.svelte -->
-<script>
+<script lang="ts">
     import { onMount, createEventDispatcher } from 'svelte';
     
     export let apiKey = '';
@@ -9,6 +9,7 @@
     let input;
     let autocomplete;
     let loaded = false;
+     export let adress:string;
     
     const dispatch = createEventDispatcher();
     
@@ -102,6 +103,7 @@
       class={`google-autocomplete-input ${inputClass}`}
       on:focus={handleFocus}
       on:blur={handleBlur}
+      value={adress}
     />
   </div>
   

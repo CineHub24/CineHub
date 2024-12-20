@@ -92,6 +92,8 @@ export const cinema = pgTable('Cinema', {
 	id: serial('id').primaryKey(),
 	name: text('name'),
 	address: text('address'),
+	opentime: time('opentime'),
+	closeTime: time('closeTime'),
 	numScreens: integer('numScreens')
 });
 
