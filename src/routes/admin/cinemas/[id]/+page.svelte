@@ -1,24 +1,32 @@
-<script>
+<script lang="ts">
     import GoogleAutocomplete from '$lib/components/GoogleAutocomplete.svelte';
     import { email_address } from '$lib/paraglide/messages';
+	import type { PageData, PageServerData, PageServerLoad } from './$types';
+	
     
     const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-    let adress = $state('');
     
+    
+    
+    const { data }: { data: PageData } = $props();
+    const { cinema } = data;   
+    let adress = $state(cinema.address as string);
+
     function handlePlaceSelected(event) {
         const adresse = event.detail;
         adress = adresse.formatted_address;
         console.log('Gewählte Adresse:', adresse);
+
     }
 </script>
 
 <div class="form-container">
-    <form action="?/create" method="POST" class="styled-form">
+    <form action="?/update" method="POST" class="styled-form">
         <div class="form-columns">
             <div class="form-column">
                 <div class="form-group">
                     <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required />
+                    <input type="text" id="name" name="name" bind:value={cinema.name} required />
                 </div>
                 
                 <div class="form-group">
@@ -26,27 +34,29 @@
                     <GoogleAutocomplete
                         apiKey={API_KEY}
                         placeholder="Adresse suchen"
+                        adress={adress}    
                         on:place-selected={handlePlaceSelected}
                     />
                     <input type="hidden" name="adress" value={adress}/>
+                    <input type="hidden" name="id" value={cinema.id}/>
                 </div>
             </div>
             
             <div class="form-column">
                 <div class="form-group">
                     <label for="opening_time">Öffnungszeit:</label>
-                    <input type="time" id="opening_time" name="opening_time" required />
+                    <input type="time" id="opening_time" name="opening_time" bind:value={cinema.opentime} required />
                 </div>
                 
                 <div class="form-group">
                     <label for="closing_time">Schließzeit:</label>
-                    <input type="time" id="closing_time" name="closing_time" required />
+                    <input type="time" id="closing_time" name="closing_time" bind:value={cinema.closeTime} required />
                 </div>
             </div>
         </div>
 
         <div class="form-actions">
-            <button type="submit">Erstellen</button>
+            <button type="submit">Speichern</button>
         </div>
     </form>
 </div>
