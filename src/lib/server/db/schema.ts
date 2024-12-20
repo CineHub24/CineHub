@@ -165,4 +165,8 @@ export const booking = pgTable('Booking', {
 	time: time('time'),
 	totalPrice: decimal('totalPrice'),
   userId: text('userId').references(() => user.id),
+  bookedTickets: integer("bookedTickets")
+    .array()
+    .notNull(),
+  discount: integer('discount').references(() => priceDiscount.id),
 });
