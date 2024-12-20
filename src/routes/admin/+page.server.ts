@@ -7,7 +7,8 @@ export const load = async (event) => {
     const movies = await db.select().from(film)
     const halls = await db.select().from(cinemaHall).leftJoin(cinema,eq(cinema.id,cinemaHall.cinemaId))
     const priceSets = await db.select().from(priceSet)
-    console.log(halls)
+    // console.log("printing halls")
+    // console.log(halls)
     return{
         movies: movies,
         halls: halls,

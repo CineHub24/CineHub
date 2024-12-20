@@ -17,6 +17,8 @@
 
 	let data = $props();
 
+	console.log(data);
+
 	let name: string;
 
 	// Check if we are in edit mode (pre-existing hall data)
@@ -29,7 +31,6 @@
 
 	// Properly typed seat types array
 	let seatTypes: SeatCategory[] = [];
-
 
 
 	// Safely populate seat types
@@ -245,6 +246,11 @@
 	<div>
 		<label for="name">Hall Name:</label>
 		<input type="text" id="name" name="name" bind:value={name} required />
+		<label for="name">Which cinema</label>
+		<select name="cinemaId" id="cinemaId">
+			{#each data.data.cinemas as cinema}
+				<option value={cinema.id}>{cinema.name}</option>
+			{/each}
 	</div>
 
 	<input type="hidden" name="seatPlanData" value={prepareSeatData()} />

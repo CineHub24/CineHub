@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { seat, cinemaHall, seatCategory } from '$lib/server/db/schema';
+import { seat, cinemaHall, seatCategory, cinema } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../../$types';
@@ -19,6 +19,7 @@ export const actions = {
             const formData = await request.formData();
             const seatPlanData = formData.get('seatPlanData');
             const name = formData.get('name');
+            const cinemaId = formData.get('cinemaId');
 
             if (!name) throw new Error('No hall number provided');
 
@@ -40,7 +41,7 @@ export const actions = {
                 // Insert a new cinema hall
                 const insertedHall = await db
                     .insert(cinemaHall)
-                    .values({ name: name, capacity: seats.length }) // Set capacity to the number of seats
+                    .values({ name: name, capacity: seats.length, cinemaId: cinemaId }) // Set capacity to the number of seats
                     .returning({ id: cinemaHall.id });
 
                 cinemaHallId = insertedHall[0].id;
@@ -60,9 +61,10 @@ export const actions = {
                 row: seat.row,
                 type: seat.type,
                 cinemaHall: cinemaHallId,
-                categoryId: seat.categoryId
-            }));
+                categoryId: seat.categoryId,
 
+            }));
+            console.log(seatsWithHall);
             // delete existing seats and insert new ones
             await db.delete(seat).where(eq(seat.cinemaHall, cinemaHallId));
             await db.insert(seat).values(seatsWithHall);
@@ -82,22 +84,26 @@ export const actions = {
 
 export const load: PageServerLoad = async ({ params }) => {
     //check if the hall exists and if not return an empty hall
+    const cinemas = await db.select().from(cinema);
     const categories = await db.select().from(seatCategory);
     const hall = await db.select().from(cinemaHall).where(eq(cinemaHall.id, Number(params.id))).limit(1);
     if (hall.length === 0) {
         return {
             categories,
             cinemaHall: null,
-            seatPlan: null
+            seatPlan: null,
+            cinemas
         };
     }
     const seatPlan = await db.select().from(seat).where(eq(seat.cinemaHall, Number(params.id)));
     //maybe only return the categories that are used in the hall by checking the Priceset
 
+    // console.log('cinemas', cinemas);
     return {
         categories,
         cinemaHall: hall[0] || null,
-        seatPlan: seatPlan.length > 0 ? organizeSeats(seatPlan) : null
+        seatPlan: seatPlan.length > 0 ? organizeSeats(seatPlan) : null,
+        cinemas
     };
 };
 
