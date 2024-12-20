@@ -1,6 +1,6 @@
 import { goto } from '$app/navigation';
 import { db } from '$lib/server/db';
-import { film, priceSet, showing } from '$lib/server/db/schema';
+import { cinemaHall, film, priceSet, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { get } from 'svelte/store';
@@ -13,9 +13,10 @@ function getID(url: URL) {
 export const load = async ({ url }) => {
 
 	const show = await db
-		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, filmid: film.id, film_name: film.title, film_backdrop: film.backdrop, priceSet: showing.priceSetId })
+		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, hall: cinemaHall.hallNumber, filmid: film.id, film_name: film.title, film_backdrop: film.backdrop, priceSet: showing.priceSetId })
 		.from(showing)
 		.leftJoin(film, eq(showing.filmid, film.id))
+		.innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
 		.where(eq(showing.id, getID(url)));
 
 	const priceSets = await db
@@ -59,7 +60,7 @@ export const actions = {
 	},
 	cancel: async ({url}) =>{
 		//cancel show
-		
+
 	},
 	reschedule: async ({url}) =>{
 		//reschedule show

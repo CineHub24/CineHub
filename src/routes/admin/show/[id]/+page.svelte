@@ -49,6 +49,7 @@
 				<div class="form-actions">
 					<button type="submit" formaction="?/update">Speichern</button>
 					<button type="submit" formaction="?/cancel">Absagen</button>
+					<button type="submit" formaction="?/reschedule">Verschieben</button>
 					<button type="button" onclick={zurueck}>Zurück</button>
 				</div>
 			</form>

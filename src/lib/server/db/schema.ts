@@ -14,6 +14,8 @@ import {
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin']);
 
+export const ticketStatusEnum = pgEnum('ticketStatus', ['reserved', 'booked', 'validated', 'cancelled']);
+
 export const user = pgTable('User', {
 	id: text('id').primaryKey(),
 	googleId: text('google_id').unique(),
@@ -138,48 +140,29 @@ export const ticketType = pgTable('TicketType', {
 });
 
 export const paymentType = pgTable('PaymentType', {
-	id: text('id').primaryKey(),
+	id: serial('id').primaryKey(),
 	type: text('type'),
 	value: integer('value')
 });
 
 export const priceDiscount = pgTable('PriceDiscount', {
-	id: text('id').primaryKey(),
+	id: serial('id').primaryKey(),
 	code: text('code'),
-	paymentTypeId: text('paymentTypeId'),
-	totalAmountPercentage: decimal('totalAmountPercentage'),
-	cancelTicket: boolean('cancelTicket'),
-	cancelTotal: boolean('cancelTotal'),
-	payBooking: boolean('payBooking'),
-	exportTerminal: boolean('exportTerminal'),
-	remindUser: boolean('remindUser'),
-	staticGetPriceDiscount: text('staticGetPriceDiscount')
+  value: decimal('value', { precision: 10, scale: 2 }),
+  discountType: text('discountType'),
 });
 
 export const ticket = pgTable('Ticket', {
-	id: text('id').primaryKey(),
-	status: integer('status').references(() => status.id),
+	id: serial('id').primaryKey(),
+	status: ticketStatusEnum('status').default('reserved').notNull(),
 	type: integer('type').references(() => ticketType.id),
 	showingId: integer('showingId').references(() => showing.id),
 });
 
 export const booking = pgTable('Booking', {
-	id: text('id').primaryKey(),
+	id: serial('id').primaryKey(),
 	date: date('date'),
 	time: time('time'),
 	totalPrice: decimal('totalPrice'),
-	calculateTotalPercentagePrice: decimal('calculateTotalPercentagePrice'),
-	cancelTicket: boolean('cancelTicket'),
-	cancelTotal: boolean('cancelTotal'),
-	payBooking: boolean('payBooking'),
-	exportTerminal: boolean('exportTerminal'),
-	userId: text('userId')
-});
-
-export const status = pgTable('Status', {
-	id: text('id').primaryKey(),
-	reserved: boolean('reserved'),
-	booked: boolean('booked'),
-	validated: boolean('validated'),
-	cancelled: boolean('cancelled')
+  userId: text('userId').references(() => user.id),
 });
