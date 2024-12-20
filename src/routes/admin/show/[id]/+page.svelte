@@ -18,6 +18,7 @@
 			</div>
 
 			<form method="post" name="update">
+				<input type="hidden" name="showId" value={show.id} />
 				<div class="form-columns">
 					<div class="form-column">
 						<div class="form-group">
