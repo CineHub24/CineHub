@@ -6,7 +6,6 @@
   let message: string | null = null;
   
   const unsubscribe = notification.subscribe(value => {
-    console.log('Neue Nachricht:', value); // Diese Zeile sollte die Nachricht loggen
     message = value;
   });
 
