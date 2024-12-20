@@ -26,11 +26,13 @@ export const actions = {
         const name = data.get('name') as string;
         const price = data.get('price') as string;
         const description = data.get('description') as string;
+        const emoji = data.get('emoji') as string;
         
         const newSeatCategory = {
             name,
             price,
-            description
+            description,
+            emoji
         };
 
 

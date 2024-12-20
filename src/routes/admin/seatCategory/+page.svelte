@@ -78,6 +78,18 @@
                             required
                         />
                     </div>
+
+                    <div class="form-group">
+                        <label for="emoji">Emoji:</label>
+                        <input 
+                            class="form-input" 
+                            type="text" 
+                            name="emoji"
+                            placeholder="emoji der Sitzkategorie"
+                            required
+                        />
+                    </div>
+
                     
                     <div class="form-actions">
                         <button type="submit" class="btn btn-edit">Speichern</button>
@@ -143,6 +155,21 @@
                                 required
                             />
                         </div>
+
+                            
+                        <div class="form-group">
+                            <label for="emoji">Emoji:</label>
+                            <input 
+                                class="form-input" 
+                                type="text" 
+                                name="emoji"
+                                placeholder="emoji der Sitzkategorie"
+                                value={seatCategory.emoji}
+                                required
+                            />
+                        </div>
+
+
                         <div class="form-actions">
                             <button type="submit" class="btn btn-edit">Speichern</button>
                             <button 
