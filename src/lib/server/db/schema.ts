@@ -9,7 +9,8 @@ import {
 	boolean,
 	date,
 	time,
-	decimal
+	decimal,
+	jsonb
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin']);
@@ -98,14 +99,29 @@ export const cinema = pgTable('Cinema', {
 });
 
 export const cinemaHall = pgTable('CinemaHall', {
-	id: serial('id').primaryKey(),
-	hallNumber: integer('hallNumber'),
-	capacity: integer('capacity'),
-	deactivatedSeats: text('deactivatedSeats'),
-	activatedSeats: text('activatedSeats'),
+  id: serial("id").primaryKey(),
+  name: text('name'),
+  capacity: integer('capacity'),
 	cinemaId: integer('cinemaId')
 		.notNull()
-		.references(() => cinema.id, { onDelete: 'cascade' })
+		.references(() => cinema.id, { onDelete: 'cascade' }) 
+
+});
+
+export const seat = pgTable('seat', {
+  id: serial('id').primaryKey(),
+  seatNumber: text('seatNumber').notNull(),
+  row: text('row').notNull(),
+  cinemaHall: integer('cinemaHall').notNull().references(() => cinemaHall.id, { onDelete: 'cascade' }),
+  categoryId: integer('categoryId').notNull().references(() => seatCategory.id),
+});
+
+export const seatCategory = pgTable('seatCategory', {
+  id: serial('id').primaryKey(),
+  name: text('name'),
+  description: text('description'),
+  emoji: text('emoji'),
+  price: decimal('price', { precision: 10, scale: 2 })
 });
 
 export const priceSet = pgTable('PriceSet', {
@@ -123,12 +139,6 @@ export const priceSet = pgTable('PriceSet', {
     .default(sql`'1'::integer`)
 });
 
-export const seatCategory = pgTable('seatCategory', {
-	id: serial('id').primaryKey(),
-	name: text('name'),
-	description: text('description'),
-	price: decimal('price', { precision: 10, scale: 2 })
-});
 
 export const ticketType = pgTable('TicketType', {
   id: serial('id').primaryKey(),
@@ -187,4 +197,12 @@ export const status = pgTable('Status', {
 	booked: boolean('booked'),
 	validated: boolean('validated'),
 	cancelled: boolean('cancelled')
+});
+
+export const logs = pgTable('logs', {
+	id: serial('id').primaryKey(),
+	level: text('level').notNull(), // 'info', 'warn', 'error'
+	message: text('message').notNull(),
+	metadata: jsonb('metadata').default({}),
+	createdAt: timestamp('created_at').defaultNow(),
 });
