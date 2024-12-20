@@ -9,7 +9,7 @@ import {
 	boolean,
 	date,
 	time,
-	decimal
+	decimal,
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin']);
@@ -84,7 +84,7 @@ export const showing = pgTable('Showing', {
 	endTime: time('endTime'),
 	language: text('language'),
 	dimension: text('dimension'),
-	absage: text('absage'),
+	cancelled: boolean('cancelled'),
 	soldTickets: text('soldTickets')
 });
 
@@ -156,14 +156,9 @@ export const priceDiscount = pgTable('PriceDiscount', {
 
 export const ticket = pgTable('Ticket', {
 	id: text('id').primaryKey(),
-	status: text('status'),
-	type: text('type'),
-	showingId: text('showingId'),
-	validate: boolean('validate'),
-	delete: boolean('delete'),
-	cancel: boolean('cancel'),
-	generatedQRCode: text('generatedQRCode'),
-	calculatePrice: text('calculatePrice')
+	status: integer('status').references(() => status.id),
+	type: integer('type').references(() => ticketType.id),
+	showingId: integer('showingId').references(() => showing.id),
 });
 
 export const booking = pgTable('Booking', {

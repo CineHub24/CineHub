@@ -13,7 +13,7 @@ function getID(url: URL) {
 export const load = async ({ url }) => {
 
 	const show = await db
-		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, filmid: film.id, film_name: film.title, priceSet: showing.priceSetId })
+		.select({ date: showing.date, time: showing.time, endTime: showing.endTime, filmid: film.id, film_name: film.title, film_backdrop: film.backdrop, priceSet: showing.priceSetId })
 		.from(showing)
 		.leftJoin(film, eq(showing.filmid, film.id))
 		.where(eq(showing.id, getID(url)));
@@ -37,6 +37,8 @@ export const actions = {
 		let timeString = formData.get('time') as string;
 		let priceSetId = formData.get('priceSet') as unknown as number;
 
+		console.log(priceSetId);
+
 		try {
 			await db
 				.update(showing)
@@ -54,5 +56,12 @@ export const actions = {
 		} catch(e){
 			console.log("error" + e)
 		}
+	},
+	cancel: async ({url}) =>{
+		//cancel show
+		
+	},
+	reschedule: async ({url}) =>{
+		//reschedule show
 	}
 } satisfies Actions;
