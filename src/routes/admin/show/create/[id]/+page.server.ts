@@ -1,8 +1,8 @@
 import { type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import type { Actions } from './$types';
-import { fail } from '@sveltejs/kit';
-import { film, showing } from '$lib/server/db/schema';
+import { fail, redirect } from '@sveltejs/kit';
+import { cinema, cinemaHall, film, priceSet, showing } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 
 interface TimeWindow {
@@ -15,9 +15,14 @@ interface TimeWindow {
 export const load = async (event) => {
 	
 	const selectedFilm = await db.select().from(film).where(eq(film.id, event.params.id as unknown as number));
-
+  const cinemas = await db.select().from(cinema);
+  const halls = await db.select().from(cinemaHall);
+  const priceSets = await db.select().from(priceSet);
 	return {
-		selectedFilm: selectedFilm[0]
+		selectedFilm: selectedFilm[0],
+    cinemas: cinemas,
+    halls: halls,
+    priceSets: priceSets
 	};
 };
 
@@ -64,6 +69,31 @@ export const actions = {
 
     const times = getPossibletimes(timeWindow, totalDuration, 5);
     return { success: true, times };
+  },
+  saveShowing: async ({ request }) => {
+    const data = await request.formData();
+    const filmId = Number(data.get('filmId'));
+    const hallId = Number(data.get('hallId'));
+    const startTime = data.get('startTime') as string;
+    const endTime = data.get('endTime') as string;
+    const priceSetId = Number(data.get('priceSet'));
+    const date = data.get('date') as string;
+
+    console.log( "film" + filmId + "hall" + hallId + "start" +startTime +"end" +endTime + "price"+ priceSetId + "data" +date);
+
+
+    try {
+      
+       await db.insert(showing).values({filmid: filmId, hallid:hallId, time: startTime, endTime:endTime, priceSetId: priceSetId
+        , date: date
+       })
+    } catch (error) {
+      console.log(error);
+      return fail(500, { error: 'Server-Fehler beim Speichern der Vorstellung' });
+      
+    }
+    return redirect(302,`/admin/film/${filmId}`);
+  
   }
 } satisfies Actions;
 
@@ -90,6 +120,7 @@ async function getAvailableTimeWindows(
     .where(
       and(
         eq(showing.hallid, hallId),
+        eq(showing.date, dateStr),
         gte(showing.time, startTimeStr),
         lte(showing.time, endTimeStr)
       )

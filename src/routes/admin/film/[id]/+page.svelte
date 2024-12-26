@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import ShowsByDate from '$lib/components/ShowsByDate.svelte';
+	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import type { PageData } from './$types';
 	import type { Film, freeSlots, Showing } from './+page.server.js';
 
@@ -12,7 +13,8 @@
 	let activeTab: 'details' | 'shows' = $state('details');
 
 	function toggleShowForm() {
-		showAddShowForm = !showAddShowForm;
+		// showAddShowForm = !showAddShowForm; Alte Version
+		languageAwareGoto("/admin/show/create/"+ film.id)
 	}
 
 	let slots: freeSlots[] = $state([]);

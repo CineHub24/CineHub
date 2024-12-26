@@ -6,6 +6,7 @@
   export let form: ActionData;
   
   let filmRuntime = selectedFilm.runtime;
+  let selectedDate = new Date().toISOString().slice(0, 10);
   let selectedTimeWindow: { start: string; end: string; duration: number } | null = null;
   let selectedStartTime: string = '';
   
@@ -96,6 +97,8 @@
         type="date" 
         name="date" 
         id="date"
+        
+        bind:value={selectedDate}
         class="w-full p-2 border rounded"
         required
       >
@@ -191,7 +194,10 @@
             <input type="hidden" name="startTime" value={selectedStartTime}>
             <input type="hidden" name="endTime" value={calculatedEndTime}>
             <input type="hidden" name="totalDuration" value={totalDuration}>
-            <input type="hidden" name="filmRuntime" value={filmRuntime}>
+            <input type="hidden" name="filmId" value={selectedFilm.id}>
+            <input type="hidden" name="hallId" value={2}>
+            <input type="hidden" name="date" value={selectedDate}>
+            <input type="hidden" name="priceSet" value={1}>
             <button 
               type="submit" 
               class="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
