@@ -1,19 +1,24 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { gte, asc } from 'drizzle-orm';
+import { gte, asc, and, ne } from 'drizzle-orm';
 
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
 	const movies = await db.select().from(table.film);
 
-	const shows = await db.select()
-  .from(table.showing)
-  .where(gte(table.showing.date, new Date().toISOString())) // Filter where showing.date is greater than today.
-  .orderBy(asc(table.showing.date));
+	const shows = await db
+		.select()
+		.from(table.showing)
+		.where(
+			and(
+				gte(table.showing.date, new Date().toISOString()), 
+				ne(table.showing.cancelled, true))
+		)
+		.orderBy(asc(table.showing.date));
 
 	return {
 		movies: movies,
-    shows: shows
+		shows: shows
 	};
 };
