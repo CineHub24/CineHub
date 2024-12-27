@@ -154,7 +154,7 @@
 						<label for="hall">Saal:</label>
 						<select name="hall">
 							{#each halls as hall}
-								<option value={hall.id}>Saal {hall.hallNumber}</option>
+								<option value={hall.id}>Saal {hall.name}</option>
 							{/each}
 						</select>
 					</div>
