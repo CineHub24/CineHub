@@ -1,139 +1,215 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	// import type { PageServerData } from './$types';
-
-	// let { data }: { data: PageServerData } = $props();
-
-    
-	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
-	import { i18n } from '$lib/i18n';
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
+	import { fade } from 'svelte/transition';
+	import MovieCard from '../lib/components/movie_card.svelte';
+	import ShowsFilmDropdown from '$lib/components/ShowsFilmDropdown.svelte';
+	import type { PageServerData } from './$types';
+	import type { Film, Showing } from '$lib/server/db/schema';
+	import { onMount } from 'svelte';
 	import * as m from '$lib/paraglide/messages.js';
-    
-	function switchToLanguage(newLanguage: AvailableLanguageTag) {
-        const canonicalPath = i18n.route($page.url.pathname);
-		const localisedPath = i18n.resolveRoute(canonicalPath, newLanguage);
-		goto(localisedPath);
+
+	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+
+	const { data }: { data: PageServerData } = $props();
+
+	let movies: FilmWithTrailer[] = data.movies;
+	let shows: Showing[] = data.shows;
+
+	type FilmWithTrailer = Film & {
+		trailer?: string; // Optionales Trailer-Attribut
+	};
+
+	let hoveredMovie: FilmWithTrailer = $state(movies[0]); // The currently hovered movie object
+
+	async function getTrailers() {
+		for (const movie of movies) {
+			if (movie.tmdbID) {
+				const trailer = await fetchTrailer(movie.tmdbID);
+				movie.trailer = trailer;
+			}
+		}
+		hoveredMovie = { ...movies[0] }; // Update the hovered movie with the trailer
 	}
-    
-    export let data; 
 
-    const {movies} = data;
-    const {user} = data;
-    
+	onMount(() => {
+		getTrailers();
+	});
 
-	function goToLogin() {
-		goto('/login');
+	async function fetchTrailer(tmdbId: string) {
+		if (tmdbId) {
+			const response = await fetch(
+				`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${apiKey}`
+			);
+			const data = await response.json();
+
+			if (data.results && data.results.length > 0) {
+				const trailer = data.results.find(
+					(video: { type: string; site: string }) =>
+						video.type === 'Trailer' && video.site === 'YouTube'
+				);
+				if (trailer) {
+					return `https://www.youtube.com/embed/${trailer.key}`;
+				}
+			}
+		}
 	}
 </script>
 
-<style>
-	body {
-		margin: 0;
-		font-family: Arial, sans-serif;
-	}
-	.navbar {
-		background-color: #111;
-		color: #fff;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 10px 20px;
-		position: sticky;
-		top: 0;
-		z-index: 1000;
-	}
-	.navbar .title {
-		font-size: 1.5rem;
-		font-weight: bold;
-	}
-	.navbar .profile-btn {
-		background-color: #f39c12;
-		border: none;
-		padding: 8px 16px;
-		color: #fff;
-		border-radius: 5px;
-		cursor: pointer;
-	}
-	.navbar .profile-btn:hover {
-		background-color: #d87c08;
-	}
-	.movies-container {
-		padding: 20px;
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-		gap: 20px;
-	}
-	.movie-card {
-		background-color: #f5f5f5;
-		border: 1px solid #ddd;
-		border-radius: 8px;
-		overflow: hidden;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		transition: transform 0.2s;
-	}
-	.movie-card:hover {
-		transform: translateY(-5px);
-	}
-	.movie-card img {
-		width: 100%;
-		height: auto;
-	}
-	.movie-card .details {
-		padding: 15px;
-	}
-	.movie-card .title {
-		font-size: 1.2rem;
-		margin: 0 0 10px;
-	}
-	.movie-card .description {
-		font-size: 0.9rem;
-		color: #555;
-	}
-</style>
+{#key hoveredMovie}
+	<div class="movie-details" in:fade={{ duration: 1500 }}>
+		<img id="background" src={hoveredMovie.backdrop} alt="{hoveredMovie.title} Poster" />
+		<!-- <a href="/film/{hoveredMovie.id}">
+			<img id="poster" src={hoveredMovie.poster} alt="{hoveredMovie.title} Poster" /></a
+		> -->
+		<iframe
+			id="poster"
+			width="500"
+			height="300"
+			src={hoveredMovie.trailer}
+			frameborder="0"
+			allow="autoplay; encrypted-media"
+			allowfullscreen
+			title="Trailer"
+		></iframe>
+		<h3>{hoveredMovie.title}</h3>
+		<p>{hoveredMovie.description}</p>
+	</div>
+{/key}
 
-<div class="navbar">
-	<div class="title">CineHub</div>
-	<button class="profile-btn" onclick={goToLogin}>Profile</button>
-</div>
-
-
-<h1>Hi, {user.email}!</h1>
-<h2>{user.role}</h2>
-<p>Your user ID is {user.id}.</p>
-<form method="post" action="?/logout" use:enhance>
-	<button>Sign out</button>
-</form>
-
-
-<h1>{m.hello_world({ name: 'SvelteKit User' })}</h1>
-<div>
-	<button onclick={() => switchToLanguage('en')}>en</button>
-	<button onclick={() => switchToLanguage('de')}>de</button>
-</div>
-
-<a href="/admin/films">Navigate to films</a><br>
-<a href="/admin/add_films">Navigate to add_films</a><br>
-<a href="/admin/add_room">Navigate to add_room</a><br>
-
-
-
+<h2 class="px-5 text-xl font-bold">{m.movies({})}</h2>
 <div class="movies-container">
 	{#each movies as movie}
-		<div 
-            class="movie-card"
-            tabindex="0"
-            role="button"
-            onclick={() => goto(`/film/${movie.id}`)}
-            onkeydown={(e) => e.key === 'Enter' && goto(`/film/${movie.id}`)}
-        >
-			<img src={movie.poster} alt="{movie.title} Poster">
-			<div class="details">
-				<h3 class="title">{movie.title}</h3>
-				<p class="description">{movie.description}</p>
-			</div>
+		<div
+			role="button"
+			tabindex="0"
+			onmouseover={() => (hoveredMovie = { ...movie })}
+			onfocus={() => (hoveredMovie = { ...movie })}
+			class="movie-card"
+		>
+			<MovieCard {movie} url="film/{movie.id}" />
 		</div>
 	{/each}
 </div>
+<br />
+{#if shows.length > 0}
+	<h2 class="px-5 text-xl font-bold">{m.shows({})}</h2>
+	<ShowsFilmDropdown {shows} {movies} />
+{/if}
 
+<style>
+	.movies-container {
+		padding-top: 20px;
+		margin-left: 20px;
+		margin-right: 20px;
+		padding-bottom: 20px;
+		display: flex; /* Use flexbox for horizontal layout */
+		flex-wrap: nowrap; /* Prevent wrapping of items */
+		gap: 20px; /* Space between items */
+		overflow-x: auto; /* Enable horizontal scrolling */
+		scroll-behavior: smooth; /* Smooth scrolling effect */
+		width: auto; /* Full width for container */
+		box-sizing: border-box; /* Include padding in width */
+	}
+
+	.movie-details {
+		position: relative;
+		overflow: hidden;
+		background-color: white;
+		padding: 20px;
+		border-radius: 10px;
+		z-index: 1;
+	}
+
+	#background {
+		width: 100%;
+		height: 450px;
+		object-fit: cover;
+	}
+
+	#poster {
+		position: absolute;
+		top: 100px;
+		right: 150px;
+		border-radius: 10px;
+		box-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
+		transition: all 0.3s ease; /* Smooth resizing for responsiveness */
+		cursor: pointer; /* Change cursor to indicate interactivity */
+	}
+
+	.movie-details h3,
+	.movie-details p {
+		position: absolute;
+		color: white;
+		text-shadow: 0 3px 6px rgba(0, 0, 0, 0.7);
+	}
+
+	.movie-details h3 {
+		top: 50px;
+		left: 50px;
+		font-size: 2rem;
+		margin: 0;
+		width: 40%;
+	}
+
+	.movie-details p {
+		bottom: 200px;
+		left: 50px;
+		font-size: 1.2rem;
+		margin: 0;
+		width: 40%;
+	}
+
+	/* Responsive styles */
+	@media (max-width: 768px) {
+		#background {
+			height: 300px; /* Reduce the height on smaller screens */
+		}
+
+		#poster {
+			top: 150px;
+			right: 50%; /* Center horizontally */
+			transform: translateX(50%);
+			width: 150px; /* Reduce size */
+		}
+
+		.movie-details h3 {
+			top: 20px;
+			left: 20px;
+			font-size: 1.5rem;
+			width: 80%; /* Allow more width for text */
+		}
+
+		.movie-details p {
+			bottom: 20px;
+			left: 20px;
+			font-size: 1rem;
+			width: 80%;
+		}
+	}
+
+	@media (max-width: 480px) {
+		#background {
+			height: 200px;
+		}
+
+		#poster {
+			top: 100px;
+			right: 50%;
+			transform: translateX(50%);
+			width: 120px;
+		}
+
+		.movie-details h3 {
+			top: 10px;
+			left: 10px;
+			font-size: 1.2rem;
+			width: 90%;
+		}
+
+		.movie-details p {
+			bottom: 10px;
+			left: 10px;
+			font-size: 0.9rem;
+			width: 90%;
+		}
+	}
+</style>

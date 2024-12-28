@@ -1,28 +1,24 @@
-import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
-import { film, showing } from '$lib/server/db/schema';
-import { eq, lt, gte, ne } from 'drizzle-orm';
-import { fail, redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import * as table from '$lib/server/db/schema';
+import { gte, asc, and, ne } from 'drizzle-orm';
 
-export const load: PageServerLoad = async (event) => {
-	// Automatische Weiterleitung auf die Loginseite entfernt: Man soll die Website ja auch ohne Anmeldung nutzen können (Jonathan)
-	const movies = await db
-            .select()
-            .from(film)
-    return {
-        user: event.locals.user || { email: 'guest@example.com', role: 'Guest', id: 0 },
-		movies: movies
-    };
-};
+import type { PageServerLoad } from './$types';
 
+export const load: PageServerLoad = async () => {
+	const movies = await db.select().from(table.film);
 
-export const actions: Actions = {
-	logout: async (event) => {
-		if (!event.locals.session) {
-			return fail(401);
-		}
-		await auth.invalidateSession(event.locals.session.id);
-		auth.deleteSessionTokenCookie(event);
-	}
+	const shows = await db
+		.select()
+		.from(table.showing)
+		.where(
+			and(
+				gte(table.showing.date, new Date().toISOString()), 
+				ne(table.showing.cancelled, true))
+		)
+		.orderBy(asc(table.showing.date));
+
+	return {
+		movies: movies,
+		shows: shows
+	};
 };

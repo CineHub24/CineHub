@@ -16,7 +16,7 @@ import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
 export const google = new Google(
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET,
-	'http://localhost:5173/login/google/callback'
+	'https://cine-hub-alpha.vercel.app/login/google/callback'
 );
 
 export const github = new GitHub(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, null);
@@ -43,7 +43,7 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, email: table.user.email, role: table.user.role },
+			user: { id: table.user.id, email: table.user.email, role: table.user.role, firstname: table.user.firstName, lastname: table.user.lastName },
 			session: table.session
 		})
 		.from(table.session)

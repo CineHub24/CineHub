@@ -67,7 +67,14 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	}
 
 	const userId = generateUserId();
-	await db.insert(table.user).values({ id: userId, googleId: googleId, firstName: firstName, lastName: lastName, email: email });
+	try {
+		await db.insert(table.user).values({ id: userId, googleId: googleId, firstName: firstName, lastName: lastName, email: email });
+	}catch(e){
+		console.log(e);
+		return new Response('Use a different account', {
+			status: 500
+		});
+	}
 
 	const sessionToken = generateSessionToken();
 	const session = createSession(sessionToken, userId);
