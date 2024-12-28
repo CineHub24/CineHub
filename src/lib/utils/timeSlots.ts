@@ -100,7 +100,7 @@ export function calculateEndTime(startTime: string, durationInMinutes: number): 
 
 	return end.toTimeString().slice(0, 5);
 }
-export const isTimeSlotAvailable = async (
+export const conflictingShowings = async (
 	hallId: number,
 	date: string,
 	startTime: string,
@@ -117,19 +117,22 @@ export const isTimeSlotAvailable = async (
 				or(
 					and(
 					    lte(showing.time,startTime),
-                        lt(showing.endTime, startTime)
+                        lt(showing.endTime, endTime)
                     ),
 					and(
-                        lt(showing.time, endTime),
+                        gte(showing.time, endTime),
                         gte(showing.endTime, endTime)
                     ),
 					and(
                         gte(showing.time, startTime),
                         lte(showing.endTime, endTime)
                     ),
+                    and(
+                        lte(showing.time, startTime),
+                        gte(showing.endTime, endTime)
+                    )
 				)
 			)
 		);
-
-	return conflictingShowings.length === 0;
+	return conflictingShowings;
 }

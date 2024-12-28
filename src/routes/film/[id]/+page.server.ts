@@ -13,7 +13,7 @@ export const load = async ({ url }) => {
 		const shows = await db
 			.select()
 			.from(showing)
-			.where(and(eq(showing.filmid, <number>id), gte(showing.date, new Date().toISOString())))
+			.where(and(eq(showing.filmid, <number>id), gte(showing.date, new Date().toISOString()), eq(showing.cancelled, false)))
 			.orderBy(asc(showing.date));
 
 		return {

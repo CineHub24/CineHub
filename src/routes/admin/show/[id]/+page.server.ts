@@ -1,14 +1,14 @@
-import { goto } from '$app/navigation';
 import { db } from '$lib/server/db';
 import { booking, cinemaHall, film, priceSet, showing, ticket, user } from '$lib/server/db/schema';
-import { error, type Actions } from '@sveltejs/kit';
+import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, and, ne, or } from 'drizzle-orm';
-import { get } from 'svelte/store';
-
+import { conflictingShowings } from '$lib/utils/timeSlots.js';
+import { languageAwareRedirect } from '$lib/utils/languageAware.js';
 function getID(url: URL) {
 	const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 	return id as number;
 }
+const dbFail = fail(500, { message: 'Internal Server Error', database: true });
 
 export const load = async ({ url }) => {
 	const show = await db
@@ -21,7 +21,8 @@ export const load = async ({ url }) => {
 			film_name: film.title,
 			film_backdrop: film.backdrop,
 			priceSet: showing.priceSetId,
-			cancelled: showing.cancelled
+			cancelled: showing.cancelled,
+			hallId: showing.hallid
 		})
 		.from(showing)
 		.leftJoin(film, eq(showing.filmid, film.id))
@@ -46,28 +47,39 @@ export const actions = {
 		let priceSetId = formData.get('priceSet') as unknown as number;
 
 		console.log(priceSetId);
+		if (!date || !timeString || !priceSetId) {
+			return fail(400, { message: 'Missing inputs', missing: true });
+		}
 
 		try {
 			await db
 				.update(showing)
-				.set({ date: date, time: timeString, priceSetId: priceSetId })
+				.set({ date: date, time: timeString, priceSetId: priceSetId, cancelled: false })
 				.where(eq(showing.id, getID(url)));
 		} catch (e) {
 			console.log('Fehler' + e);
+			return dbFail;
 		}
-		// Optional: Erfolgsrückmeldung zurückgeben
 	},
-	delete: async ({ url }) => {
+	delete: async ({ url, request }) => {
+		const filmId = (await request.formData()).get('filmId') as unknown as number;
+
+		console.log(filmId);
+
 		try {
 			await db.delete(showing).where(eq(showing.id, getID(url)));
 		} catch (e) {
 			console.log('error' + e);
+			return dbFail;
 		}
+		return languageAwareRedirect(302, `/admin/film/${filmId}`);
 	},
 	cancel: async ({ request, url }) => {
 		const formData = await request.formData();
 
 		const showId = formData.get('showId') as unknown as number;
+		if (!showId) {
+		}
 
 		try {
 			await db.update(showing).set({ cancelled: true }).where(eq(showing.id, showId));
@@ -86,6 +98,7 @@ export const actions = {
 			}
 		} catch (e) {
 			console.log('error' + e);
+			return dbFail;
 		}
 	},
 	uncancel: async ({ request, url }) => {
@@ -96,18 +109,29 @@ export const actions = {
 		const time = formData.get('time') as string;
 		const endTime = formData.get('endTime') as string;
 
+		console.log(showId, hallId, date, time, endTime);
+		if (!showId || !hallId || !date || !time || !endTime) {
+			return fail(400, { message: 'Missing inputs', missing: true });
+		}
+
 		try {
-
-
-			await db.update(showing).set({ cancelled: false }).where(eq(showing.id, showId));
-
-			return {
-				success: true,
-				message: 'Die Vorstellung wurde erfolgreich wiederhergestellt.'
-			};
+			const conflicts = await conflictingShowings(hallId, date, time, endTime);
+			if (conflicts.length === 0) {
+				await db.update(showing).set({ cancelled: false }).where(eq(showing.id, showId));
+			} else {
+				return fail(400, {
+					message: 'Zeitraum ist nicht verfügbar',
+					timeSlotConflict: true,
+					timeSlot: {
+						date: conflicts[0].date,
+						startTime: conflicts[0].time,
+						endTime: conflicts[0].endTime
+					}
+				});
+			}
 		} catch (e) {
 			console.error('Fehler beim Wiederherstellen der Vorstellung:', e);
-			throw error(500, 'Interner Serverfehler');
+			return dbFail;
 		}
 	},
 	reschedule: async ({ url }) => {

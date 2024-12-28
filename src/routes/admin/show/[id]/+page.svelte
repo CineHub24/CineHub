@@ -1,13 +1,22 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { type PageData } from './$types';
+	import type { PageData, ActionData, SubmitFunction } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	let { show, priceSets } = data;
 
-
+	console.log(form);
 	function zurueck() {
 		goto(`/admin/film/${show.filmid}`);
+	}
+	function formatDate(dateString: string) {
+		const date = new Date(dateString);
+		return date.toLocaleDateString();
+	}
+
+	function formatTime(timeString: string) {
+		const date = new Date(`1970-01-01T${timeString}Z`);
+		return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 	}
 </script>
 
@@ -17,25 +26,36 @@
 			<div class="header">
 				<h2>Vorstellung für Film {show.film_name} {show.cancelled ? '(Abgesagt)' : ''}</h2>
 			</div>
+			{#if form}
+				<div class="message">
+					{#if form.timeSlotConflict}
+						<div class="alert">
+							{form.message} ({formatDate(form.timeSlot.date)}: {formatTime(form.timeSlot.startTime ?? '0')} - {formatTime(form.timeSlot.endTime ?? '0')})
+						</div>
+					{/if}
+				</div>
+			{/if}
 
 			<form method="post" name="actions">
 				<input type="hidden" name="showId" value={show.id} />
+				<input type="hidden" name="hallId" value={show.hallId} />
+				<input type="hidden" name="filmId" value={show.filmid} />
 				<div class="form-columns">
 					<div class="form-column">
 						<div class="form-group">
 							<label for="date">Datum:</label>
-							<input name="date" value={show.date} type="date" readonly />
+							<input name="date" value={show.date} type="date" readonly={!form?.message} />
 						</div>
 
 						<div class="form-group">
 							<label for="time">Startzeit:</label>
-							<input name="time" value={show.time} type="time" readonly />
+							<input name="time" value={show.time} type="time" readonly={!form?.message} />
 						</div>
 					</div>
 					<div class="form-column">
 						<div class="form-group">
 							<label for="endTime">Endzeit:</label>
-							<input name="endTime" value={show.endTime} type="time" readonly />
+							<input name="endTime" value={show.endTime} type="time" readonly={!form?.message} />
 						</div>
 
 						<div class="form-group">
@@ -52,6 +72,7 @@
 					<button type="submit" formaction="?/update">Speichern</button>
 					{#if show.cancelled}
 						<button type="submit" formaction="?/uncancel">Wiederherstellen</button>
+						<button type="submit" formaction="?/delete">Löschen</button>
 					{:else}
 						<button type="submit" formaction="?/cancel">Absagen</button>
 					{/if}
@@ -150,5 +171,12 @@
 		color: #666;
 		font-size: 1.2em;
 		padding: 50px;
+	}
+	.alert {
+		padding: 1rem;
+		border-radius: 8px;
+		background-color: #f8d7da;
+		color: #721c24;
+		margin-bottom: 1rem;
 	}
 </style>
