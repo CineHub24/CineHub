@@ -4,12 +4,13 @@
   import { loadStripe, type Stripe } from '@stripe/stripe-js'
   import { Elements } from 'svelte-stripe'
   import { onMount } from 'svelte'
+  import type { PageServerData } from './$types';
   const PUBLIC_STRIPE_KEY = import.meta.env.PUBLIC_STRIPE_KEY
 
-  export let data./summary/$types.js;
+  const { data }: { data: PageServerData } = $props();
   const booking = data;
 
-  let stripe: Stripe | null = null;
+  let stripe: Stripe | null = $state(null);
 
   onMount(async () => {
     stripe = await loadStripe(PUBLIC_STRIPE_KEY)
