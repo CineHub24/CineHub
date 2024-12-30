@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { showing } from '$lib/server/db/schema';
-import { eq, and, ne, or, gt, gte, lt, lte } from 'drizzle-orm';
+import { eq, and, ne, or, gt, gte, lt, lte, between } from 'drizzle-orm';
 
 export const getFreeTimeSlots = async (
 	database: typeof db,
@@ -115,13 +115,15 @@ export const conflictingShowings = async (
 				eq(showing.date, date),
 				eq(showing.cancelled, false),
 				or(
-					and(
-					    lte(showing.time,startTime),
-                        lt(showing.endTime, endTime)
+					between(
+					    showing.time,
+						startTime,
+						endTime
                     ),
-					and(
-                        gte(showing.time, endTime),
-                        gte(showing.endTime, endTime)
+					between(
+                        showing.endTime,
+                        startTime,
+						endTime
                     ),
 					and(
                         gte(showing.time, startTime),
