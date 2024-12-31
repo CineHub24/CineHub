@@ -13,7 +13,7 @@
 	let activeTab: 'details' | 'shows' = $state('details');
 
 	function toggleShowForm() {
-		// showAddShowForm = !showAddShowForm; Alte Version
+		// showAddShowForm = !showAddShowForm;
 		languageAwareGoto("/admin/show/create/"+ film.id)
 	}
 

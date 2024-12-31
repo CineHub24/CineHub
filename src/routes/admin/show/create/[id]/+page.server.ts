@@ -4,9 +4,10 @@ import type { Actions } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 import { cinema, cinemaHall, film, priceSet, showing } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
+import cat from 'lucide-svelte/icons/cat';
 
 interface TimeWindow {
-  start: string;
+  start: string | null;
   end: string | null;
   duration: number;
   possibletimes?: string[];
@@ -16,12 +17,14 @@ export const load = async (event) => {
 	
 	const selectedFilm = await db.select().from(film).where(eq(film.id, event.params.id as unknown as number));
   const cinemas = await db.select().from(cinema);
-  const halls = await db.select().from(cinemaHall);
+
+  const selectedHalls = await db.select().from(cinemaHall);  
+  console.log(selectedHalls)
   const priceSets = await db.select().from(priceSet);
 	return {
 		selectedFilm: selectedFilm[0],
     cinemas: cinemas,
-    halls: halls,
+    halls: selectedHalls,
     priceSets: priceSets
 	};
 };
@@ -32,7 +35,8 @@ export const actions = {
     const hallId = Number(data.get('hallId'));
     const filmDate = new Date(data.get('date') as string);
     const filmDuration = Number(data.get('duration'));
-    
+    const cinemaId = Number(data.get('cinemaId'));
+    console.log(cinemaId)
     if (!hallId || !filmDate || !filmDuration) {
       return fail(400, { error: 'Alle Felder werden benötigt' });
     }
@@ -40,6 +44,7 @@ export const actions = {
     try {
       const timeWindows = await getAvailableTimeWindows(
         db,
+        cinemaId,
         hallId,
         filmDate,
         filmDuration
@@ -47,6 +52,7 @@ export const actions = {
 
       return { success: true, timeWindows };
     } catch (error) {
+      console.log(error);
       return fail(500, { error: 'Server-Fehler beim Abrufen der Zeitfenster' });
     }
   },
@@ -75,12 +81,15 @@ export const actions = {
     const filmId = Number(data.get('filmId'));
     const hallId = Number(data.get('hallId'));
     const startTime = data.get('startTime') as string;
-    const endTime = data.get('endTime') as string;
+    let endTime = data.get('endTime') as string;
     const priceSetId = Number(data.get('priceSet'));
     const date = data.get('date') as string;
 
     console.log( "film" + filmId + "hall" + hallId + "start" +startTime +"end" +endTime + "price"+ priceSetId + "data" +date);
-
+    console.log("end" + endTime)  
+    if(endTime === "00:00") {
+      endTime = "24:00";
+    }
 
     try {
       
@@ -98,7 +107,8 @@ export const actions = {
 } satisfies Actions;
 
 async function getAvailableTimeWindows(
-  db: PostgresJsDatabase, 
+  db: PostgresJsDatabase,
+  cinemaId: number, 
   hallId: number, 
   filmDate: Date, 
   filmDuration: number, 
@@ -107,13 +117,17 @@ async function getAvailableTimeWindows(
 ): Promise<TimeWindow[]> {
   const totalDuration = filmDuration + cleaningTime + advertisementTime;
   const dateStr = filmDate.toISOString().split('T')[0];
-  const startTimeStr = `${dateStr} 08:00:00`;
-  const endTimeStr = `${dateStr} 24:00:00`;
+ console.log(dateStr)
+  console.log(cinemaId) 
+  const cinemaTimes = await db.select().from(cinema).where(eq(cinema.id, cinemaId));
+  console.log(cinemaTimes)
+  const startTimeStr = `${dateStr} ${cinemaTimes[0].opentime}`;
+  const endTimeStr = `${dateStr} ${cinemaTimes[0].closeTime}`;
 
  
 
   const timeWindows: TimeWindow[] = [];
-  let windowStart = "08:00";
+  let windowStart = cinemaTimes[0].opentime;
   
   const existingShowings = await db.select()
     .from(showing)
@@ -129,7 +143,7 @@ async function getAvailableTimeWindows(
 
   for (const show of existingShowings) {
     const showStart = show.time;
-    const timeDiff = showStart ? calculateTimeDifference(windowStart, showStart) : 0;
+    const timeDiff = showStart ? calculateTimeDifference(windowStart as string, showStart) : 0;
     
     if (timeDiff >= totalDuration) {
       timeWindows.push({
@@ -140,12 +154,16 @@ async function getAvailableTimeWindows(
     }
     windowStart = show.endTime ?? show.time ?? "";
   }
-  
-  const finalDiff = calculateTimeDifference(windowStart, "24:00");
+  console.log(cinemaTimes[0].closeTime)
+  if (cinemaTimes[0].closeTime === "00:00:00") {
+    cinemaTimes[0].closeTime = "24:00:00";
+  }
+    windowStart = cinemaTimes[0].opentime;
+  const finalDiff = calculateTimeDifference(windowStart ?? "", cinemaTimes[0].closeTime ?? "");
   if (finalDiff >= totalDuration) {
     timeWindows.push({
       start: windowStart,
-      end: "24:00",
+      end: cinemaTimes[0].closeTime,
       duration: finalDiff
     });
   }
@@ -174,7 +192,13 @@ function getPossibletimes(
 }
 
 function calculateTimeDifference(start: string, end: string): number {
-  const time = new Date(`1970-01-01T${start}`);
-  const endTime = new Date(`1970-01-01T${end}`);
+  let time = new Date(`1970-01-01T${start}`);
+  let endTime = new Date(`1970-01-01T${end}`);
+  
+  // Wenn die Endzeit 00:00 ist, setzen wir sie auf 24:00 des gleichen Tages
+  if (end === '00:00') {
+    endTime = new Date(`1970-01-02T00:00`);
+  }
+  
   return Math.floor((endTime.getTime() - time.getTime()) / (1000 * 60));
 }
