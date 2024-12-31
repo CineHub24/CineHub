@@ -86,9 +86,8 @@ export const actions = {
     const date = data.get('date') as string;
 
     console.log( "film" + filmId + "hall" + hallId + "start" +startTime +"end" +endTime + "price"+ priceSetId + "data" +date);
-    console.log("end" + endTime)  
-    if(endTime === "00:00") {
-      endTime = "24:00";
+    if(endTime === "00:00"){
+      endTime = "24:00"
     }
 
     try {
@@ -154,11 +153,7 @@ async function getAvailableTimeWindows(
     }
     windowStart = show.endTime ?? show.time ?? "";
   }
-  console.log(cinemaTimes[0].closeTime)
-  if (cinemaTimes[0].closeTime === "00:00:00") {
-    cinemaTimes[0].closeTime = "24:00:00";
-  }
-    windowStart = cinemaTimes[0].opentime;
+  
   const finalDiff = calculateTimeDifference(windowStart ?? "", cinemaTimes[0].closeTime ?? "");
   if (finalDiff >= totalDuration) {
     timeWindows.push({
@@ -197,7 +192,7 @@ function calculateTimeDifference(start: string, end: string): number {
   
   // Wenn die Endzeit 00:00 ist, setzen wir sie auf 24:00 des gleichen Tages
   if (end === '00:00') {
-    endTime = new Date(`1970-01-02T00:00`);
+    endTime = new Date(`1970-01-01T24:00`);
   }
   
   return Math.floor((endTime.getTime() - time.getTime()) / (1000 * 60));

@@ -63,7 +63,11 @@ function handleCinemaSelect(event: Event) {
   function getEndTime(startTime: string): string {
     if (!startTime) return '';
     const start = new Date(`1970-01-01T${startTime}`);
-    const end = new Date(start.getTime() + (totalDuration * 60000));
+    
+    let end = new Date(start.getTime() + (totalDuration * 60000));
+    if(end.getHours() == 0 && end.getMinutes() == 0){
+      end = new Date(`1970-01-01T24:00`);
+    }
     return end.toTimeString().slice(0, 5);
   }
 
@@ -118,7 +122,7 @@ function handleCinemaSelect(event: Event) {
       >
 
         {#each cinemas as cinema}
-          <option value={cinema.id}>{cinema.name} {cinema.id}</option>
+          <option value={cinema.id}>{cinema.name}</option>
         {/each}
       </select>
     </div>
