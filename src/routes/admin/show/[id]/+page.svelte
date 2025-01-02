@@ -52,7 +52,7 @@
 					{:else if form.rescheduled}
 						<div class="confirmation">
 							{form.message}:
-							<a href="/admin/show/{form.newId}" class="confirmation-link">Neue Vorstellung</a>
+							<a href="/admin/show/{form.newId}" data-sveltekit-reload class="confirmation-link">Neue Vorstellung</a>
 						</div>
 					{/if}
 				</div>
@@ -117,6 +117,7 @@
 			<h3>Vorstellung verschieben</h3>
 			<form method="post" action="?/reschedule">
 				<input type="hidden" name="showId" value={show.id} />
+				<input type="hidden" name="hallId" value={show.hallId} />
 				<div class="form-group">
 					<label for="date">Datum:</label>
 					<input name="date" value={show.date} type="date" />

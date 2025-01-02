@@ -160,7 +160,7 @@ export const actions = {
 		const hallId = formData.get('hallId') as unknown as number;
 		const cancelled = formData.get('cancelled') as unknown as boolean;
 
-		if (!showId || !newDate || !newStartTime || !newEndTime) {
+		if (!showId || !newDate || !newStartTime || !newEndTime || !hallId) {
 			return fail(400, { message: 'Fehlende Einträge', missing: true });
 		}
 		const conflicts = await conflictingShowings(
@@ -172,7 +172,7 @@ export const actions = {
 		if(conflicts.length > 0){
 			return fail(400, {
 				message: 'Zeitraum ist nicht verfügbar',
-				rescheduleConflict: true,
+				timeSlotConflict: true,
 				timeSlot: {
 					date: conflicts[0].date,
 					startTime: conflicts[0].time,
@@ -202,12 +202,13 @@ export const actions = {
 					oldShow[0].date = newDate;
 					oldShow[0].time = newStartTime;
 					oldShow[0].endTime = newEndTime;
+					oldShow[0].cancelled = false;
 					const newShow = await db
 						.insert(showing)
 						.values(oldShow[0])
 						.returning({ newId: showing.id });
 	
-					return {rescheduled: true, message: oldShow[0].cancelled ? 'Abgesagte Vorstellung verschoben' : 'Vorstellung erfolgreich verschoben', newId: newShow[0].newId};
+					return {rescheduled: true, message: cancelled ? 'Abgesagte Vorstellung verschoben' : 'Vorstellung erfolgreich verschoben', newId: newShow[0].newId};
 			} catch (e) {
 				console.log(e);
 				return dbFail;
