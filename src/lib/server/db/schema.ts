@@ -167,7 +167,9 @@ export const ticket = pgTable('Ticket', {
 	status: ticketStatusEnum('status').default('reserved').notNull(),
 	type: integer('type').references(() => ticketType.id),
 	showingId: integer('showingId').references(() => showing.id),
-  bookingId: integer('bookingId').references(() => booking.id),
+  	bookingId: integer('bookingId').references(() => booking.id),
+	seatId: integer('seatId').references(() => seat.id),
+	price: decimal('price', { precision: 10, scale: 2 }),
 });
 
 export const booking = pgTable('Booking', {
