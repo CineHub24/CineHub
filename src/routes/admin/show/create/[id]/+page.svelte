@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+	import type { CinemaHall } from '$lib/server/db/schema';
   import type { ActionData, PageData, SubmitFunction } from './$types';
   
   export let data: PageData;
@@ -14,7 +15,7 @@
   let selectedTimeWindow: { start: string; end: string; duration: number } | null = null;
   let selectedStartTime: string = '';
   let selectedHall: number | null = null;
-  
+  let filteredHalls:CinemaHall[] = [];
   let cleaningTime = 15;
   let advertisementTime = 15;
   
@@ -28,13 +29,12 @@
 
 
 function handleCinemaSelect(event: Event) {
+  console.log("test");
   const select = event.target as HTMLSelectElement;
   selectedCinema = parseInt(select.value);
-  console.log(selectedCinema);
-  console.log(halls);
-  halls = halls.filter(hall => hall.cinemaId === selectedCinema);
-  console.log(halls);
-}
+  filteredHalls = halls.filter(hall => hall.cinemaId === selectedCinema)
+  console.log(filteredHalls);
+} 
   function handleTimeWindowSelect(timeWindow: { start: string; end: string | null; duration: number }) {
     selectedTimeWindow = { ...timeWindow, end: timeWindow.end || '' };
   }
@@ -115,9 +115,8 @@ function handleCinemaSelect(event: Event) {
         id="cinemaId" 
         class="w-full p-2 border rounded" 
         required
-        on:change={()=> {
-          handleCinemaSelect;
-        }}
+        on:change={handleCinemaSelect
+        }
         bind:value={selectedCinema}
       >
 
@@ -127,12 +126,12 @@ function handleCinemaSelect(event: Event) {
       </select>
     </div>
     
-    {#if selectedCinema && halls.length > 0}
+    {#if selectedCinema}
       <div>
         <label for="hallId" class="block mb-2">Saal</label>
         <select name="hallId" id="hallId" class="w-full p-2 border rounded" bind:value={selectedHall} required>
-          <option value="">Saal auswählen</option>
-          {#each halls as hall}
+          <option value=0>Saal auswählen</option>
+          {#each filteredHalls as hall}
             <option value={hall.id}>{hall.name}</option>
           {/each}
         </select>

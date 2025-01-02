@@ -48,6 +48,9 @@ export type Film = typeof film.$inferSelect;
 
 export type Showing = typeof showing.$inferSelect;
 
+export type Cinema = typeof cinema.$inferSelect;
+export type CinemaHall = typeof cinemaHall.$inferSelect;
+
 export const film = pgTable('Film', {
 	id: serial('id').primaryKey(),
 	imdbID: text('imdbID'),
