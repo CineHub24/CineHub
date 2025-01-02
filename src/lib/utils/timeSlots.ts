@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { showing } from '$lib/server/db/schema';
-import { eq, and, ne, or, gt, gte, lt, lte } from 'drizzle-orm';
+import { eq, and, ne, or, gt, gte, lt, lte, between } from 'drizzle-orm';
 
 export const getFreeTimeSlots = async (
 	database: typeof db,
@@ -100,7 +100,7 @@ export function calculateEndTime(startTime: string, durationInMinutes: number): 
 
 	return end.toTimeString().slice(0, 5);
 }
-export const isTimeSlotAvailable = async (
+export const conflictingShowings = async (
 	hallId: number,
 	date: string,
 	startTime: string,
@@ -115,21 +115,26 @@ export const isTimeSlotAvailable = async (
 				eq(showing.date, date),
 				eq(showing.cancelled, false),
 				or(
-					and(
-					    lte(showing.time,startTime),
-                        lt(showing.endTime, startTime)
+					between(
+					    showing.time,
+						startTime,
+						endTime
                     ),
-					and(
-                        lt(showing.time, endTime),
-                        gte(showing.endTime, endTime)
+					between(
+                        showing.endTime,
+                        startTime,
+						endTime
                     ),
 					and(
                         gte(showing.time, startTime),
                         lte(showing.endTime, endTime)
                     ),
+                    and(
+                        lte(showing.time, startTime),
+                        gte(showing.endTime, endTime)
+                    )
 				)
 			)
 		);
-
-	return conflictingShowings.length === 0;
+	return conflictingShowings;
 }
