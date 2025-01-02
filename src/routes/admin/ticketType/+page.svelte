@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { is } from 'drizzle-orm';
 	import type { PageServerData } from './$types';
 
     let{data}:{data:PageServerData} = $props()
@@ -29,11 +30,18 @@
     <h1 class="page-title">Tickettypen Verwaltung</h1>
     
     {#if !isCreatingNewticketType}
+    <button class="new-priceset-btn" onclick={() => goto('/admin/priceSet')}>⬆ Preissets verwalten</button>
+
         <button class="new-priceset-btn" onclick={startNewticketType}>
-            Neuen Tickettyp anlegen
+           + Neuen Tickettyp anlegen
+        </button>
+
+    {/if}
+    {#if isCreatingNewticketType}
+        <button class="new-priceset-btn" onclick={cancelEdit}>
+           ⬅ Abbrechen
         </button>
     {/if}
-    <button class="new-priceset-btn" onclick={() => goto('/admin/priceSet')}>Preissets verwalten</button>
 
     <div class="priceset-grid">
         {#if isCreatingNewticketType}
