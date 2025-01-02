@@ -27,7 +27,6 @@ export const load = async ({ locals }) => {
 		.where(and(eq(booking.userId, localUser.id), eq(showing.cancelled, true)))
 		.groupBy(showing.id, film.title, showing.date, showing.time);
 
-    console.log(refundableShows);
 
 	return {
 		refundableShows
