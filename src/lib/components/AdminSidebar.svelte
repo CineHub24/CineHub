@@ -7,7 +7,9 @@
 		Building,
 		Columns,
 		ChevronRight,
-		ChevronLeft
+		ChevronLeft,
+		Logs
+
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 
@@ -19,7 +21,8 @@
 		{ id: 'movies', icon: Film, label: 'Filme', path: '/admin/films' },
 		{ id: 'pricing', icon: DollarSign, label: 'Preissets', path: '/admin/priceSet' },
 		{ id: 'cinemas', icon: Building, label: 'Kinos', path: '/admin/cinemas' },
-		{ id: 'halls', icon: Columns, label: 'Kinosäle', path: '/admin/rooms' }
+		{ id: 'halls', icon: Columns, label: 'Kinosäle', path: '/admin/rooms' },
+		{ id: 'logs', icon: Logs, label: 'Logs', path: '/admin/logs' }
 	];
 	$: currentPath = $page.url.pathname;
 
