@@ -2,7 +2,7 @@ import { type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import type { Actions } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
-import { cinema, cinemaHall, film, priceSet, showing } from '$lib/server/db/schema';
+import { cinema, cinemaHall, film, priceSet, showing, type Cinema, type CinemaHall, type Film } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import cat from 'lucide-svelte/icons/cat';
 
@@ -15,11 +15,11 @@ interface TimeWindow {
 
 export const load = async (event) => {
 	
-	const selectedFilm = await db.select().from(film).where(eq(film.id, event.params.id as unknown as number));
-  const cinemas = await db.select().from(cinema);
+	const selectedFilm:Film[] = await db.select().from(film).where(eq(film.id, event.params.id as unknown as number));
+  const cinemas:Cinema[] = await db.select().from(cinema);
 
-  const selectedHalls = await db.select().from(cinemaHall);  
-  console.log(selectedHalls)
+  const selectedHalls: CinemaHall[] = await db.select().from(cinemaHall);  
+  console.log("server" + selectedHalls.toString())
   const priceSets = await db.select().from(priceSet);
 	return {
 		selectedFilm: selectedFilm[0],

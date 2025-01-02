@@ -1,10 +1,12 @@
-<script>
+<script lang="ts">
     import GoogleAutocomplete from '$lib/components/GoogleAutocomplete.svelte';
     import { email_address } from '$lib/paraglide/messages';
+	
+	import type { ActionData } from './$types';
     
     const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     let adress = $state('');
-    
+    let {form}:{form: ActionData} = $props();
     function handlePlaceSelected(event) {
         const adresse = event.detail;
         adress = adresse.formatted_address;
@@ -49,6 +51,17 @@
             <button type="submit">Erstellen</button>
         </div>
     </form>
+    {#if form?.error}
+        <div class="p-4 bg-red-100 text-red-700 rounded mb-4">
+            {form.error}
+            
+        </div>
+        {:else if form?.success}
+        <div class="p-4 bg-green-100 text-green-700 rounded mb-4">
+            {form.success}
+        </div>
+        
+    {/if}
 </div>
 
 <style>
