@@ -1,14 +1,14 @@
 <script lang="ts">
     import GoogleAutocomplete from '$lib/components/GoogleAutocomplete.svelte';
     import { email_address } from '$lib/paraglide/messages';
-	import type { PageData, PageServerData, PageServerLoad } from './$types';
+	import type { ActionData, PageData, PageServerData, PageServerLoad } from './$types';
 	
     
     const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     
     
     
-    const { data }: { data: PageData } = $props();
+    const { data, form }: { data: PageData, form:ActionData } = $props();
     const { cinema } = data;   
     let adress = $state(cinema.address as string);
 
@@ -59,6 +59,17 @@
             <button type="submit">Speichern</button>
         </div>
     </form>
+    {#if form?.error}
+        <div class="p-4 bg-red-100 text-red-700 rounded mb-4">
+            {form.error}
+            
+        </div>
+        {:else if form?.success}
+        <div class="p-4 bg-green-100 text-green-700 rounded mb-4">
+            {form.success}
+        </div>
+        
+    {/if}
 </div>
 
 <style>
