@@ -35,14 +35,14 @@ export const actions = {
                     name: cinemaHall.name,
                 })
                 .from(cinemaHall)
-                .where(eq(cinemaHall.name, name));
+                .where(eq(cinemaHall.name, name.toString()));
 
             let cinemaHallId;
             if (existingHall.length === 0) {
                 // Insert a new cinema hall
                 const insertedHall = await db
                     .insert(cinemaHall)
-                    .values({ name: name, capacity: seats.length, cinemaId: cinemaId }) // Set capacity to the number of seats
+                    .values({ name: name?.toString() ?? '', capacity: seats.length, cinemaId: cinemaId }) // Set capacity to the number of seats
                     .returning({ id: cinemaHall.id });
 
                 cinemaHallId = insertedHall[0].id;
