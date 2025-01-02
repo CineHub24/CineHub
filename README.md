@@ -17,6 +17,8 @@
 
    cp .env.example .env    //env datei anlegen
 
+   npm i
+
    npm run db:startWithPodman    // datenbank mit Podman Starten
 ```
 
