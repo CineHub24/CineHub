@@ -47,9 +47,6 @@ export const actions = {
 					error: 'Ticket wurde bereits verwendet'
 				});
 			}
-            if (foundTicket[0].Ticket.status === 'cancelled') {
-                return fail(400, { error: 'Ticket wurde storniert' });
-            }
             if (foundTicket[0].Ticket.status === 'reserved') {
                 return fail(400, { error: 'Ticket wurde noch nicht bezahlt' });
             }

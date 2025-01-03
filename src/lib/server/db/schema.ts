@@ -18,9 +18,8 @@ export const rolesEnum = pgEnum('roles', ['user', 'admin', 'inspector']);
 
 export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'reserved',
-	'booked',
-	'validated',
-	'cancelled'
+	'paid',
+	'validated',	
 ]);
 
 export const user = pgTable('User', {
