@@ -49,12 +49,17 @@
         <div class="error-message">{saveError}</div>
     {/if}
     {#if !isCreatingNewPriceSet}
-        <button class="new-priceset-btn" onclick={startNewPriceSet}>Neues Preisset anlegen</button>
+        <button class="new-priceset-btn" onclick={() => goto('/admin/seatCategory')}>Sitzkategorien verwalten ⚙️ </button>
+        <button class="new-priceset-btn" onclick={() => goto('/admin/ticketType')}>TicketTypen verwalten ⚙️</button> 
+
+        <button class="new-priceset-btn" onclick={startNewPriceSet}>Neues Preisset anlegen +</button>
+   
+    {/if}
+    {#if isCreatingNewPriceSet}
+        <button class="new-priceset-btn" onclick={cancelEdit}>⬅ Abbrechen</button>
     {/if}
         
-    <button class="new-priceset-btn" onclick={() => goto('/admin/seatCategory')}>Sitzkategorien verwalten</button>
-    <button class="new-priceset-btn" onclick={() => goto('/admin/ticketType')}>TicketTypen verwalten</button>
-    
+  
     <div class="priceset-grid">
         {#if isCreatingNewPriceSet}
             <div class="priceset-card">

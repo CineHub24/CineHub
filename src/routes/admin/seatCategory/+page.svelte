@@ -29,12 +29,19 @@
 <div class="container">
     <h1 class="page-title">Sitzkategorien Verwaltung</h1>
     
+
+
+    {#if isCreatingNewSeatCategory}
+        <button class="new-priceset-btn" onclick={cancelEdit}>⬅ sitz Kategorie</button>
+    {/if}
+
     {#if !isCreatingNewSeatCategory}
+    <button class="new-priceset-btn" onclick={() => history.back() }> ⬆ </button>
+
         <button class="new-priceset-btn" onclick={startNewSeatCategory}>
-            Neue Sitzkategorie anlegen
+        + Neue Sitzkategorie anlegen
         </button>
     {/if}
-    <button class="new-priceset-btn" onclick={() => goto('/admin/priceSet')}>Preissets verwalten</button>
 
     <div class="priceset-grid">
         {#if isCreatingNewSeatCategory}
