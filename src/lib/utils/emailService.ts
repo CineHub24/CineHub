@@ -18,6 +18,7 @@ import ical from 'ical-generator';
 import PDFDocument from 'pdfkit';
 import path from 'path';
 import QRCode from 'qrcode';
+import axios from 'axios';
 export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
@@ -60,13 +61,20 @@ export class EmailService {
   doc.rect(50, 50, 500, 60).stroke();
   
   // Backdrop oben links
-  if (backdrop) {
-  try {
-  doc.image(backdrop, 55, 55, { width: 50, height: 50 });
-  } catch (error) {
-  console.error('Fehler beim Laden des Backdrops:', error);
-  }
-  }
+  if (ticketInfo.Film.backdrop) {
+    try {
+    const backdropUrl = `https://image.tmdb.org/t/p/w500${ticketInfo.Film.backdrop}`;
+    const response = await axios.get(backdropUrl, { responseType: 'arraybuffer' });
+    const backdropBuffer = Buffer.from(response.data, 'binary');
+    doc.image(backdropBuffer, 50, 50, {
+    width: 2000,
+    height: 60,
+    fit: [2000, 60]
+    });
+    } catch (error) {
+    console.error('Fehler beim Laden des Backdrops:', error);
+    }
+    }
   
   // Logo oben rechts
   try {
@@ -78,8 +86,8 @@ export class EmailService {
   
   // Titel (Mitte)
   doc.fontSize(12);
-  doc.text('Online-Ticket', 275, 70, { align: 'center' });
-  
+  doc.fontSize(24).text('Online-Ticket', 125, 70, { align: 'center' });
+  doc.fontSize(12);
   // Hauptinformationen
   doc.moveDown(2);
   doc.text(`Ort: CineHub ${ticketInfo.Cinema.address}`, 50, 130);
@@ -102,13 +110,15 @@ export class EmailService {
   }
   
   // Poster rechts neben den Hauptinformationen
-  if (poster) {
-  try {
-  doc.image(poster, 400, 130, { width: 150, height: 225 });
-  } catch (error) {
-  console.error('Fehler beim Laden des Posters:', error);
-  }
-  }
+  if (ticketInfo.Film.poster) {
+    try {
+    const response = await axios.get(ticketInfo.Film.poster, { responseType: 'arraybuffer' });
+    const posterBuffer = Buffer.from(response.data, 'binary');
+    doc.image(posterBuffer, 463, 130, { width: 87, height: 130 });
+    } catch (error) {
+    console.error('Fehler beim Laden des Posters:', error);
+    }
+    }
   
   // Preisinformationen
   doc.text(`Preis gesamt: ${ticketInfo.Ticket.price} €`, 50, 410);
