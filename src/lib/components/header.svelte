@@ -159,6 +159,15 @@
 								{m.switch_language({ language: lang === 'en' ? 'deutsch' : 'english' })}
 							</button>
 						</li>
+						{#if $page.data.user?.role === 'admin' || $page.data.user?.role === 'inspector'}
+							<li>
+								<a
+									href="/validation"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+									>{m.validate_tickets({})}</a
+								>
+							</li>
+						{/if}
 						{#if $page.data.user?.role === 'admin'}
 							<li>
 								<a

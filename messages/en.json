@@ -41,5 +41,6 @@
 	"movies" : "Movies",
 	"shows" : "Shows",
 	"directed_by": "Directed by",
-	"released_in": "Released in"
+	"released_in": "Released in",
+	"validate_tickets": "Validate Tickets"
 }

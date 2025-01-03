@@ -41,5 +41,6 @@
 	"movies": "Filme",
 	"shows": "Shows",
 	"directed_by": "Regie von",
-	"released_in": "Veröffentlicht"
+	"released_in": "Veröffentlicht",
+	"validate_tickets": "Tickets validieren"
 }

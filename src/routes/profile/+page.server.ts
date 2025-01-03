@@ -6,7 +6,7 @@ import { languageAwareRedirect } from '$lib/utils/languageAware';
 export const load: PageServerLoad = async (event) => {
     // Fetch user information from locals
     if(!event.locals.user) {
-        return fail(401, { message: 'Unauthorized' });
+		return languageAwareRedirect(301, '/login');
     }
     const user = event.locals.user;
 
