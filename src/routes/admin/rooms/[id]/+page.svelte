@@ -4,6 +4,7 @@
 		id: string;
 		type: string;
 		categoryId: number;
+		seatNumber: string | null;
 	}
 
 	interface SeatCategory {
@@ -54,7 +55,7 @@
 							if (mode === 'removeRestore') {
 								return seat
 									? null
-									: { id: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`, type: 'standart', categoryId: 0 };
+									: { id: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`, type: 'standart', categoryId: 0, seatNumber: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}` };
 							} else if (mode === 'changeType' && seat) {
 								return changeSeatType(seat);
 							}
@@ -119,7 +120,8 @@
 				({
 					id: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`,
 					type: seatTypes.length > 0 ? seatTypes[0].name : '',
-					categoryId: 0
+					categoryId: 0,
+					seatNumber: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`
 				}) as Seat
 		);
 		seatPlan = [...seatPlan, newRow];
@@ -128,7 +130,7 @@
 	function addColumn() {
 		seatPlan = seatPlan.map((row, rowIndex) => [
 			...row,
-			{ id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: seatTypes.length > 0 ? seatTypes[0].name : '',  categoryId: 0 }
+			{ id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: seatTypes.length > 0 ? seatTypes[0].name : '',  categoryId: 0, seatNumber: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}` }
 		]);
 	}
 
@@ -181,7 +183,8 @@
 							({
 								id: `${String.fromCharCode(65 + rowIndex)}${cIdx + 1}`,
 								type: 'single',
-								categoryId: 0
+								categoryId: 0,
+								seatNumber: `${String.fromCharCode(65 + rowIndex)}${cIdx + 1}`
 							}) as Seat
 					)
 				: row
@@ -193,7 +196,7 @@
 		const updatedPlan = seatPlan.map((row, rIdx) =>
 			row.map((seat, cIdx) =>
 				cIdx === colIndex
-					? ({ id: `${String.fromCharCode(65 + rIdx)}${colIndex + 1}`, type: 'single', categoryId: 0 } as Seat)
+					? ({ id: `${String.fromCharCode(65 + rIdx)}${colIndex + 1}`, type: 'single', categoryId: 0, 	seatNumber: `${String.fromCharCode(65 + rIdx)}${cIdx + 1}`	} as Seat)
 					: seat
 			)
 		);
@@ -210,8 +213,8 @@
 						category = data.data.categories.find((cat) => cat.id === seat.categoryId);
 					}
 					seats.push({
-						seatNumber: seat.id,
-						row: String.fromCharCode(65 + rowIndex),
+						seatNumber: seat.seatNumber || '',
+						row: seat.seatNumber?.charAt(0) || '',
 						type: seat.type,
 						categoryId: category.id, // Fallback to 1 if not found
 					});
@@ -265,27 +268,34 @@
 {/if}
 
 <div class="controls">
-	<button onclick={addRow}>Add Row</button>
-	<button onclick={addColumn}>Add Column</button>
-	<button onclick={() => removeRow(seatPlan.length - 1)}>Remove Last Row</button>
-	<button onclick={() => removeColumn(seatPlan[0]?.length - 1)}>Remove Last Column</button>
-
-	<button
-		onclick={() => toggleMode('removeRestore')}
-		class={mode === 'removeRestore' ? 'active' : ''}
-	>
-		Remove/Restore Seats
-	</button>
-	<button onclick={() => toggleMode('changeType')} class={mode === 'changeType' ? 'active' : ''}>
-		Change Seat Type
-	</button>
+    <div class="primary-controls">
+        <button onclick={addRow}>Add Row</button>
+        <button onclick={addColumn}>Add Column</button>
+        <button onclick={() => removeRow(seatPlan.length - 1)}>Remove Last Row</button>
+        <button onclick={() => removeColumn(seatPlan[0]?.length - 1)}>Remove Last Column</button>
+    </div>
+    
+    <div class="mode-toggle">
+        <label class="switch">
+            <input 
+                type="checkbox" 
+                checked={mode === 'changeType'} 
+                onclick={() => toggleMode(mode === 'removeRestore' ? 'changeType' : 'removeRestore')}
+            />
+            <span class="slider"></span>
+        </label>
+        <span class="toggle-label">{mode === 'removeRestore' ? 'Remove/Restore Mode' : 'Change Type Mode'}</span>
+    </div>
 </div>
+
 
 <div class="container">
 	{#if seatPlan[0]}
 		<div class="column-controls">
 			{#each seatPlan[0] as _, colIndex}
-				<button onclick={() => toggleColumn(colIndex)}>Remove/Restore Col {colIndex + 1}</button>
+				<button onclick={() => toggleColumn(colIndex)}>
+					<p style="font-size: 35px;">♻️</p>
+				</button>
 			{/each}
 		</div>
 	{/if}
@@ -296,7 +306,7 @@
 				{#each row as seat, colIndex}
 					{#if seat}
 						<div class="seat" onclick={() => toggleSeat(rowIndex, colIndex)}>
-							{seat.id}<br />
+							{seat.seatNumber}<br />
 							{getSeatEmoji(Number(seat.categoryId))}
 						</div>
 					{:else}
@@ -324,6 +334,7 @@
   max-width: fit-content;
   border: 1px solid #ddd;
   border-radius: 10px;
+
 }
 
 /* Controls for adding/removing rows and columns */
@@ -362,6 +373,7 @@
   margin-bottom: 10px;
   justify-content: flex-start;
   width: fit-content;
+  
 }
 
 .column-controls button {
@@ -379,6 +391,7 @@
   justify-content: center;
   align-items: center;   /* Center the text vertically */
   padding: 0;
+  margin-right: 5px;
 }
 
 .column-controls button:hover {

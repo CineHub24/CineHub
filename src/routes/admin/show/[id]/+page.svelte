@@ -1,13 +1,34 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { type PageData } from './$types';
+	import type { PageData, ActionData, SubmitFunction } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	let { show, priceSets } = data;
 
+	let moveShowToggle: boolean = $state(false);
+
+	let startTime: string = $state(show.time ?? '');
+	let endTime: string = $derived(calculateEndTime());
 
 	function zurueck() {
 		goto(`/admin/film/${show.filmid}`);
+	}
+	function toggleMoveShow() {
+		moveShowToggle = !moveShowToggle;
+	}
+	function formatDate(dateString: string) {
+		const date = new Date(dateString);
+		return date.toLocaleDateString();
+	}
+
+	function formatTime(timeString: string) {
+		const date = new Date(`1970-01-01T${timeString}Z`);
+		return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	}
+	function calculateEndTime() {
+		const start = new Date(`1970-01-01T${startTime}`);
+		const end = new Date(start.getTime() + (show.runtime ?? 0) * 60000);
+		return end.toTimeString().slice(0, 5);
 	}
 </script>
 
@@ -17,9 +38,33 @@
 			<div class="header">
 				<h2>Vorstellung für Film {show.film_name} {show.cancelled ? '(Abgesagt)' : ''}</h2>
 			</div>
+			{#if form}
+				<div class="message">
+					{#if form.timeSlotConflict || form.database}
+						<div class="alert">
+							{form.message}
+							{form.timeSlotConflict
+								? `(${formatDate(form.timeSlot.date)}: ${formatTime(
+										form.timeSlot.startTime ?? '0'
+									)} - ${formatTime(form.timeSlot.endTime ?? '0')})`
+								: ''}
+						</div>
+					{:else if form.rescheduled}
+						<div class="confirmation">
+							{form.message}:
+							<a href="/admin/show/{form.newId}" data-sveltekit-reload class="confirmation-link">Neue Vorstellung</a>
+						</div>
+					{/if}
+				</div>
+			{/if}
 
 			<form method="post" name="actions">
 				<input type="hidden" name="showId" value={show.id} />
+				<input type="hidden" name="hallId" value={show.hallId} />
+				<input type="hidden" name="filmId" value={show.filmid} />
+				<input type="hidden" name="priceSetId" value={show.priceSet} />
+				<input type="hidden" name="filmId" value={show.filmid} />
+
 				<div class="form-columns">
 					<div class="form-column">
 						<div class="form-group">
@@ -29,13 +74,13 @@
 
 						<div class="form-group">
 							<label for="time">Startzeit:</label>
-							<input name="time" value={show.time} type="time" readonly />
+							<input name="time" bind:value={startTime} type="time" readonly />
 						</div>
 					</div>
 					<div class="form-column">
 						<div class="form-group">
 							<label for="endTime">Endzeit:</label>
-							<input name="endTime" value={show.endTime} type="time" readonly />
+							<input name="endTime" value={endTime} type="time" readonly />
 						</div>
 
 						<div class="form-group">
@@ -49,13 +94,13 @@
 					</div>
 				</div>
 				<div class="form-actions">
-					<button type="submit" formaction="?/update">Speichern</button>
 					{#if show.cancelled}
 						<button type="submit" formaction="?/uncancel">Wiederherstellen</button>
+						<button type="submit" formaction="?/delete">Löschen</button>
 					{:else}
 						<button type="submit" formaction="?/cancel">Absagen</button>
+						<button type="button" onclick={toggleMoveShow}>Verschieben</button>
 					{/if}
-					<button type="submit" formaction="?/reschedule">Verschieben</button>
 					<button type="button" onclick={zurueck}>Zurück</button>
 				</div>
 			</form>
@@ -64,6 +109,35 @@
 		{/if}
 	</div>
 </div>
+
+{#if moveShowToggle}
+	<div class="popup-overlay">
+		<div class="popup-content">
+			<button class="close-popup" onclick={toggleMoveShow}>&times;</button>
+			<h3>Vorstellung verschieben</h3>
+			<form method="post" action="?/reschedule">
+				<input type="hidden" name="showId" value={show.id} />
+				<input type="hidden" name="hallId" value={show.hallId} />
+				<div class="form-group">
+					<label for="date">Datum:</label>
+					<input name="date" value={show.date} type="date" />
+				</div>
+				<div class="form-group">
+					<label for="time">Startzeit:</label>
+					<input name="time" bind:value={startTime} type="time" />
+				</div>
+				<div class="form-group">
+					<label for="endTime">Endzeit:</label>
+					<input name="endTime" value={endTime} type="time" readonly />
+
+					<div class="form-actions">
+						<button type="submit">Verschieben</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+{/if}
 
 <style>
 	.show-edit-page {
@@ -150,5 +224,68 @@
 		color: #666;
 		font-size: 1.2em;
 		padding: 50px;
+	}
+	.alert {
+		padding: 1rem;
+		border-radius: 8px;
+		background-color: #f8d7da;
+		color: #721c24;
+		margin-bottom: 1rem;
+	}
+	.confirmation {
+		padding: 1rem;
+		border-radius: 8px;
+		background-color: #d4edda;
+		color: #155724;
+		margin-bottom: 1rem;
+	}
+	.confirmation-link {
+		color: #0a3622;
+		text-decoration: underline;
+		font-weight: bold;
+	}
+
+	.confirmation-link:hover {
+		color: #051b11;
+	}
+	.popup-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 1000;
+	}
+
+	.popup-content {
+		background-color: white;
+		padding: 30px;
+		padding-top: 20px;
+		border-radius: 8px;
+		width: 90%;
+		max-width: 500px;
+		max-height: 80vh;
+		overflow-y: auto;
+		position: relative;
+	}
+
+	.popup-content h3 {
+		margin: 0;
+		font-weight: 600;
+		color: #333;
+	}
+
+	.close-popup {
+		position: absolute;
+		top: 10px;
+		right: 20px;
+		font-size: 24px;
+		background: none;
+		border: none;
+		cursor: pointer;
 	}
 </style>

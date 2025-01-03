@@ -69,7 +69,7 @@ export const actions = {
 
 		// Einzelne Werte extrahieren
 		const titel = <string>formData.get('title');
-		const genre = [formData.get('genre') as string];
+		const genre = (formData.get('genre') as string).split(',').map(item => item.trim());
 		const runtimeString = formData.get('runtime') as string;
 		const director: string = <string>formData.get('director');
 		const description: string = <string>formData.get('description');
@@ -99,13 +99,6 @@ export const actions = {
 			console.log('Ungültige Beschreibung:', description);
 		}
 
-		// Hier würden Sie normalerweise die Daten in der Datenbank speichern
-		console.log('Empfangene Daten:', {
-			titel,
-			genre,
-			runtime,
-			description
-		});
 		try {
 			await db
 				.update(film)

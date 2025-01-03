@@ -48,6 +48,9 @@ export type Film = typeof film.$inferSelect;
 
 export type Showing = typeof showing.$inferSelect;
 
+export type Cinema = typeof cinema.$inferSelect;
+export type CinemaHall = typeof cinemaHall.$inferSelect;
+
 export const film = pgTable('Film', {
 	id: serial('id').primaryKey(),
 	imdbID: text('imdbID'),
@@ -167,7 +170,9 @@ export const ticket = pgTable('Ticket', {
 	status: ticketStatusEnum('status').default('reserved').notNull(),
 	type: integer('type').references(() => ticketType.id),
 	showingId: integer('showingId').references(() => showing.id),
-  bookingId: integer('bookingId').references(() => booking.id),
+  	bookingId: integer('bookingId').references(() => booking.id),
+	seatId: integer('seatId').references(() => seat.id),
+	price: decimal('price', { precision: 10, scale: 2 }),
 });
 
 export const booking = pgTable('Booking', {

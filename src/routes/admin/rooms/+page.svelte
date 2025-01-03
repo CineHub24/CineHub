@@ -7,8 +7,8 @@
 
 <div class="container">
   <div class="header">
-    <a href="/admin/rooms/add/9999" class="add-button">add room</a>
-    <a href="/admin/rooms/seat_category" class="add-button">seat categrys</a>
+    <a href="/admin/rooms/9999" class="add-button">add room</a>
+    <a href="/admin/seatCategory" class="add-button">seat categrys</a>
   </div>
 
   <h2>Cinema Halls</h2>
@@ -22,7 +22,7 @@
             <span><strong>Capacity:</strong> {hall.capacity}</span>
           </div>
           <div class="button-group">
-            <a href={`/admin/rooms/add/${hall.id}`} class="edit-button">Edit</a>
+            <a href={`/admin/rooms/${hall.id}`} class="edit-button">Edit</a>
             <form action="?/deleteCinemaHall" method="POST">
               <input type="hidden" name="hallId" value={hall.id} />
               <button class="delete-button" type="submit">Delete</button>
