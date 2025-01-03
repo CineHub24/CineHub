@@ -10,7 +10,8 @@ import {
 	date,
 	time,
 	decimal,
-	jsonb
+	jsonb,
+	varchar
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin']);
@@ -41,15 +42,17 @@ export const session = pgTable('session', {
 });
 
 export type Session = typeof session.$inferSelect;
-
 export type User = typeof user.$inferSelect;
-
 export type Film = typeof film.$inferSelect;
-
 export type Showing = typeof showing.$inferSelect;
-
 export type Cinema = typeof cinema.$inferSelect;
 export type CinemaHall = typeof cinemaHall.$inferSelect;
+export type Seat = typeof seat.$inferSelect;
+export type SeatCategory = typeof seatCategory.$inferSelect;
+export type PriceSet = typeof priceSet.$inferSelect;
+export type TicketType = typeof ticketType.$inferSelect;
+export type Ticket = typeof ticket.$inferSelect;
+
 
 export const film = pgTable('Film', {
 	id: serial('id').primaryKey(),
@@ -167,6 +170,7 @@ export const priceDiscount = pgTable('PriceDiscount', {
 
 export const ticket = pgTable('Ticket', {
 	id: serial('id').primaryKey(),
+	token: varchar('token', { length: 24 }).unique().notNull(),
 	status: ticketStatusEnum('status').default('reserved').notNull(),
 	type: integer('type').references(() => ticketType.id),
 	showingId: integer('showingId').references(() => showing.id),
