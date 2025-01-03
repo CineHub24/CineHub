@@ -30,16 +30,6 @@
 					</p>
 				{/each}
 			{/if}
-			<!-- <div class="showtime">
-				<button> Zur Buchung →</button>
-			</div> -->
-			<!-- <form method="POST" action="/createBooking">
-				<button type="submit">Zur Buchung →</button>
-			</form> -->
-			<!-- const response = await fetch('?/fetchFullMovieDetails', {
-				method: 'POST',
-				body: formData
-			}); -->
 
 			<form
 			class="form"
