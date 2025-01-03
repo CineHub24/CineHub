@@ -55,6 +55,7 @@ export const load = async ({ url }) => {
         showingDimension: showing.dimension,
         
         // Booking Info
+        bookingId: booking.id,
         bookingDate: booking.date,
         bookingTime: booking.time,
         bookingTotalPrice: booking.totalPrice,
