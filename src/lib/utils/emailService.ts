@@ -2,6 +2,7 @@ import { db } from '$lib/server/db';
 import { eq, ne } from 'drizzle-orm';
 import {
 	booking,
+	cinema,
 	cinemaHall,
 	film,
 	seat,
@@ -13,6 +14,7 @@ import {
 	type Ticket
 } from '$lib/server/db/schema';
 import nodemailer from 'nodemailer';
+import ical from 'ical-generator';
 
 export class EmailService {
 	private transporter: nodemailer.Transporter;
@@ -41,13 +43,20 @@ export class EmailService {
 			.where(eq(ticket.id, ticketToSend.id));
 
 		const emailContent = this.generateTicketEmail(fullTicketInformation);
-
+    const icsContent = await this.generateICSFile(fullTicketInformation[0]);
 		try {
 			await this.transporter.sendMail({
 				from: `"CineHub Ticket Service" <${this.gmailUser}>`,
 				to: recipientEmail,
 				subject: `Ihre Kinokarte für ${fullTicketInformation[0].Film.title}`,
-				html: emailContent
+				html: emailContent,
+        attachments: [
+          {
+              filename: 'kinovorstellung.ics',
+              content: icsContent,
+              contentType: 'text/calendar'
+          }
+      ]
 			});
 		} catch (error) {
 			console.error('Fehler beim Versenden der E-Mail:', error);
@@ -214,6 +223,51 @@ export class EmailService {
               </div>
             `;
 	}
+  private async generateICSFile(showingInfo: {
+    Film: { title: string | null },
+    Showing: { date: string, time: string | null, endTime: string | null },
+    CinemaHall: { name: string | null, cinemaId: number }
+}): Promise<string> {
+    const calendar = ical({ name: 'Kinovorstellung' });
+    
+    // Parse date and time
+    const [year, month, day] = showingInfo.Showing.date.split('-');
+    const [hours, minutes] = showingInfo.Showing.time?.split(':') || ['00', '00'];
+    
+    // Create start date
+    const startDate = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes)
+    );
+
+    // Create end date (using endTime if available, otherwise add 2.5 hours as default)
+    let endDate;
+    if (showingInfo.Showing.endTime) {
+        const [endHours, endMinutes] = showingInfo.Showing.endTime.split(':');
+        endDate = new Date(
+            parseInt(year),
+            parseInt(month) - 1,
+            parseInt(day),
+            parseInt(endHours),
+            parseInt(endMinutes)
+        );
+    } else {
+        endDate = new Date(startDate.getTime() + (2.5 * 60 * 60 * 1000)); // Add 2.5 hours
+    }
+    const cinemas = await db.select().from(cinema).where(eq(cinema.id, showingInfo.CinemaHall.cinemaId));
+    calendar.createEvent({
+        start: startDate,
+        end: endDate,
+        summary: showingInfo.Film.title || 'Kinovorstellung',
+        description: `Kinovorstellung: ${showingInfo.Film.title}\nSaal: ${showingInfo.CinemaHall.name}`,
+        location: `${cinemas[0].name}, ${cinemas[0].address}`,
+    });
+
+    return calendar.toString();
+}
 }
 export interface fullTicket {
 	id: number;

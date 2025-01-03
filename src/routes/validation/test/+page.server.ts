@@ -1,3 +1,5 @@
+import { db } from '$lib/server/db/index.js';
+import { ticket } from '$lib/server/db/schema.js';
 import { EmailService } from '$lib/utils/emailService';
 import { generateQRCodeBase64 } from '$lib/utils/generateQR';
 
@@ -8,21 +10,14 @@ export const load = async ({}) => {
 	const emailClient = new EmailService(gmailUser, gmailAppPassword);
     console.log(gmailAppPassword, gmailUser)
 
-	const ticket = {
-		movieTitle: 'Inception',
-		date: '2021-12-24',
-		time: '20:00',
-		hall: 'Saal 1',
-		seat: 'A1',
-		id: '1234'
-	};
 	console.log('sending email');
-	// try {
-	// 	await emailClient.sendTicketConfirmation(ticket, 'felixb.erhard@gmail.com');
-	// 	console.log('email sent');
-	// } catch (error) {
-	// 	console.log(error);
-	// }
+    const tickets = await db.select().from(ticket);
+	try {
+		await emailClient.sendTicketConfirmation(tickets[0], 'felixb.erhard@gmail.com');
+		console.log('email sent');
+	} catch (error) {
+		console.log(error);
+	}
 
 	return {
 		code: qrCode
