@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import type { PageServerData } from "./$types.js";
+	import type { PageServerData } from "../priceSet/$types.js";
 
 
     let{data}:{data:PageServerData} = $props()
@@ -49,8 +49,8 @@
         <div class="error-message">{saveError}</div>
     {/if}
     {#if !isCreatingNewPriceSet}
-        <button class="new-priceset-btn" onclick={() => goto('/admin/seatCategory')}>Sitzkategorien verwalten ⚙️ </button>
-        <button class="new-priceset-btn" onclick={() => goto('/admin/ticketType')}>TicketTypen verwalten ⚙️</button> 
+        <button class="new-priceset-btn" onclick={() => goto('/admin/seat-category')}>Sitzkategorien verwalten ⚙️ </button>
+        <button class="new-priceset-btn" onclick={() => goto('/admin/ticket-type')}>TicketTypen verwalten ⚙️</button> 
 
         <button class="new-priceset-btn" onclick={startNewPriceSet}>Neues Preisset anlegen +</button>
    

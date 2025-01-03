@@ -30,7 +30,7 @@
     <h1 class="page-title">Tickettypen Verwaltung</h1>
     
     {#if !isCreatingNewticketType}
-    <button class="new-priceset-btn" onclick={() => goto('/admin/priceSet')}>⬆ Preissets verwalten</button>
+    <button class="new-priceset-btn" onclick={() => goto('/admin/price-set')}>⬆ Preissets verwalten</button>
 
         <button class="new-priceset-btn" onclick={startNewticketType}>
            + Neuen Tickettyp anlegen
