@@ -4,14 +4,7 @@ import type { Actions } from './$types';
 import { eq } from 'drizzle-orm';
 
 import { db } from '$lib/server/db';
-import {
-	cinemaHall,
-	seat,
-	showing,
-	ticket,
-	type Showing,
-	type Ticket
-} from '$lib/server/db/schema';
+import { cinemaHall, film, seat, seatCategory, showing, ticket, ticketType } from '$lib/server/db/schema';
 
 export const actions = {
 	validate: async ({ request }) => {
@@ -27,57 +20,65 @@ export const actions = {
 
 			// Suche das Ticket in der Datenbank anhand des Tokens
 			const foundTicket = await db
-				.select()
+				.select({
+					id: ticket.id,
+					type: ticketType.name,
+					status: ticket.status,
+					film: film.title,
+					datum: showing.date,
+					uhrzeit: showing.time,
+					saal: cinemaHall.name,
+					row: seat.row,
+					number: seat.seatNumber,
+					category: seatCategory.name
+				})
 				.from(ticket)
-				.innerJoin(seat, eq(seat.id, ticket.seatId))
+				.innerJoin(ticketType, eq(ticket.type, ticketType.id))
+				.innerJoin(showing, eq(ticket.showingId, showing.id))
+				.innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
+				.innerJoin(film, eq(showing.filmid, film.id))
+				.innerJoin(seat, eq(ticket.seatId, seat.id))
+				.innerJoin(seatCategory, eq(seat.categoryId, seatCategory.id))
 				.where(eq(ticket.token, ticketToken));
-			const show = await db
-				.select()
-				.from(showing)
-				.innerJoin(cinemaHall, eq(cinemaHall.id, showing.hallid))
-				.where(eq(showing.id, foundTicket[0]?.Ticket.showingId ?? 0));
 
 			if (!foundTicket) {
 				return fail(400, {
 					error: 'Ticket nicht gefunden'
 				});
 			}
-			if (foundTicket[0].Ticket.status === 'validated') {
+			if (foundTicket[0].status === 'validated') {
 				return fail(400, {
 					error: 'Ticket wurde bereits verwendet'
 				});
 			}
-            if (foundTicket[0].Ticket.status === 'reserved') {
-                return fail(400, { error: 'Ticket wurde noch nicht bezahlt' });
-            }
+			if (foundTicket[0].status === 'reserved') {
+				return fail(400, { error: 'Ticket wurde noch nicht bezahlt' });
+			}
 
-			// Prüfe ob das Ticket für diese Vorstellung ist
-			// const now = new Date().getTime();
-			// if (now < Number(show[0].Showing.time)) {
-			//     return fail(400, {
-			//         error: 'Vorstellung hat noch nicht begonnen'
-			//     });
-			// }
-
-			// if (now > new Date(foundTicket.showing.startTime.getTime() + 30 * 60000)) {
-			//     return fail(400, {
-			//         error: 'Einlass nur bis 30 Minuten nach Vorstellungsbeginn'
-			//     });
+			// if (now > new Date(foundTicket.startTime.getTime() + 30 * 60000)) {
+			// 	return fail(400, {
+			// 		error: 'Einlass nur bis 30 Minuten vor und nach Vorstellungsbeginn'
+			// 	});
 			// }
 
 			// Ticket als verwendet markieren
 			const updatedTicket = await db
 				.update(ticket)
-				.set({
-					status: 'validated'
-				})
-				.where(eq(ticket.id, foundTicket[0].Ticket.id))
-				.returning();
-
+				.set({ status: 'validated' })
+				.where(eq(ticket.id, foundTicket[0].id))
 			return {
 				success: true,
-				message: `Ticket gültig - Saal ${show[0].CinemaHall.name}, Sitz: Reihe ${foundTicket[0].seat.row} Platz ${foundTicket[0].seat.seatNumber}`,
-				ticket: updatedTicket[0]
+				message: `Ticket gültig - Saal ${foundTicket[0].saal}}`,
+				ticket: {
+					id: foundTicket[0].id,
+					type: foundTicket[0].type,
+					film: foundTicket[0].film,
+					datum: foundTicket[0].datum,
+					uhrzeit: foundTicket[0].uhrzeit,
+					saal: foundTicket[0].saal,
+					sitz: foundTicket[0].row + foundTicket[0].number,
+					category: foundTicket[0].category,
+				}
 			};
 		} catch (error) {
 			console.error('Fehler bei der Ticket-Validierung:', error);
