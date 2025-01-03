@@ -1,9 +1,9 @@
 import { db } from '$lib/server/db';
 import { booking, film, showing, priceSet, seatCategory, ticketType, cinemaHall, user } from '$lib/server/db/schema';
-import { error, redirect, fail, type Actions } from '@sveltejs/kit';
+import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
-import { goto } from '$app/navigation';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
     // Fetch user information from locals
@@ -76,26 +76,22 @@ export const actions: Actions = {
         const formData = await request.formData();
         const userId = formData.get('userId');
 
-        //if (!showId || !seatCategoryId) {
         if(!userId) {
             throw error(400, 'Missing required fields');
         }
 
+        let bookingId: number;
+
         try {
             // Create the booking entry
-            let bookingId: number;
             [{ bookingId }] = await db.insert(booking).values({
-                //id: 1, // Example ID, replace with actual logic
-                userId: <string>userId, // Replace with user ID from locals if available
+                userId: <string>userId,
             }).returning({ bookingId: booking.id });
-
-            // Redirect to cart or confirmation
-            console.log('redirecting...')
-            return redirect(303, '/cart/' + bookingId);
-            //await goto('/cart/' + bookingId)
         } catch (e) {
             console.log(e)
             throw error(500, 'Failed to create booking');
         }
+
+        return languageAwareRedirect(303, '/cart/' + bookingId)
     },
 };
