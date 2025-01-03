@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+	uuid,
 	pgTable,
 	pgEnum,
 	serial,
@@ -32,9 +33,6 @@ export const user = pgTable('User', {
 	email: text('email').unique(),
 	password: text('password'),
 	role: rolesEnum('role').default('user').notNull()
-	//   login: boolean('login'),
-	//   logout: boolean('logout'),
-	//   register: boolean('register')
 });
 
 export const session = pgTable('session', {
@@ -174,7 +172,7 @@ export const priceDiscount = pgTable('PriceDiscount', {
 
 export const ticket = pgTable('Ticket', {
 	id: serial('id').primaryKey(),
-	token: varchar('token', { length: 24 }).unique().notNull(),
+	token: uuid('token').defaultRandom(),
 	status: ticketStatusEnum('status').default('reserved').notNull(),
 	type: integer('type').references(() => ticketType.id),
 	showingId: integer('showingId').references(() => showing.id),
