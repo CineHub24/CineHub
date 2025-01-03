@@ -27,6 +27,7 @@
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@testing-library/svelte": "^5.2.6",
 		"@types/jest": "^29.5.14",
+		"@types/nodemailer": "^6.4.17",
 		"@types/qrcode": "^1.5.5",
 		"@vitest/coverage-v8": "^2.1.6",
 		"autoprefixer": "^10.4.20",
@@ -63,6 +64,7 @@
 		"html5-qrcode": "^2.3.8",
 		"jsqr": "^1.4.0",
 		"lucide-svelte": "^0.464.0",
+		"nodemailer": "^6.9.16",
 		"postgres": "^3.4.4",
 		"qrcode": "^1.5.4"
 	}
