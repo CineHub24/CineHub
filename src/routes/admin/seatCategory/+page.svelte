@@ -32,11 +32,11 @@
 
 
     {#if isCreatingNewSeatCategory}
-        <button class="new-priceset-btn" onclick={cancelEdit}>⬅ sitz Kategorie</button>
+        <button class="new-priceset-btn" onclick={cancelEdit}>⬅ Abbrechen</button>
     {/if}
 
     {#if !isCreatingNewSeatCategory}
-    <button class="new-priceset-btn" onclick={() => history.back() }> ⬆ </button>
+    <button class="new-priceset-btn" onclick={() => history.back() }> ⬆ Zurück </button>
 
         <button class="new-priceset-btn" onclick={startNewSeatCategory}>
         + Neue Sitzkategorie anlegen
