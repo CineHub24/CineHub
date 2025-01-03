@@ -13,7 +13,7 @@ export const load = async ({}) => {
 	console.log('sending email');
     const tickets = await db.select().from(ticket);
 	try {
-		await emailClient.sendTicketConfirmation(tickets[0], 'felixb.erhard@gmail.com');
+		await emailClient.sendBookingConfirmation(tickets[0].bookingId as number, 'felixb.erhard@gmail.com');
 		console.log('email sent');
 	} catch (error) {
 		console.log(error);
