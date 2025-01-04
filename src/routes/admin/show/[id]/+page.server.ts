@@ -1,4 +1,5 @@
 import { db } from '$lib/server/db';
+import * as m from '$lib/paraglide/messages.js';
 import {
 	booking,
 	cinemaHall,
@@ -34,7 +35,8 @@ async function notifyUsers(showId: number) {
 	}
 }
 
-const dbFail = fail(500, { message: 'Internal Server Error', database: true });
+const dbFail = fail(500, { message: m.internal_server_error({}), database: true });
+const missingInputs = fail(400, { message: m.missing_inputs({}), missing: true });
 
 export const load = async ({ url }) => {
 	const show = await db
@@ -74,7 +76,7 @@ export const actions = {
 		let priceSetId = formData.get('priceSet') as unknown as number;
 
 		if (!date || !timeString || !priceSetId) {
-			return fail(400, { message: 'Fehlende Einträge', missing: true });
+			return missingInputs;
 		}
 
 		try {
@@ -103,7 +105,7 @@ export const actions = {
 
 		const showId = formData.get('showId') as unknown as number;
 		if (!showId) {
-			return fail(400, { message: 'Fehlende Einträge', missing: true });
+			return missingInputs;
 		}
 
 		try {
@@ -123,13 +125,13 @@ export const actions = {
 		const endTime = formData.get('endTime') as string;
 
 		if (!showId || !hallId || !date || !time || !endTime) {
-			return fail(400, { message: 'Fehlende Einträge', missing: true });
+			return missingInputs;
 		}
 		const conflicts = await conflictingShowings(hallId, date, time, endTime);
 
 		if (conflicts.length > 0) {
 			return fail(400, {
-				message: 'Zeitraum ist nicht verfügbar',
+				message: m.slot_not_available({}),
 				timeSlotConflict: true,
 				timeSlot: {
 					date: conflicts[0].date,
@@ -161,7 +163,7 @@ export const actions = {
 		const cancelled = formData.get('cancelled') as unknown as boolean;
 
 		if (!showId || !newDate || !newStartTime || !newEndTime || !hallId) {
-			return fail(400, { message: 'Fehlende Einträge', missing: true });
+			return missingInputs;
 		}
 		const conflicts = await conflictingShowings(
 			hallId,
@@ -171,7 +173,7 @@ export const actions = {
 		);
 		if(conflicts.length > 0){
 			return fail(400, {
-				message: 'Zeitraum ist nicht verfügbar',
+				message: m.slot_not_available({}),
 				timeSlotConflict: true,
 				timeSlot: {
 					date: conflicts[0].date,
@@ -208,7 +210,7 @@ export const actions = {
 						.values(oldShow[0])
 						.returning({ newId: showing.id });
 	
-					return {rescheduled: true, message: cancelled ? 'Abgesagte Vorstellung verschoben' : 'Vorstellung erfolgreich verschoben', newId: newShow[0].newId};
+					return {rescheduled: true, message: m.show_rescheduled({}), newId: newShow[0].newId};
 			} catch (e) {
 				console.log(e);
 				return dbFail;
