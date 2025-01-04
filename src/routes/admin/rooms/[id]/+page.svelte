@@ -237,13 +237,13 @@
 	{:else}
 		<div class="legend-item">
 			<span class="emoji">❓</span>
-			<span class="label">No Categories Available you should add one: <a href="/admin/seatCategory">Create New Seat Category</a>
+			<span class="label">No Categories Available you should add one: <a href="/admin/seat-category">Create New Seat Category</a>
 			</span>
 		</div>
 	{/if}
 </div>
 
-<a href="/admin/seatCategory">Create New Seat Category</a>
+<a href="/admin/seat-category">Create New Seat Category</a>
 
 <form method="POST" action="?/saveSeats">
 	<div>

@@ -1,7 +1,10 @@
 import { db } from '$lib/server/db'; 
 import { ticketType } from '$lib/server/db/schema';
-import { error, type Actions } from '@sveltejs/kit';
+import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
+import * as m from '$lib/paraglide/messages.js';
+
+const dbFail = fail(500, { message: m.internal_server_error({})});
 
 export const load = async ({ url }) => {
     try {
@@ -14,7 +17,7 @@ export const load = async ({ url }) => {
     }
     catch (e) {
         console.log(e);
-        throw error(500, "Internal Server Error DB");
+        throw dbFail;
     }
 };
 export const actions = {
@@ -37,8 +40,7 @@ export const actions = {
             await db.insert(ticketType).values(newticketType).execute();
 
         } catch (e) {
-            console.error('Error creating the priceSet:', e);
-            return error(500, 'Error creating the priceSet');
+            return dbFail;
         }
     },
     deleteTicketType: async ({request, url}) =>{
@@ -49,7 +51,7 @@ export const actions = {
 		try{
 			await db.delete(ticketType).where(eq(ticketType.id,id))
 		} catch(e){
-			console.log("error" + e)
+			return dbFail;
 		}
 	},
     updateTicketType: async ({ request }) => {
@@ -62,7 +64,7 @@ export const actions = {
 
 
         if (!id || !name) {
-            return error(400, 'Missing inputs'); 
+            return fail(400, {message: m.missing_inputs({})}); 
         }
 
         try {
@@ -71,7 +73,7 @@ export const actions = {
                 .set({name: name, factor: factor, description: description})
                 .where(eq(ticketType.id, id));
         } catch (e) {
-            return error(500, ('Error updating price set'));
+            return dbFail;  
         }
     },
 } satisfies Actions;

@@ -1,49 +1,51 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
+	import * as m from '$lib/paraglide/messages.js';
+	import { formatDate, formatTime } from '$lib/utils/formatter.js';
 
 	let { data }: { data: PageData } = $props();
 	let { refundableShows } = data;
 
 	function collectRefund() {
 		// Add logic to process refund
-
 	}
 
 	function bookNewTicket() {
-        // Add logic to book new ticket
+		// Add logic to book new ticket
 	}
 </script>
 
 <div class="refund-page">
 	<div class="refund-container">
-		<h1>Refund Options for Cancelled Shows</h1>
+		<h1>{m.refund_options_for_cancelled_shows({})}</h1>
 
 		{#if refundableShows.length === 0}
-			<p class="no-shows">You don't have any cancelled shows that are eligible for refunds.</p>
+			<p class="no-shows">{m.no_refundable_shows({})}</p>
 		{:else}
 			<p class="info">
-				We're sorry for the inconvenience. The following shows have been rescheduled or cancelled.
-				Please choose an option for each show:
+				{m.apology_and_instructions({})}
 			</p>
 
 			{#each refundableShows as show}
 				<div class="show-card">
 					<h2>{show.filmTitle}</h2>
-					<p class="show-details">Date: {show.date} | Time: {show.time}</p>
-                    <p class="show-details">Booked Seats: {show.ticketCount}</p>
-					<p class="refund-amount">Refund Amount: ${show.totalPrice}</p>
+					<p class="show-details">{m.date({})}: {formatDate(show.date)} | {m.time({})}: {formatTime(show.time)}</p>
+					<p class="show-details">{m.booked_seats({})}: {show.ticketCount}</p>
+					<p class="refund-amount">{m.refund_amount({})}: {show.totalPrice}€</p>
 
 					<div class="options">
-						<button class="refund-btn" onclick={() => collectRefund()}> Collect Refund </button>
-						<button class="book-btn" onclick={() => bookNewTicket()}> Book New Ticket </button>
+						<button class="refund-btn" onclick={() => collectRefund()}
+							>{m.collect_refund({})}</button
+						>
+						<button class="book-btn" onclick={() => bookNewTicket()}>{m.book_new_ticket({})}</button
+						>
 					</div>
 				</div>
 			{/each}
 		{/if}
 
 		<div class="form-actions">
-			<a href="/" class="home-link">Return to Home</a>
+			<a href="/" class="home-link">{m.return_to_home({})}</a>
 		</div>
 	</div>
 </div>

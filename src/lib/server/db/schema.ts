@@ -90,7 +90,7 @@ export const showing = pgTable('Showing', {
 		.references(() => priceSet.id)
 		.default(sql`'1'::integer`),
 	date: date('date').notNull(),
-	time: time('time'),
+	time: time('time').notNull(),
 	endTime: time('endTime'),
 	language: text('language'),
 	dimension: text('dimension'),
@@ -172,7 +172,7 @@ export const priceDiscount = pgTable('PriceDiscount', {
 
 export const ticket = pgTable('Ticket', {
 	id: serial('id').primaryKey(),
-	token: uuid('token').defaultRandom(),
+	token: uuid('token').defaultRandom().unique(),
 	status: ticketStatusEnum('status').default('reserved').notNull(),
 	type: integer('type').references(() => ticketType.id),
 	showingId: integer('showingId').references(() => showing.id),
