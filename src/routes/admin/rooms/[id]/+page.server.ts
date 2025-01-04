@@ -4,11 +4,12 @@ import { eq } from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../$types';
 
-interface SeatPlan {
+interface Seat {
+    id: number, 
     seatNumber: string;
     row: string;
-    type: string;
-    categoryId: number;
+    cinemaHall: number;
+    categoryId: number
 }
 
 export const actions = {
@@ -20,12 +21,13 @@ export const actions = {
             const seatPlanData = formData.get('seatPlanData');
             const name = formData.get('name');
             const cinemaId = formData.get('cinemaId');
+            const hallId = formData.get('hallId');
 
             if (!name) throw new Error('No hall number provided');
 
             if (typeof seatPlanData !== 'string') throw new Error('Invalid seat plan data');
 
-            const seats: SeatPlan[] = JSON.parse(seatPlanData);
+            const seats: Seat[] = JSON.parse(seatPlanData);
 
             // Check if the cinema hall already exists
             const existingHall = await db
@@ -34,24 +36,24 @@ export const actions = {
                     name: cinemaHall.name,
                 })
                 .from(cinemaHall)
-                .where(eq(cinemaHall.name, name.toString()));
+                .where(eq(cinemaHall.id, Number(hallId)));
 
             let cinemaHallId;
             if (existingHall.length === 0) {
                 // Insert a new cinema hall
                 const insertedHall = await db
                     .insert(cinemaHall)
-                    .values({ name: name?.toString() ?? '', capacity: seats.length, cinemaId: cinemaId }) // Set capacity to the number of seats
+                    .values({ name: name?.toString() ?? '', capacity: seats.length, cinemaId: Number(cinemaId) })
                     .returning({ id: cinemaHall.id });
 
                 cinemaHallId = insertedHall[0].id;
             } else {
                 cinemaHallId = existingHall[0].id;
 
-                // Update the capacity if the hall already exists
+                // Update the capacity and name if the hall already exists
                 await db
                     .update(cinemaHall)
-                    .set({ capacity: seats.length })
+                    .set({ capacity: seats.length, name: name!.toString() })
                     .where(eq(cinemaHall.id, cinemaHallId));
             }
 
@@ -59,7 +61,6 @@ export const actions = {
             const seatsWithHall = seats.map((seat) => ({
                 seatNumber: seat.seatNumber,
                 row: seat.row,
-                type: seat.type,
                 cinemaHall: cinemaHallId,
                 categoryId: seat.categoryId,
 
@@ -83,7 +84,6 @@ export const actions = {
 } satisfies Actions;
 
 
-interface Seat { seatNumber: string; row: string; type: string; categoryId: number }
 
 function organizeSeats(seats: Seat[]) {
     if (!seats || seats.length === 0) return null;
@@ -141,51 +141,46 @@ function organizeSeats(seats: Seat[]) {
     return seatGrid.map(row => row.slice(0, lastNonNullColumn + 1));
 }
 
-// Helper function to validate the seat grid
-function validateSeatGrid(grid: (Seat | null)[][]) {
-    if (!grid || grid.length === 0) return false;
+// function validateSeatGrid(grid: (Seat | null)[][]) {
+//     if (!grid || grid.length === 0) return false;
 
-    const rowLengths = new Set(grid.map(row => row.length));
-    if (rowLengths.size !== 1) {
-        console.error('Inconsistent row lengths in seat grid');
-        return false;
-    }
+//     const rowLengths = new Set(grid.map(row => row.length));
+//     if (rowLengths.size !== 1) {
+//         console.error('Inconsistent row lengths in seat grid');
+//         return false;
+//     }
 
-    for (const row of grid) {
-        for (let i = 0; i < row.length; i++) {
-            const seat = row[i];
-            if (seat !== null) {
-                const seatNum = parseInt(seat.seatNumber.replace(/[A-Z]/g, ''));
-                if (seatNum !== i + 1) {
-                    console.error(`Seat number mismatch at position ${i}`, seat);
-                    return false;
-                }
-            }
-        }
-    }
+//     for (const row of grid) {
+//         for (let i = 0; i < row.length; i++) {
+//             const seat = row[i];
+//             if (seat !== null) {
+//                 const seatNum = parseInt(seat.seatNumber.replace(/[A-Z]/g, ''));
+//                 if (seatNum !== i + 1) {
+//                     console.error(`Seat number mismatch at position ${i}`, seat);
+//                     return false;
+//                 }
+//             }
+//         }
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
-// Example usage in the load function:
 export const load: PageServerLoad = async ({ params }) => {
     const cinemas = await db.select().from(cinema);
     const categories = await db.select().from(seatCategory);
+
+    const prop = params.id;
+
+    if (isNaN(prop)) return { categories, cinemaHall: null, seatPlan: null, cinemas };
+
+
     const hall = await db.select().from(cinemaHall)
-        .where(eq(cinemaHall.id, Number(params.id)))
+        .where(eq(cinemaHall.id, Number(prop)))
         .limit(1);
 
-    if (hall.length === 0) {
-        return {
-            categories,
-            cinemaHall: null,
-            seatPlan: null,
-            cinemas
-        };
-    }
-
     const seats = await db.select().from(seat)
-        .where(eq(seat.cinemaHall, Number(params.id)));
+        .where(eq(seat.cinemaHall, Number(prop)));
 
     const organizedSeats = seats.length > 0 ? organizeSeats(seats) : null;
 

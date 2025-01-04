@@ -1,40 +1,39 @@
 <script lang="ts">
 	// Define interfaces for type safety
 	interface Seat {
-		id: string;
-		type: string;
-		categoryId: number;
-		seatNumber: string | null;
+		id: number| null, 
+		seatNumber: string,
+		row: string,
+		cinemaHall: number,
+		categoryId: number,
 	}
 
 	interface SeatCategory {
-		id: number;
-		name: string;
-		emoji: string;
+		id: number,
+		name: string,
+		desctiption: string,
+		emoji: string,
 	}
 
 	// Initialize seatPlan with an empty array
 	let seatPlan: (Seat | null)[][] = $state([]);
+	let seatTypes: SeatCategory[] = [];
+	let name: string;
+	let hallId: number;
 
 	let data = $props();
 
 	console.log(data);
 
-	let name: string;
 
-	// Check if we are in edit mode (pre-existing hall data)
 	let isEditMode = data?.data?.cinemaHall && data?.data?.seatPlan;
 
 	if (isEditMode) {
 		name = data.data.cinemaHall.name;
+		hallId = data.data.cinemaHall.id;
 		seatPlan = data.data.seatPlan;
 	}
 
-	// Properly typed seat types array
-	let seatTypes: SeatCategory[] = [];
-
-
-	// Safely populate seat types
 	if (data?.data?.categories && data.data.categories.length > 0) {
 		seatTypes = data.data.categories as SeatCategory[];
 	} else {
@@ -55,7 +54,7 @@
 							if (mode === 'removeRestore') {
 								return seat
 									? null
-									: { id: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`, type: 'standart', categoryId: 0, seatNumber: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}` };
+									: {categoryId: 0, seatNumber: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`, row: `${String.fromCharCode(65 + rowIndex)}`, cinemaHall: hallId } as Seat;
 							} else if (mode === 'changeType' && seat) {
 								return changeSeatType(seat);
 							}
@@ -74,7 +73,7 @@
 
 		// Logging the current and new seat type
 		console.log(`Changing seat type for Seat ID: ${seat.id}`);
-		console.log(`Current Type: ${seat.type}`);
+		console.log(`Current Type: ${seat.categoryId}`);
 		console.log(`New Type: ${seatTypes[nextIndex].name}`);
 		console.log(`Updated Seat:`, updatedSeat);
 
@@ -118,10 +117,10 @@
 			{ length: seatPlan.length > 0 ? seatPlan[0].length : 4 }, // Use 4 as the default number of seats per row
 			(_, i) =>
 				({
-					id: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`,
-					type: seatTypes.length > 0 ? seatTypes[0].name : '',
 					categoryId: 0,
-					seatNumber: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`
+					seatNumber: `${String.fromCharCode(65 + newRowIndex)}${i + 1}`,
+					row: `${String.fromCharCode(65 + newRowIndex)}`,
+					cinemaHall: hallId
 				}) as Seat
 		);
 		seatPlan = [...seatPlan, newRow];
@@ -130,7 +129,7 @@
 	function addColumn() {
 		seatPlan = seatPlan.map((row, rowIndex) => [
 			...row,
-			{ id: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, type: seatTypes.length > 0 ? seatTypes[0].name : '',  categoryId: 0, seatNumber: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}` }
+			{ categoryId: 0, seatNumber: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, cinemaHall: hallId, row: `${String.fromCharCode(65 + rowIndex)}` } as Seat
 		]);
 	}
 
@@ -140,25 +139,6 @@
 
 	function removeColumn(colIndex: number) {
 		seatPlan = seatPlan.map((row) => row.filter((_, cIdx) => cIdx !== colIndex));
-	}
-
-	function removeSeat(rowIndex: number, colIndex: number) {
-		const updatedPlan = seatPlan.map((row, rIdx) =>
-			rIdx === rowIndex ? row.map((seat, cIdx) => (cIdx === colIndex ? null : seat)) : row
-		);
-		seatPlan = updatedPlan;
-	}
-
-	function restoreSeat(rowIndex: number, colIndex: number) {
-		const originalId = `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`;
-		const updatedPlan = seatPlan.map((row, rIdx) =>
-			rIdx === rowIndex
-				? row.map((seat, cIdx) =>
-						cIdx === colIndex ? ({ id: originalId, type: 'single' } as Seat) : seat
-					)
-				: row
-		);
-		seatPlan = updatedPlan;
 	}
 
 	function removeSeatRow(rowIndex: number) {
@@ -181,10 +161,9 @@
 				? row.map(
 						(_, cIdx) =>
 							({
-								id: `${String.fromCharCode(65 + rowIndex)}${cIdx + 1}`,
-								type: 'single',
 								categoryId: 0,
-								seatNumber: `${String.fromCharCode(65 + rowIndex)}${cIdx + 1}`
+								seatNumber: `${String.fromCharCode(65 + rowIndex)}${cIdx + 1}`,
+								row: `${String.fromCharCode(65 + rowIndex)}`
 							}) as Seat
 					)
 				: row
@@ -196,7 +175,7 @@
 		const updatedPlan = seatPlan.map((row, rIdx) =>
 			row.map((seat, cIdx) =>
 				cIdx === colIndex
-					? ({ id: `${String.fromCharCode(65 + rIdx)}${colIndex + 1}`, type: 'single', categoryId: 0, 	seatNumber: `${String.fromCharCode(65 + rIdx)}${cIdx + 1}`	} as Seat)
+					? ({categoryId: 0, 	seatNumber: `${String.fromCharCode(65 + rIdx)}${cIdx + 1}`} as Seat)
 					: seat
 			)
 		);
@@ -204,20 +183,20 @@
 	}
 
 	function prepareSeatData() {
-		const seats: { seatNumber: string; row: string; type: string; categoryId: number }[] = [];
+		const seats: Seat[] = [];
 		seatPlan.forEach((row, rowIndex) => {
 			row.forEach((seat) => {
 				if (seat) {
 					let category;
 					if (data?.data?.categories) {
-						category = data.data.categories.find((cat) => cat.id === seat.categoryId);
+						category = seatTypes.find((cat) => cat.id === seat.categoryId);
 					}
 					seats.push({
-						seatNumber: seat.seatNumber || '',
-						row: seat.seatNumber?.charAt(0) || '',
-						type: seat.type,
-						categoryId: category.id, // Fallback to 1 if not found
-					});
+						seatNumber: seat.seatNumber,
+						row: seat.seatNumber?.charAt(0),
+						cinemaHall: hallId,
+						categoryId: category!.id, 
+					} as Seat);
 				}
 			});
 		});
@@ -257,6 +236,7 @@
 	</div>
 
 	<input type="hidden" name="seatPlanData" value={prepareSeatData()} />
+	<input type="hidden" name="hallId" value={hallId} />
 
 	<button type="submit" >Save Seat Plan</button>
 </form>
