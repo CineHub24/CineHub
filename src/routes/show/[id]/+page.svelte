@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import type { PageServerData } from './$types';
 	const { data }: { data: PageServerData } = $props();
   const { show, hall, seatCategories, priceSet } = data;
@@ -31,7 +32,7 @@
 				{/each}
 			{/if}
 			<div class="showtime">
-				<button> Zur Buchung →</button>
+				<button onclick={() => languageAwareGoto(`/pickSeats/${show.id}`)}> Zur Buchung →</button>
 			</div>
 		</div>
 	{:else}
