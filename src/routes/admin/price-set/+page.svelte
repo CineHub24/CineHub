@@ -42,6 +42,7 @@
 </script>
 
 <div class="container">
+<<<<<<< HEAD:src/routes/admin/priceSet/+page.svelte
 	<h1 class="page-title">{m.price_set_management({})}</h1>
 	{#if saveError}
 		{console.log(saveError)}
@@ -54,6 +55,16 @@
 		<button class="new-priceset-btn" onclick={() => languageAwareGoto('/admin/ticketType')}
 			>{m.ticket_type_management({})}</button
 		>
+=======
+    <h1 class="page-title">Preissets Verwaltung</h1>
+    {#if saveError}
+        {console.log(saveError)}
+        <div class="error-message">{saveError}</div>
+    {/if}
+    {#if !isCreatingNewPriceSet}
+        <button class="new-priceset-btn" onclick={() => goto('/admin/seat-category')}>Sitzkategorien verwalten ⚙️ </button>
+        <button class="new-priceset-btn" onclick={() => goto('/admin/ticket-type')}>TicketTypen verwalten ⚙️</button> 
+>>>>>>> 26473fb9b2b306106c34f1d3afce5b125755118c:src/routes/admin/price-set/+page.svelte
 
 		<button class="new-priceset-btn" onclick={startNewPriceSet}>{m.create_new_price_set({})}</button>
 	{/if}
