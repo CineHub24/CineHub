@@ -8,16 +8,16 @@ export const load = async ({}) => {
 	const gmailUser = import.meta.env.VITE_GMAIL_USER;
 	const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
 	const emailClient = new EmailService(gmailUser, gmailAppPassword);
-    console.log(gmailAppPassword, gmailUser)
+    
 
-	console.log('sending email');
-    const tickets = await db.select().from(ticket);
-	try {
-		await emailClient.sendBookingConfirmation(tickets[0].bookingId as number, 'felixb.erhard@gmail.com');
-		console.log('email sent');
-	} catch (error) {
-		console.log(error);
-	}
+	// console.log('sending email');
+    // const tickets = await db.select().from(ticket);
+	// try {
+	// 	await emailClient.sendBookingConfirmation(tickets[0].bookingId as number, 'felixb.erhard@gmail.com');
+	// 	console.log('email sent');
+	// } catch (error) {
+	// 	console.log(error);
+	// }
 
 	return {
 		code: qrCode
