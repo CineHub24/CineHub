@@ -17,7 +17,6 @@ import { languageAwareRedirect } from '$lib/utils/languageAware.js';
 
 import { EmailService } from '$lib/utils/emailService';
 
-
 function getID(url: URL) {
 	const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 	return id as number;
@@ -27,26 +26,28 @@ async function notifyUsers(showId: number) {
 	const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
 	const emailClient = new EmailService(gmailUser, gmailAppPassword);
 
+	try {
+		const usersToNofity = await db
+			.selectDistinct({ userEmail: user.email })
+			.from(ticket)
+			.innerJoin(booking, eq(ticket.bookingId, booking.id))
+			.innerJoin(user, eq(booking.userId, user.id))
+			.where(eq(ticket.showingId, showId));
 
-	const usersToNofity = await db
-		.selectDistinct({ userEmail: user.email })
-		.from(ticket)
-		.innerJoin(booking, eq(ticket.bookingId, booking.id))
-		.innerJoin(user, eq(booking.userId, user.id))
-		.where(eq(ticket.showingId, showId));
-
-	for (const user of usersToNofity) {
-		try {
-			console.log(`Sending Email to ${user.userEmail}`);
-			await emailClient.sendCancelationConfirmation(showId, user.userEmail as string);
-			console.log('Email sent');
-		} catch (error) {
-			console.error('Fehler beim Versenden der E-Mail:', error);
+		for (const user of usersToNofity) {
+			try {
+				console.log(`Sending Email to ${user.userEmail}`);
+				await emailClient.sendCancelationConfirmation(showId, user.userEmail as string);
+				console.log('Email sent');
+				return { success: true };
+			} catch (error) {
+				console.error('Fehler beim Versenden der E-Mail:', error);
+				return fail(500, { message: m.internal_server_error({}), email: true });
+			}
 		}
-
-
-
-		
+	} catch (error) {
+		console.error('Fehler beim Abrufen der Nutzerdaten:', error);
+		return fail(500, { message: m.internal_server_error({}), database: true });
 	}
 }
 
@@ -54,30 +55,35 @@ const dbFail = fail(500, { message: m.internal_server_error({}), database: true 
 const missingInputs = fail(400, { message: m.missing_inputs({}), missing: true });
 
 export const load = async ({ url }) => {
-	const show = await db
-		.select({
-			id: showing.id,
-			date: showing.date,
-			time: showing.time,
-			endTime: showing.endTime,
-			runtime: film.runtime,
-			filmid: film.id,
-			film_name: film.title,
-			film_backdrop: film.backdrop,
-			priceSet: showing.priceSetId,
-			cancelled: showing.cancelled,
-			hallId: showing.hallid
-		})
-		.from(showing)
-		.leftJoin(film, eq(showing.filmid, film.id))
-		.innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
-		.where(eq(showing.id, getID(url)));
+	try {
+		const show = await db
+			.select({
+				id: showing.id,
+				date: showing.date,
+				time: showing.time,
+				endTime: showing.endTime,
+				runtime: film.runtime,
+				filmid: film.id,
+				film_name: film.title,
+				film_backdrop: film.backdrop,
+				priceSet: showing.priceSetId,
+				cancelled: showing.cancelled,
+				hallId: showing.hallid
+			})
+			.from(showing)
+			.leftJoin(film, eq(showing.filmid, film.id))
+			.innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
+			.where(eq(showing.id, getID(url)));
 
-	const priceSets = await db.select().from(priceSet);
-	return {
-		show: show[0],
-		priceSets: priceSets
-	};
+		const priceSets = await db.select().from(priceSet);
+		return {
+			show: show[0],
+			priceSets: priceSets
+		};
+	} catch (error) {
+		console.error('Fehler beim Laden der Vorstellung:', error);
+		return dbFail;
+	}
 };
 
 export const actions = {
@@ -154,19 +160,14 @@ export const actions = {
 					endTime: conflicts[0].endTime
 				}
 			});
-		}
-		else {
+		} else {
 			try {
-				await db
-					.update(showing)
-					.set({ cancelled: false })
-					.where(eq(showing.id, showId));
+				await db.update(showing).set({ cancelled: false }).where(eq(showing.id, showId));
 			} catch (e) {
 				console.error('Fehler beim Wiederherstellen der Vorstellung:', e);
 				return dbFail;
 			}
 		}
-
 	},
 	reschedule: async ({ request, url }) => {
 		const formData = await request.formData();
@@ -180,13 +181,8 @@ export const actions = {
 		if (!showId || !newDate || !newStartTime || !newEndTime || !hallId) {
 			return missingInputs;
 		}
-		const conflicts = await conflictingShowings(
-			hallId,
-			newDate,
-			newStartTime,
-			newEndTime
-		);
-		if(conflicts.length > 0){
+		const conflicts = await conflictingShowings(hallId, newDate, newStartTime, newEndTime);
+		if (conflicts.length > 0) {
 			return fail(400, {
 				message: m.slot_not_available({}),
 				timeSlotConflict: true,
@@ -196,8 +192,7 @@ export const actions = {
 					endTime: conflicts[0].endTime
 				}
 			});
-		}
-		else {
+		} else {
 			try {
 				const oldShow = await db
 					.update(showing)
@@ -215,17 +210,17 @@ export const actions = {
 						dimension: showing.dimension
 					});
 				await notifyUsers(showId);
-	
-					oldShow[0].date = newDate;
-					oldShow[0].time = newStartTime;
-					oldShow[0].endTime = newEndTime;
-					oldShow[0].cancelled = false;
-					const newShow = await db
-						.insert(showing)
-						.values(oldShow[0])
-						.returning({ newId: showing.id });
-	
-					return {rescheduled: true, message: m.show_rescheduled({}), newId: newShow[0].newId};
+
+				oldShow[0].date = newDate;
+				oldShow[0].time = newStartTime;
+				oldShow[0].endTime = newEndTime;
+				oldShow[0].cancelled = false;
+				const newShow = await db
+					.insert(showing)
+					.values(oldShow[0])
+					.returning({ newId: showing.id });
+
+				return { rescheduled: true, message: m.show_rescheduled({}), newId: newShow[0].newId };
 			} catch (e) {
 				console.log(e);
 				return dbFail;
