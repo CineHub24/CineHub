@@ -218,7 +218,19 @@
 
 		return JSON.stringify(seats);
 	}
+
+	function beforeUnload(event: BeforeUnloadEvent, window:Window) {
+		// Cancel the event as stated by the standard.
+		event.preventDefault();
+		// Chrome requires returnValue to be set.
+		event.returnValue = '';
+		// more compatibility
+		return '...';
+	}
+
 </script>
+
+<svelte:window on:beforeunload={beforeUnload}/>
 
 <div class="legend">
 	{#if data && Array.isArray(data.data.categories) && data.data.categories.length > 0}
