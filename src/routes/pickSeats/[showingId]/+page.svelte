@@ -73,36 +73,46 @@
 			alert('An error occurred while booking seats.');
 		}
 	}
+
+  function prepareSeatData() {
+		return JSON.stringify(selectedSeats.map((seat) => seat.id));
+	}
 </script>
 
 <div class="seat-selection-container">
 	<h1>Seat Selection for {showing.title}</h1>
 	<h2>Hall: {hall.name}</h2>
 
-	<div class="seat-plan">
-		{#each seatPlan as row, rowIndex}
-			<div class="row">
-				{#each row as seat, colIndex}
-					{#if seat}
-						<div
-							class="seat"
-							class:selected={isSelected(seat)}
-							class:booked={seat.booked}
-							onclick={() => toggleSeatSelection(rowIndex, colIndex)}
-						>
-							{seat.seatNumber}
-						</div>
-					{:else}
-						<div class="seat placeholder"></div>
-					{/if}
-				{/each}
-			</div>
-		{/each}
-	</div>
+	<form method="POST" action="/submit-seats">
+		<div class="seat-plan">
+			{#each seatPlan as row, rowIndex}
+				<div class="row">
+					{#each row as seat, colIndex}
+						{#if seat}
+							<div
+								class="seat"
+								class:selected={isSelected(seat)}
+								class:booked={seat.booked}
+								onclick={() => toggleSeatSelection(rowIndex, colIndex)}
+							>
+								{seat.seatNumber}
+							</div>
+						{:else}
+							<div class="seat placeholder"></div>
+						{/if}
+					{/each}
+				</div>
+			{/each}
+		</div>
 
-	<div class="actions">
-		<Button on:click={submitSeats}>Book Selected Seats</Button>
-	</div>
+		<!-- Hidden input to pass selected seat IDs -->
+		<input type="hidden" name="selectedSeatIds" value={prepareSeatData()} />
+		<input type="hidden" name="showingId" value={showing.id} />
+
+		<div class="actions">
+			<Button type="submit">Book Selected Seats</Button>
+		</div>
+	</form>
 </div>
 
 <style>
