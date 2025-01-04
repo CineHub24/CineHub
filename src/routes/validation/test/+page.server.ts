@@ -10,14 +10,14 @@ export const load = async ({}) => {
 	const emailClient = new EmailService(gmailUser, gmailAppPassword);
     
 
-	// console.log('sending email');
-    // const tickets = await db.select().from(ticket);
-	// try {
-	// 	await emailClient.sendBookingConfirmation(tickets[0].bookingId as number, 'felixb.erhard@gmail.com');
-	// 	console.log('email sent');
-	// } catch (error) {
-	// 	console.log(error);
-	// }
+	console.log('sending email');
+    const tickets = await db.select().from(ticket);
+	try {
+		await emailClient.sendBookingConfirmation(tickets[0].bookingId as number, 'junmika05@gmail.com');
+		console.log('email sent');
+	} catch (error) {
+		console.log(error);
+	}
 
 	return {
 		code: qrCode

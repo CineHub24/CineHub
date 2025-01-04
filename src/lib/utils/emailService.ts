@@ -166,116 +166,118 @@ export class EmailService {
   });
   }
 
-async sendBookingConfirmation(bookingId: number, recipientEmail: string): Promise<void> {
+  async sendBookingConfirmation(bookingId: number, recipientEmail: string): Promise<void> {
     // Hole alle Tickets für diese Buchung
     const bookingInformation = await db
-        .select()
-        .from(booking)
-        .where(eq(booking.id, bookingId))
-        .innerJoin(user, eq(booking.userId, user.id));
-
+    .select()
+    .from(booking)
+    .where(eq(booking.id, bookingId))
+    .innerJoin(user, eq(booking.userId, user.id));
+    
     const tickets = await db
-        .select()
-        .from(ticket)
-        .where(eq(ticket.bookingId, bookingId))
-        .innerJoin(ticketType, eq(ticket.type, ticketType.id))
-        .innerJoin(showing, eq(ticket.showingId, showing.id))
-        .innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
-        .innerJoin(film, eq(showing.filmid, film.id))
-        .innerJoin(seat, eq(ticket.seatId, seat.id))
-        .innerJoin(cinema, eq(cinema.id, cinemaHall.cinemaId));
-
+    .select()
+    .from(ticket)
+    .where(eq(ticket.bookingId, bookingId))
+    .innerJoin(ticketType, eq(ticket.type, ticketType.id))
+    .innerJoin(showing, eq(ticket.showingId, showing.id))
+    .innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
+    .innerJoin(film, eq(showing.filmid, film.id))
+    .innerJoin(seat, eq(ticket.seatId, seat.id))
+    .innerJoin(cinema, eq(cinema.id, cinemaHall.cinemaId));
+    console.log(tickets);
+    // Gruppiere Tickets nach Vorstellung
+    const ticketsByShowing: { [key: number]: any[] } = tickets.reduce((acc: { [key: number]: any[] }, ticket) => {
+        const showingId = ticket.Showing.id;
+        if (!acc[showingId]) {
+            acc[showingId] = [];
+        }
+        acc[showingId].push(ticket);
+        return acc;
+    }, {});
+    console.log("ticketsByShowing");
+    
     // Generiere PDF für jedes Ticket
     const pdfPromises = tickets.map(ticket => this.generatePDFTicket(ticket));
     const pdfBuffers = await Promise.all(pdfPromises);
-
+    
     // Erstelle E-Mail-Inhalt
-    const emailContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1>Ihre Buchungsbestätigung</h1>
-            <p>Sehr geehrte/r Kunde/in,</p>
-            <p>vielen Dank für Ihre Buchung!</p>
-            
-            <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px;">
-                <h2>Buchungsdetails</h2>
-                <p><strong>Buchungs-Nr:</strong> ${bookingId}</p>
-                <p><strong>Film:</strong> ${tickets[0].Film.title}</p>
-                <p><strong>Datum:</strong> ${tickets[0].Showing.date}</p>
-                <p><strong>Zeit:</strong> ${tickets[0].Showing.time}</p>
-                <p><strong>Saal:</strong> ${tickets[0].CinemaHall.name}</p>
-                <p><strong>Gesamtpreis:</strong> ${bookingInformation[0].Booking.totalPrice} €</p>
-            </div>
-
-            <p>Ihre Tickets finden Sie im Anhang dieser E-Mail.</p>
-            <p>Bitte bringen Sie die Tickets ausgedruckt oder digital zur Vorstellung mit.</p>
-            
-            <p>Mit freundlichen Grüßen,<br>Ihr CineHub-Team</p>
-        </div>
+    let emailContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h1>Ihre Buchungsbestätigung</h1>
+    <p>Sehr geehrte/r Kunde/in,</p>
+    <p>vielen Dank für Ihre Buchung!</p>
+    
+    <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px;">
+    <h2>Buchungsdetails</h2>
+    <p><strong>Buchungs-Nr:</strong> ${bookingId}</p>
+    <p><strong>Gesamtpreis:</strong> ${bookingInformation[0].Booking.totalPrice} €</p>
+    </div>
     `;
-
-    const icsContent = await this.generateICSFile(tickets[0]);
-
-    // Sende E-Mail mit PDF-Anhängen
-    try {
-        await this.transporter.sendMail({
-            from: `"CineHub Ticket Service" <${this.gmailUser}>`,
-            to: recipientEmail,
-            subject: `Ihre Buchungsbestätigung für ${tickets[0].Film.title}`,
-            html: emailContent,
-            attachments: [
-              // PDF Tickets
-              ...pdfBuffers.map((buffer, index) => ({
-                  filename: `ticket-${tickets[index].Ticket.id}.pdf`,
-                  content: buffer,
-                  contentType: 'application/pdf'
-              })),
-              // ICS Datei
-              {
-                  filename: 'kinovorstellung.ics',
-                  content: icsContent,
-                  contentType: 'text/calendar'
-              }
-          ]
-        });
-    } catch (error) {
-        console.error('Fehler beim Versenden der E-Mail:', error);
-        throw new Error('E-Mail konnte nicht versendet werden');
+    console.log(emailContent);
+    // Füge Details für jede Vorstellung hinzu
+    for (const [showingId, showingTickets] of Object.entries(ticketsByShowing)) {
+    const showing = showingTickets[0].Showing;
+    emailContent += `
+    <div style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+    <h3>${showingTickets[0].Film.title}</h3>
+    <p><strong>Datum:</strong> ${showing.date}</p>
+    <p><strong>Zeit:</strong> ${showing.time}</p>
+    <p><strong>Saal:</strong> ${showingTickets[0].CinemaHall.name}</p>
+    <p><strong>Preis:</strong> ${showingTickets[0].Ticket.price} €</p>
+    `;
+    for (const ticket of showingTickets) {
+      emailContent += `
+      <p><strong>Ticket-ID:</strong> ${ticket.Ticket.id}</p>
+      <p><strong>Reihe:</strong> ${ticket.seat.row}</p>
+      <p><strong>Sitzplatz:</strong> ${ticket.seat.seatNumber}</p>      
+      `;
     }
-}
-	async sendTicketConfirmation(ticketToSend: Ticket, recipientEmail: string): Promise<void> {
-		const fullTicketInformation = await db
-			.select()
-			.from(ticket)
-			.innerJoin(ticketType, eq(ticket.type, ticketType.id))
-			.innerJoin(showing, eq(ticket.showingId, showing.id))
-			.innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
-			.innerJoin(film, eq(showing.filmid, film.id))
-			.innerJoin(booking, eq(ticket.bookingId, booking.id))
-			.innerJoin(user, eq(booking.userId, user.id))
-			.innerJoin(seat, eq(ticket.seatId, seat.id))
-			.where(eq(ticket.id, ticketToSend.id));
+    emailContent += '</div>';
+    }
+    
 
-		const emailContent = this.generateTicketEmail(fullTicketInformation);
-    const icsContent = await this.generateICSFile(fullTicketInformation[0]);
-		try {
-			await this.transporter.sendMail({
-				from: `"CineHub Ticket Service" <${this.gmailUser}>`,
-				to: recipientEmail,
-				subject: `Ihre Kinokarte für ${fullTicketInformation[0].Film.title}`,
-				html: emailContent,
-        attachments: [
-          {
-              filename: 'kinovorstellung.ics',
-              content: icsContent,
-              contentType: 'text/calendar'
-          }
-      ]
-			});
-		} catch (error) {
-			console.error('Fehler beim Versenden der E-Mail:', error);
-			throw new Error('E-Mail konnte nicht versendet werden');
-		}
-	}
+    
+    emailContent += `
+    <p>Ihre Tickets finden Sie im Anhang dieser E-Mail.</p>
+    <p>Bitte bringen Sie die Tickets ausgedruckt oder digital zur Vorstellung mit.</p>
+    
+    <p>Mit freundlichen Grüßen,<br>Ihr CineHub-Team</p>
+    </div>
+    `;
+    
+    // Generiere ICS-Dateien für jede Vorstellung
+    const icsPromises = Object.values(ticketsByShowing).map(showingTickets =>
+    this.generateICSFile(showingTickets[0])
+    );
+    const icsContents = await Promise.all(icsPromises);
+    
+    // Sende E-Mail mit PDF-Anhängen und ICS-Dateien
+    try {
+    await this.transporter.sendMail({
+    from: `"CineHub Ticket Service" <${this.gmailUser}>`,
+    to: recipientEmail,
+    subject: `Ihre Buchungsbestätigung`,
+    html: emailContent,
+    attachments: [
+    // PDF Tickets
+    ...pdfBuffers.map((buffer, index) => ({
+    filename: `ticket-${tickets[index].Ticket.id}.pdf`,
+    content: buffer,
+    contentType: 'application/pdf'
+    })),
+    // ICS Dateien
+    ...icsContents.map((content, index) => ({
+    filename: `kinovorstellung-${index + 1}.ics`,
+    content: content,
+    contentType: 'text/calendar'
+    }))
+    ]
+    });
+    } catch (error) {
+    console.error('Fehler beim Versenden der E-Mail:', error);
+    throw new Error('E-Mail konnte nicht versendet werden');
+    }
+    }
 
 	async sendCancelationConfirmation(showID: number, recipientEmail: string): Promise<void> {
 		const affectedShow = await db
