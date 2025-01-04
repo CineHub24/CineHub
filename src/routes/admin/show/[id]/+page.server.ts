@@ -14,13 +14,20 @@ import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import { eq, and, ne, or } from 'drizzle-orm';
 import { conflictingShowings } from '$lib/utils/timeSlots.js';
 import { languageAwareRedirect } from '$lib/utils/languageAware.js';
-import { date } from 'drizzle-orm/mysql-core';
+
+import { EmailService } from '$lib/utils/emailService';
+
 
 function getID(url: URL) {
 	const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 	return id as number;
 }
 async function notifyUsers(showId: number) {
+	const gmailUser = import.meta.env.VITE_GMAIL_USER;
+	const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
+	const emailClient = new EmailService(gmailUser, gmailAppPassword);
+
+
 	const usersToNofity = await db
 		.selectDistinct({ userEmail: user.email })
 		.from(ticket)
@@ -29,9 +36,17 @@ async function notifyUsers(showId: number) {
 		.where(eq(ticket.showingId, showId));
 
 	for (const user of usersToNofity) {
-		//TODO: Send Email to user
-		//TODO: Grant refund
-		console.log(`Send Email to ${user.userEmail}`);
+		try {
+			console.log(`Sending Email to ${user.userEmail}`);
+			await emailClient.sendCancelationConfirmation(showId, user.userEmail as string);
+			console.log('Email sent');
+		} catch (error) {
+			console.error('Fehler beim Versenden der E-Mail:', error);
+		}
+
+
+
+		
 	}
 }
 
