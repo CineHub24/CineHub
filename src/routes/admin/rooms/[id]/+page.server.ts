@@ -3,7 +3,6 @@ import { seat, cinemaHall, seatCategory, cinema } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../$types';
-import { integer } from 'drizzle-orm/pg-core';
 
 interface SeatPlan {
     seatNumber: string;
