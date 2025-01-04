@@ -219,7 +219,7 @@
 		return JSON.stringify(seats);
 	}
 
-	function beforeUnload(event: BeforeUnloadEvent, window:Window) {
+	function beforeUnload(event: BeforeUnloadEvent) {
 		// Cancel the event as stated by the standard.
 		event.preventDefault();
 		// Chrome requires returnValue to be set.
