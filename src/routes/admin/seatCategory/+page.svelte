@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import type { PageServerData } from './$types';
+    import * as m from '$lib/paraglide/messages.js';
 
     let{data}:{data:PageServerData} = $props()
 
@@ -27,36 +27,36 @@
 </script>
 
 <div class="container">
-    <h1 class="page-title">Sitzkategorien Verwaltung</h1>
+    <h1 class="page-title">{m.seat_category_management({})}</h1>
     
 
 
     {#if isCreatingNewSeatCategory}
-        <button class="new-priceset-btn" onclick={cancelEdit}>⬅ sitz Kategorie</button>
+        <button class="new-priceset-btn" onclick={cancelEdit}>{m.cancel_with_arrow({})}</button>
     {/if}
 
     {#if !isCreatingNewSeatCategory}
-    <button class="new-priceset-btn" onclick={() => history.back() }> ⬆ </button>
+    <button class="new-priceset-btn" onclick={() => history.back() }> {m.back_arrow({})} </button>
 
         <button class="new-priceset-btn" onclick={startNewSeatCategory}>
-        + Neue Sitzkategorie anlegen
+        {m.create_new_seat_category({})}
         </button>
     {/if}
 
     <div class="priceset-grid">
         {#if isCreatingNewSeatCategory}
             <div class="priceset-card">
-                <h2 class="priceset-title">Neue Sitzkategorie</h2>
+                <h2 class="priceset-title">{m.new_seat_category({})}</h2>
                 
                 <form 
                     method="POST" 
                     action="?/createSeatCategory" 
                 >
                     <div class="form-group">
-                        <label for="name">Name der Sitzkategorie:</label>
+                        <label for="name">{m.seat_category_name({})}:</label>
                         <input 
                             class="form-input" 
-                            placeholder="Name der Sitzkategorie"
+                            placeholder={m.seat_category_name({})}
                             name="name"
                             type="text"
                             required
@@ -64,48 +64,48 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="price">Preis:</label>
+                        <label for="price">{m.price({})}:</label>
                         <input 
                             class="form-input" 
                             type="number" 
                             step="0.01" 
                             name="price"
-                            placeholder="Preis der Sitzkategorie"
+                            placeholder={m.seat_category_price({})}
                             required
                         />
                     </div>
                     <div class="form-group">
-                        <label for="description">Beschreibung:</label>
+                        <label for="description">{m.description({})}:</label>
                         <input 
                             class="form-input" 
                             type="text" 
                             step="0.01" 
                             name="description"
-                            placeholder="Beschreibung der Sitzkategorie"
+                            placeholder={m.seat_category_description({})}
                             required
                         />
                     </div>
 
                     <div class="form-group">
-                        <label for="emoji">Emoji:</label>
+                        <label for="emoji">{m.emoji({})}:</label>
                         <input 
                             class="form-input" 
                             type="text" 
                             name="emoji"
-                            placeholder="emoji der Sitzkategorie"
+                            placeholder={m.emoji({})}   
                             required
                         />
                     </div>
 
                     
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-edit">Speichern</button>
+                        <button type="submit" class="btn btn-edit">{m.save({})}</button>
                         <button 
                             type="button" 
                             class="btn btn-delete" 
                             onclick={cancelEdit}
                         >
-                            Abbrechen
+                        {m.cancel({})}
                         </button>
                     </div>
                 </form>
@@ -126,10 +126,10 @@
                         />
                         
                         <div class="form-group">
-                            <label for="name">Name der Sitzkategorie:</label>
+                            <label for="name">{m.seat_category_name({})}:</label>
                             <input 
                                 class="form-input" 
-                                placeholder="Name der Sitzkategorie"
+                                placeholder={m.seat_category_name({})}
                                 name="name"
                                 type="text"
                                 value={seatCategory.name}
@@ -138,26 +138,26 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="price">Preis:</label>
+                            <label for="price">{m.price({})}:</label>
                             <input 
                                 class="form-input" 
                                 type="number" 
                                 step="0.01" 
                                 name="price"
-                                placeholder="Preis der Sitzkategorie"
+                                placeholder={m.seat_category_price({})}
                                 value={seatCategory.price}
                                 required
                             />
                         </div>
                         
                         <div class="form-group">
-                            <label for="description">Beschreibung:</label>
+                            <label for="description">{m.description({})}:</label>
                             <input 
                                 class="form-input" 
                                 type="text" 
                                 step="0.01" 
                                 name="description"
-                                placeholder="Beschreibung der Sitzkategorie"
+                                placeholder={m.seat_category_description({})}
                                 value={seatCategory.description}
                                 required
                             />
@@ -165,12 +165,12 @@
 
                             
                         <div class="form-group">
-                            <label for="emoji">Emoji:</label>
+                            <label for="emoji">{m.emoji({})}:</label>
                             <input 
                                 class="form-input" 
                                 type="text" 
                                 name="emoji"
-                                placeholder="emoji der Sitzkategorie"
+                                placeholder={m.emoji({})}
                                 value={seatCategory.emoji}
                                 required
                             />
@@ -178,27 +178,27 @@
 
 
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-edit">Speichern</button>
+                            <button type="submit" class="btn btn-edit">{m.save({})}</button>
                             <button 
                                 type="button" 
                                 class="btn btn-delete" 
                                 onclick={cancelEdit}
                             >
-                                Abbrechen
+                            {m.cancel_with_arrow({})}
                             </button>
                         </div>
                     </form>
                 {:else}
                     <h2 class="priceset-title">{seatCategory.name}</h2>
-                    <p>Preis: {parseFloat(seatCategory.price ?? '0').toFixed(2)}€</p>
-                    <p>Beschreibung: {seatCategory.description}</p>
+                    <p>{m.price({})}: {parseFloat(seatCategory.price ?? '0').toFixed(2)}€</p>
+                    <p>{m.description({})}: {seatCategory.description}</p>
             
                     <div class="card-actions">
                         <button 
                             class="btn btn-edit" 
                             onclick={() => editingSeatCategoryId = seatCategory.id}
                         >
-                            Bearbeiten
+                            {m.edit({})}
                         </button>
                         
                         <form 
@@ -214,7 +214,7 @@
                                 type="submit" 
                                 class="btn btn-delete"
                             >
-                                Löschen
+                                {m.delete_something({})}
                             </button>
                         </form>
                     </div>

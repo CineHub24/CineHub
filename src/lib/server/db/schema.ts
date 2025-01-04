@@ -86,7 +86,7 @@ export const showing = pgTable('Showing', {
 		.references(() => priceSet.id)
 		.default(sql`'1'::integer`),
 	date: date('date').notNull(),
-	time: time('time'),
+	time: time('time').notNull(),
 	endTime: time('endTime'),
 	language: text('language'),
 	dimension: text('dimension'),
