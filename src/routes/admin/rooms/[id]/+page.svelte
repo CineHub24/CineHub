@@ -1,18 +1,21 @@
 <script lang="ts">
+	import Button from '$lib/components/button.svelte';
+	import { languageAwareGoto } from '$lib/utils/languageAware';
+
 	// Define interfaces for type safety
 	interface Seat {
-		id: number| null, 
-		seatNumber: string,
-		row: string,
-		cinemaHall: number,
-		categoryId: number,
+		id: number | null;
+		seatNumber: string;
+		row: string;
+		cinemaHall: number;
+		categoryId: number;
 	}
 
 	interface SeatCategory {
-		id: number,
-		name: string,
-		desctiption: string,
-		emoji: string,
+		id: number;
+		name: string;
+		desctiption: string;
+		emoji: string;
 	}
 
 	// Initialize seatPlan with an empty array
@@ -24,7 +27,6 @@
 	let data = $props();
 
 	console.log(data);
-
 
 	let isEditMode = data?.data?.cinemaHall && data?.data?.seatPlan;
 
@@ -54,7 +56,12 @@
 							if (mode === 'removeRestore') {
 								return seat
 									? null
-									: {categoryId: 0, seatNumber: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`, row: `${String.fromCharCode(65 + rowIndex)}`, cinemaHall: hallId } as Seat;
+									: ({
+											categoryId: 0,
+											seatNumber: `${String.fromCharCode(65 + rowIndex)}${colIndex + 1}`,
+											row: `${String.fromCharCode(65 + rowIndex)}`,
+											cinemaHall: hallId
+										} as Seat);
 							} else if (mode === 'changeType' && seat) {
 								return changeSeatType(seat);
 							}
@@ -65,11 +72,14 @@
 		);
 	}
 
-
 	function changeSeatType(seat: Seat): Seat {
-		const currentIndex = seatTypes.findIndex(category => category.id === seat.categoryId);
+		const currentIndex = seatTypes.findIndex((category) => category.id === seat.categoryId);
 		const nextIndex = (currentIndex + 1) % seatTypes.length;
-		const updatedSeat = { ...seat, type: seatTypes[nextIndex].name, categoryId: seatTypes[nextIndex].id };
+		const updatedSeat = {
+			...seat,
+			type: seatTypes[nextIndex].name,
+			categoryId: seatTypes[nextIndex].id
+		};
 
 		// Logging the current and new seat type
 		console.log(`Changing seat type for Seat ID: ${seat.id}`);
@@ -129,7 +139,12 @@
 	function addColumn() {
 		seatPlan = seatPlan.map((row, rowIndex) => [
 			...row,
-			{ categoryId: 0, seatNumber: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`, cinemaHall: hallId, row: `${String.fromCharCode(65 + rowIndex)}` } as Seat
+			{
+				categoryId: 0,
+				seatNumber: `${String.fromCharCode(65 + rowIndex)}${row.length + 1}`,
+				cinemaHall: hallId,
+				row: `${String.fromCharCode(65 + rowIndex)}`
+			} as Seat
 		]);
 	}
 
@@ -175,7 +190,7 @@
 		const updatedPlan = seatPlan.map((row, rIdx) =>
 			row.map((seat, cIdx) =>
 				cIdx === colIndex
-					? ({categoryId: 0, 	seatNumber: `${String.fromCharCode(65 + rIdx)}${cIdx + 1}`} as Seat)
+					? ({ categoryId: 0, seatNumber: `${String.fromCharCode(65 + rIdx)}${cIdx + 1}` } as Seat)
 					: seat
 			)
 		);
@@ -195,7 +210,7 @@
 						seatNumber: seat.seatNumber,
 						row: seat.seatNumber?.charAt(0),
 						cinemaHall: hallId,
-						categoryId: category!.id, 
+						categoryId: category!.id
 					} as Seat);
 				}
 			});
@@ -216,13 +231,22 @@
 	{:else}
 		<div class="legend-item">
 			<span class="emoji">❓</span>
-			<span class="label">No Categories Available you should add one: <a href="/admin/add_seat_category">Create New Seat Category</a>
+			<span class="label"
+				>No Categories Available you should add one: <a href="/admin/add_seat_category"
+					>Create New Seat Category</a
+				>
 			</span>
 		</div>
 	{/if}
+	<button
+		class="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+		onclick={() => {
+			languageAwareGoto('/admin/seatCategory');
+		}}
+	>
+		+ Sitzkategorie
+	</button>
 </div>
-
-<a href="/admin/add_seat_category">Create New Seat Category</a>
 
 <form method="POST" action="?/saveSeats">
 	<div>
@@ -233,12 +257,13 @@
 			{#each data.data.cinemas as cinema}
 				<option value={cinema.id}>{cinema.name}</option>
 			{/each}
+		</select>
 	</div>
 
 	<input type="hidden" name="seatPlanData" value={prepareSeatData()} />
 	<input type="hidden" name="hallId" value={hallId} />
 
-	<button type="submit" >Save Seat Plan</button>
+	<button type="submit" class="float">⬇</button>
 </form>
 
 {#if data?.form?.error}
@@ -248,26 +273,27 @@
 {/if}
 
 <div class="controls">
-    <div class="primary-controls">
-        <button onclick={addRow}>Add Row</button>
-        <button onclick={addColumn}>Add Column</button>
-        <button onclick={() => removeRow(seatPlan.length - 1)}>Remove Last Row</button>
-        <button onclick={() => removeColumn(seatPlan[0]?.length - 1)}>Remove Last Column</button>
-    </div>
-    
-    <div class="mode-toggle">
-        <label class="switch">
-            <input 
-                type="checkbox" 
-                checked={mode === 'changeType'} 
-                onclick={() => toggleMode(mode === 'removeRestore' ? 'changeType' : 'removeRestore')}
-            />
-            <span class="slider"></span>
-        </label>
-        <span class="toggle-label">{mode === 'removeRestore' ? 'Remove/Restore Mode' : 'Change Type Mode'}</span>
-    </div>
-</div>
+	<div class="primary-controls">
+		<button onclick={addRow}>Add Row</button>
+		<button onclick={addColumn}>Add Column</button>
+		<button onclick={() => removeRow(seatPlan.length - 1)}>Remove Last Row</button>
+		<button onclick={() => removeColumn(seatPlan[0]?.length - 1)}>Remove Last Column</button>
+	</div>
 
+	<div class="mode-toggle">
+		<label class="switch">
+			<input
+				type="checkbox"
+				class="toggle"
+				checked={mode === 'changeType'}
+				onclick={() => toggleMode(mode === 'removeRestore' ? 'changeType' : 'removeRestore')}
+			/>
+			<span class="slider"></span>
+		</label>
+		<span class="card-side"
+			>{mode === 'removeRestore' ? 'Remove/Restore Mode' : 'Change Type Mode'}</span>
+	</div>
+</div>
 
 <div class="container">
 	{#if seatPlan[0]}
@@ -294,237 +320,308 @@
 					{/if}
 				{/each}
 				<button class="row-btn" onclick={() => toggleRow(rowIndex)}
-					>Remove/Restore Row {rowIndex + 1}</button
+					><p style="font-size: 35px;">♻️</p></button
 				>
 			</div>
 		{/each}
 	</div>
 </div>
 
-
-
 <style>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  background-color: #f5f5f5;
-  padding: 20px;
-  position: relative;
-  max-width: fit-content;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+	.container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		background-color: #f5f5f5;
+		padding: 20px;
+		position: relative;
+		max-width: fit-content;
+		border: 1px solid #ddd;
+		border-radius: 10px;
+	}
 
-}
+	.float {
+		position: fixed;
+		width: 60px;
+		height: 60px;
+		bottom: 40px;
+		right: 40px;
+		background-color: #0c9;
+		color: #fff;
+		border-radius: 50px;
+		text-align: center;
+		box-shadow: 2px 2px 3px #999;
+	}
 
-/* Controls for adding/removing rows and columns */
-.controls {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 10px;
-}
+	/* Controls for adding/removing rows and columns */
+	.controls {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 20px;
+		gap: 10px;
+	}
 
-.controls button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-}
+	.controls button {
+		padding: 10px 20px;
+		background-color: #007bff;
+		color: white;
+		border: none;
+		cursor: pointer;
+		font-size: 14px;
+		border-radius: 5px;
+		transition: background-color 0.3s;
+	}
 
-.controls button:hover {
-  background-color: #0056b3;
-}
+	.controls button:hover {
+		background-color: #0056b3;
+	}
 
-.controls button.active {
-  background-color: #0056b3;
-  color: white;
-  font-weight: bold;
-}
+	.controls button.active {
+		background-color: #0056b3;
+		color: white;
+		font-weight: bold;
+	}
 
-/* Column controls for toggling columns */
-.column-controls {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 10px;
-  justify-content: flex-start;
-  width: fit-content;
-  
-}
+	/* Column controls for toggling columns */
+	.column-controls {
+		display: flex;
+		gap: 5px;
+		margin-bottom: 10px;
+		justify-content: flex-start;
+		width: fit-content;
+	}
 
-.column-controls button {
-  width: 70px;           /* Match the width of the seat */
-  height: 70px;          /* Match the height of the seat */
-  font-size: 14px;       /* Adjust font size for readability */
-  background-color: #ff5555;
-  color: white;
-  border: none;
-  cursor: pointer;
-  text-align: center;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-  display: flex;
-  justify-content: center;
-  align-items: center;   /* Center the text vertically */
-  padding: 0;
-  margin-right: 5px;
-}
+	.column-controls button {
+		width: 50px; /* Match the width of the seat */
+		height: 50px; /* Match the height of the seat */
+		font-size: 14px; /* Adjust font size for readability */
+		background-color: #ff5555;
+		color: white;
+		border: none;
+		cursor: pointer;
+		text-align: center;
+		border-radius: 5px;
+		transition: background-color 0.3s;
+		display: flex;
+		justify-content: center;
+		align-items: center; /* Center the text vertically */
+		padding: 0;
+		margin-right: 5px;
+	}
 
-.column-controls button:hover {
-  background-color: #d94444;
-}
+	.column-controls button:hover {
+		background-color: #d94444;
+	}
 
+	/* Seat plan grid layout */
+	.seat-plan {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
 
-/* Seat plan grid layout */
-.seat-plan {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+	/* Each row of seats */
+	.row {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
 
-/* Each row of seats */
-.row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+	/* Individual seat styling */
+	.seat {
+		width: 50px;
+		height: 50px;
+		border: 2px solid #888;
+		background-color: #f0f0f0;
+		font-size: 16px;
+		font-weight: bold;
+		text-align: center;
+		cursor: pointer;
+		border-radius: 5px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		transition:
+			background-color 0.3s,
+			border-color 0.3s;
+		line-height: 1.2;
+	}
 
-/* Individual seat styling */
-.seat {
-  width: 70px;
-  height: 70px;
-  border: 2px solid #888;
-  background-color: #f0f0f0;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  cursor: pointer;
-  border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.3s, border-color 0.3s;
-  line-height: 1.2;
-}
+	.seat:hover {
+		background-color: #d0d0d0;
+		border-color: #555;
+	}
 
-.seat:hover {
-  background-color: #d0d0d0;
-  border-color: #555;
-}
+	/* Placeholder seat for removed seats */
+	.seat.placeholder {
+		background-color: #e0e0e0;
+		color: #888;
+		border: 2px dashed #ccc;
+		cursor: pointer;
+	}
 
-/* Placeholder seat for removed seats */
-.seat.placeholder {
-  background-color: #e0e0e0;
-  color: #888;
-  border: 2px dashed #ccc;
-  cursor: pointer;
-}
+	.seat.placeholder:hover {
+		background-color: #d0d0d0;
+	}
 
-.seat.placeholder:hover {
-  background-color: #d0d0d0;
-}
+	/* Row buttons for removing/restoring rows */
+	.row-btn {
+		width: 50px; /* Increase the width to align with row content */
+		height: 50px; /* Match the height of the seat */
+		background-color: #ff5555;
+		color: white;
+		border: none;
+		cursor: pointer;
+		font-size: 14px;
+		text-align: center;
+		border-radius: 5px;
+		transition: background-color 0.3s;
+		display: flex;
+		justify-content: center;
+		align-items: center; /* Center the text vertically */
+		padding: 0;
+	}
 
-/* Row buttons for removing/restoring rows */
-.row-btn {
-  width: 150px;          /* Increase the width to align with row content */
-  height: 70px;          /* Match the height of the seat */
-  background-color: #ff5555;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  text-align: center;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-  display: flex;
-  justify-content: center;
-  align-items: center;   /* Center the text vertically */
-  padding: 0;
-}
+	.row-btn:hover {
+		background-color: #d94444;
+	}
 
+	.legend {
+		display: flex;
+		justify-content: flex-start;
+		gap: 20px;
+		margin-bottom: 20px;
+		padding: 10px;
+		background-color: #f0f0f0;
+		border: 1px solid #ddd;
+		border-radius: 10px;
+	}
 
-.row-btn:hover {
-  background-color: #d94444;
-}
+	.legend-item {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-size: 16px;
+	}
 
+	.legend-item .emoji {
+		font-size: 24px;
+	}
 
-.legend {
-  display: flex;
-  justify-content: flex-start;
-  gap: 20px;
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-}
+	.legend-item .label {
+		font-weight: bold;
+		color: #555;
+	}
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 16px;
-}
+	.success {
+		color: green;
+		font-weight: bold;
+	}
 
-.legend-item .emoji {
-  font-size: 24px;
-}
+	.error {
+		color: red;
+		font-weight: bold;
+	}
 
-.legend-item .label {
-  font-weight: bold;
-  color: #555;
-}
+	/* Unified hover effect for buttons in controls and row/column buttons */
+	.controls button:hover,
+	.column-controls button:hover,
+	.row-btn:hover {
+		background-color: #0056b3;
+	}
+	/* From Uiverse.io by andrew-demchenk0 */
+	.switch {
+		--input-focus: #2d8cf0;
+		--bg-color: #fff;
+		--bg-color-alt: #666;
+		--main-color: #323232;
+		--input-out-of-focus: #ccc;
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 30px;
+		width: 70px;
+		height: 36px;
+		transform: translateX(calc(50% - 10px));
+	}
 
-.success {
-    color: green;
-    font-weight: bold;
-  }
+	.toggle {
+		opacity: 0;
+	}
 
-  .error {
-    color: red;
-    font-weight: bold;
-  }
+	.slider {
+		box-sizing: border-box;
+		border-radius: 100px;
+		border: 2px solid var(--main-color);
+		box-shadow: 4px 4px var(--main-color);
+		position: absolute;
+		cursor: pointer;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: var(--input-out-of-focus);
+		transition: 0.3s;
+	}
 
+	.slider:before {
+		content: 'off';
+		box-sizing: border-box;
+		height: 30px;
+		width: 30px;
+		position: absolute;
+		left: 2px;
+		bottom: 1px;
+		border: 2px solid var(--main-color);
+		border-radius: 100px;
+		background-color: var(--bg-color);
+		color: var(--main-color);
+		font-size: 14px;
+		font-weight: 600;
+		text-align: center;
+		line-height: 25px;
+		transition: 0.3s;
+	}
 
-/* Unified hover effect for buttons in controls and row/column buttons */
-.controls button:hover,
-.column-controls button:hover,
-.row-btn:hover {
-  background-color: #0056b3;
-}
+	.toggle:checked + .slider {
+		background-color: var(--input-focus);
+		transform: translateX(-32px);
+	}
 
-/* Responsive Design: Adjust for smaller screens */
-@media (max-width: 600px) {
-  .controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
+	.toggle:checked + .slider:before {
+		content: 'on';
+		transform: translateX(32px);
+	}
 
-  .controls button {
-    width: 100%;
-  }
+	/* Responsive Design: Adjust for smaller screens */
+	@media (max-width: 600px) {
+		.controls {
+			flex-direction: column;
+			align-items: stretch;
+		}
 
-  .row {
-    flex-direction: column;
-  }
+		.controls button {
+			width: 100%;
+		}
 
-  .seat {
-    width: 100%;
-  }
+		.row {
+			flex-direction: column;
+		}
 
-  .column-controls {
-    flex-direction: column;
-    width: 100%;
-  }
+		.seat {
+			width: 100%;
+		}
 
-  .column-controls button {
-    width: 100%;
-  }
-}
+		.column-controls {
+			flex-direction: column;
+			width: 100%;
+		}
+
+		.column-controls button {
+			width: 100%;
+		}
+	}
 </style>
-
