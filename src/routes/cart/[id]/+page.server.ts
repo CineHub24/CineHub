@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
-import { film, showing } from '$lib/server/db/schema';
-import { error, type Actions } from '@sveltejs/kit';
-import { eq, lt, gte, ne } from 'drizzle-orm';
+import { film, priceDiscount, showing } from '$lib/server/db/schema';
+import { error, fail, type Actions } from '@sveltejs/kit';
+import { eq, lt, gte, ne, and} from 'drizzle-orm';
 
 export const load = async ({ url }) => {
 	const showingId = <unknown>url.pathname.replace('/cart/', '');
@@ -12,7 +12,7 @@ export const load = async ({ url }) => {
             "showingId": showingId,
             "state": "reserved",
             "type": "adult",
-            "price": 5,
+            "price": 50,
             "seatId": 0,
         },
         {
@@ -20,7 +20,7 @@ export const load = async ({ url }) => {
             "showingId": showingId,
             "state": "reserved",
             "type": "adult",
-            "price": 5,
+            "price": 3,
             "seatId": 1,
         }
     ]
@@ -36,6 +36,37 @@ export const load = async ({ url }) => {
         "totalPrice": calculatePrice(tickets),
         "tickets": tickets,
     }
+    
 
     return booking
 };
+
+export const actions = {
+
+    discount: async ({ request }) => {
+
+        const data = await request.formData();
+        const discountCode = data.get('discount-code') as string;
+        try {
+            const discount = await db.select().from(priceDiscount).where(and(eq(priceDiscount.code, discountCode), gte(priceDiscount.expiresAt, new Date().toISOString())));
+            if (discount.length === 0) {
+                return fail(400, {error:'Discount code not found or expired'});
+            } else {
+                console.log(discount[0]);
+                return {
+                    success: `Discount code applied successfully`, 
+                    discount: discount[0]
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            return fail(500, {error: 'Server error while checking discount code'});
+        }
+        
+
+        
+
+    }
+
+
+}
