@@ -4,7 +4,7 @@ import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 
 export const load = async ({ url }) => {
-	let showingId = <unknown>url.pathname.replace('/cart/', '');
+	const showingId = <unknown>url.pathname.replace('/cart/', '');
 
     const tickets = [
         {

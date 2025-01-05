@@ -54,6 +54,7 @@
 		"@node-rs/argon2": "^1.1.0",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
+		"@paypal/paypal-js": "^8.1.2",
 		"@pilcrowjs/object-parser": "^0.0.4",
 		"@tailwindcss/container-queries": "^0.1.1",
 		"@tailwindcss/forms": "^0.5.9",

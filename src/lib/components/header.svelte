@@ -184,16 +184,21 @@
 
 <style>
 	header {
-		width: 100%;
-		height: 8vh;
-		margin: 0 auto;
-		position: sticky; /* Makes the header sticky */
-		top: 0; /* Sticks to the top of the viewport */
-		z-index: 1000; /* Ensures it stays above other elements */
-	}
+    width: 100%;
+    height: 5vh; /* Reduziert die Höhe auf 6% der Viewport-Höhe */
+    margin: 0 auto;
+    position: sticky; /* Sticks to the top */
+    top: 0; /* Fixiert den Header oben */
+    z-index: 1000; /* Stellt sicher, dass er über anderen Elementen bleibt */
+    background-color: #ffffff; /* Weißer Hintergrund */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Dezenter Schatten für mehr Tiefe */
+}
 
-	/* Dropdown sichtbar bei Hover */
-	.relative:hover .absolute {
-		display: block;
-	}
+header a, header div, header span {
+    line-height: 6vh; /* Vertikale Zentrierung von Text und Icons */
+}
+
+header .relative:hover .absolute {
+    display: block;
+}
 </style>
