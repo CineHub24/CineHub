@@ -1,3 +1,4 @@
+import { price } from '$lib/paraglide/messages';
 import { sql } from 'drizzle-orm';
 import {
 	uuid,
@@ -22,6 +23,11 @@ export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'paid',
 	'validated',	
 	'refunded',
+]);
+
+export const discountTypesEnum = pgEnum('discountTypes', [
+	'percentage',
+	'fixed',
 ]);
 
 export const user = pgTable('User', {
@@ -166,9 +172,9 @@ export const paymentType = pgTable('PaymentType', {
 
 export const priceDiscount = pgTable('PriceDiscount', {
 	id: serial('id').primaryKey(),
-	code: text('code'),
-	value: decimal('value', { precision: 10, scale: 2 }),
-	discountType: text('discountType')
+	code: text('code').notNull(),
+	value: decimal('value', { precision: 10, scale: 2 }).notNull(),
+	discountType: discountTypesEnum('discountType').default('percentage').notNull(),
 });
 
 export const ticket = pgTable('Ticket', {

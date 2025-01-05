@@ -99,6 +99,7 @@
 	"description": "Beschreibung",
 	"seat_category_description": "Beschreibung der Sitzkategorie",
 	"emoji": "Emoji",
+	"cannot_remove_seat_category": "Sie können diese Sitzkategorie nicht entfernen, da sie als Standard verwendet wird",
 
 	"ticket_types_management": "Tickettypen-Verwaltung",
 	"manage_price_sets": "⬆ Preissets verwalten",
@@ -119,4 +120,5 @@
 	"collect_refund": "Rückerstattung einfordern",
 	"book_new_ticket": "Neues Ticket buchen",
 	"return_to_home": "Zurück zur Startseite"
+
 }

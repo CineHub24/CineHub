@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { languageAwareGoto } from '$lib/utils/languageAware.js';
 	import * as m from '$lib/paraglide/messages.js';
 	import { formatDate, formatTime } from '$lib/utils/formatter.js';
 
@@ -12,6 +13,7 @@
 
 	function bookNewTicket() {
 		// Add logic to book new ticket
+		languageAwareGoto('/');
 	}
 </script>
 
@@ -26,22 +28,32 @@
 				{m.apology_and_instructions({})}
 			</p>
 
-			{#each refundableShows as show}
-				<div class="show-card">
-					<h2>{show.filmTitle}</h2>
-					<p class="show-details">{m.date({})}: {formatDate(show.date)} | {m.time({})}: {formatTime(show.time)}</p>
-					<p class="show-details">{m.booked_seats({})}: {show.ticketCount}</p>
-					<p class="refund-amount">{m.refund_amount({})}: {show.totalPrice}€</p>
+			<form method="POST">
+				{#each refundableShows as show}
+					<div class="show-card">
+						<h2>{show.filmTitle}</h2>
+						<p class="show-details">
+							{m.date({})}: {formatDate(show.date)} | {m.time({})}: {formatTime(show.time)}
+						</p>
+						<p class="show-details">{m.booked_seats({})}: {show.ticketCount}</p>
+						<p class="refund-amount">{m.refund_amount({})}: {show.totalPrice}€</p>
 
-					<div class="options">
-						<button class="refund-btn" onclick={() => collectRefund()}
-							>{m.collect_refund({})}</button
-						>
-						<button class="book-btn" onclick={() => bookNewTicket()}>{m.book_new_ticket({})}</button
-						>
+						{#each show.ticketIds as ticketId}
+							<input class="form-input" name="ticketIds" type="hidden" value={ticketId} />
+						{/each}
+						<input class="form-input" name="totalPrice" type="hidden" value={show.totalPrice} />
+
+						<div class="options">
+							<button class="refund-btn" formaction="?/refund" type="submit">
+								{m.collect_refund({})}
+							</button>
+							<button class="book-btn" formaction="?/bookNew" type="submit">
+								{m.book_new_ticket({})}
+							</button>
+						</div>
 					</div>
-				</div>
-			{/each}
+				{/each}
+			</form>
 		{/if}
 
 		<div class="form-actions">

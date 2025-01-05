@@ -99,6 +99,7 @@
 	"description": "Description",
 	"seat_category_description": "Seat Category Description",
 	"emoji": "Emoji",
+	"cannot_remove_seat_category": "Cannot remove seat category, it is used as a standard",
 
 	"ticket_types_management": "Ticket Types Management",
 	"manage_price_sets": "⬆ Manage Price Sets",
