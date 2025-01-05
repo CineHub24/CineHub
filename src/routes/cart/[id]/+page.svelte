@@ -3,47 +3,92 @@
   import Button from "$lib/components/button.svelte";
   import { loadStripe, type Stripe } from '@stripe/stripe-js';
   import { onMount } from 'svelte';
-  import type { PageServerData } from './$types';
+  import type { ActionData, PageServerData } from './$types';
   import PayPalButton from "$lib/components/PayPalButton.svelte";
   import { writable, derived } from 'svelte/store';
 
   const PUBLIC_STRIPE_KEY = import.meta.env.PUBLIC_STRIPE_KEY;
 
-  const { data }: { data: PageServerData } = $props();
-  const booking = data;
-
-  let stripe: Stripe | null = null;
-
-  //let totalPrice = 0;
-  //let vat = 0;
-  const vatRate = 0.19; // 19% MwSt
-
-  const discountCode = writable(''); // Eingabefeld für den Rabattcode
-  const appliedDiscountCode = writable(''); // Tatsächlich eingelöster Rabattcode
-
-  const discount = () => {
-  switch ($appliedDiscountCode.toLowerCase()) {
-    case 'welcome10':
-      return 0.1; // 10%
-    case 'greg20':
-      return 0.2; // 20%
-    case 'happy-birthday15':
-      return 0.15; // 15%
-    default:
-      return 0; // Kein Rabatt
+  type DiscountType = 'percentage' | 'absolute';
+  
+  interface Discount {
+    value: number;
+    discounttype: DiscountType;
   }
-};
 
+  export let data: PageServerData;
+  export let form: ActionData;
+  
+  const booking = data;
+  let stripe: Stripe | null = null;
+  const vatRate = 0.19;
 
-  // Reaktive Berechnung von totalPrice und vat
-  const totalPrice = booking.tickets.reduce((sum, ticket) => sum + ticket.price, 0) * (1- discount);
-  const vat = totalPrice * vatRate;
+  // Stores
+  const bookingStore = writable(booking);
+  const formStore = writable(form);
+  const discountCode = writable('');
+
+  // Derived store for discount information
+  const discountInfo = derived(formStore, $form => {
+    if (!$form?.discount) return null;
+    return {
+      value: $form.discount.value,
+      type: $form.discount.discountType
+    };
+  });
+
+  const basePrice = derived(bookingStore, $booking => 
+    $booking.tickets.reduce((sum, ticket) => sum + ticket.price, 0)
+  );
+
+  // Updated discountedPrice calculation with type check
+  const discountedPrice = derived(
+    [basePrice, discountInfo], 
+    ([$basePrice, $discountInfo]) => {
+      if (!$discountInfo) return $basePrice;
+
+      if ($discountInfo.type === 'percentage') {
+        // Percentage discount: multiply by (1 - percentage)
+        return $basePrice * (1 - Number($discountInfo.value));
+      } else {
+        // Absolute discount: subtract the fixed amount
+        // Ensure price doesn't go below 0
+        console.log(Number($discountInfo.value));
+        return Math.max(0, $basePrice - Number($discountInfo.value));
+
+      }
+    }
+  );
+
+  const vat = derived(
+    discountedPrice, 
+    $discountedPrice => $discountedPrice * vatRate
+  );
+
+  const total = derived(
+    discountedPrice,
+    $discountedPrice => $discountedPrice
+  );
+
+  // Update stores when props change
+  $: formStore.set(form);
+  $: bookingStore.set(booking);
 
   onMount(async () => {
     stripe = await loadStripe(PUBLIC_STRIPE_KEY);
   });
-</script>
 
+  // Helper function to format discount display
+  function formatDiscount($discountInfo: { value: any; type: any; }, $basePrice: number): string {
+    if (!$discountInfo) return '';
+    
+    if ($discountInfo.type === 'percentage') {
+      return `${($discountInfo.value * 100)}%`;
+    } else {
+      return `${$discountInfo.value} €`;
+    }
+  }
+</script>
 
 <div class="checkout-container">
   <div class="checkout-left">
@@ -66,8 +111,8 @@
         <input type="text" id="lastname" name="lastname" placeholder="Nachname" required />
       </div>
 
-      <input type="text" id="address" name="address" placeholder="Adresse" required style="margin-bottom: 10px;" />
-      <input type="text" id="additional-info" name="additional-info" placeholder="Wohnung, Zimmer, usw. (optional)" style="margin-bottom: 10px;" />
+      <input type="text" id="address" name="address" placeholder="Adresse" required />
+      <input type="text" id="additional-info" name="additional-info" placeholder="Wohnung, Zimmer, usw. (optional)" />
 
       <div class="input-row">
         <input type="text" id="postal-code" name="postal-code" placeholder="Postleitzahl" required />
@@ -77,54 +122,73 @@
       <h2 class="section-title" style="padding-top: 20px;">Bezahlart</h2>
       <div class="payment-methods">
         <PayPalButton
-        clientId="AbV-7ICaqhM9Xn21eTHQakdRmE0F5IS83yhLr5QNQBIWvbDZcqPPytIFq3AEPKjh09a3lpmMaQMo2DyW"
-        amount="0.01"
-        currency="EUR"
+          clientId="AbV-7ICaqhM9Xn21eTHQakdRmE0F5IS83yhLr5QNQBIWvbDZcqPPytIFq3AEPKjh09a3lpmMaQMo2DyW"
+          amount="0.01"
+          currency="EUR"
         />
       </div>
     </form>
-    <div class="legal-links">
-      <a href="#" class="underline">Widerrufsrecht</a>
-      <a href="#" class="underline">Datenschutzerklärung</a>
-      <a href="#" class="underline">Allgemeine Geschäftsbedingungen</a>
-      <a href="#" class="underline">Impressum</a>
-    </div>
   </div>
 
   <div class="vertical-divider"></div>
 
   <div class="checkout-right">
     <div class="order-summary">
-      {#each booking.tickets as ticket (ticket.id)}
-  <div class="item">
-    <p>Film: {ticket.showingId}</p>
-    <p>Zustand: {ticket.state}</p>
-    <p>Typ: {ticket.type}</p>
-    <p>Sitzplatz: {ticket.seatId}</p>
-    <p>Preis: {ticket.price} €</p>
-  </div>
-{/each}
+      {#each $bookingStore.tickets as ticket (ticket.id)}
+        <div class="item">
+          <p>Film: {ticket.showingId}</p>
+          <p>Zustand: {ticket.state}</p>
+          <p>Typ: {ticket.type}</p>
+          <p>Sitzplatz: {ticket.seatId}</p>
+          <p>Preis: {ticket.price} €</p>
+        </div>
+      {/each}
+
       <div class="discount">
-        <input type="text" id="discount-code" name="discount-code" placeholder="Code eingeben" class="rounded-input" />
-        <Button type="button">Anwenden</Button>
+        <form action="?/discount" method="post">
+          <input 
+            type="text" 
+            id="discount-code" 
+            name="discount-code" 
+            placeholder="Code eingeben" 
+            class="rounded-input"
+            bind:value={$discountCode}
+          />
+          <Button type="submit">Anwenden</Button>
+        </form>
+        
+        {#if $formStore?.error}
+          <p style="color: red;">{$formStore.error}</p>
+        {:else if $formStore?.success}
+          <p style="color: green;">{$formStore.success}</p>
+        {/if}
       </div>
+
       <div class="totals">
         <div class="totals-row">
           <span>Zwischensumme:</span>
-          <span>{totalPrice.toFixed(2)} €</span>
+          <span>{$basePrice.toFixed(2)} €</span>
         </div>
+        
+        {#if $discountInfo}
+          <div class="totals-row">
+            <span>Rabatt ({formatDiscount($discountInfo, $basePrice)}):</span>
+            <span>-{($basePrice - $discountedPrice).toFixed(2)} €</span>
+          </div>
+        {/if}
+        
         <div class="totals-row">
           <span>inkl. MwSt ({(vatRate * 100).toFixed(0)}%):</span>
-          <span>{vat.toFixed(2)} €</span>
+          <span>{$vat.toFixed(2)} €</span>
         </div>
+        
         <div class="totals-row total">
           <span>Gesamt:</span>
-          <span>{(totalPrice).toFixed(2)} €</span>
+          <span>{$total.toFixed(2)} €</span>
         </div>
-      </div>      
-    </div>    
-</div>
-
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -167,35 +231,22 @@
   }
 
   .input-row {
-    display: flex; /* Flexbox-Layout aktivieren */
-    gap: 10px; /* Abstand zwischen den Feldern */
-}
-
-.input-row input {
-    flex: 1; /* Gleiche Breite für beide Inputs */
-    min-width: 0; /* Verhindert, dass Inhalte das Layout sprengen */
-}
-
-.newsletter {
-    display: flex;
-    align-items: center; /* Für bessere Ausrichtung */
-}
-
-.newsletter label {
-    margin-top: -12px; /* Den Text leicht nach oben verschieben */
-    margin-left: 10px;
-}
-
-  .rounded-input {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-  }
-
-  .payment-methods {
     display: flex;
     gap: 10px;
-    margin-top: 20px;
+  }
+
+  .input-row input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .newsletter {
+    display: flex;
+    align-items: center;
+  }
+
+  .newsletter label {
+    margin-left: 10px;
   }
 
   .section-title {
@@ -203,66 +254,36 @@
     font-weight: bold;
   }
 
-  .legal-links {
-    margin-top: 260px;
+  .order-summary .item {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+    margin-bottom: 10px;
+  }
+
+  .totals-row {
     display: flex;
     justify-content: space-between;
-    font-size: 14px;
+    padding: 5px 0;
   }
 
-  .legal-links a {
-    text-decoration: underline;
+  .totals-row.total {
+    font-weight: bold;
+    font-size: 1.2em;
   }
 
-  .order-summary {
-    padding: 15px;
-    border-radius: 5px;
+  .discount {
+    margin: 20px 0;
   }
 
-  .order-summary .item, .order-summary .totals {
-    margin-bottom: 15px;
-  }
-
-  .order-summary .discount {
-    margin-top: 10px;
+  .discount form {
     display: flex;
-    align-items: center;
     gap: 10px;
   }
 
-  .totals {
-    margin-top: 15px;
-}
-
-.totals-row {
-    display: flex; /* Flexbox aktivieren */
-    justify-content: space-between; /* Elemente links und rechts ausrichten */
-    padding: 5px 0; /* Abstand zwischen den Reihen */
-}
-
-.totals-row.total {
-    font-weight: bold; /* Fett für die Gesamtzeile */
-    font-size: 1.2em; /* Größere Schrift für die Gesamtzeile */
-}
-
-.discount {
-    display: flex; /* Aktiviert Flexbox */
-    gap: 10px; /* Abstand zwischen Textfeld und Button */
-    align-items: center; /* Vertikale Zentrierung */
-}
-
-.discount .rounded-input {
-    flex: 1; /* Nimmt so viel Platz wie möglich ein */
-    min-width: 0; /* Verhindert Layout-Probleme bei Überlauf */
-}
-.order-summary .item {
-  border-bottom: 1px solid #ccc;
-  padding: 10px 0;
-  margin-bottom: 10px;
-}
-
-  Button.disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  .rounded-input {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    flex: 1;
   }
 </style>

@@ -22,7 +22,7 @@
 				<h3 class="mb-4 text-lg font-semibold">{m.quick_links({})}</h3>
 				<ul class="space-y-2">
 					<li><a href="/" class="transition hover:text-gray-600">{m.home({})}</a></li>
-					<li><a href="/program" class="transition hover:text-gray-600">{m.program({})}</a></li>
+					<!-- <li><a href="/program" class="transition hover:text-gray-600">{m.program({})}</a></li> -->
 					<li><a href="/tickets" class="transition hover:text-gray-600">{m.tickets({})}</a></li>
 					<li><a href="/about" class="transition hover:text-gray-600">{m.about({})}</a></li>
 				</ul>

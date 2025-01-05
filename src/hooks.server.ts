@@ -48,11 +48,26 @@ const handleAdmin: Handle = async ({ event, resolve }) => {
 	}
 };
 
+const handleInspector: Handle = async ({ event, resolve }) => {
+
+	const user = event.locals.user;
+	if (user && (user.role === 'inspector' || user.role === 'admin')) {
+		return resolve(event);
+	} else {
+		const message = new Response("Forbidden", {status: 403, statusText: "Forbidden - You are not an inspector"});
+		console.log(message, user);
+		return message;
+	}
+}
+
 const handleParaglide: Handle = i18n.handle();
 
 const handle: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/admin')) {
 		return sequence(handleAuth, handleAdmin, handleParaglide)({ event, resolve });
+	}
+	if (event.url.pathname.startsWith('/validation')) {
+		return sequence(handleAuth, handleInspector, handleParaglide)({ event, resolve });
 	}
 	return sequence(handleAuth, handleParaglide)({ event, resolve });
 };

@@ -1,62 +1,62 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { is } from 'drizzle-orm';
 	import type { PageServerData } from './$types';
 
     let{data}:{data:PageServerData} = $props()
 
-    const {seatCategories} = data;
+    const {ticketTypes} = data;
 
-    let isCreatingNewSeatCategory = $state(false);
-    let editingSeatCategoryId = $state<number | null>(null);
+    let isCreatingNewticketType = $state(false);
+    let editingticketTypeId = $state<number | null>(null);
 
 
     function cancelEdit() {
-        isCreatingNewSeatCategory = false;
-        editingSeatCategoryId = null;
+        isCreatingNewticketType = false;
+        editingticketTypeId = null;
     }
 
-    function startNewSeatCategory() {
-        isCreatingNewSeatCategory = true;
-        editingSeatCategoryId = null;
+    function startNewticketType() {
+        isCreatingNewticketType = true;
+        editingticketTypeId = null;
     }
 
-    // Sort seat categories
-    seatCategories.sort((a, b) => 
+    ticketTypes.sort((a, b) => 
         a.name?.localeCompare(b.name??'') ?? 0
     );
 </script>
 
 <div class="container">
-    <h1 class="page-title">Sitzkategorien Verwaltung</h1>
+    <h1 class="page-title">Tickettypen Verwaltung</h1>
     
+    {#if !isCreatingNewticketType}
+    <button class="new-priceset-btn" onclick={() => goto('/admin/price-set')}>⬆ Preissets verwalten</button>
 
+        <button class="new-priceset-btn" onclick={startNewticketType}>
+           + Neuen Tickettyp anlegen
+        </button>
 
-    {#if isCreatingNewSeatCategory}
-        <button class="new-priceset-btn" onclick={cancelEdit}>⬅ sitz Kategorie</button>
     {/if}
-
-    {#if !isCreatingNewSeatCategory}
-    <button class="new-priceset-btn" onclick={() => history.back() }> ⬆ </button>
-
-        <button class="new-priceset-btn" onclick={startNewSeatCategory}>
-        + Neue Sitzkategorie anlegen
+    {#if isCreatingNewticketType}
+        <button class="new-priceset-btn" onclick={cancelEdit}>
+           ⬅ Abbrechen
         </button>
     {/if}
 
     <div class="priceset-grid">
-        {#if isCreatingNewSeatCategory}
+        {#if isCreatingNewticketType}
             <div class="priceset-card">
-                <h2 class="priceset-title">Neue Sitzkategorie</h2>
+                <h2 class="priceset-title">Neuer Tickettyp</h2>
                 
                 <form 
                     method="POST" 
-                    action="?/createSeatCategory" 
+                    action="?/createTicketType" 
                 >
                     <div class="form-group">
-                        <label for="name">Name der Sitzkategorie:</label>
+                        <label for="name">Name des Tickettypen:</label>
                         <input 
                             class="form-input" 
-                            placeholder="Name der Sitzkategorie"
+                            placeholder="Name des Tickettypen"
                             name="name"
                             type="text"
                             required
@@ -64,13 +64,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="price">Preis:</label>
+                        <label for="factor">Faktor:</label>
                         <input 
                             class="form-input" 
                             type="number" 
                             step="0.01" 
-                            name="price"
-                            placeholder="Preis der Sitzkategorie"
+                            name="factor"
+                            placeholder="Faktor des Tickettypen"
                             required
                         />
                     </div>
@@ -81,22 +81,10 @@
                             type="text" 
                             step="0.01" 
                             name="description"
-                            placeholder="Beschreibung der Sitzkategorie"
+                            placeholder="Beschreibung des Tickettypen"
                             required
                         />
                     </div>
-
-                    <div class="form-group">
-                        <label for="emoji">Emoji:</label>
-                        <input 
-                            class="form-input" 
-                            type="text" 
-                            name="emoji"
-                            placeholder="emoji der Sitzkategorie"
-                            required
-                        />
-                    </div>
-
                     
                     <div class="form-actions">
                         <button type="submit" class="btn btn-edit">Speichern</button>
@@ -112,40 +100,41 @@
             </div>
         {/if}
 
-        {#each seatCategories as seatCategory}
+        {#each ticketTypes as ticketType}
             <div class="priceset-card">
-                {#if editingSeatCategoryId === seatCategory.id}
+                {#if editingticketTypeId === ticketType.id}
+                
                     <form 
                         method="POST" 
-                        action="?/updateSeatCategory" 
+                        action="?/updateTicketType" 
                     >
                         <input 
                             type="hidden" 
                             name="id" 
-                            value={seatCategory.id} 
+                            value={ticketType.id} 
                         />
                         
                         <div class="form-group">
-                            <label for="name">Name der Sitzkategorie:</label>
+                            <label for="name">Name des Tickettypen:</label>
                             <input 
                                 class="form-input" 
-                                placeholder="Name der Sitzkategorie"
+                                placeholder="Name des Tickettypen"
                                 name="name"
                                 type="text"
-                                value={seatCategory.name}
+                                value={ticketType.name}
                                 required
                             />
                         </div>
 
                         <div class="form-group">
-                            <label for="price">Preis:</label>
+                            <label for="factor">Faktor:</label>
                             <input 
                                 class="form-input" 
                                 type="number" 
                                 step="0.01" 
-                                name="price"
-                                placeholder="Preis der Sitzkategorie"
-                                value={seatCategory.price}
+                                name="factor"
+                                placeholder="Faktor des Tickettypen"
+                                value={ticketType.factor}
                                 required
                             />
                         </div>
@@ -157,26 +146,11 @@
                                 type="text" 
                                 step="0.01" 
                                 name="description"
-                                placeholder="Beschreibung der Sitzkategorie"
-                                value={seatCategory.description}
+                                placeholder="Beschreibung des Tickettypen"
+                                value={ticketType.description}
                                 required
                             />
                         </div>
-
-                            
-                        <div class="form-group">
-                            <label for="emoji">Emoji:</label>
-                            <input 
-                                class="form-input" 
-                                type="text" 
-                                name="emoji"
-                                placeholder="emoji der Sitzkategorie"
-                                value={seatCategory.emoji}
-                                required
-                            />
-                        </div>
-
-
                         <div class="form-actions">
                             <button type="submit" class="btn btn-edit">Speichern</button>
                             <button 
@@ -189,26 +163,26 @@
                         </div>
                     </form>
                 {:else}
-                    <h2 class="priceset-title">{seatCategory.name}</h2>
-                    <p>Preis: {parseFloat(seatCategory.price ?? '0').toFixed(2)}€</p>
-                    <p>Beschreibung: {seatCategory.description}</p>
+                    <h2 class="priceset-title">{ticketType.name}</h2>
+                    <p>Faktor: {Math.round(parseFloat(ticketType.factor ?? '1.0') * 100)}%</p>
+                    <p>Beschreibung: {ticketType.description}</p>
             
                     <div class="card-actions">
                         <button 
                             class="btn btn-edit" 
-                            onclick={() => editingSeatCategoryId = seatCategory.id}
+                            onclick={() => editingticketTypeId = ticketType.id}
                         >
                             Bearbeiten
                         </button>
                         
                         <form 
                             method="POST" 
-                            action="?/deleteSeatCategory" 
+                            action="?/deleteTicketType" 
                         >
                             <input 
                                 type="hidden" 
                                 name="id" 
-                                value={seatCategory.id} 
+                                value={ticketType.id} 
                             />
                             <button 
                                 type="submit" 
@@ -280,7 +254,6 @@
         margin-bottom: 1rem;
         font-weight: 600;
     }
-    
     
     .card-actions {
         display: flex;

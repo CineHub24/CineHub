@@ -18,7 +18,8 @@
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-		"db:startWithPodman": "podman compose up --detach && drizzle-kit push"
+		"db:startWithPodman": "podman compose up --detach && drizzle-kit push",
+		"compilei18N": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.45.3",
@@ -28,6 +29,8 @@
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
 		"@testing-library/svelte": "^5.2.6",
 		"@types/jest": "^29.5.14",
+		"@types/nodemailer": "^6.4.17",
+		"@types/qrcode": "^1.5.5",
 		"@vitest/coverage-v8": "^2.1.6",
 		"autoprefixer": "^10.4.20",
 		"drizzle-kit": "^0.22.0",
@@ -56,6 +59,7 @@
 		"@oslojs/encoding": "^1.1.0",
 		"@paypal/paypal-js": "^8.1.2",
 		"@pilcrowjs/object-parser": "^0.0.4",
+		"@prisma/client": "^6.1.0",
 		"@tailwindcss/container-queries": "^0.1.1",
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
@@ -63,7 +67,11 @@
 		"arctic": "^2.3.0",
 		"drizzle-orm": "^0.33.0",
 		"font-awesome": "^4.7.0",
+		"html5-qrcode": "^2.3.8",
+		"jsqr": "^1.4.0",
 		"lucide-svelte": "^0.464.0",
-		"postgres": "^3.4.4"
+		"nodemailer": "^6.9.16",
+		"postgres": "^3.4.4",
+		"qrcode": "^1.5.4"
 	}
 }
