@@ -20,22 +20,9 @@ vi.clearAllMocks();
 });
 
 it('should load movies, halls, and price sets', async () => {
-const mockMovies = [{ id: 1, title: 'Test Movie' }];
-const mockHalls = [{ id: 1, name: 'Test Hall', cinema: { id: 1, name: 'Test Cinema' } }];
-const mockPriceSets = [{ id: 1, name: 'Standard' }];
-
-const mockExecute = vi.fn();
-mockExecute.mockResolvedValueOnce(mockMovies);
-mockExecute.mockResolvedValueOnce(mockHalls);
-mockExecute.mockResolvedValueOnce(mockPriceSets);
-
-const mockFrom = vi.fn().mockReturnThis();
-const mockLeftJoin = vi.fn().mockReturnThis();
-
 const mockSelect = {
-from: mockFrom,
-leftJoin: mockLeftJoin,
-execute: mockExecute,
+from: vi.fn().mockReturnThis(),
+leftJoin: vi.fn().mockReturnThis(),
 };
 
 vi.mocked(db.select).mockReturnValue(mockSelect as any);
@@ -49,21 +36,20 @@ priceSets: mockSelect
 });
 
 expect(db.select).toHaveBeenCalledTimes(3);
-expect(mockFrom).toHaveBeenCalledTimes(3);
-expect(mockLeftJoin).toHaveBeenCalledTimes(1);
-// Wir erwarten nicht, dass execute aufgerufen wird, da die load-Funktion
-// die Query-Objekte direkt zurückgibt
-expect(mockExecute).not.toHaveBeenCalled();
+expect(mockSelect.from).toHaveBeenCalledTimes(3);
+expect(mockSelect.leftJoin).toHaveBeenCalledTimes(1);
 });
 
 it('should return a fail response on error', async () => {
-const mockExecute = vi.fn().mockRejectedValueOnce(new Error('Database error'));
-
-vi.mocked(db.select).mockReturnValue({
+const mockSelect = {
 from: vi.fn().mockReturnThis(),
 leftJoin: vi.fn().mockReturnThis(),
-execute: mockExecute,
-} as any);
+};
+
+// Simulate an error on the first db.select call
+vi.mocked(db.select)
+.mockImplementationOnce(() => { throw new Error('Database error'); })
+.mockReturnValue(mockSelect as any);
 
 const result = await load({} as any);
 

@@ -20,7 +20,7 @@ export const actions: Actions = {
     logout: async (event) => {
         // Check if a session exists
         if (!event.locals.session) {
-            return fail(401, { message: 'Unauthorized' });
+            return fail(401, { error: 'Unauthorized' });
         }
 
         try {
@@ -29,7 +29,7 @@ export const actions: Actions = {
             auth.deleteSessionTokenCookie(event);
         } catch (error) {
             console.error('Error during logout:', error);
-            return fail(500, { message: 'Internal Server Error' });
+            return fail(500, { error: 'Internal Server Error' });
         }
 
         // Redirect to the homepage after logout

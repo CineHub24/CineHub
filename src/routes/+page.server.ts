@@ -2,9 +2,7 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { gte, asc, and, ne } from 'drizzle-orm';
 
-import type { PageServerLoad } from './$types';
-
-export const load: PageServerLoad = async () => {
+export const load = async () => {
 	const movies = await db.select().from(table.film);
 
 	const shows = await db
