@@ -68,7 +68,7 @@ export const actions: Actions = {
 		//TODO: Book New Ticket with refundAmount as discount
 
 		const formData = await request.formData();
-		const refundAmount = formData.get('totalPrice') as unknown as number;
+		const refundAmount = formData.get('totalPrice') as string;
 		
 
 		const code = await generateUniqueCode();
