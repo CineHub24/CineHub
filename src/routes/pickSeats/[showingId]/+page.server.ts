@@ -3,6 +3,8 @@ import { seat, cinemaHall, seatCategory, showing, ticket, booking, ticketType } 
 import { eq, inArray, sql, and } from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../../$types';
+import { goto } from '$app/navigation';
+import { languageAwareGoto } from '$lib/utils/languageAware';
 
 
 
@@ -28,6 +30,8 @@ export const actions = {
 
     //das hier funkctionert noch nicht
     bookSeats: async ({ request, locals }) => {
+        let shouldRedirect = false;
+
         const formData = await request.formData();
         const showingId = Number(formData.get('showingId'));
         const seatIds = formData.getAll('seatIds').map(id => Number(id));
@@ -98,14 +102,15 @@ export const actions = {
                 .insert(ticket)
                 .values(ticketsToCreate);
 
-            return {
-                success: true
-            };
+            shouldRedirect = true;
         } catch (error) {
             console.error('Error creating tickets:', error);
             return fail(500, {
                 error: 'Failed to book seats. Please try again.'
             });
+        }
+        if (shouldRedirect) {
+            throw redirect(303, '/booking/1');
         }
     }
 } satisfies Actions;

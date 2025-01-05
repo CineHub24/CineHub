@@ -130,6 +130,33 @@
 			{/if}
 		</div>
 	</div>
+
+
+	    <!-- Screen Indicator -->
+		<div class="relative mb-12">
+			<div class="w-3/4 mx-auto h-2 bg-gray-300 rounded-lg transform -skew-y-1"></div>
+			<p class="text-center text-gray-500 mt-2">Screen</p>
+		</div>
+
+		<!-- Seat Legend -->
+		<div class="flex justify-center gap-4 mb-6">
+			<div class="flex items-center gap-2">
+				<div class="w-6 h-6 bg-yellow-500 rounded"></div>
+				<span>Standard</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="w-6 h-6 bg-blue-500 rounded"></div>
+				<span>Premium</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="w-6 h-6 bg-purple-500 rounded"></div>
+				<span>VIP</span>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="w-6 h-6 bg-gray-500 rounded"></div>
+				<span>Booked</span>
+			</div>
+		</div>
 </div>
 
 <style>
