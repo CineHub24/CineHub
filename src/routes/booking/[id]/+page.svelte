@@ -2,9 +2,6 @@
   import { writable } from "svelte/store";
   import type { PageServerData } from './$types';
 
-  const { data }: { data: PageServerData } = $props();
-  const tickets = data.tickets;
-
   type Ticket = {
     showingDate: string | null;
     showingTime: string | null;
@@ -20,19 +17,24 @@
     seatType: string | null;
     ticketTypeName: string | null;
     ticketStatus: "reserved" | "booked" | "validated" | "cancelled";
+    bookingId: number | null;
     bookingDate: string | null;
     bookingTime: string | null;
     bookingTotalPrice: string | null;
     discountCode: string | null;
     discountValue: string | null;
   };
+  
+  const { data }: { data: PageServerData } = $props();
+  const tickets: Ticket[] = data.tickets as Ticket[];
+  const user = data.user
 
-  const ticketsByShowing = tickets.reduce<Record<string, Ticket[]>>((acc, ticket) => {
+  const ticketsByShowing = tickets.reduce((acc: Record<string, Ticket[]>, ticket) => {
     const key = `${ticket.showingDate}_${ticket.showingTime}_${ticket.movieTitle}`;
     if (!acc[key]) acc[key] = [];
     acc[key].push(ticket);
     return acc;
-  }, {});
+  }, {} as Record<string, Ticket[]>);
 
   const bookingDate = tickets[0]?.bookingDate
     ? new Date(tickets[0].bookingDate).toLocaleDateString('de-DE')
@@ -47,7 +49,9 @@
 </script>
 
 <div class="container mx-auto p-4 max-w-4xl">
-  <h1 class="text-3xl font-bold text-center mt-12 mb-6">Danke für deine Bestellung</h1> <!-- Added mt-12 for more spacing -->
+  <h1 class="text-3xl font-bold text-center mt-12 mb-6">
+    Danke für deine Bestellung{user && user.firstname ? ', ' + user.firstname : ''}!
+  </h1>
 
   {#if tickets && tickets.length > 0}
     <div class="bg-white rounded-lg shadow-lg p-6">

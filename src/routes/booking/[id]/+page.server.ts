@@ -9,10 +9,19 @@ import { ticket,
     seatCategory,
     ticketType,
     priceDiscount } from '$lib/server/db/schema';
-import { error, type Actions } from '@sveltejs/kit';
+import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, asc, and } from 'drizzle-orm';
+import type { PageServerLoad } from './$types';
 
-export const load = async ({ url }) => {
+//export const load = async ({ url }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
+    // Fetch user information from locals
+    if (!locals.user) {
+        return fail(401, { error: 'Unauthorized' });
+    }
+    const user = locals.user;
+
+    // Fetch booking information
 	let bookingId = <unknown>url.pathname.replace('/booking/', '');
 
     // await db.insert(ticket).values({
@@ -112,6 +121,7 @@ export const load = async ({ url }) => {
 
 		return {
             //booking: foundBooking,
+            user: user,
             tickets: ticketsWithDetails,
 		};
 	} catch (e) {
