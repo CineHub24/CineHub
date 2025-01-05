@@ -59,13 +59,16 @@
 		"@tailwindcss/container-queries": "^0.1.1",
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
+		"@types/pdfkit": "^0.13.8",
 		"arctic": "^2.3.0",
 		"drizzle-orm": "^0.33.0",
 		"font-awesome": "^4.7.0",
 		"html5-qrcode": "^2.3.8",
+		"ical-generator": "^8.0.1",
 		"jsqr": "^1.4.0",
 		"lucide-svelte": "^0.464.0",
 		"nodemailer": "^6.9.16",
+		"pdfkit": "^0.16.0",
 		"postgres": "^3.4.4",
 		"qrcode": "^1.5.4"
 	}
