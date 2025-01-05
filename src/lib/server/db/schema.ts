@@ -21,6 +21,7 @@ export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'reserved',
 	'paid',
 	'validated',	
+	'refunded',
 ]);
 
 export const user = pgTable('User', {
