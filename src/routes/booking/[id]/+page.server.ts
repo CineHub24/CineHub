@@ -14,6 +14,39 @@ import { eq, lt, gte, ne, asc, and } from 'drizzle-orm';
 
 export const load = async ({ url }) => {
 	let bookingId = <unknown>url.pathname.replace('/booking/', '');
+
+    // await db.insert(ticket).values({
+    //     bookingId: <number>bookingId,
+    //     showingId: 4,
+    //     price: '10',
+    //     status: "booked",
+    //     seatId: 1,
+    // });
+
+    // await db.insert(ticket).values({
+    //     bookingId: <number>bookingId,
+    //     showingId: 4,
+    //     price: '10',
+    //     status: "booked",
+    //     seatId: 2,
+    // });
+
+    // await db.insert(ticket).values({
+    //     bookingId: <number>bookingId,
+    //     showingId: 4,
+    //     price: '10',
+    //     status: "booked",
+    //     seatId: 3,
+    // });
+
+    // await db.insert(ticket).values({
+    //     bookingId: <number>bookingId,
+    //     showingId: 4,
+    //     price: '10',
+    //     status: "booked",
+    //     seatId: 4,
+    // });
+
 	try {
         // const bookings = await db
         //     .select()
@@ -42,6 +75,7 @@ export const load = async ({ url }) => {
         
         // Location Info
         hallName: cinemaHall.name,
+        cinemaName: cinema.name,
         cinemaAddress: cinema.address,
         
         // Movie Info
