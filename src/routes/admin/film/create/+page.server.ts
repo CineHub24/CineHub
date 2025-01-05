@@ -1,7 +1,8 @@
-import { film } from '$lib/server/db/schema';
+import { film, subscribersNewsletter } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { error, redirect, type Actions, type RequestEvent } from '@sveltejs/kit';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
+import { EmailService } from '$lib/utils/emailService';
 
 export type Movie = typeof film.$inferSelect;
 const apiKey = import.meta.env.VITE_OMDB_API_KEY;
@@ -32,7 +33,7 @@ export const actions = {
 			const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
 			const data = await res.json();
 			console.log(data);
-			if(data.Response !== 'False') {
+			if (data.Response !== 'False') {
 				const movies: Movie[] = data.Search.map((movie: any) => ({
 					imdbID: movie.imdbID,
 					title: movie.Title,
@@ -40,7 +41,7 @@ export const actions = {
 					year: movie.Year,
 					poster: movie.Poster
 				}));
-	
+
 				return {
 					movies: movies
 				};
@@ -87,6 +88,10 @@ export const actions = {
 		}
 	},
 	save: async ({ request }) => {
+		const emailClient = new EmailService(
+			import.meta.env.VITE_GMAIL_USER,
+			import.meta.env.VITE_GMAIL_APP_PASSWORD
+		);
 		const formData = await request.formData();
 
 		function extractNumberFromRuntime(runtime: string | null | undefined): number | null {
@@ -169,6 +174,22 @@ export const actions = {
 			console.error('Error saving movie:', e);
 			throw error(500, 'Failed to save movie');
 		}
+
+		try {
+			const newsLetterUsers: subscribersNewsletter[] = await db
+				.select()
+				.from(subscribersNewsletter);
+			if (newsLetterUsers.length > 0) {
+				for (const user of newsLetterUsers) {
+					console.log('sending email to:', user.email);
+					await emailClient.sendNewFilmEmail(filmId, user.email as string);
+					console.log('email sent');
+				}
+			}
+		} catch (error) {
+			console.error('Error sending email:', error);
+		}
+
 		if (success) throw languageAwareRedirect(302, `/admin/film/${filmId}`);
 	}
 } satisfies Actions;

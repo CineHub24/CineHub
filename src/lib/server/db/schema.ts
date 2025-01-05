@@ -199,6 +199,7 @@ export const logs = pgTable('logs', {
 	createdAt: timestamp('created_at').defaultNow()
 });
 
+export type subscribersNewsletter = typeof subscribersNewsletter.$inferSelect;
 export const subscribersNewsletter = pgTable('subscribersNewsletter', {
 	id: serial('id').primaryKey(),
 	email: text('email').unique()
