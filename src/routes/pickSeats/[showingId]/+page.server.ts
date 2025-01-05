@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { seat, cinemaHall, seatCategory, showing, ticket, booking, ticketType } from '$lib/server/db/schema';
-import { eq, inArray, sql } from 'drizzle-orm';
+import { eq, inArray, sql, and } from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../../$types';
 
@@ -34,14 +34,9 @@ export const actions = {
         const ticketTypes = formData.getAll('ticketTypes').map(id => Number(id));
 
         try {
-            // Check if seats are already taken (have active tickets)
-            const existingTickets = await db
-                .select()
-                .from(ticket)
-                .where(sql`${ticket.seatId} = ANY(${seatIds}) 
-					AND ${ticket.showingId} = ${showingId} 
-					AND ${ticket.status} IN ('reserved', 'confirmed')`
-                );
+
+            const existingTickets = await db.select().from(ticket).where(and(eq(ticket.showingId, showingId), eq(ticket.status, 'booked'), inArray(ticket.seatId, seatIds)));
+
 
             if (existingTickets.length > 0) {
                 return fail(400, {
