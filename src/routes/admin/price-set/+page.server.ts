@@ -2,32 +2,28 @@ import { db } from '$lib/server/db';
 import { priceSet, seatCategory, ticketType } from '$lib/server/db/schema';
 import { error, type Actions, fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
+import * as m from '$lib/paraglide/messages.js';
 
-export const load = async () => {
 
-    try {
-        const priceSets = await db
-            .select()
-            .from(priceSet)
-            .orderBy(priceSet.name)
-        const seatCategories = await db
-            .select()
-            .from(seatCategory)
-            .orderBy(seatCategory.price)
-        const ticketTypes = await db
-            .select()
-            .from(ticketType)
-            .orderBy(ticketType.name)
-    
-        return {
-            priceSets,
-            seatCategories,
-            ticketTypes
-        };
-    }
-    catch (e) {
-        error(500, "Internal Server Error DB");
-    }
+export const load = async ({url}) => {
+    const priceSets = await db
+        .select()
+        .from(priceSet)
+        .orderBy(priceSet.name)
+    const seatCategories = await db
+        .select()
+        .from(seatCategory)
+        .orderBy(seatCategory.price)
+    const ticketTypes = await db
+        .select()
+        .from(ticketType)
+        .orderBy(ticketType.name)
+
+    return {
+        priceSets,
+        seatCategories,
+        ticketTypes
+    };
 }
 export const actions = {
 	createPriceSet: async ({ request }) => {
@@ -42,7 +38,7 @@ export const actions = {
 
 
         if(!name || !priceFactor) {
-            return fail(400, { message: 'Missing inputs'});
+            return fail(400, { message: m.missing_inputs});
         }
         
         const newPriceSet = {
@@ -55,7 +51,7 @@ export const actions = {
             await db.insert(priceSet).values(newPriceSet);
 
         } catch (e) {
-            return error(500, 'Error creating the priceSet');
+            return fail(500, {message:m.error_creating_price_set});
         }
     },
     delete: async ({request}) =>{
@@ -65,13 +61,13 @@ export const actions = {
 
 
         if(!id){
-            return fail(400, {message:'Missing inputs'});
+            return fail(400, {message:m.missing_inputs});
         }
 		
 		try{
 			const result = await db.delete(priceSet).where(eq(priceSet.id,id))
 		} catch(e){
-			return fail(500, {message:'Error deleting price set'});
+			return fail(500, {message:m.error_deleting_price_set});
 		}
 	},
     updatePriceSet: async ({ request }) => {
@@ -84,7 +80,7 @@ export const actions = {
         const ticketTypeIds = data.getAll('ticketTypes').map((id) => parseInt(id.toString())) as number[];
 
         if (!id || !name || !priceFactor) {
-            return fail(400, {message:'Missing inputs'}); 
+            return fail(400,{message:m.missing_inputs}); 
         }
 
         try {
@@ -93,7 +89,7 @@ export const actions = {
                 .set({name: name, priceFactor: priceFactor, seatCategoryPrices: seatCategoryIds, ticketTypes: ticketTypeIds})
                 .where(eq(priceSet.id, id));
         } catch (e) {
-            return fail(500, {message:'Error updating price set'});
+            return fail(500, {message:m.error_updating_price_set});
         }
     },
 } satisfies Actions;

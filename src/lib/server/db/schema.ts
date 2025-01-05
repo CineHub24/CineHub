@@ -21,6 +21,7 @@ export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'reserved',
 	'paid',
 	'validated',	
+	'refunded',
 ]);
 
 export const user = pgTable('User', {
@@ -90,7 +91,7 @@ export const showing = pgTable('Showing', {
 		.references(() => priceSet.id)
 		.default(sql`'1'::integer`),
 	date: date('date').notNull(),
-	time: time('time'),
+	time: time('time').notNull(),
 	endTime: time('endTime'),
 	language: text('language'),
 	dimension: text('dimension'),

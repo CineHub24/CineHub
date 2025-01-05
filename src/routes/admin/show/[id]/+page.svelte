@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { languageAwareGoto } from '$lib/utils/languageAware.js';
 	import type { PageData, ActionData, SubmitFunction } from './$types';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	let { show, priceSets } = data;
@@ -11,7 +12,7 @@
 	let endTime: string = $derived(calculateEndTime());
 
 	function zurueck() {
-		goto(`/admin/film/${show.filmid}`);
+		languageAwareGoto(`/admin/film/${show.filmid}`);
 	}
 	function toggleMoveShow() {
 		moveShowToggle = !moveShowToggle;
@@ -36,7 +37,7 @@
 	<div class="show-edit-container">
 		{#if show}
 			<div class="header">
-				<h2>Vorstellung für Film {show.film_name} {show.cancelled ? '(Abgesagt)' : ''}</h2>
+				<h2>{m.show_for_movie({})}: {show.film_name} {show.cancelled ? `(${m.cancelled({})})` : ''}</h2>
 			</div>
 			{#if form}
 				<div class="message">
@@ -52,7 +53,7 @@
 					{:else if form.rescheduled}
 						<div class="confirmation">
 							{form.message}:
-							<a href="/admin/show/{form.newId}" data-sveltekit-reload class="confirmation-link">Neue Vorstellung</a>
+							<a href="/admin/show/{form.newId}" data-sveltekit-reload class="confirmation-link">{m.new_show({})}</a>
 						</div>
 					{/if}
 				</div>
@@ -68,23 +69,23 @@
 				<div class="form-columns">
 					<div class="form-column">
 						<div class="form-group">
-							<label for="date">Datum:</label>
+							<label for="date">{m.date({})}:</label>
 							<input name="date" value={show.date} type="date" readonly />
 						</div>
 
 						<div class="form-group">
-							<label for="time">Startzeit:</label>
+							<label for="time">{m.start_time({})}:</label>
 							<input name="time" bind:value={startTime} type="time" readonly />
 						</div>
 					</div>
 					<div class="form-column">
 						<div class="form-group">
-							<label for="endTime">Endzeit:</label>
+							<label for="endTime">{m.end_time({})}:</label>
 							<input name="endTime" value={endTime} type="time" readonly />
 						</div>
 
 						<div class="form-group">
-							<label for="priceSet">Preisset:</label>
+							<label for="priceSet">{m.price_set({})}:</label>
 							<select name="priceSet">
 								{#each priceSets as set}
 									<option value={set.id} selected={set.id == show.priceSet}>{set.name}</option>
@@ -95,17 +96,17 @@
 				</div>
 				<div class="form-actions">
 					{#if show.cancelled}
-						<button type="submit" formaction="?/uncancel">Wiederherstellen</button>
-						<button type="submit" formaction="?/delete">Löschen</button>
+						<button type="submit" formaction="?/uncancel">{m.uncancel({})}</button>
+						<button type="submit" formaction="?/delete">{m.delete_something({})}</button>
 					{:else}
-						<button type="submit" formaction="?/cancel">Absagen</button>
-						<button type="button" onclick={toggleMoveShow}>Verschieben</button>
+						<button type="submit" formaction="?/cancel">{m.cancel_show({})}</button>
+						<button type="button" onclick={toggleMoveShow}>{m.reschedule({})}</button>
 					{/if}
-					<button type="button" onclick={zurueck}>Zurück</button>
+					<button type="button" onclick={zurueck}>{m.back({})}</button>
 				</div>
 			</form>
 		{:else}
-			<p class="not-found">Vorstellung nicht gefunden</p>
+			<p class="not-found">{m.show_not_found({})}</p>
 		{/if}
 	</div>
 </div>
@@ -114,24 +115,24 @@
 	<div class="popup-overlay">
 		<div class="popup-content">
 			<button class="close-popup" onclick={toggleMoveShow}>&times;</button>
-			<h3>Vorstellung verschieben</h3>
+			<h3>{m.reschedule_show({})}</h3>
 			<form method="post" action="?/reschedule">
 				<input type="hidden" name="showId" value={show.id} />
 				<input type="hidden" name="hallId" value={show.hallId} />
 				<div class="form-group">
-					<label for="date">Datum:</label>
+					<label for="date">{m.date({})}:</label>
 					<input name="date" value={show.date} type="date" />
 				</div>
 				<div class="form-group">
-					<label for="time">Startzeit:</label>
+					<label for="time">{m.start_time({})}:</label>
 					<input name="time" bind:value={startTime} type="time" />
 				</div>
 				<div class="form-group">
-					<label for="endTime">Endzeit:</label>
+					<label for="endTime">{m.end_time({})}:</label>
 					<input name="endTime" value={endTime} type="time" readonly />
 
 					<div class="form-actions">
-						<button type="submit">Verschieben</button>
+						<button type="submit">{m.reschedule({})}</button>
 					</div>
 				</div>
 			</form>
