@@ -10,19 +10,21 @@
 	import { derived } from 'svelte/store';
 
 	const isAuthPage = derived(page, ($page) => {
-		return $page.route.id === '/login' || $page.route.id === '/register';
+		const authPages = ['/cart', '/admin', '/login']; // Liste der Seiten ohne Footer
+		// Checke auch Teilstrings wie "/cart/"
+		return authPages.some((route) => $page.route.id?.startsWith(route));
 	});
 </script>
 
 <ParaglideJS {i18n}>
-	{#if !$isAuthPage}
-		<Header />
-	{/if}
+	<Header />
 
 	<main>
+		<!-- Render die Kinder-Komponenten -->
 		{@render children()}
 	</main>
 
+	<!-- Footer wird nur angezeigt, wenn er nicht in der Liste der authPages ist -->
 	{#if !$isAuthPage}
 		<Footer />
 	{/if}

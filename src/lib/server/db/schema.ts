@@ -23,6 +23,7 @@ export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'validated',	
 	'refunded',
 ]);
+export const discountTypeEnum = pgEnum('discountType', ['percentage', 'fixed']);
 
 export const user = pgTable('User', {
 	id: text('id').primaryKey(),
@@ -53,6 +54,8 @@ export type CinemaHall = typeof cinemaHall.$inferSelect;
 export type Seat = typeof seat.$inferSelect;
 export type SeatCategory = typeof seatCategory.$inferSelect;
 export type PriceSet = typeof priceSet.$inferSelect;
+export type PriceDiscount = typeof priceDiscount.$inferSelect;
+export type PriceDiscountForInsert = typeof priceDiscount.$inferInsert;
 export type TicketType = typeof ticketType.$inferSelect;
 export type Ticket = typeof ticket.$inferSelect;
 
@@ -148,7 +151,8 @@ export const priceSet = pgTable('PriceSet', {
 		.array()
 		.notNull()
 		.default(sql`ARRAY [1,2,3,4,5]`),
-	priceFactor: decimal('priceFactor', { precision: 10, scale: 3 }).default(sql`'1'::integer`)
+	priceFactor: decimal('priceFactor', { precision: 10, scale: 3 })
+		.default(sql`'1'::integer`)
 });
 
 export const ticketType = pgTable('TicketType', {
@@ -168,7 +172,8 @@ export const priceDiscount = pgTable('PriceDiscount', {
 	id: serial('id').primaryKey(),
 	code: text('code'),
 	value: decimal('value', { precision: 10, scale: 2 }),
-	discountType: text('discountType')
+	discountType: discountTypeEnum('discountType').default('percentage').notNull(),
+	expiresAt: date('expiresAt')
 });
 
 export const ticket = pgTable('Ticket', {
