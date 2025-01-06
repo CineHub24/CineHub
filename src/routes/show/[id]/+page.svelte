@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import type { PageServerData } from './$types';
 	const { data }: { data: PageServerData } = $props();
   const { user, show, hall, seatCategories, priceSet } = data;
@@ -30,15 +31,9 @@
 					</p>
 				{/each}
 			{/if}
-
-			<form
-			class="form"
-			method="POST"
-			action="?/createBooking"
-			>
-			<input type="hidden" name="userId" value={user.id} />
-			<button type="submit">Zur Buchung →</button>
-			</form>
+			<div class="showtime">
+				<button onclick={() => languageAwareGoto(`/pickSeats/${show.id}`)}> Zur Buchung →</button>
+			</div>
 		</div>
 	{:else}
 		<p>Die Vorstellung wurde nicht gefunden.</p>
