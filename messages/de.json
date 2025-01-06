@@ -118,7 +118,9 @@
 	"booked_seats": "Gebuchte Sitze",
 	"refund_amount": "Gesamter Rückerstattungsbetrag",
 	"collect_refund": "Rückerstattung einfordern",
-	"book_new_ticket": "Neues Ticket buchen",
-	"return_to_home": "Zurück zur Startseite"
+	"book_new_ticket": "Rabattcode erhalten und neues Ticket kaufen",
+	"return_to_home": "Zurück zur Startseite",
+	"discount_code_created": "Rabattcode erstellt. Bitte verwenden Sie diesen Code, um Ihr neues Ticket zu kaufen",
+	"book_here": "Hier buchen"
 
 }

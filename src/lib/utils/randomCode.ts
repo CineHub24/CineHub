@@ -2,7 +2,7 @@ import { db } from '$lib/server/db';
 import { priceDiscount } from '$lib/server/db/schema';
 import { eq, is } from 'drizzle-orm';
 
-export async function generateUniqueCode(length: number = 6) {
+export async function generateUniqueCode(length: number) {
 	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; 
 	let result = '';
     const isCodeExisting = async () => { 
@@ -23,8 +23,9 @@ export async function generateUniqueCode(length: number = 6) {
         if(await isCodeExisting()){
             continue;
         } else {
-            return result;
+            break;
         }
     }
+    return result;
 
 }

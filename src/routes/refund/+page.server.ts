@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { booking, film, priceDiscount, showing, ticket, ticketStatusEnum, discountTypesEnum } from '$lib/server/db/schema';
-import { error, fail, type Actions } from '@sveltejs/kit';
+import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, asc, and, sql, inArray } from 'drizzle-orm';
 import { languageAwareRedirect } from '$lib/utils/languageAware.js';
 import { generateUniqueCode } from '$lib/utils/randomCode.js';
@@ -65,26 +65,36 @@ export const actions: Actions = {
 		}
 	},
 	bookNew: async ({ request }) => {
-		//TODO: Book New Ticket with refundAmount as discount
 
 		const formData = await request.formData();
-		const refundAmount = formData.get('totalPrice') as string;
-		
+		let refundAmount = formData.get('totalPrice') as string;
+		const ticketIds = formData.getAll('ticketIds') as unknown as number[];
+		refundAmount = '10'
 
-		const code = await generateUniqueCode();
-
-
+		if(!refundAmount){
+			return fail(400, { message: m.missing_inputs({}), missing: true });
+		}
+		const code = await generateUniqueCode(6) as string;
 		try {
-			const newPrice = await db
+			const newDiscount = await db
 				.insert(priceDiscount)
 				.values({
 					code: code,
 					value: refundAmount,
 					discountType: discountTypesEnum.enumValues[1]
 				})
-				.returning();
-			console.log(newPrice);
-			languageAwareRedirect(301, '/');
+				.returning({ code: priceDiscount.code });
+			await db
+				.update(ticket)
+				.set({ status: ticketStatusEnum.enumValues[3] })
+				.where(inArray(ticket.id, ticketIds));
+
+				
+			return {
+				code: newDiscount[0].code,
+				newCodeCreated: true,
+				message: m.discount_code_created({})
+			}
 		}
 		catch(e){
 			console.log(e);

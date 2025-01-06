@@ -1,24 +1,35 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import type { PageData, ActionData } from './$types';
 	import { languageAwareGoto } from '$lib/utils/languageAware.js';
 	import * as m from '$lib/paraglide/messages.js';
 	import { formatDate, formatTime } from '$lib/utils/formatter.js';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData, form: ActionData } = $props();
 	let { refundableShows } = data;
 
-	function collectRefund() {
-		// Add logic to process refund
-	}
+	console.log(form)
 
-	function bookNewTicket() {
-		// Add logic to book new ticket
-		languageAwareGoto('/');
-	}
+
 </script>
 
 <div class="refund-page">
 	<div class="refund-container">
+		{#if form}
+				<div class="message">
+					{#if form.database || form.missing}
+						<div class="alert">
+							{form.message}
+						</div>
+					{:else if form.newCodeCreated}
+					<div class="banner success">
+						<p>{form.message}: {form.code} 
+							<br>
+							<a href="/" data-sveltekit-preload class="banner-link">{m.book_here({})}</a>
+						</p>
+					</div>
+					{/if}
+				</div>
+			{/if}
 		<h1>{m.refund_options_for_cancelled_shows({})}</h1>
 
 		{#if refundableShows.length === 0}
@@ -154,5 +165,36 @@
 
 	.home-link:hover {
 		text-decoration: underline;
+	}
+	.banner {
+		padding: 1rem;
+		border-radius: 4px;
+		margin-bottom: 1.5rem;
+	}
+
+	.banner.success {
+		background-color: #d4edda;
+		border: 1px solid #c3e6cb;
+		color: #155724;
+	}
+
+	.banner p {
+		margin: 0;
+		text-align: center;
+		font-weight: 500;
+	}
+	.banner-link {
+    text-decoration: underline;
+    font-weight: bold;
+    color: inherit;
+	display: inline-block;
+    margin-top: 0.5rem;
+  }
+	.alert {
+		padding: 1rem;
+		border-radius: 8px;
+		background-color: #f8d7da;
+		color: #721c24;
+		margin-bottom: 1rem;
 	}
 </style>

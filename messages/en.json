@@ -118,6 +118,8 @@
 	"booked_seats": "Booked Seats",
 	"refund_amount": "Total Refund Amount",
 	"collect_refund": "Collect Refund",
-	"book_new_ticket": "Book New Ticket",
-	"return_to_home": "Return to Home"
+	"book_new_ticket": "Create Coupon and buy a new Ticket",
+	"return_to_home": "Return to Home",
+	"discount_code_created": "Discount Code Created. Please use this code to buy your new ticket",
+	"book_here": "Book Here"
 }
