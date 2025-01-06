@@ -19,7 +19,9 @@
   export let data: PageServerData;
   export let form: ActionData;
   
-  const booking = data;
+  let booking = data.booking;
+  let showings = data.showing;
+  let tickets = data.tickets;
   let stripe: Stripe | null = null;
   const vatRate = 0.19;
 
@@ -38,8 +40,13 @@
   });
 
   const basePrice = derived(bookingStore, $booking => 
-    $booking.tickets.reduce((sum, ticket) => sum + ticket.price, 0)
+    tickets!.reduce((sum, ticket) => sum + Number(ticket.price), 0)
   );
+
+  function formatTime(timeString: string) {
+        const date = new Date(`1970-01-01T${timeString}Z`);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
   // Updated discountedPrice calculation with type check
   const discountedPrice = derived(
@@ -59,6 +66,24 @@
       }
     }
   );
+
+  $: groupedTickets = Object.entries(
+    tickets!.reduce((acc, ticket) => {
+      const key = ticket.showingId;
+      if (!acc[key]) {
+        acc[key] = {
+          showingId: key,
+          showTickets: []
+        };
+      }
+      acc[key].showTickets.push(ticket);
+      return acc;
+    }, {} as Record<number, { showingId: number; showTickets: typeof tickets }>)
+  ).map(([_, value]) => value);
+
+  $: getShowingById = (showingId: number) => {
+    return showings.find(show => show.id === showingId);
+  };
 
   const vat = derived(
     discountedPrice, 
@@ -134,15 +159,24 @@
 
   <div class="checkout-right">
     <div class="order-summary">
-      {#each $bookingStore.tickets as ticket (ticket.id)}
-        <div class="item">
-          <p>Film: {ticket.showingId}</p>
-          <p>Zustand: {ticket.state}</p>
-          <p>Typ: {ticket.type}</p>
-          <p>Sitzplatz: {ticket.seatId}</p>
-          <p>Preis: {ticket.price} €</p>
-        </div>
-      {/each}
+      {#each groupedTickets as group}
+      <div class="showing-group">
+        {#if getShowingById(group.showingId)}
+          <h1 class="showing-title">
+           Show Time: {formatTime(getShowingById(group.showingId).time)}<br>
+            Film: {getShowingById(group.showingId)?.filmid}
+          </h1>
+        {/if}
+        
+        {#each group.showTickets as ticket}
+          <div class="item">
+            <p>Sitzplatz: {ticket.seatId}</p>
+            <p>Preis: {ticket.price} €</p>
+          </div>
+        {/each}
+      </div>
+    {/each}
+
 
       <div class="discount">
         <form action="?/discount" method="post">
@@ -192,6 +226,12 @@
 </div>
 
 <style>
+  .showing-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
   .checkout-container {
     display: flex;
     justify-content: flex-end;
