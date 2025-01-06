@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import { ticket } from '$lib/server/db/schema';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, lt } from 'drizzle-orm';
 import schedule from 'node-schedule';
 
 // Define the job
@@ -18,9 +18,11 @@ export const deleteOldReservedTicketsJob = () => {
                 .where(
                     and(
                         eq(ticket.status, 'reserved'),
-                        gt(ticket.createdAt, fifteenMinutesAgo)
+                        lt(ticket.createdAt, fifteenMinutesAgo)
                     )
                 );
+
+            console.log(oldReservedTickets);
 
             if (oldReservedTickets.length > 0) {
                 const deletedCount = await db
@@ -28,7 +30,7 @@ export const deleteOldReservedTicketsJob = () => {
                     .where(
                         and(
                             eq(ticket.status, 'reserved'),
-                            gt(ticket.createdAt, fifteenMinutesAgo)
+                            lt(ticket.createdAt, fifteenMinutesAgo)
                         )
                     );
 
