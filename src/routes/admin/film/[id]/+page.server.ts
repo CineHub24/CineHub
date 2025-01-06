@@ -4,6 +4,7 @@ import { languageAwareRedirect } from '$lib/utils/languageAware.js';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
 import { date } from 'drizzle-orm/mysql-core';
+import { fail } from '@sveltejs/kit';
 import { getFreeTimeSlots} from '$lib/utils/timeSlots.js';
 export type freeSlots = {
 	start: string;
@@ -54,17 +55,17 @@ export const actions = {
 	delete: async ({ request, url }) => {
 		const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 		try {
-			await db.delete(film).where(eq(film.id, id));
+			await db.delete(film).where(eq(film.id, id));			
 		} catch (e) {
 			console.log(e);
-			throw error(500, 'Failed to delete film');
+			return fail(500, { error: 'Failed to delete film' });
 		}
 		return languageAwareRedirect(302, '/admin/films');
 	},
 
 	update: async ({ request, url }) => {
 		// Formular-Daten auslesen
-		// type title = typeof film.title.dataType
+		
 		const formData = await request.formData();
 
 		// Einzelne Werte extrahieren
@@ -79,7 +80,7 @@ export const actions = {
 		if (/^\d+$/.test(runtimeString)) {
 			runtime = Number(runtimeString);
 		} else {
-			throw error(400, 'Ungültige Eingabe');
+			return fail(400, { error: 'Invalid runtime' });
 		}
 
 		// Typsicherheit und Validierung
@@ -110,9 +111,10 @@ export const actions = {
 					director: director
 				})
 				.where(eq(film.id, <number>id));
+				return { success: 'Film erfolgreich aktualisiert' };
 		} catch (e) {
 			console.log(e);
-			throw error(500, 'Failed to update film');
+			return fail(500, { error: 'Server error while updating film' });
 		}
 		// Optional: Erfolgsrückmeldung zurückgeben
 	},
@@ -124,28 +126,36 @@ export const actions = {
 		let timeString = formData.get('time') as string;
 		let hall = formData.get('hall') as unknown as number;
 		let priceSetId = formData.get('priceSet') as unknown as number;
-
-		const filmRuntime = await db
+		try {
+			const filmRuntime = await db
 			.select({ runtime: film.runtime })
 			.from(film)
 			.where(eq(film.id, id as number))
 			.limit(1);
-		const { runtime } = filmRuntime[0];
-		let freeSlots = await getFreeTimeSlots(
-			db, // Drizzle Datenbank-Instanz
-			hall, // Saal-ID
-			priceSetId,
-			date, // Datum
-			runtime as number, // Filmdauer in Minuten
-			15, // Standard 15 Minuten Reinigung
-			15 // Standard 15 Minuten Werbung
-		);
-		for (const slot of freeSlots) {
-			console.log(`Freier Slot: ${slot.start} - ${slot.end}`);
+			const { runtime } = filmRuntime[0];
+			let freeSlots = await getFreeTimeSlots(
+				db, // Drizzle Datenbank-Instanz
+				hall, // Saal-ID
+				priceSetId,
+				date, // Datum
+				runtime as number, // Filmdauer in Minuten
+				15, // Standard 15 Minuten Reinigung
+				15 // Standard 15 Minuten Werbung
+			);
+			for (const slot of freeSlots) {
+				console.log(`Freier Slot: ${slot.start} - ${slot.end}`);
+			}
+			return {
+				slots: freeSlots
+			};
+		} catch (error) {
+			console.log(error);
+			return fail(500, { error: 'Failed to create showing' });
 		}
-		return {
-			slots: freeSlots
-		};
+		
+		
+		
+		
 	},
 	save: async ({ request, url }) => {
 		const formData = await request.formData();
@@ -170,8 +180,9 @@ export const actions = {
 					priceSetId: priceSet,
 					cancelled: false
 				});
+			return { success: 'Showing successfully saved' };
 		} catch (e) {
-			throw error(500, 'Failed to save showing');
+			return fail(500, { error: 'Failed to save showing' });
 		}
 	}
 } satisfies Actions;

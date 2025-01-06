@@ -2,6 +2,7 @@ import { film } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { error, redirect, type Actions, type RequestEvent } from '@sveltejs/kit';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
+import { fail } from '@sveltejs/kit';
 
 export type Movie = typeof film.$inferSelect;
 const apiKey = import.meta.env.VITE_OMDB_API_KEY;
@@ -46,7 +47,7 @@ export const actions = {
 				};
 			}
 		} catch (e: unknown) {
-			throw error(500, 'searchError: ' + e);
+			return fail(500, { error: 'Failed to search for movies' });
 		}
 	},
 
@@ -80,10 +81,7 @@ export const actions = {
 			};
 		} catch (error) {
 			console.error('Error fetching movie details:', error);
-			return {
-				type: 'failure',
-				error: 'Could not fetch movie details'
-			};
+			return fail(500, { error: 'Failed to fetch movie details' });
 		}
 	},
 	save: async ({ request }) => {
@@ -113,7 +111,7 @@ export const actions = {
 		}
 
 		const imdbID = formData.get('imdbID')?.toString();
-		if (!imdbID) throw error(400, 'IMDB ID is required');
+		if (!imdbID) return fail(400, { error: 'IMDB ID is required' });	
 		const tmdbID = await gettmdbID(imdbID);
 
 		async function getBackdropImage(tmdbID: string): Promise<string | null> {
@@ -126,7 +124,7 @@ export const actions = {
 					return `https://image.tmdb.org/t/p/original/${data.backdrops[0].file_path}`;
 				}
 			} catch (error) {
-				console.error('Error fetching backdrop image:', error);
+				console.error('Error fetching backdrop image:', error);		
 			}
 			return null;
 		}
@@ -157,7 +155,7 @@ export const actions = {
 		try {
 			if (!movieToSave.imdbID || !movieToSave.title) {
 				// Maybe add more
-				throw error(400, 'Missing required movie information');
+				return fail(400, { error: 'IMDB ID and title are required' });
 			}
 
 			[{ filmId }] = await db.insert(film).values(movieToSave).returning({ filmId: film.id });
@@ -167,7 +165,7 @@ export const actions = {
 			success = true;
 		} catch (e) {
 			console.error('Error saving movie:', e);
-			throw error(500, 'Failed to save movie');
+			return fail(500, { error: 'Failed to save movie' });
 		}
 		if (success) throw languageAwareRedirect(302, `/admin/film/${filmId}`);
 	}
