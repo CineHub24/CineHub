@@ -1,6 +1,6 @@
 import { film } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
-import { error, redirect, type Actions, type RequestEvent } from '@sveltejs/kit';
+import { error, type Actions, type RequestEvent } from '@sveltejs/kit';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { fail } from '@sveltejs/kit';
 

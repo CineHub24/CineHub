@@ -55,12 +55,13 @@
 </script>
 
 {#key hoveredMovie}
-	{#if hoveredMovie }
+	{#if hoveredMovie}
 		<div class="movie-details" in:fade={{ duration: 1500 }}>
-			<img id="background" src={hoveredMovie.backdrop} alt="{hoveredMovie.title} Poster" />
-			<!-- <a href="/film/{hoveredMovie.id}">
-		<img id="poster" src={hoveredMovie.poster} alt="{hoveredMovie.title} Poster" /></a
-	> -->
+			<img
+				id="background"
+				src={hoveredMovie.backdrop}
+				alt={`${hoveredMovie.title} ${m.movie_poster({})}`}
+			/>
 			<iframe
 				id="poster"
 				width="500"
@@ -69,7 +70,7 @@
 				frameborder="0"
 				allow="autoplay; encrypted-media"
 				allowfullscreen
-				title="Trailer"
+				title={m.trailer_title({})}
 			></iframe>
 			<h3>{hoveredMovie.title}</h3>
 			<p>{hoveredMovie.description}</p>

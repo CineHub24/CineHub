@@ -1,20 +1,19 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { PageServerData } from './$types';
+	import * as m from '$lib/paraglide/messages.js';
+
 	export let data: PageServerData;
 	const { user } = data;
 
 	const userName =
-			user.firstname ||
-			(user.email ? capitalizeFirstLetter(getFirstNameFromEmail(user.email)) : '') ||
-			'';
-
+		user.firstname ||
+		(user.email ? capitalizeFirstLetter(getFirstNameFromEmail(user.email)) : '') ||
+		'';
 
 	function getFirstNameFromEmail(email: string): string {
-		if (!email) return 'User';
-		// Teil vor dem @ extrahieren
+		if (!email) return m.default_user({});
 		const localPart = email.split('@')[0];
-		// Teil vor einem Punkt (.) als ersten Namen verwenden, wenn vorhanden
 		return localPart.includes('.') ? localPart.split('.')[0] : localPart;
 	}
 
@@ -28,22 +27,22 @@
 	<div class="profile-card">
 		{#if user}
 			<div class="avatar">{userName[0].toUpperCase()}</div>
-			<h1>Willkommen, {userName}!</h1>
+			<h1>{m.welcome({})}, {userName}!</h1>
 			<div class="user-info">
 				<p class="role">{capitalizeFirstLetter(user.role)}</p>
-				<p class="user-id">Benutzer-ID: {user.id}</p>
+				<p class="user-id">{m.user_id({})}: {user.id}</p>
 			</div>
 			<!-- <div class="stats">
-				<div class="stat-item">
-					<span class="stat-value">0</span> <span class="stat-label">Reservierungen</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-value">0</span> <span class="stat-label">Besuche</span>
-				</div>
-			</div> -->
+	<div class="stat-item">
+	<span class="stat-value">0</span> <span class="stat-label">{m.reservations({})}</span>
+	</div>
+	<div class="stat-item">
+	<span class="stat-value">0</span> <span class="stat-label">{m.visits({})}</span>
+	</div>
+	</div> -->
 		{/if}
 		<form method="post" action="?/logout" use:enhance>
-			<button class="logout-btn">Abmelden</button>
+			<button class="logout-btn">{m.logout({})}</button>
 		</form>
 	</div>
 </div>
