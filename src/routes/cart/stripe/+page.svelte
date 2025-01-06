@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 // @ts-nocheck
     import { goto } from '$app/navigation'
     import { page } from '$app/stores'
@@ -6,32 +6,34 @@
     import { loadStripe } from '@stripe/stripe-js'
 	  import { Elements, ExpressCheckout } from 'svelte-stripe';
     const PUBLIC_STRIPE_KEY = import.meta.env.VITE_PUBLIC_STRIPE_KEY
+    const { data }: { data: PageServerData } = $props();
+	  const { booking } = data;
   
     /**
 	 * @type {import("@stripe/stripe-js").Stripe | null}
 	 */
-    let stripe = null
+    let stripe = $state(null)
     /**
 	 * @type {{ message: any; } | null}
 	 */
-    let error = null
+    let error = $state(null)
     /**
 	 * @type {{ submit: () => any; }}
 	 */
-    let elements
+    let elements = $state(null)
     let processing = false
     // let stripe: Stripe | null = $state(null); // Stripe instance or null if not loaded
     // let error: { message: string } | null = null; // Error object from Stripe or null
     // let elements: ; // Elements instance from Stripe or undefined
     // let processing: boolean = false; // Flag to indicate ongoing processing
   
-    const bookingId = page.url.pathname.replace('/cart/', '').replace('/stripe', '');
+    const bookingId = /*page.url.pathname.replace('/cart/', '').replace('/stripe', '');*/ booking.id;
     onMount(async () => {
       stripe = await loadStripe(PUBLIC_STRIPE_KEY)
     })
   
     async function createPaymentIntent() {
-      const response = await fetch(page.url.pathname + '/payment-intent', {
+      const response = await fetch('/cart/stripe/payment-intent', {
         method: 'POST',
         headers: {
           'content-type': 'application/json'
