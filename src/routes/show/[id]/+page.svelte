@@ -20,7 +20,7 @@
 			<p><strong>Uhrzeit:</strong> {show.time}</p>
 			<p><strong>Kino:</strong> {hall.name}</p>
 			<p><strong>Preis pro Ticket:</strong></p>
-			{#if seatCategories}
+			<!-- {#if seatCategories}
 				{#each seatCategories as category}
 					<p>
 						<strong
@@ -30,7 +30,7 @@
 						>
 					</p>
 				{/each}
-			{/if}
+			{/if} -->
 			<div class="showtime">
 				<button onclick={() => languageAwareGoto(`/pickSeats/${show.id}`)}> Zur Buchung →</button>
 			</div>

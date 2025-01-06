@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte'
     import { loadStripe, type Stripe } from '@stripe/stripe-js'
-    import type { PageServerData } from './$types';
+    import type { PageServerData } from '../[id]/stripe/$types';
 	import { EmbeddedCheckout } from 'svelte-stripe';
     const PUBLIC_STRIPE_KEY = import.meta.env.VITE_PUBLIC_STRIPE_KEY
 
