@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/15</span>
+                <span class='fraction'>0/11</span>
             </div>
         
             
@@ -135,26 +135,14 @@
 <a name='L70'></a><a href='#L70'>70</a>
 <a name='L71'></a><a href='#L71'>71</a>
 <a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -166,9 +154,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -208,15 +210,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >&lt;script lang="ts"&gt;<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
+	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import type { PageServerData } from './$types';
 	const { data }: { data: PageServerData } = $props();
-<span class="cstat-no" title="statement not covered" >  const { show, hall, seatCategories, priceSet } = data;</span>
+<span class="cstat-no" title="statement not covered" >  const { user, show, hall, seatCategories, priceSet } = data;</span>
 &lt;/script&gt;
 &nbsp;
 &lt;div class="container"&gt;
-<span class="cstat-no" title="statement not covered" >	&lt;img class="poster" src={show.poster} alt={show.title} /&gt;</span>
-&nbsp;
 <span class="cstat-no" title="statement not covered" >	{#if show}</span>
+<span class="cstat-no" title="statement not covered" >		&lt;img class="poster" src={show.poster} alt={show.title} /&gt;</span>
+&nbsp;
 		&lt;div class="details"&gt;
 <span class="cstat-no" title="statement not covered" >			&lt;h1&gt;{show.title}&lt;/h1&gt;</span>
 <span class="cstat-no" title="statement not covered" >			&lt;p&gt;{show.description}&lt;/p&gt;</span>
@@ -228,19 +231,19 @@
 <span class="cstat-no" title="statement not covered" >			&lt;p&gt;&lt;strong&gt;Uhrzeit:&lt;/strong&gt; {show.time}&lt;/p&gt;</span>
 <span class="cstat-no" title="statement not covered" >			&lt;p&gt;&lt;strong&gt;Kino:&lt;/strong&gt; {hall.name}&lt;/p&gt;</span>
 			&lt;p&gt;&lt;strong&gt;Preis pro Ticket:&lt;/strong&gt;&lt;/p&gt;
-<span class="cstat-no" title="statement not covered" >			{#if seatCategories}</span>
-<span class="cstat-no" title="statement not covered" >				{#each seatCategories as category}</span>
+			&lt;!-- {#if seatCategories}
+				{#each seatCategories as category}
 					&lt;p&gt;
 						&lt;strong
-<span class="cstat-no" title="statement not covered" >							&gt;{category.name}: {Math.ceil(</span>
-<span class="cstat-no" title="statement not covered" >								parseFloat(category.price ?? '0.0') * parseFloat(priceSet.priceFactor ?? '1')</span>
-<span class="cstat-no" title="statement not covered" >							) - 0.01} €&lt;/strong</span>
+							&gt;{category.name}: {Math.ceil(
+								parseFloat(category.price ?? '0.0') * parseFloat(priceSet.priceFactor ?? '1')
+							) - 0.01} €&lt;/strong
 						&gt;
 					&lt;/p&gt;
 				{/each}
-			{/if}
+			{/if} --&gt;
 			&lt;div class="showtime"&gt;
-				&lt;button&gt; Zur Buchung →&lt;/button&gt;
+<span class="cstat-no" title="statement not covered" >				&lt;button onclick={() =&gt; languageAwareGoto(`/pickSeats/${show.id}`)}&gt; Zur Buchung →&lt;/button&gt;</span>
 			&lt;/div&gt;
 		&lt;/div&gt;
 	{:else}
@@ -286,7 +289,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-01-06T12:09:31.615Z
+                at 2025-01-06T14:08:44.027Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>
