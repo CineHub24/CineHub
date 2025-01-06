@@ -21,6 +21,7 @@ export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'reserved',
 	'paid',
 	'validated',	
+	'refunded',
 ]);
 export const discountTypeEnum = pgEnum('discountType', ['percentage', 'fixed']);
 
@@ -201,4 +202,9 @@ export const logs = pgTable('logs', {
 	message: text('message').notNull(),
 	metadata: jsonb('metadata').default({}),
 	createdAt: timestamp('created_at').defaultNow()
+});
+
+export const subscribersNewsletter = pgTable('subscribersNewsletter', {
+	id: serial('id').primaryKey(),
+	email: text('email').unique()
 });

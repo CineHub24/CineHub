@@ -33,7 +33,10 @@ export const load = async ({ locals }) => {
 	};
 };
 export const actions: Actions = {  
-    async refund({ request, params }) {
+    refund: async ({ request, url }) => {
         //TODO: Grant Refund
-    }
+    },
+	bookNew: async ({ request, url }) => {
+		//TODO: Book New Ticket with refundAmount as discount
+	}
 } satisfies Actions;

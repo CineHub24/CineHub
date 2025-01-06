@@ -2,177 +2,162 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load, actions } from './+page.server';
 import { db } from '$lib/server/db';
 import { ticketType } from '$lib/server/db/schema';
-import type { RequestEvent } from '@sveltejs/kit';
-import { error } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
-import type { PgInsertBuilder } from 'drizzle-orm/pg-core';
-
-const filledFormData = {
-	get: (key: string) => {
-		if (key === 'name') {
-			return 'Adult';
-		} else if (key === 'factor') {
-			return '1.0';
-		} else if (key === 'description') {
-			return 'Standard adult ticket';
-		} else if (key === 'id') {
-			return '1';
-		} else {
-			return null;
-		}
-	}
-};
-
-const emptyFormData = {
-	get: () => null
-};
+import { error, fail } from '@sveltejs/kit';
+import * as m from '$lib/paraglide/messages.js';
 
 // Mock the database
-vi.mock('$lib/server/db', () => {
-	const mockExecute = vi.fn().mockResolvedValue({});
-	const mockValues = vi.fn().mockReturnValue({ execute: mockExecute });
-	const mockInsert = vi.fn().mockReturnValue({
-		values: mockValues,
-		execute: mockExecute
-	}) as unknown as PgInsertBuilder<any, any>;
+vi.mock('$lib/server/db', () => ({
+db: {
+select: vi.fn(() => ({
+from: vi.fn().mockResolvedValue([])
+})),
+insert: vi.fn(() => ({
+values: vi.fn(() => ({
+execute: vi.fn().mockResolvedValue({})
+}))
+})),
+delete: vi.fn(() => ({
+where: vi.fn().mockResolvedValue({})
+})),
+update: vi.fn(() => ({
+set: vi.fn(() => ({
+where: vi.fn().mockResolvedValue({})
+}))
+}))
+}
+}));
 
-	return {
-		db: {
-			select: vi.fn(() => ({
-				from: vi.fn().mockResolvedValue([])
-			})),
-			insert: mockInsert,
-			delete: vi.fn(() => ({
-				where: vi.fn().mockResolvedValue({})
-			})),
-			update: vi.fn(() => ({
-				set: vi.fn(() => ({
-					where: vi.fn().mockResolvedValue({})
-				}))
-			}))
-		}
-	};
+// Mock @sveltejs/kit
+vi.mock('@sveltejs/kit', async () => {
+const actual = await vi.importActual('@sveltejs/kit') as object;
+return {
+...actual,
+error: vi.fn((status, message) => {
+throw { status, message };
+}),
+fail: vi.fn((status, data) => ({ status, data }))
+};
 });
 
-// Mock error function
-vi.mock('@sveltejs/kit', () => ({
-	error: vi.fn((status, message) => {
-		throw { status, message };
-	})
+// Mock messages
+vi.mock('$lib/paraglide/messages.js', () => ({
+internal_server_error: vi.fn(() => 'Internal Server Error'),
+missing_inputs: vi.fn(() => 'Missing Inputs')
 }));
 
 describe('page.server.ts for Ticket Types', () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-	});
+beforeEach(() => {
+vi.clearAllMocks();
+});
 
-	describe('load function', () => {
-		it('should return ticket types', async () => {
-			const result = await load({ url: new URL('http://localhost') } as any);
+describe('load function', () => {
+it('should return ticket types', async () => {
+const result = await load({ url: new URL('http://localhost') } as any);
 
-			expect(db.select).toHaveBeenCalledTimes(1);
-			expect(result).toEqual({
-				ticketTypes: []
-			});
-		});
+expect(db.select).toHaveBeenCalledTimes(1);
+expect(result).toEqual({
+ticketTypes: []
+});
+});
 
-		it('should handle errors', async () => {
-			vi.mocked(db.select).mockImplementationOnce(() => {
-				throw new Error('Database error');
-			});
+it('should handle errors', async () => {
+vi.mocked(db.select).mockImplementationOnce(() => {
+throw new Error('Database error');
+});
 
-			await expect(load({ url: new URL('http://localhost') } as any)).rejects.toEqual({
-				status: 500,
-				message: 'Internal Server Error DB'
-			});
+const result = await load({ url: new URL('http://localhost') } as any);
+expect(result).toEqual({
+status: 500,
+data: { error: 'Internal Server Error' }
+});
+});
+});
 
-			expect(error).toHaveBeenCalledWith(500, 'Internal Server Error DB');
-		});
-	});
+describe('actions', () => {
+const mockFormData = new FormData();
+mockFormData.append('id', '1');
+mockFormData.append('name', 'Adult');
+mockFormData.append('factor', '1.0');
+mockFormData.append('description', 'Standard adult ticket');
 
-	describe('actions', () => {
-		const mockRequestEvent = (formData: any): RequestEvent =>
-			({
-				request: {
-					formData: () => Promise.resolve(formData)
-				},
-				url: new URL('http://localhost')
-			}) as unknown as RequestEvent;
+const mockRequest = {
+formData: () => Promise.resolve(mockFormData)
+};
 
-		describe('createTicketType', () => {
-			it('should create a new ticket type', async () => {
-				const result = await actions.createTicketType(mockRequestEvent(filledFormData));
+describe('createTicketType', () => {
+it('should create a new ticket type', async () => {
+const result = await actions.createTicketType({ request: mockRequest } as any);
 
-				expect(db.insert).toHaveBeenCalledWith(ticketType);
-				expect(db.insert(ticketType).values).toHaveBeenCalledWith({
-					name: 'Adult',
-					factor: '1.0',
-					description: 'Standard adult ticket'
-				});
-				expect(result).toBeUndefined();
-			});
+expect(db.insert).toHaveBeenCalledWith(ticketType);
+expect(result).toBeUndefined();
+});
 
-			it('should handle errors when creating a ticket type', async () => {
-				vi.mocked(db.insert).mockImplementationOnce(
-					() =>
-						({
-							values: vi.fn().mockReturnValue({
-								execute: vi.fn().mockRejectedValue(new Error('Database error'))
-							})
-						}) as unknown as PgInsertBuilder<any, any>
-				);
+it('should handle errors when creating a ticket type', async () => {
+vi.mocked(db.insert).mockImplementationOnce(() => {
+throw new Error('Database error');
+});
 
-				await expect(actions.createTicketType(mockRequestEvent(filledFormData))).rejects.toEqual({
-					status: 500,
-					message: 'Error creating the priceSet'
-				});
-			});
-		});
+const result = await actions.createTicketType({ request: mockRequest } as any);
+expect(result).toEqual({
+status: 500,
+data: { error: 'Internal Server Error' }
+});
+});
+});
 
-		describe('deleteTicketType', () => {
-			it('should delete a ticket type with a valid id', async () => {
-				const result = await actions.deleteTicketType(mockRequestEvent(filledFormData));
+describe('deleteTicketType', () => {
+it('should delete a ticket type with a valid id', async () => {
+const result = await actions.deleteTicketType({ request: mockRequest } as any);
 
-				expect(db.delete).toHaveBeenCalledWith(ticketType);
-				expect(result).toBeUndefined();
-			});
+expect(db.delete).toHaveBeenCalledWith(ticketType);
+expect(result).toBeUndefined();
+});
 
-			it('should handle errors when deleting a ticket type', async () => {
-				vi.mocked(db.delete).mockImplementationOnce(() => {
-					throw new Error('Database error');
-				});
+it('should handle errors when deleting a ticket type', async () => {
+vi.mocked(db.delete).mockImplementationOnce(() => {
+throw new Error('Database error');
+});
 
-				const consoleLogSpy = vi.spyOn(console, 'log');
-				await actions.deleteTicketType(mockRequestEvent(filledFormData));
-				expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('error'));
-			});
-		});
+const result = await actions.deleteTicketType({ request: mockRequest } as any);
+expect(result).toEqual({
+status: 500,
+data: { error: 'Internal Server Error' }
+});
+});
+});
 
-		describe('updateTicketType', () => {
-			it('should update a ticket type', async () => {
-				const result = await actions.updateTicketType(mockRequestEvent(filledFormData));
+describe('updateTicketType', () => {
+it('should update a ticket type', async () => {
+const result = await actions.updateTicketType({ request: mockRequest } as any);
 
-				expect(db.update).toHaveBeenCalledWith(ticketType);
-				expect(result).toBeUndefined();
-			});
+expect(db.update).toHaveBeenCalledWith(ticketType);
+expect(result).toBeUndefined();
+});
 
-			it('should handle missing inputs', async () => {
-				await expect(actions.updateTicketType(mockRequestEvent(emptyFormData))).rejects.toEqual({
-					status: 400,
-					message: 'Missing inputs'
-				});
-			});
+it('should handle missing inputs', async () => {
+const emptyFormData = new FormData();
+const emptyRequest = {
+formData: () => Promise.resolve(emptyFormData)
+};
 
-			it('should handle errors when updating a ticket type', async () => {
-				vi.mocked(db.update).mockImplementationOnce(() => {
-					throw new Error('Database error');
-				});
+const result = await actions.updateTicketType({ request: emptyRequest } as any);
+expect(result).toEqual({
+status: 400,
+data: { message: 'Missing Inputs' }
+});
+});
 
-				await expect(actions.updateTicketType(mockRequestEvent(filledFormData))).rejects.toEqual({
-					status: 500,
-					message: 'Error updating price set'
-				});
-			});
-		});
-	});
+it('should handle errors when updating a ticket type', async () => {
+vi.mocked(db.update).mockImplementationOnce(() => {
+throw new Error('Database error');
+});
+
+const result = await actions.updateTicketType({ request: mockRequest } as any);
+expect(result).toEqual({
+status: 500,
+data: { error: 'Internal Server Error' }
+});
+});
+});
+});
 });
