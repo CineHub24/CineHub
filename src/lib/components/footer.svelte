@@ -1,10 +1,36 @@
 <script>
 	import * as m from '$lib/paraglide/messages.js';
-  import { showNotification } from '$lib/stores/notification';
+	import { showNotification } from '$lib/stores/notification';
 	import Notifications from '$lib/components/notifications.svelte';
 
-
 	const currentYear = new Date().getFullYear();
+
+	let email = '';
+	let message = '';
+
+	async function handleSubmit() {
+		try {
+			const response = await fetch('/api/subscribe', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ email })
+			});
+
+			const data = await response.json();
+
+			if (response.ok) {
+				showNotification(data.message || 'Vielen Dank für deine Anmeldung!');
+				email = ''; //Eingabefeld leeren
+			} else {
+				showNotification(data.error || 'Es gab ein Problem bei der Anmeldung.');
+			}
+		} catch (error) {
+			showNotification('Es gab ein Problem bei der Verbindung zum Server.');
+			console.error(error);
+		}
+	}
 </script>
 
 <footer class="bg-gray-100 text-gray-800">
@@ -24,7 +50,7 @@
 					<li><a href="/" class="transition hover:text-gray-600">{m.home({})}</a></li>
 					<!-- <li><a href="/program" class="transition hover:text-gray-600">{m.program({})}</a></li> -->
 					<li><a href="/tickets" class="transition hover:text-gray-600">{m.tickets({})}</a></li>
-					<li><a href="/about" class="transition hover:text-gray-600">{m.about({})}</a></li>
+					<li><a href="/about-us" class="transition hover:text-gray-600">{m.about({})}</a></li>
 				</ul>
 			</div>
 			<!-- Resources Section -->
@@ -42,11 +68,12 @@
 				<p class="mb-4 text-sm">
 					{m.newsletter_text({})}
 				</p>
-				<form class="flex space-x-2" on:submit="{() => showNotification('You successfully subscribed to our newsletter')}">
+				<form class="flex space-x-2" on:submit|preventDefault={handleSubmit}>
 					<input
 						required
 						type="email"
 						placeholder={m.your_email({})}
+						bind:value={email}
 						class="w-full rounded-md bg-gray-200 px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
 					/>
 					<button

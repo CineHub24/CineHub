@@ -10,8 +10,15 @@ export default defineConfig({
 			outdir: './src/lib/paraglide'
 		})
 	],
-
 	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}']
-	}
+		include: ['src/**/*.{test,spec}.{js,ts,svelte}'],
+		environment: 'jsdom',
+		globals: true,
+		//setupFiles: ['src/setupTests.js'] // Optional: Fügen Sie diese Zeile hinzu, wenn Sie eine Setup-Datei für Tests haben
+	},
+	resolve: process.env.VITEST
+		? {
+				conditions: ['browser']
+			}
+		: undefined
 });

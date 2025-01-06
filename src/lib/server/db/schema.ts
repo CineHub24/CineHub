@@ -204,3 +204,8 @@ export const logs = pgTable('logs', {
 	metadata: jsonb('metadata').default({}),
 	createdAt: timestamp('created_at').defaultNow()
 });
+
+export const subscribersNewsletter = pgTable('subscribersNewsletter', {
+	id: serial('id').primaryKey(),
+	email: text('email').unique()
+});

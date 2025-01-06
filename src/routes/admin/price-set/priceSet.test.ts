@@ -1,171 +1,271 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load, actions } from './+page.server';
-import { db } from '$lib/server/db';
+import * as dbModule from '$lib/server/db';
 import { priceSet, seatCategory, ticketType } from '$lib/server/db/schema';
-import type { RequestEvent } from '@sveltejs/kit';
-import { error, fail } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
+import * as m from '$lib/paraglide/messages.js';
 import { eq } from 'drizzle-orm';
 
-const filledFormData = {
-	get: (key: string) => {
-		if (key === 'name') {
-			return 'Price Set';
-		} else if (key === 'priceFactor') {
-			return '1.5';
-		} else if (key === 'priceSetId') {
-			return '1';
-		} else {
-			return null;
-		}
-	},
-	getAll: (key: string) => {
-		if (key === 'seatCategoryPrices') {
-			return ['1', '2'];
-		} else if (key === 'ticketTypes') {
-			return ['1', '2'];
-		} else {
-			return null;
-		}
-	}
-};
-const emptyFormData = {
-	get: () => null,
-	getAll: () => []
-};
-
-// Mock the database
+// Mock the entire db module
 vi.mock('$lib/server/db', () => ({
-	db: {
-		select: vi.fn(() => ({
-			from: vi.fn(() => ({
-				orderBy: vi.fn().mockResolvedValue([])
-			}))
-		})),
-		insert: vi.fn(() => ({
-			values: vi.fn().mockResolvedValue({})
-		})),
-		delete: vi.fn(() => ({
-			where: vi.fn().mockResolvedValue({})
-		})),
-		update: vi.fn(() => ({
-			set: vi.fn(() => ({
-				where: vi.fn().mockResolvedValue({})
-			}))
-		}))
-	}
+db: {
+select: vi.fn().mockReturnThis(),
+from: vi.fn().mockReturnThis(),
+orderBy: vi.fn().mockReturnThis(),
+insert: vi.fn().mockReturnThis(),
+delete: vi.fn().mockReturnThis(),
+update: vi.fn().mockReturnThis(),
+}
 }));
 
-// Mock both error and fail functions
-vi.mock('@sveltejs/kit', () => {
-	return {
-		error: vi.fn((status, message) => {
-			throw { status, message };
-		}),
-		fail: vi.fn((status, data) => {
-			return { status, data };
-		})
-	};
+// Mock fail function
+vi.mock('@sveltejs/kit', () => ({
+fail: vi.fn((status, data) => ({ status, data }))
+}));
+
+// Mock eq function
+vi.mock('drizzle-orm', async () => {
+const actual = await vi.importActual('drizzle-orm');
+return {
+...actual,
+eq: vi.fn().mockImplementation((a, b) => ({ [Symbol('op')]: 'eq', left: a, right: b }))
+};
 });
 
-describe('page.server.ts', () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-	});
+describe('load function', () => {
+beforeEach(() => {
+vi.clearAllMocks();
+});
 
-	describe('load function', () => {
-		it('should return price sets, seat categories, and ticket types', async () => {
-			const result = await load();
+it('should return price sets, seat categories, and ticket types', async () => {
+const mockPriceSets = [{ id: 1, name: 'Price Set 1' }];
+const mockSeatCategories = [{ id: 1, name: 'Category 1', price: 100 }];
+const mockTicketTypes = [{ id: 1, name: 'Type 1' }];
 
-			expect(db.select).toHaveBeenCalledTimes(3);
-			expect(result).toEqual({
-				priceSets: [],
-				seatCategories: [],
-				ticketTypes: []
-			});
-		});
+const mockDb = dbModule.db as any;
+mockDb.select.mockReturnThis();
+mockDb.from.mockReturnThis();
+mockDb.orderBy.mockImplementation(() => Promise.resolve(mockPriceSets));
+mockDb.from.mockImplementationOnce(() => ({ orderBy: () => Promise.resolve(mockPriceSets) }))
+.mockImplementationOnce(() => ({ orderBy: () => Promise.resolve(mockSeatCategories) }))
+.mockImplementationOnce(() => ({ orderBy: () => Promise.resolve(mockTicketTypes) }));
 
-		it('should handle errors', async () => {
-			vi.mocked(db.select).mockImplementationOnce(() => {
-				throw new Error('Database error');
-			});
+const result = await load({ url: {} } as any);
 
-			await expect(load()).rejects.toEqual({
-				status: 500,
-				message: 'Internal Server Error DB'
-			});
+expect(result).toEqual({
+priceSets: mockPriceSets,
+seatCategories: mockSeatCategories,
+ticketTypes: mockTicketTypes
+});
+});
 
-			expect(error).toHaveBeenCalledWith(500, 'Internal Server Error DB');
-		});
-	});
+it('should handle database errors', async () => {
+const mockDb = dbModule.db as any;
+mockDb.from.mockImplementation(() => { throw new Error('Database error'); });
 
-	describe('actions', () => {
-		const mockRequestEvent = (formData: any): RequestEvent =>
-			({
-				request: {
-					formData: () => Promise.resolve(formData)
-				},
-				url: new URL('http://localhost'),
-				params: {},
-				route: { id: '' },
-				isDataRequest: false,
-				getClientAddress: () => '',
-				locals: {},
-				platform: {},
-				setHeaders: () => {},
-				cookies: {
-					get: () => '',
-					set: () => {},
-					delete: () => {},
-					serialize: () => ''
-				},
-				fetch: () => Promise.resolve(new Response())
-			}) as unknown as RequestEvent;
+await expect(load({ url: {} } as any)).rejects.toThrow('Database error');
+});
+});
 
-		describe('createPriceSet', () => {
-			it('should create a new price set', async () => {
-				const result = await actions.createPriceSet(mockRequestEvent(filledFormData));
+describe('actions', () => {
+beforeEach(() => {
+vi.clearAllMocks();
+});
 
-				expect(db.insert).toHaveBeenCalledWith(priceSet);
-				expect(result).toBeUndefined();
-			});
+describe('createPriceSet', () => {
+it('should create a new price set', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: (key: string) => key === 'name' ? 'New Price Set' : '1.5',
+getAll: () => ['1', '2']
+})
+};
 
-			it('should handle missing inputs', async () => {
-				const result = await actions.createPriceSet(mockRequestEvent(emptyFormData));
-				expect(result).toEqual({ status: 400, data: { message: 'Missing inputs' } });
-			});
-		});
+const mockValues = vi.fn().mockResolvedValue({});
+(dbModule.db.insert as jest.Mock).mockReturnValue({
+values: mockValues
+});
 
-		describe('delete', () => {
-			it('should delete a price set with a valid id', async () => {
-				const result = await actions.delete(mockRequestEvent(filledFormData));
+const result = await actions.createPriceSet({ request: mockRequest } as any);
 
-				expect(db.delete).toHaveBeenCalledWith(priceSet);
-				expect(result).toBeUndefined();
-			});
-			it('should return a 400 error if the priceSetId is missing', async () => {
-				const requestEvent = mockRequestEvent(emptyFormData);
+expect(dbModule.db.insert).toHaveBeenCalledWith(priceSet);
+expect(mockValues).toHaveBeenCalledWith({
+name: 'New Price Set',
+priceFactor: '1.5',
+seatCategoryPrices: [1, 2],
+ticketTypes: [1, 2]
+});
+expect(result).toBeUndefined();
+});
 
-				const result = await actions.delete(requestEvent);
+it('should handle missing inputs', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: () => null,
+getAll: () => []
+})
+};
 
-				expect(result).toEqual({ status: 400, data: { message: 'Missing inputs' } });
-				expect(fail).toHaveBeenCalledWith(400, { message: 'Missing inputs' });
-			});
-		});
+const result = await actions.createPriceSet({ request: mockRequest } as any);
 
-		describe('updatePriceSet', () => {
-			it('should update a price set', async () => {
-				const result = await actions.updatePriceSet(mockRequestEvent(filledFormData));
+expect(fail).toHaveBeenCalledWith(400, { message: m.missing_inputs });
+expect(result).toEqual({ status: 400, data: { message: m.missing_inputs } });
+});
 
-				expect(db.update).toHaveBeenCalledWith(priceSet);
-				expect(result).toBeUndefined();
-			});
+it('should handle database errors', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: (key: string) => key === 'name' ? 'New Price Set' : '1.5',
+getAll: () => ['1', '2']
+})
+};
 
-			it('should handle missing inputs', async () => {
-				const result = await actions.updatePriceSet(mockRequestEvent(emptyFormData));
+const mockValues = vi.fn().mockRejectedValue(new Error('Database error'));
+(dbModule.db.insert as jest.Mock).mockReturnValue({
+values: mockValues
+});
 
-				expect(result).toEqual({ status: 400, data: { message: 'Missing inputs' } });
-				expect(fail).toHaveBeenCalledWith(400, { message: 'Missing inputs' });
-			});
-		});
-	});
+const result = await actions.createPriceSet({ request: mockRequest } as any);
+
+expect(fail).toHaveBeenCalledWith(500, { message: m.error_creating_price_set });
+expect(result).toEqual({ status: 500, data: { message: m.error_creating_price_set } });
+});
+});
+
+describe('delete', () => {
+it('should delete a price set', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: () => '1'
+})
+};
+
+const mockWhere = vi.fn().mockResolvedValue({});
+(dbModule.db.delete as jest.Mock).mockReturnValue({
+where: mockWhere
+});
+
+const result = await actions.delete({ request: mockRequest } as any);
+
+expect(dbModule.db.delete).toHaveBeenCalledWith(priceSet);
+expect(eq).toHaveBeenCalledWith(priceSet.id, '1');
+expect(mockWhere).toHaveBeenCalledWith(expect.objectContaining({
+[Symbol('op')]: 'eq',
+left: priceSet.id,
+right: '1'
+}));
+expect(result).toBeUndefined();
+});
+
+it('should handle missing id', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: () => null
+})
+};
+
+const result = await actions.delete({ request: mockRequest } as any);
+
+expect(fail).toHaveBeenCalledWith(400, { message: m.missing_inputs });
+expect(result).toEqual({ status: 400, data: { message: m.missing_inputs } });
+});
+
+it('should handle database errors', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: () => '1'
+})
+};
+
+const mockWhere = vi.fn().mockRejectedValue(new Error('Database error'));
+(dbModule.db.delete as jest.Mock).mockReturnValue({
+where: mockWhere
+});
+
+const result = await actions.delete({ request: mockRequest } as any);
+
+expect(fail).toHaveBeenCalledWith(500, { message: m.error_deleting_price_set });
+expect(result).toEqual({ status: 500, data: { message: m.error_deleting_price_set } });
+});
+});
+
+describe('updatePriceSet', () => {
+it('should update a price set', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: (key: string) => {
+if (key === 'priceSetId') return '1';
+if (key === 'name') return 'Updated Price Set';
+if (key === 'priceFactor') return '2.0';
+return null;
+},
+getAll: () => ['1', '2']
+})
+};
+
+const mockSet = vi.fn().mockReturnThis();
+const mockWhere = vi.fn().mockResolvedValue({});
+(dbModule.db.update as jest.Mock).mockReturnValue({
+set: mockSet,
+where: mockWhere
+});
+
+const result = await actions.updatePriceSet({ request: mockRequest } as any);
+
+expect(dbModule.db.update).toHaveBeenCalledWith(priceSet);
+expect(mockSet).toHaveBeenCalledWith({
+name: 'Updated Price Set',
+priceFactor: '2.0',
+seatCategoryPrices: [1, 2],
+ticketTypes: [1, 2]
+});
+expect(eq).toHaveBeenCalledWith(priceSet.id, '1');
+expect(mockWhere).toHaveBeenCalledWith(expect.objectContaining({
+[Symbol('op')]: 'eq',
+left: priceSet.id,
+right: '1'
+}));
+expect(result).toBeUndefined();
+});
+
+it('should handle missing inputs', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: () => null,
+getAll: () => []
+})
+};
+
+const result = await actions.updatePriceSet({ request: mockRequest } as any);
+
+expect(fail).toHaveBeenCalledWith(400, { message: m.missing_inputs });
+expect(result).toEqual({ status: 400, data: { message: m.missing_inputs } });
+});
+
+it('should handle database errors', async () => {
+const mockRequest = {
+formData: vi.fn().mockResolvedValue({
+get: (key: string) => {
+if (key === 'priceSetId') return '1';
+if (key === 'name') return 'Updated Price Set';
+if (key === 'priceFactor') return '2.0';
+return null;
+},
+getAll: () => ['1', '2']
+})
+};
+
+const mockSet = vi.fn().mockReturnThis();
+const mockWhere = vi.fn().mockRejectedValue(new Error('Database error'));
+(dbModule.db.update as jest.Mock).mockReturnValue({
+set: mockSet,
+where: mockWhere
+});
+
+const result = await actions.updatePriceSet({ request: mockRequest } as any);
+
+expect(fail).toHaveBeenCalledWith(500, { message: m.error_updating_price_set });
+expect(result).toEqual({ status: 500, data: { message: m.error_updating_price_set } });
+});
+});
 });

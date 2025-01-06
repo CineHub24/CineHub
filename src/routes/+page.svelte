@@ -55,24 +55,26 @@
 </script>
 
 {#key hoveredMovie}
-	<div class="movie-details" in:fade={{ duration: 1500 }}>
-		<img id="background" src={hoveredMovie.backdrop} alt="{hoveredMovie.title} Poster" />
-		<!-- <a href="/film/{hoveredMovie.id}">
-			<img id="poster" src={hoveredMovie.poster} alt="{hoveredMovie.title} Poster" /></a
-		> -->
-		<iframe
-			id="poster"
-			width="500"
-			height="300"
-			src={hoveredMovie.trailer}
-			frameborder="0"
-			allow="autoplay; encrypted-media"
-			allowfullscreen
-			title="Trailer"
-		></iframe>
-		<h3>{hoveredMovie.title}</h3>
-		<p>{hoveredMovie.description}</p>
-	</div>
+	{#if hoveredMovie }
+		<div class="movie-details" in:fade={{ duration: 1500 }}>
+			<img id="background" src={hoveredMovie.backdrop} alt="{hoveredMovie.title} Poster" />
+			<!-- <a href="/film/{hoveredMovie.id}">
+		<img id="poster" src={hoveredMovie.poster} alt="{hoveredMovie.title} Poster" /></a
+	> -->
+			<iframe
+				id="poster"
+				width="500"
+				height="300"
+				src={hoveredMovie.trailer}
+				frameborder="0"
+				allow="autoplay; encrypted-media"
+				allowfullscreen
+				title="Trailer"
+			></iframe>
+			<h3>{hoveredMovie.title}</h3>
+			<p>{hoveredMovie.description}</p>
+		</div>
+	{/if}
 {/key}
 
 <h2 class="px-5 text-xl font-bold">{m.movies({})}</h2>

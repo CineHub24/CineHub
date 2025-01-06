@@ -4,7 +4,7 @@ import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 import * as m from '$lib/paraglide/messages.js';
 
-const dbFail = fail(500, { message: m.internal_server_error({})});
+const dbFail = fail(500, { error: m.internal_server_error({})});
 
 export const load = async ({ url }) => {
     try {
@@ -17,7 +17,7 @@ export const load = async ({ url }) => {
     }
     catch (e) {
         console.log(e);
-        throw dbFail;
+        return dbFail;
     }
 };
 export const actions = {

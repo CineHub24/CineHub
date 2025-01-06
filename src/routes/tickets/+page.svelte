@@ -48,8 +48,10 @@
 </script>
 
 {#if Object.keys(groupedTickets).length === 0}
-	<p class="text-center italic text-gray-500 mt-20">Du hast noch keine Tickets gekauft.</p>
-    {/if}
+	<div class="flex h-[80vh] items-center justify-center">
+		<p class="text-center italic text-gray-500">Du hast noch keine Tickets gekauft.</p>
+	</div>
+{/if}
 
 <div class="tickets-container">
 	{#each Object.entries(groupedTickets) as [showingId, showingTickets]}

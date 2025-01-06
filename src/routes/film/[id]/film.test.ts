@@ -1,67 +1,92 @@
-import { db } from '$lib/server/db';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load } from './+page.server';
-import { describe, it, expect, vi } from 'vitest';
-import { error } from '@sveltejs/kit';
+import { db } from '$lib/server/db';
+import { film, showing } from '$lib/server/db/schema';
+import { fail } from '@sveltejs/kit';
 
-// Mock der Datenquelle
-const mockMovies = [
-    {
-        id: 123,
-        title: 'Sample Movie'
-    }
-];
-
-const mockShows = [
-    {
-        id: 1,
-        time: '10:00 AM'
-    },
-    {
-        id: 2,
-        time: '2:00 PM'
-    }
-];
-
-// Mock der Datenbankabfragen
+// Mock the database
 vi.mock('$lib/server/db', () => ({
-    db: {
-        select: vi.fn()
-            .mockImplementationOnce(() => ({
-                from: () => ({
-                    where: () => Promise.resolve([mockMovies[0]])
-                })
-            }))
-            .mockImplementationOnce(() => ({
-                from: () => ({
-                    where: () => Promise.resolve(mockShows)
-                })
-            }))
-    }
+db: {
+select: vi.fn(() => ({
+from: vi.fn(() => ({
+where: vi.fn(),
+})),
+})),
+},
 }));
 
-describe('load', () => {
-    it('should load movie and shows from the database', async () => {
-        const mockUrl = { pathname: '/film/123' };
+describe('load function', () => {
+beforeEach(() => {
+vi.clearAllMocks();
+});
 
-        const result = await load({ url: mockUrl });
+it('should return movie and shows data when successful', async () => {
+const mockMovie = [{
+id: 1,
+title: 'Test Movie',
+imdbID: '1',
+tmdbID: '1',
+backdrop: "https://image.tmdb.org/t/p/original/8s4h9friP6Ci3adRGahHARVd76E.jpg",
+genres: ["Action", "Adventure", "Fantasy"],
+director: "James Cameron",
+runtime: 162,
+ageRating: "PG-13",
+poster: "https://image.tmdb.org/t/p/original/8s4h9friP6Ci3adRGahHARVd76E.jpg",
+description: "A paraplegic Marine dispatched to the moon Pandora on a unique mission becomes torn between following his orders and protecting the world he feels is his home.",
+year: '2009',
+}];
+const mockShows = [{
+id: 1,
+filmid: 1,
+date: '2023-06-01T10:00:00Z',
+hallid: 1,
+priceSetId: 1,
+time: '10:00:00',
+endTime: '12:42:00',
+language: 'English',
+dimension: '2D',
+cancelled: false,
+soldTickets: 0,
+}];
 
-        expect(result.movie).toEqual(mockMovies[0]);
-        expect(result.shows).toEqual(mockShows);
-    });
+const mockFilmWhere = vi.fn().mockResolvedValue(mockMovie);
+const mockShowingWhere = vi.fn().mockReturnThis();
+const mockShowingOrderBy = vi.fn().mockResolvedValue(mockShows);
 
-    //ToDo: Fix this test
+vi.mocked(db.select).mockImplementation(() => ({
+from: vi.fn().mockImplementation((table) => ({
+where: table === film ? mockFilmWhere : mockShowingWhere,
+orderBy: mockShowingOrderBy,
+})),
+} as any));
 
-    // it('should throw an error if there is an error in the database query', async () => {
-    //     const mockUrl = { pathname: '/film/123' };
-    //     const mockError = error(500, 'Internal Server Error DB');
+const result = await load({ url: new URL('http://localhost/movies/1') });
 
-    //     // Mock der Datenbankabfrage, um einen Fehler zu werfen
-    //     (db.select as jest.Mock).mockImplementationOnce(() => ({
-    //         from: () => ({
-    //             where: () => Promise.reject(mockError)
-    //         })
-    //     }));
+expect(result).toEqual({
+movie: mockMovie[0],
+shows: mockShows,
+});
 
-    //     await expect(load({ url: mockUrl })).rejects.toThrow(mockError);
-    // });
+expect(mockFilmWhere).toHaveBeenCalledTimes(1);
+expect(mockShowingWhere).toHaveBeenCalledTimes(1);
+expect(mockShowingOrderBy).toHaveBeenCalledTimes(1);
+});
+
+it('should return a fail response when an error occurs', async () => {
+vi.mocked(db.select).mockImplementation(() => ({
+from: vi.fn().mockImplementation(() => ({
+where: vi.fn().mockRejectedValue(new Error('Database error')),
+})),
+} as any));
+
+const result = await load({ url: new URL('http://localhost/movies/1') });
+
+expect(result).toEqual(fail(500, { error: 'Failed to load film' }));
+});
+
+it('should handle invalid id in URL', async () => {
+const result = await load({ url: new URL('http://localhost/movies/invalid') });
+
+expect(result).toEqual(fail(500, { error: 'Failed to load film' }));
+});
 });

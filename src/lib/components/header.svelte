@@ -6,6 +6,7 @@
 
 	import { i18n } from '$lib/i18n';
 	import * as m from '$lib/paraglide/messages.js';
+	import { languageAwareGoto } from '$lib/utils/languageAware';
 
 	let lang = languageTag();
 
@@ -103,7 +104,11 @@
 
 	<!-- Right: Profile Picture -->
 	<div class="relative ml-auto flex">
-		<SearchBar />
+		{#if !$page.url.pathname.includes('/admin') && !$page.url.pathname.includes('/validation')}
+			<SearchBar onSubmit={(search) => {
+				languageAwareGoto('/search/'+search);
+			}} />	
+		{/if}
 		<div
 			class="relative ml-4"
 			role="button"
@@ -159,11 +164,20 @@
 								{m.switch_language({ language: lang === 'en' ? 'deutsch' : 'english' })}
 							</button>
 						</li>
+						{#if userName}
+						<li>
+							<a
+								href="/tickets"
+								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+								>{m.tickets({})}</a
+							>
+						</li>
+						{/if}
 						{#if $page.data.user?.role === 'admin' || $page.data.user?.role === 'inspector'}
 							<li>
 								<a
 									href="/validation"
-									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-green-200 bg-green-100"
 									>{m.validate_tickets({})}</a
 								>
 							</li>
@@ -172,7 +186,7 @@
 							<li>
 								<a
 									href="/admin"
-									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-green-200 bg-green-100"
 									>{m.admin_tools({})}</a
 								>
 							</li>
