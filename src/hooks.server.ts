@@ -1,10 +1,11 @@
 import { sequence } from '@sveltejs/kit/hooks';
 import { i18n } from '$lib/i18n';
-
 import { type Handle } from '@sveltejs/kit';
 import * as auth from '$lib/server/auth.js';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
+import deleteOldReservedTicketsJob from '$lib/utils/jobs/deleteTicketsJob';
 
+deleteOldReservedTicketsJob();
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	const sessionToken = event.cookies.get(auth.sessionCookieName);
