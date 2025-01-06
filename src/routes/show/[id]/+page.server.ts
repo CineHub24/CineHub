@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import { booking, film, showing, priceSet, seatCategory, ticketType, cinemaHall, user } from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 
@@ -79,6 +79,16 @@ export const actions: Actions = {
         if(!userId) {
             throw error(400, 'Missing required fields');
         }
+
+        // Uncomment out once decision was made on booking.paid / booking.state
+        // const existingBookings = await db
+		// 	.select()
+		// 	.from(booking)
+		// 	.where(and(eq(booking.userId, <string>userId)), eq(booking.paid / state));
+
+        // if (existingBookings.length > 0) {
+        //     return languageAwareRedirect(303, '/cart/' + existingBookings[0].id)
+        // }
 
         let bookingId: number;
 

@@ -1,7 +1,7 @@
 <script>
 // @ts-nocheck
-
     import { goto } from '$app/navigation'
+    import { page } from '$app/stores'
     import { onMount } from 'svelte'
     import { loadStripe } from '@stripe/stripe-js'
 	  import { Elements, ExpressCheckout } from 'svelte-stripe';
@@ -25,12 +25,13 @@
     // let elements: ; // Elements instance from Stripe or undefined
     // let processing: boolean = false; // Flag to indicate ongoing processing
   
+    const bookingId = page.url.pathname.replace('/cart/', '').replace('/stripev2', '');
     onMount(async () => {
       stripe = await loadStripe(PUBLIC_STRIPE_KEY)
     })
   
     async function createPaymentIntent() {
-      const response = await fetch('/book/1/stripev2/payment-intent', {
+      const response = await fetch(page.url.pathname + '/payment-intent', {
         method: 'POST',
         headers: {
           'content-type': 'application/json'
@@ -51,7 +52,7 @@
         phoneNumberRequired: true,
         lineItems: [
           {
-            name: 'Rad T-Shirt',
+            name: 'Tickets',
             amount: 1099
           }
         ]
@@ -77,7 +78,7 @@
   
       // create payment intent server side
       const clientSecret = await createPaymentIntent()
-      const return_url = new URL('/book/1/stripev2/thanks', window.location.origin).toString()
+      const return_url = new URL('/booking/' + bookingId, window.location.origin).toString()
   
       // confirm payment with stripe
       // @ts-ignore
@@ -99,7 +100,7 @@
         processing = false
       } else {
         // payment succeeded, redirect to "thank you" page
-        goto('/book/1/stripev2/thanks')
+        goto('/booking/' + bookingId)
       }
     }
   </script>
