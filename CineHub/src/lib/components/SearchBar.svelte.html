@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>0/29</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/21</span>
+                <span class='fraction'>0/29</span>
             </div>
         
             
@@ -168,22 +168,46 @@
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
 <a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -275,14 +299,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >&lt;script&gt;</span></span></span>
 	import { fade } from 'svelte/transition';
-	import { onMount } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
 <span class="cstat-no" title="statement not covered" >	let searchValue = '';</span>
 <span class="cstat-no" title="statement not covered" >	let isExpanded = false;</span>
 <span class="cstat-no" title="statement not covered" >	let searchbarEl;</span>
-&nbsp;
+<span class="cstat-no" title="statement not covered" >	export let onSubmit = (string) =&gt; {}; // Accept onSubmit as a prop with a default empty function</span>
+<span class="cstat-no" title="statement not covered" >	const dispatch = createEventDispatcher();</span>
+	
 <span class="cstat-no" title="statement not covered" >	function handleMouseEnter() {</span>
 <span class="cstat-no" title="statement not covered" >		isExpanded = true;</span>
 	}
+&nbsp;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >	function handleMouseLeave() {</span>
 <span class="cstat-no" title="statement not covered" >		searchValue = '';</span>
@@ -292,6 +319,15 @@
 <span class="cstat-no" title="statement not covered" >	function handleClickOutside(event) {</span>
 <span class="cstat-no" title="statement not covered" >		if (searchbarEl &amp;&amp; !searchbarEl.contains(event.target) &amp;&amp; !searchValue) {</span>
 <span class="cstat-no" title="statement not covered" >			isExpanded = false;</span>
+		}
+	}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >	function handleSubmit(event) {</span>
+<span class="cstat-no" title="statement not covered" >		event.preventDefault();</span>
+<span class="cstat-no" title="statement not covered" >		if (searchValue.trim()) {</span>
+<span class="cstat-no" title="statement not covered" >			onSubmit(searchValue);</span>
+<span class="cstat-no" title="statement not covered" >			dispatch('submit', searchValue);</span>
+<span class="cstat-no" title="statement not covered" >			searchValue = '';</span>
 		}
 	}
 &nbsp;
@@ -310,8 +346,8 @@
 <span class="cstat-no" title="statement not covered" >	on:mouseleave={handleMouseLeave}</span>
 	role="search"
 &gt;
-<span class="cstat-no" title="statement not covered" >	&lt;div class="search-wrapper" class:expanded={isExpanded}&gt;</span>
-		&lt;input
+<span class="cstat-no" title="statement not covered" >&lt;form on:submit={handleSubmit} class="search-wrapper" class:expanded={isExpanded}&gt;</span>
+	&lt;input
 			type="text"
 <span class="cstat-no" title="statement not covered" >			bind:value={searchValue}</span>
 <span class="cstat-no" title="statement not covered" >			placeholder={isExpanded ? 'Suchen...' : ''}</span>
@@ -330,7 +366,7 @@
 			&lt;circle cx="11" cy="11" r="8" /&gt;
 			&lt;line x1="21" y1="21" x2="16.65" y2="16.65" /&gt;
 		&lt;/svg&gt;
-	&lt;/div&gt;
+	&lt;/form&gt;
 &lt;/div&gt;
 &nbsp;
 &lt;style&gt;
@@ -385,7 +421,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-01-05T02:06:20.305Z
+                at 2025-01-06T10:53:22.714Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
