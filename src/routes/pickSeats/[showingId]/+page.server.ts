@@ -38,7 +38,7 @@ export const actions = {
 
         try {
 
-            const existingTickets = await db.select().from(ticket).where(and(eq(ticket.showingId, showingId), eq(ticket.status, 'paid'), inArray(ticket.seatId, seatIds)));
+            const existingTickets = await db.select().from(ticket).where(and(eq(ticket.showingId, showingId), inArray(ticket.status, ['reserved', 'paid']), inArray(ticket.seatId, seatIds)));
 
 
             if (existingTickets.length > 0) {
