@@ -100,6 +100,7 @@
 					{#each selectedSeats as seatResponse}
 						<input type="hidden" name="seatIds" value={seatResponse.seat.id} />
 						<input type="hidden" name="ticketTypes" value={seatResponse.selectedTicketType} />
+						<input type="hidden" name="price" value={getTicketPrice(seatResponse)} />
 						<div class="seat-info">
 							<div class="seat-details">
 								<span class="seat-number">Seat {seatResponse.seat.row}{seatResponse.seat.seatNumber}</span>

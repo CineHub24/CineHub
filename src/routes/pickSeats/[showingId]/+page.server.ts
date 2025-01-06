@@ -1,9 +1,8 @@
 import { db } from '$lib/server/db';
-import { seat, cinemaHall, seatCategory, showing, ticket, booking, ticketType } from '$lib/server/db/schema';
+import { seat, cinemaHall, seatCategory, showing, ticket, booking, ticketType, ticketStatusEnum } from '$lib/server/db/schema';
 import { eq, inArray, sql, and } from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../../$types';
-import { goto } from '$app/navigation';
 import { languageAwareGoto } from '$lib/utils/languageAware';
 
 
@@ -22,9 +21,8 @@ type Showing = typeof showing.$inferSelect;
 
 type CinemaHall = typeof cinemaHall.$inferSelect;
 
-type Ticket = typeof ticket.$inferSelect;
+type Ticket = typeof ticket.$inferInsert;
 
-type SeatGrid = (SeatResponse | null)[][];
 
 export const actions = {
 
@@ -36,6 +34,7 @@ export const actions = {
         const showingId = Number(formData.get('showingId'));
         const seatIds = formData.getAll('seatIds').map(id => Number(id));
         const ticketTypes = formData.getAll('ticketTypes').map(id => Number(id));
+        const price = formData.getAll('price').map(id => Number(id));
 
         try {
 
@@ -51,15 +50,6 @@ export const actions = {
             //check if booking exists on user
             let bookings = await db.select().from(booking).where(eq(booking.userId, locals.user!.id));
 
-            //export const booking = pgTable('Booking', {
-            // 	id: serial('id').primaryKey(),
-            // 	date: date('date'),
-            // 	time: time('time'),
-            // 	totalPrice: decimal('totalPrice'),
-            // 	userId: text('userId').references(() => user.id),
-            // 	discount: integer('discount').references(() => priceDiscount.id),
-            // });
-
             if (bookings.length < 0) {
                 bookings = await db.insert(booking).values({
                     date: new Date(),
@@ -70,31 +60,16 @@ export const actions = {
                 }).returning();
             }
 
-            /*
 
 
-            export const ticket = pgTable('Ticket', {
-                id: serial('id').primaryKey(),
-                status: ticketStatusEnum('status').default('reserved').notNull(),
-                type: integer('type').references(() => ticketType.id),
-                showingId: integer('showingId').references(() => showing.id),
-                bookingId: integer('bookingId').references(() => booking.id),
-                seatId: integer('seatId').references(() => seat.id),
-                price: decimal('price', { precision: 10, scale: 2 }),
-            });
-
-            */
-
-            // Create tickets for each seat
             const newBooking = bookings[0];
             const ticketsToCreate: Ticket[] = seatIds.map((seatId, index) => ({
-                status: 'reserved',
+                status: ticketStatusEnum.enumValues[0],
                 showingId,
                 bookingId: newBooking.id,
                 seatId,
-                // You might want to include these if needed:
                 type: ticketTypes[index],
-                price: "10",  // richtig berechnen -> evtl doch nicht nur die seatIds sondern die ganzen seat objekte übergeben
+                price: price[index].toString(),  // richtig berechnen -> evtl doch nicht nur die seatIds sondern die ganzen seat objekte übergeben
             }));
 
 
