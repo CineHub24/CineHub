@@ -38,7 +38,7 @@ export const actions = {
 
         try {
 
-            const existingTickets = await db.select().from(ticket).where(and(eq(ticket.showingId, showingId), eq(ticket.status, 'booked'), inArray(ticket.seatId, seatIds)));
+            const existingTickets = await db.select().from(ticket).where(and(eq(ticket.showingId, showingId), eq(ticket.status, 'paid'), inArray(ticket.seatId, seatIds)));
 
 
             if (existingTickets.length > 0) {
@@ -50,21 +50,16 @@ export const actions = {
             //check if booking exists on user
             let bookings = await db.select().from(booking).where(eq(booking.userId, locals.user!.id));
 
-            if (bookings.length < 0) {
+            if (bookings.length == 0) {
                 bookings = await db.insert(booking).values({
-                    date: new Date(),
-                    time: new Date(),
-                    totalPrice: 0,
                     userId: locals.user!.id,
-                    discount: 0
                 }).returning();
             }
 
 
-
             const newBooking = bookings[0];
             const ticketsToCreate: Ticket[] = seatIds.map((seatId, index) => ({
-                status: ticketStatusEnum.enumValues[0],
+                status: "reserved",
                 showingId,
                 bookingId: newBooking.id,
                 seatId,
@@ -85,7 +80,7 @@ export const actions = {
             });
         }
         if (shouldRedirect) {
-            throw redirect(303, '/booking/1');
+            throw redirect(303, '/cart');
         }
     }
 } satisfies Actions;

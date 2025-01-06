@@ -2,7 +2,7 @@ import { db } from '$lib/server/db';
 import { film, showing } from '$lib/server/db/schema';
 import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, asc, and } from 'drizzle-orm';
-
+import { fail } from '@sveltejs/kit';
 export const load = async ({ url }) => {
 	const id = parseInt(url.pathname.split('/').pop() || '0', 10);
 	try {
@@ -22,6 +22,6 @@ export const load = async ({ url }) => {
 		};
 	} catch (e) {
 		console.log(e);
-		throw error(500, 'Internal Server Error DB');
+		return fail(500, { error: 'Failed to load film' });
 	}
 };

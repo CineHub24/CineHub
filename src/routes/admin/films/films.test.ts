@@ -1,57 +1,69 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { load } from './+page.server';
-import { db } from '$lib/server/db';
+import * as dbModule from '$lib/server/db';
 import { film } from '$lib/server/db/schema';
+import { fail } from '@sveltejs/kit';
 
-// Genauer Mock mit allen notwendigen Eigenschaften
-const mockMovies = [
-  { id: 1, title: 'Test Movie 1' },
-  { id: 2, title: 'Test Movie 2' }
-];
+// Mock the entire db module
+vi.mock('$lib/server/db', () => ({
+db: {
+select: vi.fn().mockReturnThis(),
+from: vi.fn().mockReturnThis(),
+}
+}));
 
-vi.mock('$lib/server/db', () => {
-  // Erstellen einer Spy-Funktion für from
-  const fromSpy = vi.fn(() => ({
-    execute: vi.fn(() => Promise.resolve(mockMovies)),
-    
-    // Zusätzliche Eigenschaften für Typkompatibilität
-    prepare: vi.fn(),
-    fields: {},
-    session: {},
-    dialect: {},
-    withList: {},
-    distinct: {},
-    _: {},
-    config: {},
-    
-    // Fallback für Promise-Verkettung
-    then: vi.fn((resolve) => resolve(mockMovies))
-  }));
+// Mock fail function
+vi.mock('@sveltejs/kit', () => ({
+fail: vi.fn((status, data) => ({ status, data }))
+}));
 
-  return {
-    db: {
-      select: vi.fn(() => ({
-        from: fromSpy
-      }))
-    }
-  };
+describe('load function', () => {
+beforeEach(() => {
+vi.clearAllMocks();
 });
 
-describe('Load Function', () => {
-  it('should fetch movies correctly', async () => {
-    const mockEvent = {};
+it('should return all movies when successful', async () => {
+const mockMovies = [
+{ id: 1, title: 'Movie 1' },
+{ id: 2, title: 'Movie 2' },
+];
 
-    // Load-Funktion aufrufen
-    const result = await load(mockEvent);
+const mockDb = dbModule.db as any;
+mockDb.from.mockResolvedValue(mockMovies);
 
-    // Holen Sie die gemockten Funktionen
-    const selectFn = db.select;
-    const fromFn = selectFn().from;
+const result = await load({} as any);
 
-    // Assertions
-    expect(selectFn).toHaveBeenCalled();
-    expect(fromFn).toHaveBeenCalledWith(film);
-    expect(result.filme).toEqual(mockMovies);
-    expect(result.filme.length).toBe(2);
-  });
+expect(mockDb.select).toHaveBeenCalled();
+expect(mockDb.from).toHaveBeenCalledWith(film);
+expect(result).toEqual({
+movies: mockMovies
+});
+});
+
+it('should handle empty result', async () => {
+const mockDb = dbModule.db as any;
+mockDb.from.mockResolvedValue([]);
+
+const result = await load({} as any);
+
+expect(mockDb.select).toHaveBeenCalled();
+expect(mockDb.from).toHaveBeenCalledWith(film);
+expect(result).toEqual({
+movies: []
+});
+});
+
+it('should handle database errors', async () => {
+const mockError = new Error('Database error');
+const mockDb = dbModule.db as any;
+mockDb.from.mockRejectedValue(mockError);
+
+const consoleSpy = vi.spyOn(console, 'log');
+
+const result = await load({} as any);
+
+expect(consoleSpy).toHaveBeenCalledWith(mockError);
+expect(fail).toHaveBeenCalledWith(500, { error: 'Failed to load movies' });
+expect(result).toEqual({ status: 500, data: { error: 'Failed to load movies' } });
+});
 });

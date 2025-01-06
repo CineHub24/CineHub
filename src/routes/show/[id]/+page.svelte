@@ -2,13 +2,13 @@
 	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import type { PageServerData } from './$types';
 	const { data }: { data: PageServerData } = $props();
-  const { show, hall, seatCategories, priceSet } = data;
+  const { user, show, hall, seatCategories, priceSet } = data;
 </script>
 
 <div class="container">
-	<img class="poster" src={show.poster} alt={show.title} />
-
 	{#if show}
+		<img class="poster" src={show.poster} alt={show.title} />
+
 		<div class="details">
 			<h1>{show.title}</h1>
 			<p>{show.description}</p>
@@ -20,7 +20,7 @@
 			<p><strong>Uhrzeit:</strong> {show.time}</p>
 			<p><strong>Kino:</strong> {hall.name}</p>
 			<p><strong>Preis pro Ticket:</strong></p>
-			{#if seatCategories}
+			<!-- {#if seatCategories}
 				{#each seatCategories as category}
 					<p>
 						<strong
@@ -30,7 +30,7 @@
 						>
 					</p>
 				{/each}
-			{/if}
+			{/if} -->
 			<div class="showtime">
 				<button onclick={() => languageAwareGoto(`/pickSeats/${show.id}`)}> Zur Buchung →</button>
 			</div>

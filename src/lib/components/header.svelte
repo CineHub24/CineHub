@@ -6,6 +6,7 @@
 
 	import { i18n } from '$lib/i18n';
 	import * as m from '$lib/paraglide/messages.js';
+	import { languageAwareGoto } from '$lib/utils/languageAware';
 
 	let lang = languageTag();
 
@@ -103,7 +104,11 @@
 
 	<!-- Right: Profile Picture -->
 	<div class="relative ml-auto flex">
-		<SearchBar />
+		{#if !$page.url.pathname.includes('/admin') && !$page.url.pathname.includes('/validation')}
+			<SearchBar onSubmit={(search) => {
+				languageAwareGoto('/search/'+search);
+			}} />	
+		{/if}
 		<div
 			class="relative ml-4"
 			role="button"
@@ -159,11 +164,29 @@
 								{m.switch_language({ language: lang === 'en' ? 'deutsch' : 'english' })}
 							</button>
 						</li>
+						{#if userName}
+						<li>
+							<a
+								href="/tickets"
+								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+								>{m.tickets({})}</a
+							>
+						</li>
+						{/if}
+						{#if $page.data.user?.role === 'admin' || $page.data.user?.role === 'inspector'}
+							<li>
+								<a
+									href="/validation"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-green-200 bg-green-100"
+									>{m.validate_tickets({})}</a
+								>
+							</li>
+						{/if}
 						{#if $page.data.user?.role === 'admin'}
 							<li>
 								<a
 									href="/admin"
-									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-green-200 bg-green-100"
 									>{m.admin_tools({})}</a
 								>
 							</li>
@@ -184,16 +207,21 @@
 
 <style>
 	header {
-		width: 100%;
-		height: 8vh;
-		margin: 0 auto;
-		position: sticky; /* Makes the header sticky */
-		top: 0; /* Sticks to the top of the viewport */
-		z-index: 1000; /* Ensures it stays above other elements */
-	}
+    width: 100%;
+    height: 5vh; /* Reduziert die Höhe auf 6% der Viewport-Höhe */
+    margin: 0 auto;
+    position: sticky; /* Sticks to the top */
+    top: 0; /* Fixiert den Header oben */
+    z-index: 1000; /* Stellt sicher, dass er über anderen Elementen bleibt */
+    background-color: #ffffff; /* Weißer Hintergrund */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Dezenter Schatten für mehr Tiefe */
+}
 
-	/* Dropdown sichtbar bei Hover */
-	.relative:hover .absolute {
-		display: block;
-	}
+header a, header div, header span {
+    line-height: 6vh; /* Vertikale Zentrierung von Text und Icons */
+}
+
+header .relative:hover .absolute {
+    display: block;
+}
 </style>

@@ -1,13 +1,16 @@
 <script>
 	import { fade } from 'svelte/transition';
-	import { onMount } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
 	let searchValue = '';
 	let isExpanded = false;
 	let searchbarEl;
-
+	export let onSubmit = (string) => {}; // Accept onSubmit as a prop with a default empty function
+	const dispatch = createEventDispatcher();
+	
 	function handleMouseEnter() {
 		isExpanded = true;
 	}
+
 
 	function handleMouseLeave() {
 		searchValue = '';
@@ -17,6 +20,15 @@
 	function handleClickOutside(event) {
 		if (searchbarEl && !searchbarEl.contains(event.target) && !searchValue) {
 			isExpanded = false;
+		}
+	}
+
+	function handleSubmit(event) {
+		event.preventDefault();
+		if (searchValue.trim()) {
+			onSubmit(searchValue);
+			dispatch('submit', searchValue);
+			searchValue = '';
 		}
 	}
 
@@ -35,8 +47,8 @@
 	on:mouseleave={handleMouseLeave}
 	role="search"
 >
-	<div class="search-wrapper" class:expanded={isExpanded}>
-		<input
+<form on:submit={handleSubmit} class="search-wrapper" class:expanded={isExpanded}>
+	<input
 			type="text"
 			bind:value={searchValue}
 			placeholder={isExpanded ? 'Suchen...' : ''}
@@ -55,7 +67,7 @@
 			<circle cx="11" cy="11" r="8" />
 			<line x1="21" y1="21" x2="16.65" y2="16.65" />
 		</svg>
-	</div>
+	</form>
 </div>
 
 <style>

@@ -27,14 +27,16 @@ export const load = async ({ locals }) => {
 		.where(and(eq(booking.userId, localUser.id), eq(showing.cancelled, true)))
 		.groupBy(showing.id, film.title, showing.date, showing.time);
 
-    console.log(refundableShows);
 
 	return {
 		refundableShows
 	};
 };
 export const actions: Actions = {  
-    async refund({ request, params }) {
+    refund: async ({ request, url }) => {
         //TODO: Grant Refund
-    }
+    },
+	bookNew: async ({ request, url }) => {
+		//TODO: Book New Ticket with refundAmount as discount
+	}
 } satisfies Actions;
