@@ -8,7 +8,7 @@
 <div class="container">
   <div class="header">
     <a href="/admin/rooms/create" class="add-button">add room</a>
-    <a href="/admin/seatCategory" class="add-button">seat categrys</a>
+    <a href="/admin/seat-category" class="add-button">seat categrys</a>
   </div>
 
   <h2>Cinema Halls</h2>
