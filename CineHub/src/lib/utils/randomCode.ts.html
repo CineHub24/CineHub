@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for CineHub/src/routes/validation/test/+page.server.ts</title>
+    <title>Code coverage report for CineHub/src/lib/utils/randomCode.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.png" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../../sort-arrow-sprite.png);
+            background-image: url(../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">CineHub/src/routes/validation/test</a> +page.server.ts</h1>
+        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">CineHub/src/lib/utils</a> randomCode.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>0/25</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>0/25</span>
             </div>
         
             
@@ -88,16 +88,14 @@
 <a name='L23'></a><a href='#L23'>23</a>
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
-<a name='L26'></a><a href='#L26'>26</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -111,33 +109,53 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { db } from '$lib/server/db/index.js';</span></span></span>
-import { ticket } from '$lib/server/db/schema.js';
-import { EmailService } from '$lib/utils/emailService';
-import { generateQRCodeBase64 } from '$lib/utils/generateQR';
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { db } from '$lib/server/db';</span></span></span>
+import { priceDiscount } from '$lib/server/db/schema';
+import { eq, is } from 'drizzle-orm';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export const load = async ({}) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >	const qrCode = await generateQRCodeBase64('1234');</span>
-<span class="cstat-no" title="statement not covered" >	const gmailUser = import.meta.env.VITE_GMAIL_USER;</span>
-<span class="cstat-no" title="statement not covered" >	const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;</span>
-<span class="cstat-no" title="statement not covered" >	const emailClient = new EmailService(gmailUser, gmailAppPassword);</span>
-    
+<span class="cstat-no" title="statement not covered" >export async function generateUniqueCode(length: number) {</span>
+<span class="cstat-no" title="statement not covered" >	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; </span>
+<span class="cstat-no" title="statement not covered" >	let result = '';</span>
+<span class="cstat-no" title="statement not covered" >    const isCodeExisting = async () =&gt; { </span>
+<span class="cstat-no" title="statement not covered" >        const codes = await db</span>
+<span class="cstat-no" title="statement not covered" >        .select({discountCode: priceDiscount.code})</span>
+<span class="cstat-no" title="statement not covered" >        .from(priceDiscount)</span>
+<span class="cstat-no" title="statement not covered" >        .where(eq(priceDiscount.code, result));</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >	console.log('sending email');</span>
-<span class="cstat-no" title="statement not covered" >    const tickets = await db.select().from(ticket);</span>
-<span class="cstat-no" title="statement not covered" >	try {</span>
-<span class="cstat-no" title="statement not covered" >		await emailClient.sendBookingConfirmation(tickets[0].bookingId as number, 'junmika05@gmail.com');</span>
-<span class="cstat-no" title="statement not covered" >		console.log('email sent');</span>
-<span class="cstat-no" title="statement not covered" >	} catch (error) {</span>
-<span class="cstat-no" title="statement not covered" >		console.log(error);</span>
-<span class="cstat-no" title="statement not covered" >	}</span>
+<span class="cstat-no" title="statement not covered" >        return codes.length &gt; 0;</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+        
+<span class="cstat-no" title="statement not covered" >    while (true) {</span>
+<span class="cstat-no" title="statement not covered" >        result = '';</span>
+<span class="cstat-no" title="statement not covered" >        for (let i = 0; i &lt; length; i++) {</span>
+<span class="cstat-no" title="statement not covered" >            const randomIndex = Math.floor(Math.random() * characters.length);</span>
+<span class="cstat-no" title="statement not covered" >            result += characters[randomIndex];</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >        if(await isCodeExisting()){</span>
+<span class="cstat-no" title="statement not covered" >            continue;</span>
+<span class="cstat-no" title="statement not covered" >        } else {</span>
+<span class="cstat-no" title="statement not covered" >            break;</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >    return result;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >	return {</span>
-<span class="cstat-no" title="statement not covered" >		code: qrCode</span>
-<span class="cstat-no" title="statement not covered" >	};</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+<span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -147,14 +165,14 @@ import { generateQRCodeBase64 } from '$lib/utils/generateQR';
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
                 at 2025-01-06T12:09:31.615Z
             </div>
-        <script src="../../../../../prettify.js"></script>
+        <script src="../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../../sorter.js"></script>
-        <script src="../../../../../block-navigation.js"></script>
+        <script src="../../../../sorter.js"></script>
+        <script src="../../../../block-navigation.js"></script>
     </body>
 </html>
     
