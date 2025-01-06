@@ -1,3 +1,4 @@
+import { timeStamp } from 'console';
 import { sql } from 'drizzle-orm';
 import {
 	uuid,
@@ -180,7 +181,8 @@ export const ticket = pgTable('Ticket', {
 	showingId: integer('showingId').references(() => showing.id),
 	bookingId: integer('bookingId').references(() => booking.id),
 	seatId: integer('seatId').references(() => seat.id),
-	price: decimal('price', { precision: 10, scale: 2 })
+	price: decimal('price', { precision: 10, scale: 2 }),
+	createdAt: timestamp('createdAt').defaultNow()
 });
 
 export const booking = pgTable('Booking', {
