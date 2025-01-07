@@ -2,6 +2,7 @@ import { db } from '$lib/server/db';
 import { booking, film, priceDiscount, showing, ticket, seat, type Ticket, type Seat } from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray } from 'drizzle-orm';
+import disc from 'lucide-svelte/icons/disc';
 
 interface PriceCalculation {
   basePrice: number;
@@ -15,10 +16,10 @@ interface PriceCalculation {
   total: number;
 }
 
-function calculatePrices(tickets: {
+async function calculatePrices(tickets: {
     Ticket: Ticket;
     seat: Seat;
-  }[], discount: any | null): PriceCalculation {
+  }[], discount: any | null): Promise<PriceCalculation> {
   const vatRate = 0.19;
   const basePrice = tickets.reduce((sum, ticket) => sum + Number(ticket.Ticket.price), 0);
   let discountedPrice = basePrice;
@@ -35,10 +36,11 @@ function calculatePrices(tickets: {
   }
 
   const vatAmount = discountedPrice * vatRate;
+  console.log(discountedPrice);
   try {
-    
+    await db.update(booking).set({basePrice:basePrice.toString(), finalPrice:discountedPrice.toString(), discountValue:discountedAmount.toString()}).where(eq(booking.id, Number(tickets[0].Ticket.bookingId)));
   } catch (error) {
-    
+    console.log(error);
   }
   return {
     basePrice,
@@ -57,18 +59,29 @@ export const load = async ({ locals }) => {
     const userId = locals.user!.id;
     const _booking = await db.select().from(booking).where(eq(booking.userId, userId));
     const bookingId = _booking[0].id;
-    const tickets = await db.select().from(ticket).innerJoin(seat,eq(seat.id, ticket.seatId)).innerJoin(showing,eq(showing.id,ticket.showingId)).innerJoin(film,eq(film.id,showing.id)).where(eq(ticket.bookingId, Number(bookingId)));
-    const showings = await db.select().from(showing).where(eq(showing.id, Number(tickets[0].Ticket.showingId)));
-
+    const tickets = await db.select().from(ticket).innerJoin(seat,eq(seat.id, ticket.seatId)).innerJoin(showing,eq(showing.id,ticket.showingId)).innerJoin(film,eq(film.id,showing.id)).where(eq(ticket.bookingId, Number(bookingId))); 
     if (showing === undefined) {
         return fail(404, { error: true, message: 'Showing not found' });
     }
 
     // Calculate initial prices without discount
-    const prices = calculatePrices(tickets, null);
-
-    return {
-        showing: showings,
+    let prices;
+    if(_booking[0].basePrice === null || _booking[0].finalPrice === null || _booking[0].discountValue === null) {
+     prices = await calculatePrices(tickets, null);
+    } else {
+         prices = {
+            basePrice: Number(_booking[0].basePrice),
+            discount: {
+                value: Number(_booking[0].discountValue),
+                discountType: 'none'
+            },
+            discountedAmount: Number(_booking[0].discountValue),
+            vatRate: 0.19,
+            vatAmount: Number(_booking[0].finalPrice) * 0.19,
+            total: Number(_booking[0].finalPrice)
+        };
+    }
+    return {        
         booking: _booking[0],
         tickets,
         prices,        
@@ -100,7 +113,7 @@ export const actions = {
                 .where(eq(ticket.bookingId, Number(_booking[0].id)));
 
             // Calculate new prices with discount
-            const prices = calculatePrices(tickets, discount[0]);
+            const prices = await calculatePrices(tickets, discount[0]);
 
             return {
                 success: 'Discount code applied successfully',

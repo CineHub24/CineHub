@@ -54,7 +54,6 @@
       id: number;
       userId: number;
     };
-    showing: {Showing: Showing; Film: Film}[];
     tickets: {
       Ticket: Ticket;
       Showing: Showing;
@@ -69,7 +68,6 @@
   export let form: ActionData;
   
   let booking = data.booking;
-  let showings = data.showing;
   let tickets = data.tickets;
   let prices = data.prices;
   let stripe: Stripe | null = null;
