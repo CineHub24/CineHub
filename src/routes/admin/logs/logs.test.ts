@@ -3,7 +3,7 @@ import { load } from './+page.server';
 import * as dbModule from '$lib/server/db';
 import { logs } from '$lib/server/db/schema';
 import { fail } from '@sveltejs/kit';
-
+import * as m from '$lib/paraglide/messages.js';
 // Mock the entire db module
 vi.mock('$lib/server/db', () => ({
 db: {
@@ -76,7 +76,7 @@ expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
 const loggedError = consoleSpy.mock.calls[0][0];
 expect(loggedError.message).toBe('Database error');
 
-expect(fail).toHaveBeenCalledWith(500, { error: 'Failed to load logs' });
+expect(fail).toHaveBeenCalledWith(500, { error: m.internal_server_error({})  });
 
 consoleSpy.mockRestore();
 });
