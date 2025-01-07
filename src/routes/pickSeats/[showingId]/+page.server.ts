@@ -52,7 +52,7 @@ export const actions = {
 
             if (bookings.length == 0) {
                 bookings = await db.insert(booking).values({
-                    userId: locals.user!.id,
+                    userId: locals.user!.id,                               
                 }).returning();
             }
 
