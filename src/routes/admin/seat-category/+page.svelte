@@ -9,6 +9,7 @@
 
 	let isCreatingNewSeatCategory = $state(false);
 	let editingSeatCategoryId = $state<number | null>(null);
+	let hovered = $state(false);
 
 	function cancelEdit() {
 		isCreatingNewSeatCategory = false;
@@ -32,7 +33,7 @@
 	{/if}
 
 	{#if !isCreatingNewSeatCategory}
-		<button class="new-priceset-btn" onclick={() => languageAwareGoto('admin/price-set')}>
+		<button class="new-priceset-btn" onclick={() => languageAwareGoto('/admin/price-set')}>
 			{m.manage_price_sets({})}</button
 		>
 
@@ -83,13 +84,7 @@
 
 					<div class="form-group">
 						<label for="emoji">{m.emoji({})}</label>
-						<input
-							class="form-input"
-							type="text"
-							name="emoji"
-							placeholder={m.emoji({})}
-							required
-						/>
+						<input class="form-input" type="text" name="emoji" placeholder={m.emoji({})} required />
 					</div>
 
 					<div class="form-actions">
@@ -103,7 +98,14 @@
 		{/if}
 
 		{#each seatCategories as seatCategory}
-			<div class="priceset-card">
+			<div
+				class="priceset-card"
+				role="group"
+				onmouseover={() => (hovered = true)}
+				onmouseleave={() => (hovered = false)}
+				onfocus={() => (hovered = true)}
+				onblur={() => (hovered = false)}
+			>
 				{#if editingSeatCategoryId === seatCategory.id}
 					<form method="POST" action="?/updateSeatCategory">
 						<input type="hidden" name="id" value={seatCategory.id} />
@@ -160,6 +162,7 @@
 
 						<div class="form-actions">
 							<button type="submit" class="btn btn-edit">{m.save({})}</button>
+
 							<button type="button" class="btn btn-delete" onclick={cancelEdit}>
 								{m.cancel({})}
 							</button>
@@ -177,11 +180,18 @@
 
 						<form method="POST" action="?/deleteSeatCategory">
 							<input type="hidden" name="id" value={seatCategory.id} />
-							<button type="submit" class="btn btn-delete">
-								{m.delete_something({})}
-							</button>
+							{#if seatCategory.id != 1}
+								<button type="submit" class="btn btn-delete">
+									{m.delete_something({})}
+								</button>
+							{/if}
 						</form>
 					</div>
+					{#if seatCategory.id == 1}
+						<div class="tooltip">
+							{m.cannot_remove_seat_category({})}
+						</div>
+					{/if}
 				{/if}
 			</div>
 		{/each}
@@ -227,6 +237,7 @@
 	}
 
 	.priceset-card {
+		position: relative;
 		background-color: white;
 		border-radius: 8px;
 		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -239,6 +250,28 @@
 	.priceset-card:hover {
 		transform: translateY(-5px);
 		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+	}
+	.tooltip {
+		visibility: hidden;
+		opacity: 0;
+		background-color: #ff9800; /* Orange background */
+		color: white;
+		text-align: center;
+		padding: 5px 10px; /* Adjust padding */
+		border-radius: 4px;
+		position: absolute;
+		bottom: 110%; /* Position above the card */
+		left: 50%;
+		transform: translateX(-50%);
+		transition: opacity 0.3s;
+		z-index: 1000;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Adding a slight shadow for emphasis */
+	}
+
+	.priceset-card:hover .tooltip,
+	.priceset-card:focus-within .tooltip {
+		visibility: visible;
+		opacity: 1;
 	}
 
 	.priceset-title {

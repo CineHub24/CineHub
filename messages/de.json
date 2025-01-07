@@ -99,6 +99,7 @@
 	"description": "Beschreibung",
 	"seat_category_description": "Beschreibung der Sitzkategorie",
 	"emoji": "Emoji",
+	"cannot_remove_seat_category": "Sie können diese Sitzkategorie nicht entfernen, da sie als Standard verwendet wird",
 
 	"ticket_types_management": "Tickettypen-Verwaltung",
 	"manage_price_sets": "⬆ Preissets verwalten",
@@ -117,9 +118,7 @@
 	"booked_seats": "Gebuchte Sitze",
 	"refund_amount": "Gesamter Rückerstattungsbetrag",
 	"collect_refund": "Rückerstattung einfordern",
-	"book_new_ticket": "Neues Ticket buchen",
-	"return_to_home": "Zurück zur Startseite", 
-
+  
 	"movie_management": "Filmverwaltung",
     "new_movie": "Neuer Film",
 	"edit_movie": "Film bearbeiten",
@@ -231,6 +230,10 @@
 	"contact_us": "kontaktiere uns",
 	"please": "bitte.",
 	"trailer_title": "Trailer"
-
+  
+	"book_new_ticket": "Rabattcode erhalten und neues Ticket kaufen",
+	"return_to_home": "Zurück zur Startseite",
+	"discount_code_created": "Rabattcode erstellt. Bitte verwenden Sie diesen Code, um Ihr neues Ticket zu kaufen",
+	"book_here": "Hier buchen"
 
 }
