@@ -1,12 +1,12 @@
 <script>
 	import { page } from '$app/stores';
 	import MovieCard from '$lib/components/movie_card.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	export let data;
 
 	let sortOption = 'title';
 
-	// Sortierfunktionen
 	const sortFunctions = {
 		title: (a, b) => a.title.localeCompare(b.title),
 		year: (a, b) => b.year.localeCompare(a.year),
@@ -14,27 +14,24 @@
 		rating: (a, b) => b.ageRating.localeCompare(a.ageRating)
 	};
 
-	// Sortiere Ergebnisse
 	$: sortedResults = [...data.films].sort(sortFunctions[sortOption]);
 </script>
 
 <div class="mx-auto max-w-7xl px-4 py-8">
-	<h1 class="mb-6 text-3xl font-bold">Suchergebnisse für "{data.searchTerm}"</h1>
+	<h1 class="mb-6 text-3xl font-bold">{m.search_results_for({})}: "{data.searchTerm}"</h1>
 
-	<!-- Sortieroptionen -->
 	<div class="mb-6">
-		<label for="sort" class="mr-2">Sortieren nach:</label>
-		<select id="sort" bind:value={sortOption} class="rounded-md border p-2 w-40">
-			<option value="title">Titel</option>
-			<option value="year">Jahr</option>
-			<option value="runtime">Laufzeit</option>
-			<option value="rating">Altersfreigabe</option>
+		<label for="sort" class="mr-2">{m.sort_by({})}</label>
+		<select id="sort" bind:value={sortOption} class="w-40 rounded-md border p-2">
+			<option value="title">{m.title({})}</option>
+			<option value="year">{m.year({})}</option>
+			<option value="runtime">{m.runtime({})}</option>
+			<option value="rating">{m.age_rating({})}</option>
 		</select>
 	</div>
 
-	<!-- Suchergebnisse -->
 	{#if data.films.length === 0}
-		<div class="py-8 text-center">Keine Filme gefunden.</div>
+		<div class="py-8 text-center">{m.no_films_found({})}</div>
 	{:else}
 		<div class="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-5">
 			{#each sortedResults as film}

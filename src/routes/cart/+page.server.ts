@@ -1,51 +1,112 @@
 import { db } from '$lib/server/db';
-import { booking, film, priceDiscount, showing, ticket } from '$lib/server/db/schema';
+import { booking, film, priceDiscount, showing, ticket, seat, type Ticket, type Seat } from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray } from 'drizzle-orm';
 
+interface PriceCalculation {
+  basePrice: number;
+  discount: {
+    value: number;
+    discountType: 'percentage' | 'absolute';
+  } | null;
+  discountedAmount: number;
+  vatRate: number;
+  vatAmount: number;
+  total: number;
+}
+
+function calculatePrices(tickets: {
+    Ticket: Ticket;
+    seat: Seat;
+  }[], discount: any | null): PriceCalculation {
+  const vatRate = 0.19;
+  const basePrice = tickets.reduce((sum, ticket) => sum + Number(ticket.Ticket.price), 0);
+  let discountedPrice = basePrice;
+  let discountedAmount = 0;
+
+  if (discount) {
+    if (discount.discountType === 'percentage') {
+      discountedAmount = basePrice * Number(discount.value);
+      discountedPrice = basePrice - discountedAmount;
+    } else {
+      discountedAmount = Number(discount.value);
+      discountedPrice = Math.max(0, basePrice - discountedAmount);
+    }
+  }
+
+  const vatAmount = discountedPrice * vatRate;
+  try {
+    
+  } catch (error) {
+    
+  }
+  return {
+    basePrice,
+    discount: discount ? {
+      value: discount.value,
+      discountType: discount.discountType
+    } : null,
+    discountedAmount,
+    vatRate,
+    vatAmount,
+    total: discountedPrice
+  };
+}
+
 export const load = async ({ locals }) => {
-    const userId = locals.user!.id
-
+    const userId = locals.user!.id;
     const _booking = await db.select().from(booking).where(eq(booking.userId, userId));
-
     const bookingId = _booking[0].id;
-
-    const tickets = await db.select().from(ticket).where(eq(ticket.bookingId, Number(bookingId)));
-
-    //get showings from the tickets
-    const showings = await db.select().from(showing).where(inArray(showing.id, tickets.map(ticket => ticket.showingId)));
-
-    //const hall = (await db.select().from(cinemaHall).where(eq(cinemaHall.id, _showing.hallid!)))[0];
-
+    const tickets = await db.select().from(ticket).innerJoin(seat,eq(seat.id, ticket.seatId)).innerJoin(showing,eq(showing.id,ticket.showingId)).innerJoin(film,eq(film.id,showing.id)).where(eq(ticket.bookingId, Number(bookingId)));
+    const showings = await db.select().from(showing).where(eq(showing.id, Number(tickets[0].Ticket.showingId)));
 
     if (showing === undefined) {
         return fail(404, { error: true, message: 'Showing not found' });
     }
 
+    // Calculate initial prices without discount
+    const prices = calculatePrices(tickets, null);
+
     return {
         showing: showings,
         booking: _booking[0],
         tickets,
+        prices,        
     };
 };
 
 export const actions = {
-
-    discount: async ({ request }) => {
-
+    discount: async ({ request, locals }) => {
         const data = await request.formData();
         const discountCode = data.get('discount-code') as string;
+        
         try {
-            const discount = await db.select().from(priceDiscount).where(and(eq(priceDiscount.code, discountCode), gte(priceDiscount.expiresAt, new Date().toISOString())));
+            const discount = await db.select()
+                .from(priceDiscount)
+                .where(and(
+                    eq(priceDiscount.code, discountCode),
+                    gte(priceDiscount.expiresAt, new Date().toISOString())
+                ));
+
             if (discount.length === 0) {
                 return fail(400, { error: 'Discount code not found or expired' });
-            } else {
-                console.log(discount[0]);
-                return {
-                    success: `Discount code applied successfully`,
-                    discount: discount[0]
-                }
             }
+
+            // Get current booking's tickets to calculate new prices
+            const userId = locals.user!.id;
+            const _booking = await db.select().from(booking).where(eq(booking.userId, userId));
+            const tickets = await db.select()
+                .from(ticket).innerJoin(seat, eq(seat.id, ticket.seatId))
+                .where(eq(ticket.bookingId, Number(_booking[0].id)));
+
+            // Calculate new prices with discount
+            const prices = calculatePrices(tickets, discount[0]);
+
+            return {
+                success: 'Discount code applied successfully',
+                discount: discount[0],
+                prices
+            };
         } catch (error) {
             console.log(error);
             return fail(500, { error: 'Server error while checking discount code' });

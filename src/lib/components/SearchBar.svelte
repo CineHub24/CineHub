@@ -1,6 +1,7 @@
 <script>
 	import { fade } from 'svelte/transition';
 	import { onMount, createEventDispatcher } from 'svelte';
+	import * as m from '$lib/paraglide/messages.js';
 	let searchValue = '';
 	let isExpanded = false;
 	let searchbarEl;
@@ -51,7 +52,7 @@
 	<input
 			type="text"
 			bind:value={searchValue}
-			placeholder={isExpanded ? 'Suchen...' : ''}
+			placeholder={isExpanded ? m.search_placeholder({}) : ''}
 			class="search-input"
 		/>
 		<svg

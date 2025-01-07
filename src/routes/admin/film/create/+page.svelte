@@ -4,8 +4,8 @@
 	import { ConsoleLogWriter } from 'drizzle-orm';
 	import { i18n } from '$lib/i18n';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
+	import * as m from '$lib/paraglide/messages.js';
 
 	const props = $props();
 
@@ -35,7 +35,7 @@
 			}
 		} catch (error) {
 			console.error('Error fetching full movie details:', error);
-			errorMessage = 'Error fetching full movie details';
+			errorMessage = m.error_fetching_movie_details({});
 		}
 	}
 </script>
@@ -55,10 +55,10 @@
 						if (result.type === 'success' && result.data?.movies) {
 							movies = result.data.movies as Movie[];
 						} else {
-							errorMessage = 'No movies found';
+							errorMessage = m.no_movies_found({});
 						}
 					} catch (error) {
-						errorMessage = 'Error processing search results';
+						errorMessage = m.error_processing_results({});
 					} finally {
 						isLoading = false;
 						await update();
@@ -66,9 +66,9 @@
 				};
 			}}
 		>
-			<label for="query">Search Movies:</label>
+			<label for="query">{m.search_movies()}:</label>
 			<input type="text" id="query" name="query" />
-			<button type="submit">Search</button>
+			<button type="submit">{m.search({})}</button>
 
 			<div class="movies-container">
 				{#if movies.length > 0}
@@ -76,13 +76,13 @@
 						<div class="movie">
 							<div>
 								<h3>{movie.title}</h3>
-								<p>Year: {movie.year}</p>
+								<p>{m.year()}: {movie.year}</p>
 							</div>
-							<button type="button" onclick={() => setSelectedMovie(movie)}>Select</button>
+							<button type="button" onclick={() => setSelectedMovie(movie)}>{m.select({})}</button>
 						</div>
 					{/each}
 				{:else}
-					<p>No movies found.</p>
+					<p>{m.no_movies_found({})}</p>
 				{/if}
 			</div>
 		</form>
@@ -95,7 +95,7 @@
 					alt="Movie Poster"
 				/>
 			{/if}
-			<label for="title">Title:</label>
+			<label for="title">{m.title()}:</label>
 			<input
 				required
 				type="text"
@@ -104,7 +104,7 @@
 				value={fullMovieDetails != null ? fullMovieDetails.title : ''}
 			/>
 
-			<label for="year">Year:</label>
+			<label for="year">{m.year()}:</label>
 			<input
 				required
 				type="text"
@@ -113,7 +113,7 @@
 				value={fullMovieDetails != null ? fullMovieDetails.year : ''}
 			/>
 
-			<label for="director">Director:</label>
+			<label for="director">{m.director()}:</label>
 			<input
 				type="text"
 				id="director"
@@ -121,7 +121,7 @@
 				value={fullMovieDetails != null ? fullMovieDetails.director : ''}
 			/>
 
-			<label for="runtime">Runtime:</label>
+			<label for="runtime">{m.runtime()}:</label>
 			<input
 				type="text"
 				id="runtime"
@@ -129,7 +129,7 @@
 				value={fullMovieDetails != null ? fullMovieDetails.runtime : ''}
 			/>
 
-			<label for="genres">Genres:</label>
+			<label for="genres">{m.genres()}:</label>
 			<input
 				type="text"
 				id="genres"
@@ -162,7 +162,7 @@
 				value={fullMovieDetails != null ? fullMovieDetails.description : ''}
 			/>
 
-			<button type="submit">Save</button>
+			<button type="submit">{m.save({})}</button>
 		</form>
 	</div>
 
@@ -171,7 +171,7 @@
 	{/if}
 
 	{#if isLoading}
-		<p>Loading...</p>
+		<p>{m.loading({})}</p>
 	{/if} -->
 </div>
 
