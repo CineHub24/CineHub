@@ -99,6 +99,7 @@
 	"description": "Description",
 	"seat_category_description": "Seat Category Description",
 	"emoji": "Emoji",
+	"cannot_remove_seat_category": "Cannot remove seat category, it is used as a standard",
 
 	"ticket_types_management": "Ticket Types Management",
 	"manage_price_sets": "⬆ Manage Price Sets",
@@ -117,6 +118,8 @@
 	"booked_seats": "Booked Seats",
 	"refund_amount": "Total Refund Amount",
 	"collect_refund": "Collect Refund",
-	"book_new_ticket": "Book New Ticket",
-	"return_to_home": "Return to Home"
+	"book_new_ticket": "Create Coupon and buy a new Ticket",
+	"return_to_home": "Return to Home",
+	"discount_code_created": "Discount Code Created. Please use this code to buy your new ticket",
+	"book_here": "Book Here"
 }
