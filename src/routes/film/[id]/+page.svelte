@@ -34,18 +34,18 @@
 		}
 	}
 
-	function getGermanAgeRating(englishRating : string) {
+	function getGermanAgeRating(englishRating: string) {
 		switch (englishRating) {
 			case 'G':
-				return 'FSK 0';
+				return m.fsk_0({});
 			case 'PG':
-				return 'FSK 6';
+				return m.fsk_6({});
 			case 'PG-13':
-				return 'FSK 12';
+				return m.fsk_12({});
 			case 'R':
-				return 'FSK 16';
+				return m.fsk_16({});
 			case 'NC-17':
-				return 'FSK 18';
+				return m.fsk_18({});
 			default:
 				return englishRating;
 		}
@@ -54,10 +54,7 @@
 
 {#if movie}
 	<div class="movie-details">
-		<img id="background" src={movie.backdrop} alt="{movie.title} Poster" />
-		<!-- <a href="/film/{hoveredMovie.id}">
-		<img id="poster" src={hoveredMovie.poster} alt="{hoveredMovie.title} Poster" /></a
-	> -->
+		<img id="background" src={movie.backdrop} alt={`${movie.title} ${m.movie_poster({})}`} />
 		<iframe
 			id="poster"
 			width="500"
@@ -66,38 +63,30 @@
 			frameborder="0"
 			allow="autoplay; encrypted-media"
 			allowfullscreen
-			title="Trailer"
+			title={m.trailer({})}
 		></iframe>
 		<h3>{movie.title}</h3>
 		<p>{movie.description}</p>
 	</div>
 
 	<div class="additional-info">
-		<div class="bar-item grey">{m.directed_by({})} {movie.director}</div>
-		<div class="bar-item grey">{m.released_in({})} {movie.year}</div>
-		<div class="bar-item grey">{movie.runtime} min</div>
-		<div class="bar-item grey">{movie.ageRating ? getGermanAgeRating(movie.ageRating) : 'N/A'}</div>
+		<div class="bar-item grey">{m.directed_by({ director: movie.director })}</div>
+		<div class="bar-item grey">{m.released_in({ year: movie.year })}</div>
+		<div class="bar-item grey">{m.runtime({ minutes: movie.runtime })}</div>
+		<div class="bar-item grey">
+			{movie.ageRating ? getGermanAgeRating(movie.ageRating) : m.not_available({})}
+		</div>
 		{#each movie.genres as genre}
 			<div class="bar-item bg-blue-600 text-white">{genre}</div>
 		{/each}
 	</div>
 
-	<!-- <div class="information">
-		<div class="details">
-			<h1>{movie?.title ?? $page.params.id}</h1>
-			<p>{movie.description}</p>
-			<p><strong>Erscheinungsdatum:</strong> {movie.year}</p>
-			<button class="trailer-button" onclick={fetchTrailer}>Trailer ansehen</button>
-		</div>
-		<img class="poster" src={movie.poster} alt={movie.title} />
-	</div> -->
 	{#if shows.length > 0}
-	<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
-	<ShowsFilmDropdown {shows} movies={[movie]} />
+		<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
+		<ShowsFilmDropdown {shows} movies={[movie]} />
 	{/if}
-
 {:else}
-	<p>Der Film wurde nicht gefunden.</p>
+	<p>{m.movie_not_found({})}</p>
 {/if}
 
 <style>

@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import type { CinemaHall } from '$lib/server/db/schema';
 	import type { ActionData, PageData, SubmitFunction } from './$types';
+	import * as m from '$lib/paraglide/messages.js';
 
 	export let data: PageData;
 	const { selectedFilm, priceSets, cinemas } = data;
@@ -49,9 +50,9 @@
 	}
 
 	function isValidTime(time: string, start: string, end: string): boolean {
-    time = time.slice(0, 5);
-    start = start.slice(0, 5);
-    end = end.slice(0, 5);
+		time = time.slice(0, 5);
+		start = start.slice(0, 5);
+		end = end.slice(0, 5);
 		if (!/^\d{2}:\d{2}$/.test(time)) return false;
 		console.log('time, start, end');
 		console.log(time, start, end);
@@ -105,7 +106,7 @@
 </script>
 
 <div class="p-4">
-	<h1 class="mb-4 text-2xl">Vorführungszeit planen</h1>
+	<h1 class="mb-4 text-2xl">{m.plan_screening_time({})}</h1>
 
 	<form
 		method="POST"
@@ -114,7 +115,7 @@
 		class="mb-8 space-y-4"
 	>
 		<div>
-			<label for="cinemaId" class="mb-2 block">Kino</label>
+			<label for="cinemaId" class="mb-2 block">{m.cinema({})}</label>
 			<select
 				name="cinemaId"
 				id="cinemaId"
@@ -131,7 +132,7 @@
 
 		{#if selectedCinema}
 			<div>
-				<label for="hallId" class="mb-2 block">Saal</label>
+				<label for="hallId" class="mb-2 block">{m.hall({})}</label>
 				<select
 					name="hallId"
 					id="hallId"
@@ -139,7 +140,7 @@
 					bind:value={selectedHall}
 					required
 				>
-					<option value="0">Saal auswählen</option>
+					<option value="0">{m.select_hall({})}</option>
 					{#each filteredHalls as hall}
 						<option value={hall.id}>{hall.name}</option>
 					{/each}
@@ -147,7 +148,7 @@
 			</div>
 
 			<div>
-				<label for="date" class="mb-2 block">Datum</label>
+				<label for="date" class="mb-2 block">{m.date({})}</label>
 				<input
 					type="date"
 					name="date"
@@ -159,7 +160,7 @@
 			</div>
 
 			<div>
-				<label for="duration" class="mb-2 block">Filmdauer (Minuten)</label>
+				<label for="duration" class="mb-2 block">{m.film_duration_minutes({})}</label>
 				<input
 					type="number"
 					name="duration"
@@ -172,7 +173,7 @@
 			</div>
 
 			<div>
-				<label for="priceset" class="mb-2 block">Preisset</label>
+				<label for="priceset" class="mb-2 block">{m.price_set({})}</label>
 				<select name="priceset" id="priceset" bind:value={priceSet}>
 					{#each priceSets as priceSet}
 						<option value={priceSet.id}>{priceSet.name}</option>
@@ -181,14 +182,14 @@
 			</div>
 
 			<button type="submit" class="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600">
-				Verfügbare Zeitfenster suchen
+				{m.search_available_time_windows({})}
 			</button>
 		{/if}
 	</form>
 
 	{#if form?.success && form.timeWindows}
 		<div class="mb-8">
-			<h2 class="mb-4 text-xl">Verfügbare Zeitfenster</h2>
+			<h2 class="mb-4 text-xl">{m.available_time_windows({})}</h2>
 			<div class="space-y-2">
 				{#each form.timeWindows as window}
 					<button
@@ -213,24 +214,27 @@
 
 	{#if selectedTimeWindow}
 		<div class="mb-8 rounded border bg-gray-50 p-4">
-			<h3 class="mb-4 text-lg">Startzeit wählen</h3>
+			<h3 class="mb-4 text-lg">{m.choose_start_time({})}</h3>
 			<div class="space-y-4">
 				<div>
-          <p class="mb-2">
-            Verfügbarer Zeitraum: {selectedTimeWindow.start.slice(0, 5)} - {selectedTimeWindow.end.slice(0, 5)}
-          </p>				
+					<p class="mb-2">
+						{m.available_time_range({})}: {selectedTimeWindow.start.slice(0, 5)} - {selectedTimeWindow.end.slice(
+							0,
+							5
+						)}
+					</p>
 					<p class="text-sm text-gray-600">
-						Benötigte Zeit: {formatDuration(totalDuration)}
+						{m.required_time({})}: {formatDuration(totalDuration)}
 						<span class="text-xs text-gray-500">
-							(Film: {formatDuration(filmRuntime as number)}, Reinigung: {formatDuration(
+							({m.film({})}: {formatDuration(filmRuntime as number)}, {m.cleaning({})}: {formatDuration(
 								cleaningTime
-							)}, Werbung: {formatDuration(advertisementTime)})
+							)}, {m.advertisement({})}: {formatDuration(advertisementTime)})
 						</span>
 					</p>
 				</div>
 
 				<div>
-					<label for="startTime" class="mb-2 block">Startzeit (HH:MM)</label>
+					<label for="startTime" class="mb-2 block">{m.start_time_hhmm({})}</label>
 					{#if isValidTime(selectedTimeWindow.start, selectedTimeWindow.start, selectedTimeWindow.end)}
 						<input
 							type="time"
@@ -246,16 +250,16 @@
 				{#if selectedStartTime}
 					{#if isValidStartTime}
 						<div class="rounded bg-green-100 p-2">
-							<p>Vorführungszeit:</p>
-							<p>Start: {selectedStartTime}</p>
-							<p>Ende: {calculatedEndTime}</p>
-							<p class="text-sm text-gray-600">Gesamtdauer: {formatDuration(totalDuration)}</p>
+							<p>{m.screening_time({})}</p>
+							<p>{m.start({})}: {selectedStartTime}</p>
+							<p>{m.end({})}: {calculatedEndTime}</p>
+							<p class="text-sm text-gray-600">
+								{m.total_duration({})}: {formatDuration(totalDuration)}
+							</p>
 						</div>
 					{:else}
 						<p class="text-red-500">
-							Die gewählte Zeit passt nicht in das Zeitfenster (benötigte Zeit: {formatDuration(
-								totalDuration
-							)})
+							{m.chosen_time_not_fit({ time: formatDuration(totalDuration) })}
 						</p>
 					{/if}
 				{/if}
@@ -273,7 +277,7 @@
 							type="submit"
 							class="w-full rounded bg-green-500 p-2 text-white hover:bg-green-600"
 						>
-							Vorführung speichern
+							{m.save_screening({})}
 						</button>
 					</form>
 				{/if}

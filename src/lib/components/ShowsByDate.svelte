@@ -2,6 +2,7 @@
 	import { fly, fade } from 'svelte/transition';
 	import { CirclePlus } from 'lucide-svelte';
 	import type { showing } from '$lib/server/db/schema';
+	import * as m from '$lib/paraglide/messages.js';
 
 	type Show = typeof showing.$inferSelect;
 
@@ -74,13 +75,13 @@
 							<a href="/admin/show/{show.id}" class="show-link">
 								<span class="show-details">
 									{#if show.cancelled}
-										<span class="show-time">{formatShowDetails(show)} (Abgesagt)</span>
+										<span class="show-time">{formatShowDetails(show)} ({m.cancelled({})})</span>
 									{:else}
 										<span class="show-time">{formatShowDetails(show)}</span>
 									{/if}
 
 									{#if show.hallid}
-										<span class="hall-info">Saal {show.hallid}</span>
+										<span class="hall-info">{m.hall({ id: show.hallid })}</span>
 									{/if}
 								</span>
 							</a>

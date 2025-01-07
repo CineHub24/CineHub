@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { showing } from '$lib/server/db/schema';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { movie, show, url } = $props();
 	type Show = typeof showing.$inferSelect;
 
 	// Hilfsfunktion zum Formatieren von Datum und Zeit
 	function formatShowDetails(show: Show) {
-		const timeStr = show.time ? show.time.slice(0, 5) : 'Keine Zeit';
-		const endTimeStr = show.endTime ? show.endTime.slice(0, 5) : 'Keine Zeit';
+		const timeStr = show.time ? show.time.slice(0, 5) : m.no_time({});
+		const endTimeStr = show.endTime ? show.endTime.slice(0, 5) : m.no_time({});
 		const languageStr = show.language ? `${show.language}` : '';
 		const dimensionStr = show.dimension ? `${show.dimension}` : '';
 
@@ -17,12 +18,11 @@
 
 <a href={url}>
 	<div class="show-card">
-		<img src={movie.poster} alt="{movie.title} Poster" />
+		<img src={movie.poster} alt={m.movie_poster({ title: movie.title })} />
 		<div class="details">
 			<h3 class="title">{movie.title}</h3>
-			<!-- <p class="description">{movie.description}</p> -->
 			<p class="description">{formatShowDetails(show)}</p>
-			<p class="description">Saal {show.hallid}</p>
+			<p class="description">{m.hall({})} {show.hallid}</p>
 		</div>
 	</div>
 </a>
@@ -58,6 +58,6 @@
 	.show-card .description {
 		font-size: 0.9rem;
 		color: #555;
-        text-align: center;
+		text-align: center;
 	}
 </style>

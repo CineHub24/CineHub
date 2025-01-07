@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import type { PageServerData } from './$types';
+	import * as m from '$lib/paraglide/messages.js';
+
 	const { data }: { data: PageServerData } = $props();
   const { user, show, hall, seatCategories, priceSet } = data;
 </script>
@@ -12,14 +14,14 @@
 		<div class="details">
 			<h1>{show.title}</h1>
 			<p>{show.description}</p>
-			<p><strong>Erscheinungsdatum:</strong> {show.year}</p>
+			<p><strong>{m.release_date({})}</strong> {show.year}</p>
 		</div>
 		<div class="show-details">
-			<h2>Vorstellungsdetails</h2>
-			<p><strong>Datum:</strong> {show.date}</p>
-			<p><strong>Uhrzeit:</strong> {show.time}</p>
-			<p><strong>Kino:</strong> {hall.name}</p>
-			<p><strong>Preis pro Ticket:</strong></p>
+			<h2>{m.show_details({})}</h2>
+			<p><strong>{m.date({})}</strong> {show.date}</p>
+			<p><strong>{m.time({})}</strong> {show.time}</p>
+			<p><strong>{m.cinema({})}</strong> {hall.name}</p>
+			<p><strong>{m.price_per_ticket({})}</strong></p>
 			<!-- {#if seatCategories}
 				{#each seatCategories as category}
 					<p>
@@ -36,7 +38,7 @@
 			</div>
 		</div>
 	{:else}
-		<p>Die Vorstellung wurde nicht gefunden.</p>
+		<p>{m.show_not_found({})}</p>
 	{/if}
 </div>
 
