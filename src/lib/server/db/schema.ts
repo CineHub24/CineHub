@@ -197,6 +197,7 @@ export const booking = pgTable('Booking', {
 	basePrice: decimal('basePrice'),
 	finalPrice: decimal('finalPrice'),
 	discountValue: decimal('discountValue'),
+	items : integer('items'),
   userId: text('userId').references(() => user.id),
   discount: integer('discount').references(() => priceDiscount.id),
 });
