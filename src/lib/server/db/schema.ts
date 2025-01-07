@@ -28,7 +28,7 @@ export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'validated',	
 	'refunded',
 ]);
-export const discountTypeEnum = pgEnum('discountType', ['percentage', 'fixed']);
+export const discountTypesEnum = pgEnum('discountType', ['percentage', 'fixed']);
 
 export const user = pgTable('User', {
 	id: text('id').primaryKey(),
