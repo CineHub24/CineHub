@@ -1,22 +1,63 @@
 <script lang="ts">
 	import { languageAwareGoto } from '$lib/utils/languageAware.js';
-	import type { PageData } from './$types.js';
+	import type { PageData, ActionData } from './$types.js';
 	import * as m from '$lib/paraglide/messages.js';
+	import MultiSelect from 'svelte-multiselect';
+	import { Tag, Save, ArrowBigLeft, Edit, Trash2, CircleX } from 'lucide-svelte';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	const { priceSets, seatCategories, ticketTypes } = data;
 
 	let selectedPriceSet = $state<(typeof priceSets)[0] | null>(null);
+	let selectedTicketTypes = $state<{ value: number; label: string }[]>([]);
+	let selectedSeatCategories = $state<{ value: number; label: string }[]>([]);
 	let isCreatingNewPriceSet = $state(false);
 
-	let saveError: string | null = null;
+	const sortedPriceSets = $derived(
+		priceSets.toSorted((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
+	);
+	const sortedSeatCategories = $derived(
+		seatCategories.toSorted((a, b) => parseFloat(a.price ?? '0') - parseFloat(b.price ?? '0'))
+	);
+	const sortedTicketTypes = $derived(
+		ticketTypes.toSorted((a, b) => parseFloat(a.factor ?? '0') - parseFloat(b.factor ?? '0'))
+	);
 
-	priceSets.sort((a, b) => a.name?.localeCompare(b.name ?? '') ?? 0);
-	seatCategories.sort((a, b) => parseFloat(a.price ?? '0') - parseFloat(b.price ?? '0'));
-	ticketTypes.sort((a, b) => parseFloat(a.factor ?? '0') - parseFloat(b.factor ?? '0'));
+	const formattedSeatCategories = $derived(
+		sortedSeatCategories.map((category) => ({
+			value: category.id,
+			label: formatSeatCategory(category)
+		}))
+	);
 
-	function handleEdit(priceSet: (typeof priceSets)[0]) {
-		selectedPriceSet = priceSet;
+	const formattedTicketTypes = $derived(
+		sortedTicketTypes.map((type) => ({
+			value: type.id,
+			label: formatTicketType(type)
+		}))
+	);
+
+	function handleEdit(set: (typeof priceSets)[0]) {
+		selectedPriceSet = set;
+		selectedSeatCategories = [];
+		selectedTicketTypes = [];
+		sortedSeatCategories.map((category) => {
+			if (set.seatCategoryPrices.includes(category.id)) {
+				selectedSeatCategories.push({
+					value: category!.id,
+					label: formatSeatCategory(category)
+				});
+			}
+		});
+		sortedTicketTypes.map((type) => {
+			if (set.ticketTypes.includes(type.id)) {
+				selectedTicketTypes.push({
+					value: type!.id,
+					label: formatTicketType(type)
+				});
+			}
+		});
+
 		isCreatingNewPriceSet = false;
 	}
 
@@ -29,205 +70,239 @@
 			.map((id) => ticketTypes.find((type) => type.id === id))
 			.filter(Boolean);
 
-		return { appliedSeatCategories, appliedTicketTypes };
+		return {
+			appliedSeatCategories,
+			appliedTicketTypes
+		};
 	}
 
 	function startNewPriceSet() {
 		isCreatingNewPriceSet = true;
+		selectedSeatCategories = [];
+		selectedTicketTypes = [];
 	}
 	function cancelEdit() {
 		isCreatingNewPriceSet = false;
 		selectedPriceSet = null;
 	}
+
+	function formatSeatCategory(category: any) {
+		return `${category.name}${category.description ? ' ('+ category.description + ')': ''}: ${category.price}€`;
+	}
+
+	function formatTicketType(type: any) {
+		return `${type.name}${type.description ? ' ('+ type.description + ')': ''}: (${Math.round(parseFloat(type.factor ?? '1') * 100)}%)`;
+	}
 </script>
 
-<div class="container">
-	<h1 class="page-title">{m.price_set_management({})}</h1>
-	{#if saveError}
-		{console.log(saveError)}
-		<div class="error-message">{saveError}</div>
+<div class="container mx-auto px-4 py-8">
+	<h1 class="mb-8 text-3xl font-bold text-gray-800">{m.price_set_management({})}</h1>
+
+	{#if form}
+		<div class="mb-4 rounded-lg bg-red-100 p-4 text-red-700">{form.message}</div>
 	{/if}
-	{#if !isCreatingNewPriceSet}
-		<button class="new-priceset-btn" onclick={() => languageAwareGoto('/admin/seat-category')}
-			>{m.seat_category_management({})}
-		</button>
-		<button class="new-priceset-btn" onclick={() => languageAwareGoto('/admin/ticket-type')}
-			>{m.ticket_type_management({})}</button
+
+	<div class="mb-8 flex flex-wrap gap-4">
+		<button
+			class="flex items-center gap-2 rounded bg-blue-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-blue-600"
+			onclick={() => languageAwareGoto('/admin/pricing')}
 		>
+			<ArrowBigLeft class="h-5 w-5" />
+			{m.back({})}
+		</button>
+		{#if !isCreatingNewPriceSet}
+			<button
+				class="flex items-center gap-2 rounded bg-green-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-green-600"
+				onclick={startNewPriceSet}
+			>
+				<Tag class="h-5 w-5" />
+				{m.create_new_price_set({})}
+			</button>
+		{/if}
+	</div>
 
-		<button class="new-priceset-btn" onclick={startNewPriceSet}>{m.create_new_price_set({})}</button>
-	{/if}
-	{#if isCreatingNewPriceSet}
-		<button class="new-priceset-btn" onclick={cancelEdit}>{m.cancel_price_set({})}</button>
-	{/if}
-
-	<div class="priceset-grid">
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 		{#if isCreatingNewPriceSet}
-			<div class="priceset-card">
-				<h2 class="priceset-title">{m.new_price_set({})}</h2>
+			<div
+				class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+			>
+				<h2 class="mb-4 text-2xl font-semibold text-gray-800">{m.new_price_set({})}</h2>
 				<form method="POST" action="?/createPriceSet" name="createPriceSet">
-					<label for="name">{m.name_of_price_set({})}:</label>
-					<input class="form-input" placeholder="Name des Preissets" name="name" />
-					<label for="priceFactor">{m.price_factor({})}:</label>
+					<label for="name" class="mb-2 block text-gray-700">{m.name_of_price_set({})}:</label>
 					<input
-						class="form-input"
+						class="mb-4 w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+						placeholder={m.name_of_price_set({})}
+						name="name"
+						required
+					/>
+					<label for="priceFactor" class="mb-2 block text-gray-700">{m.price_factor({})}:</label>
+					<input
+						class="mb-4 w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 						type="number"
 						step="0.01"
-						placeholder="Preisfaktor (z.B. 1.0)"
+						placeholder={m.price_factor_placeholder({})}
 						name="priceFactor"
+						required
 					/>
-					<div class="priceset-detail">
-						<strong>{m.choose_seat_categories({})}:</strong>
-						<select multiple class="form-input" name="seatCategoryPrices">
-							{#each seatCategories as category}
-								<option
-									value={category.id}
-									selected={category.id === 1 ||
-										category.id === 2 ||
-										category.id === 3 ||
-										category.id === 4 ||
-										category.id === 5}
-								>
-									{category.name} ({category.description}): {category.price}€
-								</option>
-							{/each}
-						</select>
+					<div class="mb-4">
+						<strong class="mb-2 block text-gray-700">{m.choose_seat_categories({})}:</strong>
+						<MultiSelect
+							name="seatCategoryPrices"
+							options={formattedSeatCategories}
+							bind:selected={selectedSeatCategories}
+						/>
+						<input type="hidden" name="seatCategoryPrices" value={selectedSeatCategories} />
 					</div>
 
-					<div class="priceset-detail">
-						<strong>{m.choose_ticket_types({})}:</strong>
-						<select multiple class="form-input" name="ticketTypes">
-							{#each ticketTypes as type}
-								<option
-									value={type.id}
-									selected={type.id === 1 ||
-										type.id === 2 ||
-										type.id === 3 ||
-										type.id === 4 ||
-										type.id === 5}
-								>
-									{type.name} ({type.description}): ({Math.round(
-										parseFloat(type.factor ?? '1') * 100
-									)}%)
-								</option>
-							{/each}
-						</select>
+					<div class="mb-4">
+						<strong class="mb-2 block text-gray-700">{m.choose_ticket_types({})}:</strong>
+						<MultiSelect
+							name="ticketTypes"
+							options={formattedTicketTypes}
+							bind:selected={selectedTicketTypes}
+						/>
+						<input type="hidden" name="ticketTypes" value={selectedTicketTypes} />
 					</div>
-					<div class="form-actions">
-						<button class="btn btn-edit" type="submit">{m.save({})}</button>
-						<button class="btn btn-delete" onclick={cancelEdit}>{m.cancel({})}</button>
+					<div class="flex justify-between">
+						<button
+							class="flex items-center gap-2 rounded bg-green-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-green-600"
+							type="submit"
+						>
+							<Save class="h-5 w-5" />
+							{m.save({})}
+						</button>
+						<button
+							class="flex items-center gap-2 rounded bg-red-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-red-600"
+							onclick={cancelEdit}
+						>
+							<Trash2 class="h-5 w-5" />
+							{m.cancel({})}
+						</button>
 					</div>
 				</form>
 			</div>
 		{/if}
-		{#each priceSets as priceSet}
+		{#each sortedPriceSets as priceSet}
 			{@const { appliedSeatCategories, appliedTicketTypes } = getPriceSetDetails(priceSet)}
-			<div class="priceset-card">
+			<div
+				class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+			>
 				{#if selectedPriceSet?.id == priceSet.id}
 					<form method="POST" action="?/updatePriceSet" name="updatePriceSet">
 						<input type="hidden" name="priceSetId" value={priceSet.id} />
-						<div class="priceset-detail">
-							<label for="name">{m.name_of_price_set({})}:</label>
+						<div class="mb-4">
+							<label for="name" class="mb-2 block text-gray-700">{m.name_of_price_set({})}:</label>
 							<input
-								class="form-input"
+								class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 								placeholder={m.name_of_price_set({})}
 								name="name"
 								type="text"
 								value={priceSet.name}
+								required
 							/>
 						</div>
-						<div class="priceset-detail">
-							<label for="priceFactor">{m.price_factor({})}:</label>
+						<div class="mb-4">
+							<label for="priceFactor" class="mb-2 block text-gray-700">{m.price_factor({})}:</label
+							>
 							<input
-								class="form-input"
+								class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 								type="number"
 								step="0.01"
 								name="priceFactor"
 								placeholder={m.price_factor({})}
 								value={priceSet.priceFactor}
+								required
 							/>
 						</div>
-						<div class="priceset-detail">
-							<strong>{m.seat_categories({})}:</strong>
-							<select multiple class="form-input" name="seatCategoryPrices" required>
-								{#each seatCategories as category}
-									<option
-										value={category.id}
-										selected={appliedSeatCategories.some((cat) => cat?.id === category.id)}
-									>
-										{category.name} ({category.description}): {category.price}€
-									</option>
-								{/each}
-							</select>
+						<div class="mb-4">
+							<strong class="mb-2 block text-gray-700">{m.seat_categories({})}:</strong>
+							<MultiSelect
+								name="seatCategoryPrices"
+								options={formattedSeatCategories}
+								bind:selected={selectedSeatCategories}
+							/>
 						</div>
 
-						<div class="priceset-detail">
-							<strong>{m.ticket_types({})}:</strong>
-							<select multiple class="form-input" name="ticketTypes" required>
-								{#each ticketTypes as type}
-									<option
-										value={type.id}
-										selected={appliedTicketTypes.some((ty) => ty?.id === type.id)}
-									>
-										{type.name} ({type.description}): ({Math.round(
-											parseFloat(type.factor ?? '1') * 100
-										)}%)
-									</option>
-								{/each}
-							</select>
+						<div class="mb-4">
+							<strong class="mb-2 block text-gray-700">{m.ticket_types({})}:</strong>
+							<MultiSelect
+								name="ticketTypes"
+								options={formattedTicketTypes}
+								bind:selected={selectedTicketTypes}
+							/>
 						</div>
-
-						<div class="form-actions">
-							<button class="btn btn-edit" type="submit">{m.save({})}</button>
-							<button class="btn btn-delete" onclick={cancelEdit}>{m.cancel({})}</button>
+						<div class="flex justify-between">
+							<button
+								class="flex items-center gap-2 rounded bg-green-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-green-600"
+								type="submit"
+							>
+								<Save class="h-5 w-5" />
+								{m.save({})}
+							</button>
+							<button
+								class="flex items-center gap-2 rounded bg-red-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-red-600"
+								onclick={cancelEdit}
+							>
+								<CircleX class="h-5 w-5" />
+								{m.cancel({})}
+							</button>
 						</div>
 					</form>
 				{:else}
-					<h2 class="priceset-title">{priceSet.name}</h2>
-					<p>
-						{m.price_factor({})} {m.for_base_prices({})}: {Math.round(
-							parseFloat(priceSet.priceFactor ?? '1') * 100
-						)}%
-					</p>
+					<h2 class="mb-4 text-2xl font-semibold text-gray-800">{priceSet.name}</h2>
+					<div class="mb-4 rounded-lg bg-gray-100 p-2">
+						{m.price_factor({})}
+						{m.for_base_prices({})}: {Math.round(parseFloat(priceSet.priceFactor ?? '1') * 100)}%
+					</div>
 
-					<div class="priceset-detail">
-						<strong>{m.seat_categories({})} {m.including_base_prices({})}:</strong>
-						<ul>
+					<div class="mb-4">
+						<strong class="mb-2 block text-gray-700"
+							>{m.seat_categories({})} {m.including_base_prices({})}:</strong
+						>
+						<ul class="rounded-lg bg-gray-100 p-2">
 							{#each appliedSeatCategories as category}
 								{#if category}
-									<li>{category.name} ({category.description}): {category.price}€</li>
+									<li class="mb-1 rounded bg-white p-2 last:mb-0">
+										{formatSeatCategory(category)}
+									</li>
+								{:else}
+									<li class="rounded bg-white p-2">{m.no_seat_categories({})}</li>
 								{/if}
 							{/each}
 						</ul>
 					</div>
 
-					<div class="priceset-detail">
-						<strong>{m.ticket_types({})} {m.including_price_factors({})}:</strong>
-						<ul>
+					<div class="mb-4">
+						<strong class="mb-2 block text-gray-700"
+							>{m.ticket_types({})} {m.including_price_factors({})}:</strong
+						>
+						<ul class="rounded-lg bg-gray-100 p-2">
 							{#each appliedTicketTypes as type}
 								{#if type}
-									<li>
-										{type.name} ({type.description}): {Math.round(
-											parseFloat(type.factor ?? '1') * 100
-										)}%
-									</li>
+									<li class="mb-1 rounded bg-white p-2 last:mb-0">{formatTicketType(type)}</li>
+								{:else}
+									<li class="rounded bg-white p-2">{m.no_ticket_types({})}</li>
 								{/if}
 							{/each}
 						</ul>
 					</div>
-
-					<div class="card-actions">
+					<div class="flex justify-between">
 						<button
-							class="btn btn-edit"
-							onclick={() => {
-								handleEdit(priceSet);
-							}}
+							class="flex items-center gap-2 rounded bg-blue-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-blue-600"
+							onclick={() => handleEdit(priceSet)}
 						>
+							<Edit class="h-5 w-5" />
 							{m.edit({})}
 						</button>
 						<form action="?/delete" method="POST">
 							<input type="hidden" name="priceSetId" value={priceSet.id} />
-							<button class="btn btn-delete" type="submit">{m.delete_something({})}</button>
+							<button
+								class="flex items-center gap-2 rounded bg-red-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-red-600"
+								type="submit"
+							>
+								<Trash2 class="h-5 w-5" />
+								{m.delete_something({})}
+							</button>
 						</form>
 					</div>
 				{/if}
@@ -235,149 +310,3 @@
 		{/each}
 	</div>
 </div>
-
-<style>
-	.container {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-			'Open Sans', 'Helvetica Neue', sans-serif;
-	}
-
-	.page-title {
-		font-size: 2.5rem;
-		color: #333;
-		margin-bottom: 2rem;
-		border-bottom: 2px solid #4a4a4a;
-		padding-bottom: 0.5rem;
-	}
-
-	.new-priceset-btn {
-		display: inline-block;
-		background-color: #2c3e50;
-		color: white;
-		padding: 0.75rem 1.5rem;
-		text-decoration: none;
-		border-radius: 5px;
-		margin-bottom: 1.5rem;
-		transition: background-color 0.3s ease;
-	}
-
-	.new-priceset-btn:hover {
-		background-color: #34495e;
-	}
-
-	.priceset-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 1.5rem;
-	}
-
-	.priceset-card {
-		background-color: white;
-		border-radius: 8px;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		padding: 1.5rem;
-		transition:
-			transform 0.3s ease,
-			box-shadow 0.3s ease;
-	}
-
-	.priceset-card:hover {
-		transform: translateY(-5px);
-		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-	}
-
-	.priceset-title {
-		font-size: 1.5rem;
-		color: #2c3e50;
-		margin-bottom: 1rem;
-		font-weight: 600;
-	}
-
-	.priceset-detail {
-		margin-bottom: 1rem;
-		flex-direction: column;
-	}
-
-	.priceset-detail strong {
-		color: #34495e;
-		display: block;
-		margin-bottom: 0.5rem;
-	}
-
-	.priceset-detail ul {
-		list-style-type: none;
-		padding: 0;
-		margin: 0;
-	}
-
-	.priceset-detail ul li {
-		background-color: #f4f6f7;
-		padding: 0.3rem 0.5rem;
-		margin-bottom: 0.25rem;
-		border-radius: 3px;
-		color: #2c3e50;
-	}
-	.priceset-detail select {
-		border: 2px solid #3498db;
-		border-radius: 8px;
-		padding: 0.5rem;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	}
-
-	.priceset-detail select option {
-		white-space: normal;
-		word-wrap: break-word;
-
-		border-bottom: 1px solid #e0e0e0;
-		padding: 0.25rem;
-	}
-
-	.priceset-detail select option:last-child {
-		border-bottom: none;
-	}
-
-	.priceset-detail select option:hover {
-		background-color: #f0f0f0;
-	}
-
-	.card-actions {
-		display: flex;
-		justify-content: space-between;
-		margin-top: 1rem;
-	}
-
-	.btn {
-		padding: 0.5rem 1rem;
-		border-radius: 4px;
-		text-decoration: none;
-		transition: background-color 0.3s ease;
-	}
-
-	.btn-edit {
-		background-color: #3498db;
-		color: white;
-	}
-
-	.btn-edit:hover {
-		background-color: #2980b9;
-	}
-
-	.btn-delete {
-		background-color: #e74c3c;
-		color: white;
-	}
-
-	.btn-delete:hover {
-		background-color: #c0392b;
-	}
-	.error-message {
-		background-color: #ffdddd;
-		color: #ff0000;
-		padding: 10px;
-		margin-bottom: 15px;
-		border-radius: 5px;
-	}
-</style>

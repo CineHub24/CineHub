@@ -9,15 +9,24 @@
 
 	import { derived } from 'svelte/store';
 
-	const isAuthPage = derived(page, ($page) => {
-		const authPages = ['/cart', '/admin', '/login']; // Liste der Seiten ohne Footer
+	const noFooterPages = derived(page, ($page) => {
+		const authPages = ['/cart', '/admin', '/login', '/register']; // Liste der Seiten ohne Footer
 		// Checke auch Teilstrings wie "/cart/"
 		return authPages.some((route) => $page.route.id?.startsWith(route));
 	});
+
+	const noHeaderPages = derived(page, ($page) => {
+		const authPages = ['/login', '/register']; // Liste der Seiten ohne Footer
+		// Checke auch Teilstrings wie "/cart/"
+		return authPages.some((route) => $page.route.id?.startsWith(route));
+	});
+
 </script>
 
 <ParaglideJS {i18n}>
-	<Header />
+	{#if !$noHeaderPages}
+		<Header />
+	{/if}
 
 	<main>
 		<!-- Render die Kinder-Komponenten -->
@@ -25,7 +34,7 @@
 	</main>
 
 	<!-- Footer wird nur angezeigt, wenn er nicht in der Liste der authPages ist -->
-	{#if !$isAuthPage}
+	{#if !$noFooterPages}
 		<Footer />
 	{/if}
 </ParaglideJS>

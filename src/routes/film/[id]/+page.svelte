@@ -70,9 +70,9 @@
 	</div>
 
 	<div class="additional-info">
-		<div class="bar-item grey">{m.directed_by({ director: movie.director })}</div>
-		<div class="bar-item grey">{m.released_in({ year: movie.year })}</div>
-		<div class="bar-item grey">{m.runtime({ minutes: movie.runtime })}</div>
+		<div class="bar-item grey">{m.directed_by({}) + " " + movie.director}</div>
+		<div class="bar-item grey">{m.released_in({}) + " " + movie.year}</div>
+		<div class="bar-item grey">{m.runtime({}) + " " + movie.runtime + 'min'}</div>
 		<div class="bar-item grey">
 			{movie.ageRating ? getGermanAgeRating(movie.ageRating) : m.not_available({})}
 		</div>

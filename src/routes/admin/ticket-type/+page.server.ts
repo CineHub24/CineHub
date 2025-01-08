@@ -28,6 +28,10 @@ export const actions = {
         const name = data.get('name') as string;
         const factor = data.get('factor') as string;
         const description = data.get('description') as string;
+
+        if( parseFloat(factor) < 0) {
+			return fail(400, { message: m.invalid_factor({}) });
+		}
         
         const newticketType = {
             name,
@@ -61,6 +65,10 @@ export const actions = {
         const name = data.get('name') as string;
         const factor = data.get('factor') as string;
         const description = data.get('description') as string;
+
+        if( parseFloat(factor) < 0) {
+			return fail(400, { message: m.invalid_factor({}) });
+		}
 
 
         if (!id || !name) {
