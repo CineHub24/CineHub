@@ -174,7 +174,7 @@
 
 			<div>
 				<label for="priceset" class="mb-2 block">{m.price_set({})}</label>
-				<select name="priceset" id="priceset" bind:value={priceSet}>
+				<select name="priceset" id="priceset" required bind:value={priceSet}>
 					{#each priceSets as priceSet}
 						<option value={priceSet.id}>{priceSet.name}</option>
 					{/each}

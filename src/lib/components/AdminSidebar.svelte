@@ -8,7 +8,10 @@
 		Columns,
 		ChevronRight,
 		ChevronLeft,
-		Logs
+		Logs,
+
+		PercentCircle
+
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as m from '$lib/paraglide/messages.js';
@@ -19,7 +22,8 @@
 	const sections = [
 		{ id: 'dashboard', icon: LayoutDashboard, label: m.dashboard({}), path: '/admin' },
 		{ id: 'movies', icon: Film, label: m.movies({}), path: '/admin/films' },
-		{ id: 'pricing', icon: DollarSign, label: m.pricing_sets({}), path: '/admin/price-set' },
+		{ id: 'pricing', icon: DollarSign, label: m.pricing({}), path: '/admin/pricing' },
+		{ id: 'discounts', icon: PercentCircle, label: m.discounts({}), path: '/admin/discounts' },
 		{ id: 'cinemas', icon: Building, label: m.cinemas({}), path: '/admin/cinemas' },
 		{ id: 'halls', icon: Columns, label: m.halls({}), path: '/admin/rooms' },
 		{ id: 'logs', icon: Logs, label: m.system_logs({}), path: '/admin/logs' }

@@ -72,8 +72,7 @@
 	"price_set_management": "Price Set Management",
 	"seat_category_management": "Manage Seat Categories ⚙️",
 	"ticket_type_management": "Manage Ticket Types ⚙️",
-	"create_new_price_set": "Create New Price Set +",
-	"cancel_price_set": "⬅ Cancel",
+	"create_new_price_set": "Create New Price Set",
 	"new_price_set": "New Price Set",
 	"name_of_price_set": "Name of Price Set",
 	"price_factor": "Price Factor",
@@ -95,7 +94,7 @@
 	"new_seat_category": "New Seat Category",
 	"seat_category_name": "Seat Category Name",
 	"price": "Price",
-	"seat_category_price": "Seat Category Price",
+	"seat_category_price": "Seat Category Price (€)",
 	"description": "Description",
 	"seat_category_description": "Seat Category Description",
 	"emoji": "Emoji",
@@ -184,8 +183,17 @@
 	"closes_at": "Closes at",
 	"actions": "Actions",
 
+	"discount_name":"Name",
+	"discount_management": "Discount Management",
+	"discount_code":"Discount Code",
+	"discount_value":"Value",
+	"expires_at":"Expires",
+	"new_discount": "New Discount",
+	
 	"dashboard": "Dashboard",
 	"pricing_sets": "Pricing Sets",
+	"discounts":"Discounts",
+	"pricing": "Pricing",
 	"cinemas": "Cinemas",
 	"halls": "Halls",
 	"cinema_admin": "Cinema Admin",
@@ -234,6 +242,19 @@
 	"book_new_ticket": "Create Coupon and buy a new Ticket",
 	"return_to_home": "Return to Home",
 	"discount_code_created": "Discount Code Created. Please use this code to buy your new ticket",
-	"book_here": "Book Here"
+	"book_here": "Book Here",
 
+	"no_seat_categories": "No Seat Categories Available",
+	"no_ticket_types": "No Ticket Types Available",
+
+	"pricing_description": "Here you can manage your prices.",
+	"price_set_description": "Price sets allow for flexible pricing for each showing. They combine seat categories and ticket types with a price factor that multiplies the base prices. Discounts can be set through special ticket types and adjusted price factors.",
+	"seat_category_description_pricing": "Seat categories are the foundation of your pricing structure. They establish base prices for different seating areas, which serve as the basis for calculating the final ticket prices. This enables differentiated pricing based on the value of each seat.",
+	"ticket_type_description_pricing": "Ticket types allow for different price levels for various customer groups, such as adults, children, or seniors. In combination with price factors, you can set targeted discounts or surcharges, thus creating a flexible pricing policy.",
+	"no_empty_array": "The list cannot be empty",
+	"seat_category_in_use": "The seat category is being used in at least one cinema hall and therefore cannot be deleted",
+	"price_factor_placeholder": "Price factor in decimal (e.g. 0.5 for 50%)",
+
+	"invalid_price": "Invalid price",
+	"invalid_factor": "Invalid factor"
 }

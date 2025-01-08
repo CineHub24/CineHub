@@ -11,9 +11,9 @@
 	let startTime: string = $state(show.time ?? '');
 	let endTime: string = $derived(calculateEndTime());
 
-	function zurueck() {
-		languageAwareGoto(`/admin/film/${show.filmid}`);
-	}
+	// function zurueck() {
+	// 	languageAwareGoto(`/admin/film/${show.filmid}`);
+	// }
 	function toggleMoveShow() {
 		moveShowToggle = !moveShowToggle;
 	}
@@ -102,7 +102,7 @@
 						<button type="submit" formaction="?/cancel">{m.cancel_show({})}</button>
 						<button type="button" onclick={toggleMoveShow}>{m.reschedule({})}</button>
 					{/if}
-					<button type="button" onclick={zurueck}>{m.back({})}</button>
+					<!-- <button type="button" onclick={zurueck}>{m.back({})}</button> -->
 				</div>
 			</form>
 		{:else}
