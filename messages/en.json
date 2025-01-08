@@ -184,8 +184,16 @@
 	"closes_at": "Closes at",
 	"actions": "Actions",
 
+	"discount_name":"Name",
+	"discount_management": "Discount Management",
+	"discount_code":"Discount Code",
+	"discount_value":"Value",
+	"expires_at":"Expires",
+	"new_discount": "New Discount",
+	
 	"dashboard": "Dashboard",
 	"pricing_sets": "Pricing Sets",
+	"discounts":"Discounts",
 	"cinemas": "Cinemas",
 	"halls": "Halls",
 	"cinema_admin": "Cinema Admin",

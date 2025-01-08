@@ -159,10 +159,10 @@
 
 			<h2 class="section-title" style="padding-top: 20px;">Bezahlart</h2>
 			<div class="payment-methods">
-				<PayPalButton
-					clientId="AbV-7ICaqhM9Xn21eTHQakdRmE0F5IS83yhLr5QNQBIWvbDZcqPPytIFq3AEPKjh09a3lpmMaQMo2DyW"
+				<PayPalButton					
 					amount={currentPrices.total.toFixed(2)}
 					currency="EUR"
+					bookingId={booking.id}
 				/>
 			</div>
 		</form>

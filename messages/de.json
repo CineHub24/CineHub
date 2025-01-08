@@ -184,8 +184,17 @@
 	"closes_at": "Schließt um",
 	"actions": "Aktionen",
 
+	"discount_name":"Name",
+	"discount_management": "Rabatt-Verwaltung",
+	"discount_code":"Rabattcode",
+	"discount_value":"Wert",
+	"expires_at":"Ablaufdatum",
+	"new_discount": "Neuer Rabatt",
+	
+
 	"dashboard": "Dashboard",
 	"pricing_sets": "Preissets",
+	"discounts":"Rabatte",
 	"cinemas": "Kinos",
 	"halls": "Kinosäle",
 	"cinema_admin": "Kino-Admin",

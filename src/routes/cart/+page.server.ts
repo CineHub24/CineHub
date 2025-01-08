@@ -13,7 +13,7 @@ import {
 } from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray } from 'drizzle-orm';
-import disc from 'lucide-svelte/icons/disc';
+
 
 interface PriceCalculation {
 	basePrice: number;
