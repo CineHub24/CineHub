@@ -12,6 +12,8 @@
 	const { data }: { data: PageServerData } = $props();
 
 	let movies: FilmWithTrailer[] = data.movies;
+	
+
 	let shows: Showing[] = data.shows;
 
 	type FilmWithTrailer = Film & {
@@ -88,7 +90,7 @@
 			onfocus={() => (hoveredMovie = { ...movie })}
 			class="movie-card"
 		>
-			<MovieCard {movie} url="film/{movie.id}" />
+			<MovieCard {movie} url="/film/{movie.id}" />
 		</div>
 	{/each}
 </div>

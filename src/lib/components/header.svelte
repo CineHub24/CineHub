@@ -3,10 +3,12 @@
 	import { goto } from '$app/navigation';
 	import { languageTag, type AvailableLanguageTag } from '$lib/paraglide/runtime';
 	import SearchBar from './SearchBar.svelte';
+	import Cookies from 'js-cookie';
 
 	import { i18n } from '$lib/i18n';
 	import * as m from '$lib/paraglide/messages.js';
 	import { languageAwareGoto } from '$lib/utils/languageAware';
+	import { onMount } from 'svelte';
 
 	let lang = languageTag();
 
@@ -20,6 +22,14 @@
 			$page.data.user.firstName ||
 			capitalizeFirstLetter(getFirstNameFromEmail($page.data.user.email)) ||
 			'';
+	}
+
+	// Ensure cinemas is reactive
+	let cinemas: { id: string; name: string }[] = $page.data.cinemas;
+
+	function handleCinemaChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		Cookies.set('preferredCinema', target.value.toString(), { expires: 365 });
 	}
 
 	let showMenu = false; // Zustand für das Dropdown-Menü
@@ -87,10 +97,26 @@
 
 <header class="relative flex items-center bg-gray-100 p-4 shadow-md">
 	<!-- Left: Logo und Site Name -->
-	<a class="flex items-center space-x-4" href="/">
-		<img src="/favicon_white_bg.png" alt="Logo" class="h-10 w-10" />
-		<span class="text-xl font-bold text-gray-800">{siteName}</span>
-	</a>
+	<div class="flex items-center justify-between">
+		<a class="flex items-center space-x-4" href="/">
+			<img src="/favicon_white_bg.png" alt="Logo" class="h-10 w-10" />
+			<span class="text-xl font-bold text-gray-800">{siteName}</span>
+		</a>
+		{#if !$page.url.pathname.includes('/admin') && !$page.url.pathname.includes('/validation')}
+			<select
+				id="cinema-select"
+				on:change={handleCinemaChange}
+				class="ml-14 h-8 w-full appearance-none rounded-lg border border-gray-300 bg-white px-1.5 text-base text-sm leading-none
+             transition duration-150 ease-in-out
+             hover:border-gray-400
+             focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+			>
+				{#each cinemas as cinema}
+					<option value={cinema.id}>{cinema.name}</option>
+				{/each}
+			</select>
+		{/if}
+	</div>
 
 	<!-- Center: Multilingual Greeting -->
 	{#if userName}
@@ -105,9 +131,11 @@
 	<!-- Right: Profile Picture -->
 	<div class="relative ml-auto flex">
 		{#if !$page.url.pathname.includes('/admin') && !$page.url.pathname.includes('/validation')}
-			<SearchBar onSubmit={(search) => {
-				languageAwareGoto('/search/'+search);
-			}} />	
+			<SearchBar
+				onSubmit={(search) => {
+					languageAwareGoto('/search/' + search);
+				}}
+			/>
 		{/if}
 		<div
 			class="relative ml-4"
@@ -165,19 +193,19 @@
 							</button>
 						</li>
 						{#if userName}
-						<li>
-							<a
-								href="/tickets"
-								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-								>{m.tickets({})}</a
-							>
-						</li>
+							<li>
+								<a
+									href="/tickets"
+									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+									>{m.tickets({})}</a
+								>
+							</li>
 						{/if}
 						{#if $page.data.user?.role === 'admin' || $page.data.user?.role === 'inspector'}
 							<li>
 								<a
 									href="/validation"
-									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-green-200 bg-green-100"
+									class="block w-full bg-green-100 px-4 py-2 text-left text-gray-700 hover:bg-green-200"
 									>{m.validate_tickets({})}</a
 								>
 							</li>
@@ -186,7 +214,7 @@
 							<li>
 								<a
 									href="/admin"
-									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-green-200 bg-green-100"
+									class="block w-full bg-green-100 px-4 py-2 text-left text-gray-700 hover:bg-green-200"
 									>{m.admin_tools({})}</a
 								>
 							</li>
