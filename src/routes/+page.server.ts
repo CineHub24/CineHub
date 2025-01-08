@@ -3,7 +3,12 @@ import * as table from '$lib/server/db/schema';
 import { gte, asc, and, ne, eq } from 'drizzle-orm';
 
 export const load = async (event) => {
-	const preferredCinemaId = event.cookies.get('preferredCinema');
+	let preferredCinemaId = event.cookies.get('preferredCinema');
+
+	if (!preferredCinemaId) {
+		const cinemas = await db.select().from(table.cinema).orderBy(table.cinema.name);
+		preferredCinemaId = cinemas[0].id;
+	}
 
 	const movies = await db.select().from(table.film);
 
