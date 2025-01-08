@@ -248,5 +248,20 @@
 	"price_factor_placeholder": "Price factor in decimal (e.g. 0.5 for 50%)",
 
 	"invalid_price": "Invalid price",
-	"invalid_factor": "Invalid factor"
+	"invalid_factor": "Invalid factor",
+
+	"discount_codes": "Discount Codes",
+	"discount_codes_description": "Create and manage discount codes for special promotions or customer groups.",
+	"create_discount": "Create Discount",
+	"discount_name": "Discount Name",
+	"enter_discount_name": "Enter discount name",
+	"discount_code": "Discount Code",
+	"enter_discount_code": "Enter discount code",
+	"discount_type": "Discount Type",
+	"percentage": "Percentage",
+	"fixed_amount": "Fixed Amount",
+	"discount_value": "Discount Value",
+	"enter_percentage": "Enter decimal value (e.g. 0.5 for 50%)",
+	"enter_amount": "Enter amount",
+	"expiration_date": "Expiration Date"
 }

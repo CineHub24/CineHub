@@ -248,5 +248,19 @@
 	"price_factor_placeholder": "Preisfaktor in Dezimal (z.B. 0,5 für 50%)",
 
 	"invalid_price": "Ungültiger Preis",
-	"invalid_factor": "Ungültiger Faktor"
+	"invalid_factor": "Ungültiger Faktor",
+	"discount_codes": "Rabattcodes",
+	"discount_codes_description": "Erstellen und verwalten Sie Rabattcodes für spezielle Aktionen oder Kundengruppen.",
+	"create_discount": "Rabatt erstellen",
+	"discount_name": "Rabattname",
+	"enter_discount_name": "Rabattnamen eingeben",
+	"discount_code": "Rabattcode",
+	"enter_discount_code": "Rabattcode eingeben",
+	"discount_type": "Rabatttyp",
+	"percentage": "Prozentsatz",
+	"fixed_amount": "Fester Betrag",
+	"discount_value": "Rabattwert",
+	"enter_percentage": "Dezimalwert eingeben (z.B. 0,5 für 50%)",
+	"enter_amount": "Betrag eingeben",
+	"expiration_date": "Ablaufdatum"
 }
