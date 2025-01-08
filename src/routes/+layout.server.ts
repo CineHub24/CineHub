@@ -13,7 +13,7 @@ export const load: PageServerLoad = async (event) => {
 		preferredCinema = cinemas.find((cinema) => cinema.id.toString() === preferredCinemaId.toString());
 	}else
 	{
-		event.cookies.set('preferredCinema', cinemas[0].id);
+		event.cookies.set('preferredCinema', cinemas[0].id, { path: '/' });
 	}
 
 	// Move preferred cinema to the 0th index (if found and valid)
