@@ -8,7 +8,7 @@
 	import { i18n } from '$lib/i18n';
 	import * as m from '$lib/paraglide/messages.js';
 	import { languageAwareGoto } from '$lib/utils/languageAware';
-	import {ShoppingCart, ShoppingBasket, ShoppingBagIcon} from 'lucide-svelte';
+	import { ShoppingBasket, TicketCheck } from 'lucide-svelte';
 	let lang = languageTag();
 
 	// Prop for website name
@@ -29,6 +29,7 @@
 	function handleCinemaChange(event: Event) {
 		const target = event.target as HTMLSelectElement;
 		Cookies.set('preferredCinema', target.value.toString(), { expires: 365 });
+		location.reload();
 	}
 
 	let showMenu = false; // Zustand für das Dropdown-Menü
@@ -101,11 +102,11 @@
 			<img src="/favicon_white_bg.png" alt="Logo" class="h-10 w-10" />
 			<span class="text-xl font-bold text-gray-800">{siteName}</span>
 		</a>
-		{#if !$page.url.pathname.includes('/admin') && !$page.url.pathname.includes('/validation')}
+		{#if $page.url.pathname.replace(languageTag(), '') === '/'}
 			<select
 				id="cinema-select"
 				on:change={handleCinemaChange}
-				class="ml-14 h-8 w-full appearance-none rounded-lg border border-gray-300 bg-white px-1.5 text-base text-sm leading-none
+				class="bg-gray-100 ml-14 h-8 w-full appearance-none rounded-lg border border-gray-300 px-1.5 text-base text-sm leading-none
              transition duration-150 ease-in-out
              hover:border-gray-400
              focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -129,20 +130,20 @@
 
 	<!-- Right: Profile Picture -->
 	<div class="relative ml-auto flex">
-		
 		{#if !$page.url.pathname.includes('/admin') && !$page.url.pathname.includes('/validation')}
 			<SearchBar
 				onSubmit={(search) => {
 					languageAwareGoto('/search/' + search);
 				}}
 			/>
+			<a class="relative mx-4 my-auto focus:outline-none" href="/tickets">
+				<TicketCheck size={24} color="#666666" />
+			</a>
+			<a class="relative mx-4 my-auto focus:outline-none" href="/cart">
+				<ShoppingBasket size={24} color="#666666" />
+			</a>
 		{/if}
-		
-		<!-- Shopping Cart Icon -->
-		<button class="focus:outline-none ml-4 mr-4" aria-label="Shopping Cart" on:click={()=>{languageAwareGoto("/cart")}}>
-			<ShoppingBasket size={24} color="#666666" />
-			</button>
-	
+
 		<div
 			class="relative ml-4"
 			role="button"
@@ -198,7 +199,7 @@
 								{m.switch_language({ language: lang === 'en' ? 'deutsch' : 'english' })}
 							</button>
 						</li>
-						{#if userName}
+						<!-- {#if userName}
 							<li>
 								<a
 									href="/tickets"
@@ -206,7 +207,7 @@
 									>{m.tickets({})}</a
 								>
 							</li>
-						{/if}
+						{/if} -->
 						{#if $page.data.user?.role === 'admin' || $page.data.user?.role === 'inspector'}
 							<li>
 								<a
@@ -235,7 +236,6 @@
 					</ul>
 				</div>
 			{/if}
-			
 		</div>
 	</div>
 </header>

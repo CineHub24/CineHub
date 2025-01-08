@@ -57,7 +57,7 @@
 </script>
 
 {#key hoveredMovie}
-	{#if hoveredMovie}
+
 		<div class="movie-details" in:fade={{ duration: 1500 }}>
 			<img
 				id="background"
@@ -77,7 +77,7 @@
 			<h3>{hoveredMovie.title}</h3>
 			<p>{hoveredMovie.description}</p>
 		</div>
-	{/if}
+
 {/key}
 
 <h2 class="px-5 text-xl font-bold">{m.movies({})}</h2>
