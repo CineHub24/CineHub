@@ -81,7 +81,7 @@
 									{/if}
 
 									{#if show.hallid}
-										<span class="hall-info">{m.hall({ id: show.hallid })}</span>
+										<span class="hall-info">{m.hall({}) + " " + show.hallid}</span>
 									{/if}
 								</span>
 							</a>

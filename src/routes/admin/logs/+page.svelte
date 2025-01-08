@@ -5,7 +5,7 @@
 </script>
 
 <div class="container">
-	<h1 class="py-4">{m.system_logs({})}</h1>
+	<h1 class="mb-4 text-2xl font-bold">{m.system_logs({})}</h1>
 	<table class="logs-table">
 		<thead>
 			<tr>

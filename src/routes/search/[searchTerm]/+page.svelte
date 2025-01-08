@@ -35,7 +35,7 @@
 	{:else}
 		<div class="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-5">
 			{#each sortedResults as film}
-				<MovieCard movie={film} url="film/{film.id}" />
+				<MovieCard movie={film} url="/film/{film.id}" />
 			{/each}
 		</div>
 	{/if}
