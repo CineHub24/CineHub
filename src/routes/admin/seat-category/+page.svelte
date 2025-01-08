@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { languageAwareGoto } from '$lib/utils/languageAware.js';
-	import type { PageServerData } from './$types';
+	import type { PageData, ActionData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
+	import { ArrowBigLeft, Tag, Save, Trash2, CircleX, Edit } from 'lucide-svelte';
 
-	let { data }: { data: PageServerData } = $props();
+	let { data, form }: { data: PageData, form: ActionData } = $props();
 
 	const { seatCategories } = data;
 
 	let isCreatingNewSeatCategory = $state(false);
 	let editingSeatCategoryId = $state<number | null>(null);
-	let hovered = $state(false);
 
 	function cancelEdit() {
 		isCreatingNewSeatCategory = false;
@@ -22,47 +22,56 @@
 	}
 
 	// Sort seat categories
-	seatCategories.sort((a, b) => a.name?.localeCompare(b.name ?? '') ?? 0);
+	const sortedSeatCategories = seatCategories.toSorted((a, b) => a.name?.localeCompare(b.name ?? '') ?? 0);
 </script>
 
-<div class="container">
-	<h1 class="page-title">{m.seat_categories_management({})}</h1>
+<div class="container mx-auto px-4 py-8">
+	<h1 class="mb-8 text-3xl font-bold text-gray-800">{m.seat_categories_management({})}</h1>
 
-	{#if isCreatingNewSeatCategory}
-		<button class="new-priceset-btn" onclick={cancelEdit}>{m.cancel_with_arrow({})}</button>
+	{#if form}
+		<div class="mb-4 rounded-lg bg-red-100 p-4 text-red-700">{form.message}</div>
 	{/if}
 
-	{#if !isCreatingNewSeatCategory}
-		<button class="new-priceset-btn" onclick={() => languageAwareGoto('/admin/price-set')}>
-			{m.manage_price_sets({})}</button
+	<div class="mb-8 flex flex-wrap gap-4">
+		<button
+			class="flex items-center gap-2 rounded bg-blue-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-blue-600"
+			onclick={() => languageAwareGoto('/admin/pricing')}
 		>
-
-		<button class="new-priceset-btn" onclick={startNewSeatCategory}>
-			{m.create_new_seat_category({})}
+			<ArrowBigLeft class="h-5 w-5" />
+			{m.back({})}
 		</button>
-	{/if}
+		{#if !isCreatingNewSeatCategory}
+			<button
+				class="flex items-center gap-2 rounded bg-green-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-green-600"
+				onclick={startNewSeatCategory}
+			>
+				<Tag class="h-5 w-5" />
+				{m.create_new_seat_category({})}
+			</button>
+		{/if}
+	</div>
 
-	<div class="priceset-grid">
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 		{#if isCreatingNewSeatCategory}
-			<div class="priceset-card">
-				<h2 class="priceset-title">{m.new_seat_category({})}</h2>
-
+			<div
+				class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+			>
+				<h2 class="mb-4 text-2xl font-semibold text-gray-800">{m.new_seat_category({})}</h2>
 				<form method="POST" action="?/createSeatCategory">
-					<div class="form-group">
-						<label for="name">{m.seat_category_name({})}</label>
+					<div class="mb-4">
+						<label for="name" class="mb-2 block text-gray-700">{m.seat_category_name({})}:</label>
 						<input
-							class="form-input"
+							class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 							placeholder={m.seat_category_name({})}
 							name="name"
 							type="text"
 							required
 						/>
 					</div>
-
-					<div class="form-group">
-						<label for="price">{m.price({})}</label>
+					<div class="mb-4">
+						<label for="price" class="mb-2 block text-gray-700">{m.price({})}:</label>
 						<input
-							class="form-input"
+							class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 							type="number"
 							step="0.01"
 							name="price"
@@ -70,50 +79,54 @@
 							required
 						/>
 					</div>
-					<div class="form-group">
-						<label for="description">{m.description({})}</label>
+					<div class="mb-4">
+						<label for="description" class="mb-2 block text-gray-700">{m.description({})}:</label>
 						<input
-							class="form-input"
+							class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 							type="text"
-							step="0.01"
 							name="description"
 							placeholder={m.seat_category_description({})}
-							required
 						/>
 					</div>
-
-					<div class="form-group">
-						<label for="emoji">{m.emoji({})}</label>
-						<input class="form-input" type="text" name="emoji" placeholder={m.emoji({})} required />
+					<div class="mb-4">
+						<label for="emoji" class="mb-2 block text-gray-700">{m.emoji({})}:</label>
+						<input
+							class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+							type="text"
+							name="emoji"
+							placeholder={m.emoji({})}
+						/>
 					</div>
-
-					<div class="form-actions">
-						<button type="submit" class="btn btn-edit">{m.save({})}</button>
-						<button type="button" class="btn btn-delete" onclick={cancelEdit}>
+					<div class="flex justify-between">
+						<button
+							class="flex items-center gap-2 rounded bg-green-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-green-600"
+							type="submit"
+						>
+							<Save class="h-5 w-5" />
+							{m.save({})}
+						</button>
+						<button
+							class="flex items-center gap-2 rounded bg-red-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-red-600"
+							onclick={cancelEdit}
+						>
+							<CircleX class="h-5 w-5" />
 							{m.cancel({})}
 						</button>
 					</div>
 				</form>
 			</div>
 		{/if}
-
-		{#each seatCategories as seatCategory}
+		{#each sortedSeatCategories as seatCategory}
 			<div
-				class="priceset-card"
-				role="group"
-				onmouseover={() => (hovered = true)}
-				onmouseleave={() => (hovered = false)}
-				onfocus={() => (hovered = true)}
-				onblur={() => (hovered = false)}
+				class="group relative overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
 			>
 				{#if editingSeatCategoryId === seatCategory.id}
 					<form method="POST" action="?/updateSeatCategory">
 						<input type="hidden" name="id" value={seatCategory.id} />
-
-						<div class="form-group">
-							<label for="name">{m.seat_category_name({})}</label>
+						<div class="mb-4">
+							<label for="name" class="mb-2 block text-gray-700">{m.seat_category_name({})}:</label>
 							<input
-								class="form-input"
+								class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 								placeholder={m.seat_category_name({})}
 								name="name"
 								type="text"
@@ -121,11 +134,10 @@
 								required
 							/>
 						</div>
-
-						<div class="form-group">
-							<label for="price">{m.price({})}</label>
+						<div class="mb-4">
+							<label for="price" class="mb-2 block text-gray-700">{m.price({})}:</label>
 							<input
-								class="form-input"
+								class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 								type="number"
 								step="0.01"
 								name="price"
@@ -134,61 +146,77 @@
 								required
 							/>
 						</div>
-
-						<div class="form-group">
-							<label for="description">{m.description({})}</label>
+						<div class="mb-4">
+							<label for="description" class="mb-2 block text-gray-700">{m.description({})}:</label>
 							<input
-								class="form-input"
+								class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 								type="text"
-								step="0.01"
 								name="description"
 								placeholder={m.seat_category_description({})}
 								value={seatCategory.description}
-								required
 							/>
 						</div>
-
-						<div class="form-group">
-							<label for="emoji">{m.emoji({})}</label>
+						<div class="mb-4">
+							<label for="emoji" class="mb-2 block text-gray-700">{m.emoji({})}:</label>
 							<input
-								class="form-input"
+								class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 								type="text"
 								name="emoji"
 								placeholder={m.emoji({})}
 								value={seatCategory.emoji}
-								required
 							/>
 						</div>
-
-						<div class="form-actions">
-							<button type="submit" class="btn btn-edit">{m.save({})}</button>
-
-							<button type="button" class="btn btn-delete" onclick={cancelEdit}>
+						<div class="flex justify-between">
+							<button
+								class="flex items-center gap-2 rounded bg-green-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-green-600"
+								type="submit"
+							>
+								<Save class="h-5 w-5" />
+								{m.save({})}
+							</button>
+							<button
+								class="flex items-center gap-2 rounded bg-red-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-red-600"
+								onclick={cancelEdit}
+							>
+								<CircleX class="h-5 w-5" />
 								{m.cancel({})}
 							</button>
 						</div>
 					</form>
 				{:else}
-					<h2 class="priceset-title">{seatCategory.name}</h2>
-					<p>{m.price({})}: {parseFloat(seatCategory.price ?? '0').toFixed(2)}€</p>
-					<p>{m.description({})}: {seatCategory.description}</p>
-
-					<div class="card-actions">
-						<button class="btn btn-edit" onclick={() => (editingSeatCategoryId = seatCategory.id)}>
+					<h2 class="mb-4 text-2xl font-semibold text-gray-800">{seatCategory.name}</h2>
+					<div class="mb-4 rounded-lg bg-gray-100 p-2">
+						{m.price({})}: {parseFloat(seatCategory.price ?? '0').toFixed(2)}€
+					</div>
+					<div class="mb-4 rounded-lg bg-gray-100 p-2">
+						{m.description({})}: {seatCategory.description}
+					</div>
+					<div class="mb-4 rounded-lg bg-gray-100 p-2">
+						{m.emoji({})}: {seatCategory.emoji}
+					</div>
+					<div class="flex justify-between">
+						<button
+							class="flex items-center gap-2 rounded bg-blue-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-blue-600"
+							onclick={() => (editingSeatCategoryId = seatCategory.id)}
+						>
+							<Edit class="h-5 w-5" />
 							{m.edit({})}
 						</button>
-
 						<form method="POST" action="?/deleteSeatCategory">
 							<input type="hidden" name="id" value={seatCategory.id} />
-							{#if seatCategory.id != 1}
-								<button type="submit" class="btn btn-delete">
+							{#if seatCategory.id != 0}
+								<button
+									class="flex items-center gap-2 rounded bg-red-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-red-600"
+									type="submit"
+								>
+									<Trash2 class="h-5 w-5" />
 									{m.delete_something({})}
 								</button>
 							{/if}
 						</form>
 					</div>
-					{#if seatCategory.id == 1}
-						<div class="tooltip">
+					{#if seatCategory.id == 0}
+						<div class="mt-4 rounded-lg bg-yellow-100 p-2 text-yellow-800">
 							{m.cannot_remove_seat_category({})}
 						</div>
 					{/if}
@@ -197,118 +225,3 @@
 		{/each}
 	</div>
 </div>
-
-<style>
-	.container {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-			'Open Sans', 'Helvetica Neue', sans-serif;
-	}
-
-	.page-title {
-		font-size: 2.5rem;
-		color: #333;
-		margin-bottom: 2rem;
-		border-bottom: 2px solid #4a4a4a;
-		padding-bottom: 0.5rem;
-	}
-
-	.new-priceset-btn {
-		display: inline-block;
-		background-color: #2c3e50;
-		color: white;
-		padding: 0.75rem 1.5rem;
-		text-decoration: none;
-		border-radius: 5px;
-		margin-bottom: 1.5rem;
-		transition: background-color 0.3s ease;
-	}
-
-	.new-priceset-btn:hover {
-		background-color: #34495e;
-	}
-
-	.priceset-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 1.5rem;
-	}
-
-	.priceset-card {
-		position: relative;
-		background-color: white;
-		border-radius: 8px;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		padding: 1.5rem;
-		transition:
-			transform 0.3s ease,
-			box-shadow 0.3s ease;
-	}
-
-	.priceset-card:hover {
-		transform: translateY(-5px);
-		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-	}
-	.tooltip {
-		visibility: hidden;
-		opacity: 0;
-		background-color: #ff9800; /* Orange background */
-		color: white;
-		text-align: center;
-		padding: 5px 10px; /* Adjust padding */
-		border-radius: 4px;
-		position: absolute;
-		bottom: 110%; /* Position above the card */
-		left: 50%;
-		transform: translateX(-50%);
-		transition: opacity 0.3s;
-		z-index: 1000;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Adding a slight shadow for emphasis */
-	}
-
-	.priceset-card:hover .tooltip,
-	.priceset-card:focus-within .tooltip {
-		visibility: visible;
-		opacity: 1;
-	}
-
-	.priceset-title {
-		font-size: 1.5rem;
-		color: #2c3e50;
-		margin-bottom: 1rem;
-		font-weight: 600;
-	}
-
-	.card-actions {
-		display: flex;
-		justify-content: space-between;
-		margin-top: 1rem;
-	}
-
-	.btn {
-		padding: 0.5rem 1rem;
-		border-radius: 4px;
-		text-decoration: none;
-		transition: background-color 0.3s ease;
-	}
-
-	.btn-edit {
-		background-color: #3498db;
-		color: white;
-	}
-
-	.btn-edit:hover {
-		background-color: #2980b9;
-	}
-
-	.btn-delete {
-		background-color: #e74c3c;
-		color: white;
-	}
-
-	.btn-delete:hover {
-		background-color: #c0392b;
-	}
-</style>
