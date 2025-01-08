@@ -1,329 +1,395 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import Button from "$lib/components/button.svelte";
-  import { loadStripe, type Stripe } from '@stripe/stripe-js';
-  import { onMount } from 'svelte';
-  import type { ActionData, PageServerData } from './$types';
-  import PayPalButton from "$lib/components/PayPalButton.svelte";
-  import { writable, derived } from 'svelte/store';
+	import { goto } from '$app/navigation';
+	import Button from '$lib/components/button.svelte';
+	import { loadStripe, type Stripe } from '@stripe/stripe-js';
+	import { onMount } from 'svelte';
+	import PayPalButton from '$lib/components/PayPalButton.svelte';
+	import type { ActionData } from './$types';
+	import GoogleAutocomplete from '$lib/components/GoogleAutocomplete.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import type { Film } from 'lucide-svelte';
+	import {  type Seat } from '$lib/server/db/schema';
+	import { ShoppingBag, Trash2 } from 'lucide-svelte'; 
 
-  const PUBLIC_STRIPE_KEY = import.meta.env.PUBLIC_STRIPE_KEY;
+	let adress = '';
+	const PUBLIC_STRIPE_KEY = import.meta.env.PUBLIC_STRIPE_KEY;
+	const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+	function handlePlaceSelected(event) {
+		const adresse = event.detail;
+		adress = adresse.formatted_address;
+		console.log(m.selected_address({}), adresse);
+	}
 
-  type DiscountType = 'percentage' | 'absolute';
-  
-  interface Discount {
-    value: number;
-    discounttype: DiscountType;
-  }
+	interface Ticket {
+		id: number;
+		bookingId: number;
+		showingId: number;
+		seatId: number;
+		price: number;
+	}
 
-  export let data: PageServerData;
-  export let form: ActionData;
-  
-  let booking = data.booking;
-  let showings = data.showing;
-  let tickets = data.tickets;
-  let stripe: Stripe | null = null;
-  const vatRate = 0.19;
+	interface Showing {
+		id: number;
+		filmid: number;
+		date: string;
+		time: string;
+		Film: Film;
+	}
 
-  // Stores
-  const bookingStore = writable(booking);
-  const formStore = writable(form);
-  const discountCode = writable('');
+	interface Prices {
+		basePrice: number;
+		discount: {
+			value: number;
+			discountType: 'percentage' | 'absolute';
+		} | null;
+		discountedAmount: number;
+		vatRate: number;
+		vatAmount: number;
+		total: number;
+	}
 
-  // Derived store for discount information
-  const discountInfo = derived(formStore, $form => {
-    if (!$form?.discount) return null;
-    return {
-      value: $form.discount.value,
-      type: $form.discount.discountType
-    };
-  });
+	interface PageData {
+		booking: {
+			id: number;
+			userId: number;
+		};
+		tickets: {
+			Ticket: Ticket;
+			Showing: Showing;
+			Film: Film;
+			seat: Seat;
+		}[];
+		prices: Prices;
+	}
 
-  const basePrice = derived(bookingStore, $booking => 
-    tickets!.reduce((sum, ticket) => sum + Number(ticket.price), 0)
-  );
+	export let data: PageData;
+	export let form: ActionData;
 
-  function formatTime(timeString: string) {
-        const date = new Date(`1970-01-01T${timeString}Z`);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
+	let booking = data.booking;
+	let tickets = data.tickets;
+	let prices = data.prices;
+	let stripe: Stripe | null = null;
+	let discountCode = '';
 
-  // Updated discountedPrice calculation with type check
-  const discountedPrice = derived(
-    [basePrice, discountInfo], 
-    ([$basePrice, $discountInfo]) => {
-      if (!$discountInfo) return $basePrice;
+	$: groupedTickets = Object.entries(
+		tickets.reduce(
+			(acc, ticket) => {
+				const key = ticket.Ticket.showingId;
+				if (!acc[key]) {
+					acc[key] = {
+						showingId: key,
+						showTitle: ticket.Film.title,
+						showDate: ticket.Showing.date,
+						showTime: ticket.Showing.time,
+						showTickets: []
+					};
+				}
+				acc[key].showTickets.push(ticket);
+				return acc;
+			},
+			{} as Record<
+				number,
+				{
+					showingId: number;
+					showTitle: string;
+					showDate: string;
+					showTime: string;
+					showTickets: typeof tickets;
+				}
+			>
+		)
+	).map(([_, value]) => value);
 
-      if ($discountInfo.type === 'percentage') {
-        // Percentage discount: multiply by (1 - percentage)
-        return $basePrice * (1 - Number($discountInfo.value));
-      } else {
-        // Absolute discount: subtract the fixed amount
-        // Ensure price doesn't go below 0
-        console.log(Number($discountInfo.value));
-        return Math.max(0, $basePrice - Number($discountInfo.value));
+	function formatTime(timeString: string) {
+		const date = new Date(`1970-01-01T${timeString}Z`);
+		return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	}
 
-      }
-    }
-  );
+	// Use prices from form data if available, otherwise use initial prices
+	$: currentPrices = form?.prices || prices;
 
-  $: groupedTickets = Object.entries(
-    tickets!.reduce((acc, ticket) => {
-      const key = ticket.showingId;
-      if (!acc[key]) {
-        acc[key] = {
-          showingId: key,
-          showTickets: []
-        };
-      }
-      acc[key].showTickets.push(ticket);
-      return acc;
-    }, {} as Record<number, { showingId: number; showTickets: typeof tickets }>)
-  ).map(([_, value]) => value);
+	// Helper function to format discount display
+	function formatDiscount(discount: { value: number; discountType: string }): string {
+		if (!discount) return '';
 
-  $: getShowingById = (showingId: number) => {
-    return showings.find(show => show.id === showingId);
-  };
+		if (discount.discountType === 'percentage') {
+			return `${discount.value * 100}%`;
+		} else {
+			return `${discount.value} €`;
+		}
+	}
 
-  const vat = derived(
-    discountedPrice, 
-    $discountedPrice => $discountedPrice * vatRate
-  );
+	onMount(async () => {
+		stripe = await loadStripe(PUBLIC_STRIPE_KEY);
+	});
 
-  const total = derived(
-    discountedPrice,
-    $discountedPrice => $discountedPrice
-  );
-
-  // Update stores when props change
-  $: formStore.set(form);
-  $: bookingStore.set(booking);
-
-  onMount(async () => {
-    stripe = await loadStripe(PUBLIC_STRIPE_KEY);
-  });
-
-  // Helper function to format discount display
-  function formatDiscount($discountInfo: { value: any; type: any; }, $basePrice: number): string {
-    if (!$discountInfo) return '';
-    
-    if ($discountInfo.type === 'percentage') {
-      return `${($discountInfo.value * 100)}%`;
-    } else {
-      return `${$discountInfo.value} €`;
-    }
-  }
+	function handleDeleteTicket(ticketId: number) {
+		// Implement the logic to delete the ticket
+		console.log(`Deleting ticket with ID: ${ticketId}`);
+		// You might want to make an API call here to delete the ticket
+		// and then update the local state
+	}
 </script>
+{#if tickets.length !== 0}
+  
 
 <div class="checkout-container">
-  <div class="checkout-left">
-    <h2 class="section-title">Kontakt</h2>
-    <form class="checkout-form">
-      <input type="email" id="email" name="email" placeholder="E-Mail" required />
+	<div class="checkout-left">
+		<form class="checkout-form">
+			<h2 class="section-title" style="padding-top: 20px;">Rechungsadresse</h2>
+			<select id="country" name="country" placeholder="Land / Region">
+				<option value="Deutschland">Deutschland</option>
+			</select>
 
-      <div class="newsletter">
-        <input type="checkbox" id="newsletter" name="newsletter" />
-        <label for="newsletter">Neuigkeiten und Angebote via E-Mail erhalten</label>
-      </div>
+			<div class="input-row">
+				<input type="text" id="firstname" name="firstname" placeholder="Vorname" required />
+				<input type="text" id="lastname" name="lastname" placeholder="Nachname" required />
+			</div>
 
-      <h2 class="section-title" style="padding-top: 20px;">Rechungsadresse</h2>
-      <select id="country" name="country" placeholder="Land / Region">
-        <option value="Deutschland">Deutschland</option>
-      </select>
+			<GoogleAutocomplete
+				apiKey={API_KEY}
+				placeholder={m.search_address({})}
+				{adress}
+				on:place-selected={handlePlaceSelected}
+			/>
+			<div class="newsletter">
+				<input type="checkbox" id="newsletter" name="newsletter" />
+				<label for="newsletter">Neuigkeiten und Angebote via E-Mail erhalten</label>
+			</div>
 
-      <div class="input-row">
-        <input type="text" id="firstname" name="firstname" placeholder="Vorname" required />
-        <input type="text" id="lastname" name="lastname" placeholder="Nachname" required />
-      </div>
+			<h2 class="section-title" style="padding-top: 20px;">Bezahlart</h2>
+			<div class="payment-methods">
+				<PayPalButton
+					clientId="AbV-7ICaqhM9Xn21eTHQakdRmE0F5IS83yhLr5QNQBIWvbDZcqPPytIFq3AEPKjh09a3lpmMaQMo2DyW"
+					amount={currentPrices.total.toFixed(2)}
+					currency="EUR"
+				/>
+			</div>
+		</form>
+	</div>
 
-      <input type="text" id="address" name="address" placeholder="Adresse" required />
-      <input type="text" id="additional-info" name="additional-info" placeholder="Wohnung, Zimmer, usw. (optional)" />
+	<div class="vertical-divider"></div>
 
-      <div class="input-row">
-        <input type="text" id="postal-code" name="postal-code" placeholder="Postleitzahl" required />
-        <input type="text" id="city" name="city" placeholder="Stadt" required />
-      </div>
+	<div class="checkout-right">
+		<div class="order-summary">
+			{#each groupedTickets as group}
+				<div class="showing-group">
+					<h3 class="showing-title">
+						Film: {group.showTitle}<br />
+						Vorstellung: {group.showDate} : {formatTime(group.showTime)}
+					</h3>
 
-      <h2 class="section-title" style="padding-top: 20px;">Bezahlart</h2>
-      <div class="payment-methods">
-        <PayPalButton
-          clientId="AbV-7ICaqhM9Xn21eTHQakdRmE0F5IS83yhLr5QNQBIWvbDZcqPPytIFq3AEPKjh09a3lpmMaQMo2DyW"
-          amount="0.01"
-          currency="EUR"
-        />
-      </div>
-    </form>
-  </div>
+					{#each group.showTickets as ticket}
+						<div class="item">
+							<div class="ticket-info">
+								<p>Sitzplatz: {ticket.seat.row}{ticket.seat.seatNumber}</p>
+								<p>Preis: {ticket.Ticket.price} €</p>
+							</div>
+              <form action="?/delete" method="post">
+                <input type="hidden" name="ticketId" value={ticket.Ticket.id} />
+							<button type="submit" class="delete-icon">
+								<Trash2 size={20} />
+							</button>
+            </form>
+						</div>
+					{/each}
+				</div>
+			{/each}
 
-  <div class="vertical-divider"></div>
+			<div class="discount">
+				<form action="?/discount" method="post">
+					<input
+						type="text"
+						id="discount-code"
+						name="discount-code"
+						placeholder="Code eingeben"
+						class="rounded-input"
+						bind:value={discountCode}
+					/>
+					<Button type="submit">Anwenden</Button>
+				</form>
 
-  <div class="checkout-right">
-    <div class="order-summary">
-      {#each groupedTickets as group}
-      <div class="showing-group">
-        {#if getShowingById(group.showingId)}
-          <h1 class="showing-title">
-           Show Time: {formatTime(getShowingById(group.showingId).time)}<br>
-            Film: {getShowingById(group.showingId)?.filmid}
-          </h1>
-        {/if}
-        
-        {#each group.showTickets as ticket}
-          <div class="item">
-            <p>Sitzplatz: {ticket.seatId}</p>
-            <p>Preis: {ticket.price} €</p>
-          </div>
-        {/each}
-      </div>
-    {/each}
+				{#if form?.error}
+					<p style="color: red;">{form.error}</p>
+				{:else if form?.success}
+					<p style="color: green;">{form.success}</p>
+				{/if}
+			</div>
 
+			<div class="totals">
+				<div class="totals-row">
+					<span>Zwischensumme:</span>
+					<span>{currentPrices.basePrice.toFixed(2)} €</span>
+				</div>
 
-      <div class="discount">
-        <form action="?/discount" method="post">
-          <input 
-            type="text" 
-            id="discount-code" 
-            name="discount-code" 
-            placeholder="Code eingeben" 
-            class="rounded-input"
-            bind:value={$discountCode}
-          />
-          <Button type="submit">Anwenden</Button>
-        </form>
-        
-        {#if $formStore?.error}
-          <p style="color: red;">{$formStore.error}</p>
-        {:else if $formStore?.success}
-          <p style="color: green;">{$formStore.success}</p>
-        {/if}
-      </div>
+				{#if currentPrices.discount}
+					<div class="totals-row">
+						<span>Rabatt ({formatDiscount(currentPrices.discount)}):</span>
+						<span>-{currentPrices.discountedAmount.toFixed(2)} €</span>
+					</div>
+				{/if}
 
-      <div class="totals">
-        <div class="totals-row">
-          <span>Zwischensumme:</span>
-          <span>{$basePrice.toFixed(2)} €</span>
-        </div>
-        
-        {#if $discountInfo}
-          <div class="totals-row">
-            <span>Rabatt ({formatDiscount($discountInfo, $basePrice)}):</span>
-            <span>-{($basePrice - $discountedPrice).toFixed(2)} €</span>
-          </div>
-        {/if}
-        
-        <div class="totals-row">
-          <span>inkl. MwSt ({(vatRate * 100).toFixed(0)}%):</span>
-          <span>{$vat.toFixed(2)} €</span>
-        </div>
-        
-        <div class="totals-row total">
-          <span>Gesamt:</span>
-          <span>{$total.toFixed(2)} €</span>
-        </div>
-      </div>
-    </div>
-  </div>
+				<div class="totals-row">
+					<span>inkl. MwSt ({(currentPrices.vatRate * 100).toFixed(0)}%):</span>
+					<span>{currentPrices.vatAmount.toFixed(2)} €</span>
+				</div>
+
+				<div class="totals-row total">
+					<span>Gesamt:</span>
+					<span>{currentPrices.total.toFixed(2)} €</span>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
+{:else}
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+  <div class="text-center">
+  <ShoppingBag size={64} class="mx-auto mb-4 text-gray-400" />
+  <h2 class="text-2xl font-semibold text-gray-800 mb-2">
+  Sie haben zur Zeit keine Artikel in Ihrem Warenkorb
+  </h2>
+  <p class="text-gray-600 mb-6">
+  Entdecken Sie unsere Programm und füllen Sie Ihren Warenkorb
+  </p>
+  <a
+  href="/"
+  class="inline-block px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-md hover:bg-gray-300 transition duration-300"
+  >
+  Zum Programm
+  </a>
+  </div>
+  </div>
+{/if}
 
 <style>
-  .showing-title {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
+	.showing-title {
+		font-size: 1.2em;
+		font-weight: bold;
+		margin-bottom: 10px;
+	}
 
-  .checkout-container {
-    display: flex;
-    justify-content: flex-end;
-  }
+	.checkout-container {
+		display: flex;
+		justify-content: space-between;
+		padding: 20px;
+		gap: 40px;
+	}
 
-  .checkout-left {
-    flex: 3;
-    max-width: 700px;
-    padding: 20px;
-  }
+	.checkout-left {
+		flex: 3;
+		max-width: 700px;
+	}
 
-  .checkout-right {
-    flex: 2;
-    background-color: #f9f9f9;
-    max-width: 700px;
-    padding: 20px;
-    border-radius: 5px;
-    padding-right: 80px;
-  }
+	.checkout-right {
+		flex: 2;
+		background-color: #f9f9f9;
+		padding: 20px;
+		border-radius: 5px;
+		max-width: 500px;
+	}
 
-  .vertical-divider {
-    width: 2px;
-    background-color: #ccc;
-  }
+	.vertical-divider {
+		width: 1px;
+		background-color: #ccc;
+	}
 
-  .checkout-form {
-    display: flex;
-    flex-direction: column;
-  }
+	.checkout-form {
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+	}
 
-  .checkout-form input, .checkout-form select {
-    margin-bottom: 15px;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-  }
+	.checkout-form input,
+	.checkout-form select {
+		padding: 10px;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		font-size: 16px;
+	}
 
-  .input-row {
-    display: flex;
-    gap: 10px;
-  }
+	.input-row {
+		display: flex;
+		gap: 10px;
+	}
 
-  .input-row input {
-    flex: 1;
-    min-width: 0;
-  }
+	.input-row input {
+		flex: 1;
+	}
 
-  .newsletter {
-    display: flex;
-    align-items: center;
-  }
+	.newsletter {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
 
-  .newsletter label {
-    margin-left: 10px;
-  }
+	.section-title {
+		font-size: 18px;
+		font-weight: bold;
+		margin: 20px 0 10px 0;
+	}
 
-  .section-title {
-    font-size: 18px;
-    font-weight: bold;
-  }
+	.order-summary .item {
+		border-bottom: 1px solid #eee;
+		padding: 10px 0;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
 
-  .order-summary .item {
-    border-bottom: 1px solid #ccc;
-    padding: 10px 0;
-    margin-bottom: 10px;
-  }
+	.ticket-info {
+		flex: 1;
+	}
 
-  .totals-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-  }
+	.delete-icon {
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #ff4136;
+		padding: 5px;
+	}
 
-  .totals-row.total {
-    font-weight: bold;
-    font-size: 1.2em;
-  }
+	.delete-icon:hover {
+		color: #d90000;
+	}
 
-  .discount {
-    margin: 20px 0;
-  }
+	.totals-row {
+		display: flex;
+		justify-content: space-between;
+		padding: 5px 0;
+	}
 
-  .discount form {
-    display: flex;
-    gap: 10px;
-  }
+	.totals-row.total {
+		font-weight: bold;
+		font-size: 1.2em;
+		border-top: 2px solid #eee;
+		margin-top: 10px;
+		padding-top: 10px;
+	}
 
-  .rounded-input {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    flex: 1;
-  }
+	.discount {
+		margin: 20px 0;
+	}
+
+	.discount form {
+		display: flex;
+		gap: 10px;
+	}
+
+	.rounded-input {
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		padding: 10px;
+		flex: 1;
+	}
+
+	.showing-group {
+		margin-bottom: 20px;
+		padding-bottom: 10px;
+		border-bottom: 2px solid #eee;
+	}
+
+	.payment-methods {
+		margin-top: 20px;
+	}
 </style>

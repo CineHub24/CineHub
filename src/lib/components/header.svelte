@@ -7,7 +7,7 @@
 	import { i18n } from '$lib/i18n';
 	import * as m from '$lib/paraglide/messages.js';
 	import { languageAwareGoto } from '$lib/utils/languageAware';
-
+	import {ShoppingCart, ShoppingBasket, ShoppingBagIcon} from 'lucide-svelte';
 	let lang = languageTag();
 
 	// Prop for website name
@@ -104,11 +104,18 @@
 
 	<!-- Right: Profile Picture -->
 	<div class="relative ml-auto flex">
+		
 		{#if !$page.url.pathname.includes('/admin') && !$page.url.pathname.includes('/validation')}
 			<SearchBar onSubmit={(search) => {
 				languageAwareGoto('/search/'+search);
 			}} />	
 		{/if}
+		
+		<!-- Shopping Cart Icon -->
+		<button class="focus:outline-none ml-4 mr-4" aria-label="Shopping Cart" on:click={()=>{languageAwareGoto("/cart")}}>
+			<ShoppingBasket size={24} color="#666666" />
+			</button>
+	
 		<div
 			class="relative ml-4"
 			role="button"
@@ -201,6 +208,7 @@
 					</ul>
 				</div>
 			{/if}
+			
 		</div>
 	</div>
 </header>
