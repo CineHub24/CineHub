@@ -84,7 +84,22 @@ async function calculatePrices(
 export const load = async ({ locals }) => {
 	try {
 		const userId = locals.user!.id;
-		const _booking = await db.select().from(booking).where(eq(booking.userId, userId));
+		const _booking = await db.select().from(booking).where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
+		console.log(_booking);
+		if (_booking.length === 0) {
+			return {
+				booking: null,
+				tickets: [],
+				prices: {
+					basePrice: 0,
+					discount: null,
+					discountedAmount: 0,
+					vatRate: 0.19,
+					vatAmount: 0,
+					total: 0
+				}
+			};
+		}
 		const bookingId = _booking[0].id;
 		const tickets = await db
 			.select()
@@ -125,6 +140,7 @@ export const load = async ({ locals }) => {
 			prices
 		};
 	} catch (error) {
+		console.log(error);
 		return fail(500, { error: 'Server error while loading cart' });
 	}
 };

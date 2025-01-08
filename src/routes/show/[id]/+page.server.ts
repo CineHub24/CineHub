@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
-import { seat, cinemaHall, seatCategory, showing, ticket, booking, ticketType, ticketStatusEnum } from '$lib/server/db/schema';
-import { eq, inArray, sql, and } from 'drizzle-orm';
+import { seat, cinemaHall, seatCategory, showing, ticket, booking, ticketType, ticketStatusEnum, bookingEnum } from '$lib/server/db/schema';
+import { eq, inArray, sql, and, ne} from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../../$types';
 import { languageAwareGoto } from '$lib/utils/languageAware';
@@ -48,8 +48,8 @@ export const actions = {
             }
 
             //check if booking exists on user
-            let bookings = await db.select().from(booking).where(eq(booking.userId, locals.user!.id));
-
+            let bookings = await db.select().from(booking).where(and(eq(booking.userId, locals.user!.id), ne(booking.status, "completed")));
+            console.log("bookingres" + bookings);
             if (bookings.length == 0) {
                 bookings = await db.insert(booking).values({
                     userId: locals.user!.id,                               

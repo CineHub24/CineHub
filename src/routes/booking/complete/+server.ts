@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { ticket } from '$lib/server/db/schema';
+import { booking, ticket } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { EmailService } from '$lib/utils/emailService';
 import { json, type RequestHandler } from '@sveltejs/kit';
@@ -59,7 +59,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			.update(ticket)
 			.set({ status: 'paid' })
 			.where(eq(ticket.bookingId, Number(bookingId)));
-
+        await db.update(booking).set({ status: 'completed' }).where(eq(booking.id, Number(bookingId)));
 		await emailClient.sendBookingConfirmation(Number(bookingId), locals.user.email as string);
 
 		return json({ success: true });

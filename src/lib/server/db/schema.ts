@@ -21,7 +21,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin', 'inspector']);
-
+export const bookingEnum = pgEnum('bookingStatus', ['cart','completed']);
 export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'reserved',
 	'paid',
@@ -198,6 +198,7 @@ export const booking = pgTable('Booking', {
 	finalPrice: decimal('finalPrice'),
 	discountValue: decimal('discountValue'),
 	items : integer('items'),
+	status: bookingEnum('status').default('cart').notNull(),
   userId: text('userId').references(() => user.id),
   discount: integer('discount').references(() => priceDiscount.id),
 });
