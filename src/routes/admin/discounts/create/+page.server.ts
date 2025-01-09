@@ -8,9 +8,11 @@ export const actions = {
         const discountValue = formData.get('discount') as string;
         const discountType = formData.get('type') as string;
         const expiresAt = formData.get('expires') as string;
+        const discountName = formData.get('name') as string;
         console.log(code, discountValue, discountType, expiresAt);
         
         const discount:PriceDiscountForInsert = {
+            name: discountName,
             code: code,
             value: discountValue,
             discountType: discountType as 'percentage' | 'fixed',
