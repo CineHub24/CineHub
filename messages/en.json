@@ -183,9 +183,8 @@
 	"closes_at": "Closes at",
 	"actions": "Actions",
 
-	
 	"discount_management": "Discount Management",
-	
+
 	"expires_at": "Expires",
 	"new_discount": "New Discount",
 
@@ -255,7 +254,6 @@
 	"price_factor_placeholder": "Price factor in decimal (e.g. 0.5 for 50%)",
 
 	"invalid_price": "Invalid price",
-	
 
 	"submit": "Submit",
 	"cart_film": "Movie:",
@@ -266,7 +264,7 @@
 	"cart_seattype": "Seat Category:",
 	"cart_subtotal": "Subtotal:",
 	"cart_discount": "Discount",
-	"cart_enter_discount":"Enter Code",
+	"cart_enter_discount": "Enter Code",
 	"cart_VAT": " incl. VAT",
 	"cart_total": "Total:",
 	"cart_payment_type": "Payment Method:",
@@ -288,5 +286,14 @@
 	"discount_value": "Discount Value",
 	"enter_percentage": "Enter decimal value (e.g. 0.5 for 50%)",
 	"enter_amount": "Enter amount",
-	"expiration_date": "Expiration Date"
+	"expiration_date": "Expiration Date",
+	"buy_discounts": "Buy gift codes",
+	"buy_voucher": "Buy Voucher",
+	"voucher_description": "Purchase a voucher for future cinema visits. The voucher code can be redeemed later when buying tickets.",
+	"create_voucher": "Create Voucher",
+	"voucher_amount": "Voucher Amount",
+	"generate_voucher": "Generate Voucher",
+	"voucher_summary": "Voucher Summary",
+	"add_to_cart": "Add to Cart",
+	"voucher_code": "Voucher Code"
 }
