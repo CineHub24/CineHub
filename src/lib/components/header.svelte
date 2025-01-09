@@ -28,7 +28,7 @@
 
 	function handleCinemaChange(event: Event) {
 		const target = event.target as HTMLSelectElement;
-		Cookies.set('preferredCinema', target.value.toString(), { path: '/' });
+		Cookies.set('preferredCinema', target.value.toString());
 		location.reload();
 	}
 
