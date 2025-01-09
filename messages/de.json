@@ -257,5 +257,27 @@
 	"price_factor_placeholder": "Preisfaktor in Dezimal (z.B. 0,5 für 50%)",
 
 	"invalid_price": "Ungültiger Preis",
-	"invalid_factor": "Ungültiger Faktor"
+	"invalid_factor": "Ungültiger Faktor",
+	"submit": "Anwenden",
+
+	"cart_film": "Film:",
+	"cart_show": "Vorstellung:",
+	"cart_seat": "Sitz:",
+	"cart_typ": "Typ:",
+	"cart_price": "Preis:",
+	"cart_seattype": "Sitzkategorie:",
+	"cart_subtotal":"Zwischensumme:",
+	"cart_discount":"Rabatt",
+	"cart_enter_discount":"Code eingeben",
+	"cart_VAT":" inkl. MwSt",
+	"cart_total": "Gesamt:",
+	"cart_payment_type": "Zahlungsmethode:",
+	"cart_empty_h2":"Sie haben zur Zeit keine Artikel in Ihrem Warenkorb",
+	"cart_empty_p":"Entdecken Sie unsere Programm und füllen Sie Ihren Warenkorb",
+	"cart_goto_program":"Zum Programm"
+
+
+
+
+
 }

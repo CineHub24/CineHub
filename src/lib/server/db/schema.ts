@@ -63,6 +63,7 @@ export type PriceDiscount = typeof priceDiscount.$inferSelect;
 export type PriceDiscountForInsert = typeof priceDiscount.$inferInsert;
 export type TicketType = typeof ticketType.$inferSelect;
 export type Ticket = typeof ticket.$inferSelect;
+export type Booking = typeof booking.$inferSelect;
 
 export const film = pgTable('Film', {
 	id: serial('id').primaryKey(),
