@@ -288,5 +288,18 @@
 	"discount_value": "Discount Value",
 	"enter_percentage": "Enter decimal value (e.g. 0.5 for 50%)",
 	"enter_amount": "Enter amount",
-	"expiration_date": "Expiration Date"
+	"expiration_date": "Expiration Date",
+
+	"seat_selection_for": "Seat Selection for",
+	"seats_successfully_booked": "Seats successfully booked!",
+	"selected_seats": "Selected Seats",
+	"seat": "Seat",
+	"total": "Total",
+	"book_selected_seats": "Book Selected Seats",
+	"no_seats_selected": "No seats selected.",
+	"screen": "Screen",
+	"standard": "Standard",
+	"premium": "Premium",
+	"vip": "VIP",
+	"booked": "Booked"
 }
