@@ -11,7 +11,7 @@ export default defineConfig({
 		})
 	],
 	test: {
-		include: ['src/**/*.{test,spec}.{js,ts,svelte}'],
+		include: ['src/**/*.{test,spec}.{js,ts}'],
 		environment: 'jsdom',
 		globals: true,
 		//setupFiles: ['src/setupTests.js'] // Optional: Fügen Sie diese Zeile hinzu, wenn Sie eine Setup-Datei für Tests haben

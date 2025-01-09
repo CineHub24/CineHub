@@ -132,11 +132,17 @@ export const seat = pgTable('seat', {
 
 export const seatCategory = pgTable('seatCategory', {
 	id: serial('id').primaryKey(),
-	name: text('name'),
-	description: text('description'),
-	emoji: text('emoji'),
-	price: decimal('price', { precision: 10, scale: 2 })
-});
+		createdAt: timestamp('createdAt').defaultNow(),
+		name: text('name'),
+		description: text('description'),
+		color: varchar('color', { length: 7 }).notNull(), // Hex color code like #FF0000
+		width: integer('width').notNull().default(40), // Changed from 'size' to 'width'
+		height: integer('height').notNull().default(40), // Changed from 'size' to 'height'
+		price: decimal('price', { precision: 10, scale: 2 }),
+		isActive: boolean('isActive').notNull().default(true),
+		customPath: text('customPath')
+	});
+
 
 export const priceSet = pgTable('PriceSet', {
   id: serial('id').primaryKey(),

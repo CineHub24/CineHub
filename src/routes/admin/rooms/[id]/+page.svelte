@@ -230,7 +230,7 @@
 
 </script>
 
-<svelte:window on:beforeunload={beforeUnload}/>
+<!-- <svelte:window on:beforeunload={beforeUnload}/> -->
 
 <div class="legend">
 	{#if data && Array.isArray(data.data.categories) && data.data.categories.length > 0}
@@ -253,8 +253,10 @@
 	<button
 		class="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
 		onclick={() => {
+			// window.open("/admin/seat-category");
 			languageAwareGoto('/admin/seatCategory');
 		}}
+		
 	>
 		+ Sitzkategorie
 	</button>
