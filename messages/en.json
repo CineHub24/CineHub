@@ -183,8 +183,15 @@
 	"closes_at": "Closes at",
 	"actions": "Actions",
 
+	
+	"discount_management": "Discount Management",
+	
+	"expires_at": "Expires",
+	"new_discount": "New Discount",
+
 	"dashboard": "Dashboard",
-	"pricing_sets": "Price Sets",
+	"pricing_sets": "Pricing Sets",
+	"discounts": "Discounts",
 	"pricing": "Pricing",
 	"cinemas": "Cinemas",
 	"halls": "Halls",
@@ -248,6 +255,24 @@
 	"price_factor_placeholder": "Price factor in decimal (e.g. 0.5 for 50%)",
 
 	"invalid_price": "Invalid price",
+	
+
+	"submit": "Submit",
+	"cart_film": "Movie:",
+	"cart_show": "Show:",
+	"cart_seat": "Seat:",
+	"cart_typ": "Type:",
+	"cart_price": "Price:",
+	"cart_seattype": "Seat Category:",
+	"cart_subtotal": "Subtotal:",
+	"cart_discount": "Discount",
+	"cart_enter_discount":"Enter Code",
+	"cart_VAT": " incl. VAT",
+	"cart_total": "Total:",
+	"cart_payment_type": "Payment Method:",
+	"cart_empty_h2": "You currently have no items in your cart",
+	"cart_empty_p": "Discover our program and fill your cart",
+	"cart_goto_program": "Go to Program",
 	"invalid_factor": "Invalid factor",
 
 	"discount_codes": "Discount Codes",

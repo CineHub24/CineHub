@@ -9,11 +9,27 @@ import {
 	type Ticket,
 	type Seat,
 	type Showing,
-	type Film
+	type Film,
+	priceSet,
+	ticketType,
+	seatCategory,
+	type PriceSet,
+	type TicketType,
+	type SeatCategory
 } from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray } from 'drizzle-orm';
-import disc from 'lucide-svelte/icons/disc';
+import type { Tickets } from 'lucide-svelte';
+
+export interface TicketWithDetails {
+	Ticket: Ticket;
+	seat: Seat;
+	Showing: Showing;
+	Film: Film;
+	PriceSet: PriceSet;
+	TicketType: TicketType;
+	seatCategory: SeatCategory;
+  }
 
 interface PriceCalculation {
 	basePrice: number;
@@ -84,14 +100,32 @@ async function calculatePrices(
 export const load = async ({ locals }) => {
 	try {
 		const userId = locals.user!.id;
-		const _booking = await db.select().from(booking).where(eq(booking.userId, userId));
+		const _booking = await db.select().from(booking).where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
+		console.log(_booking);
+		if (_booking.length === 0) {
+			return {
+				booking: null,
+				tickets: [],
+				prices: {
+					basePrice: 0,
+					discount: null,
+					discountedAmount: 0,
+					vatRate: 0.19,
+					vatAmount: 0,
+					total: 0
+				}
+			};
+		}
 		const bookingId = _booking[0].id;
-		const tickets = await db
+		const tickets:TicketWithDetails[] = await db
 			.select()
 			.from(ticket)
 			.innerJoin(seat, eq(seat.id, ticket.seatId))
 			.innerJoin(showing, eq(showing.id, ticket.showingId))
 			.innerJoin(film, eq(film.id, showing.filmid))
+			.innerJoin(priceSet, eq(priceSet.id, showing.priceSetId))
+			.innerJoin(ticketType, eq(ticketType.id, ticket.type))
+			.innerJoin(seatCategory, eq(seatCategory.id, seat.categoryId))
 			.where(eq(ticket.bookingId, Number(bookingId)));
 		if (showing === undefined) {
 			return fail(404, { error: true, message: 'Showing not found' });
@@ -121,10 +155,11 @@ export const load = async ({ locals }) => {
 		}
 		return {
 			booking: _booking[0],
-			tickets,
-			prices
+			tickets: tickets as TicketWithDetails[],
+			prices: prices
 		};
 	} catch (error) {
+		console.log(error);
 		return fail(500, { error: 'Server error while loading cart' });
 	}
 };
