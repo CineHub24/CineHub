@@ -64,6 +64,7 @@
 	bg-white shadow-md
 	transition-all
 	duration-300
+	min-h-[92vh]
 	"
 	on:mouseenter={handleMouseEnterSidebar}
 	on:mouseleave={handleMouseLeaveSidebar}
