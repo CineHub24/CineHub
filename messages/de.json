@@ -182,10 +182,9 @@
 	"closes_at": "Schließt um",
 	"actions": "Aktionen",
 
-	"discount_name":"Name",
+	
 	"discount_management": "Rabatt-Verwaltung",
 	"discount_code":"Rabattcode",
-	"discount_value":"Wert",
 	"expires_at":"Ablaufdatum",
 	"new_discount": "Neuer Rabatt",
 	
@@ -274,10 +273,25 @@
 	"cart_payment_type": "Zahlungsmethode:",
 	"cart_empty_h2":"Sie haben zur Zeit keine Artikel in Ihrem Warenkorb",
 	"cart_empty_p":"Entdecken Sie unsere Programm und füllen Sie Ihren Warenkorb",
-	"cart_goto_program":"Zum Programm"
+	"cart_goto_program":"Zum Programm",
 
 
 
 
 
+	
+	"discount_codes": "Rabattcodes",
+	"discount_codes_description": "Erstellen und verwalten Sie Rabattcodes für spezielle Aktionen oder Kundengruppen.",
+	"create_discount": "Rabatt erstellen",
+	"discount_name": "Rabattname",
+	"enter_discount_name": "Rabattnamen eingeben",
+	
+	"enter_discount_code": "Rabattcode eingeben",
+	"discount_type": "Rabatttyp",
+	"percentage": "Prozentsatz",
+	"fixed_amount": "Fester Betrag",
+	"discount_value": "Rabattwert",
+	"enter_percentage": "Dezimalwert eingeben (z.B. 0,5 für 50%)",
+	"enter_amount": "Betrag eingeben",
+	"expiration_date": "Ablaufdatum"
 }
