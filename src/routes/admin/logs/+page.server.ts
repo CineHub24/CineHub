@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db';
 import { fail } from '@sveltejs/kit';
 import { logs } from '$lib/server/db/schema';
+import * as m from '$lib/paraglide/messages.js';
 
 export const load = async (event) => {
 	try {
@@ -10,6 +11,6 @@ export const load = async (event) => {
 		};
 	} catch (error) {
 		console.log(error);
-		return fail(500, { error: 'Failed to load logs' });
+		return fail(500, { error: m.internal_server_error({}) });
 	}
 };

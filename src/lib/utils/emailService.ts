@@ -210,7 +210,7 @@ export class EmailService {
     <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px;">
     <h2>Buchungsdetails</h2>
     <p><strong>Buchungs-Nr:</strong> ${bookingId}</p>
-    <p><strong>Gesamtpreis:</strong> ${bookingInformation[0].Booking.totalPrice} €</p>
+    <p><strong>Gesamtpreis:</strong> ${bookingInformation[0].Booking.finalPrice} €</p>
     </div>
     `;
     console.log(emailContent);

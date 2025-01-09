@@ -12,9 +12,15 @@ import { ticket,
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, asc, and } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
+import { EmailService } from '$lib/utils/emailService';
+
 
 //export const load = async ({ url }) => {
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals, url, params }) => {
+    const gmailUser = import.meta.env.VITE_GMAIL_USER;
+	const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
+    const emailClient = new EmailService(gmailUser, gmailAppPassword);
+    
     // Fetch user information from locals
     if (!locals.user) {
         return fail(401, { error: 'Unauthorized' });
@@ -22,50 +28,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     const user = locals.user;
 
     // Fetch booking information
-	let bookingId = <unknown>url.pathname.replace('/booking/', '');
+	
+    const{ id } = params;
+    const bookingId = id;
+    console.log("bookingid" + bookingId);
+    const initial = url.searchParams.get('initial');
+    console.log(initial)
 
-    // await db.insert(ticket).values({
-    //     bookingId: <number>bookingId,
-    //     showingId: 4,
-    //     price: '10',
-    //     status: "booked",
-    //     seatId: 1,
-    // });
-
-    // await db.insert(ticket).values({
-    //     bookingId: <number>bookingId,
-    //     showingId: 4,
-    //     price: '10',
-    //     status: "booked",
-    //     seatId: 2,
-    // });
-
-    // await db.insert(ticket).values({
-    //     bookingId: <number>bookingId,
-    //     showingId: 4,
-    //     price: '10',
-    //     status: "booked",
-    //     seatId: 3,
-    // });
-
-    // await db.insert(ticket).values({
-    //     bookingId: <number>bookingId,
-    //     showingId: 4,
-    //     price: '10',
-    //     status: "booked",
-    //     seatId: 4,
-    // });
-
-	try {
-        // const bookings = await db
-        //     .select()
-        //     .from(booking)
-        //     .where(eq(booking.id, <number>bookingId));
-        // if(bookings.length != 1) {
-        //     throw error(500, 'Internal Server Error DB');
-        // }
-        // const foundBooking = bookings[0]
-
+    try{
         const ticketsWithDetails = await db
         .select({
         // Ticket Info
@@ -101,7 +71,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
         bookingId: booking.id,
         bookingDate: booking.date,
         bookingTime: booking.time,
-        bookingTotalPrice: booking.totalPrice,
+        bookingTotalPrice: booking.finalPrice,
         
         // Discount Info
         discountCode: priceDiscount.code,
@@ -117,7 +87,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
         .leftJoin(film, eq(showing.filmid, film.id))
         .leftJoin(booking, eq(ticket.bookingId, booking.id))
         .leftJoin(priceDiscount, eq(booking.discount, priceDiscount.id))
-        .where(eq(ticket.bookingId, <number>bookingId));
+        .where(and(eq(ticket.bookingId, Number(bookingId)), eq(booking.userId, user.id)));
+        console.log("Tickets with details");
+        console.log(ticketsWithDetails);
+
+        // await db.update(ticket).set({ status: 'paid' }).where(eq(ticket.bookingId, Number(bookingId)));
+        // await emailClient.sendBookingConfirmation(Number(bookingId), user.email as string);
 
 		return {
             //booking: foundBooking,

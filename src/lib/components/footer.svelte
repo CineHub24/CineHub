@@ -21,13 +21,13 @@
 			const data = await response.json();
 
 			if (response.ok) {
-				showNotification(data.message || 'Vielen Dank für deine Anmeldung!');
+				showNotification(data.message || m.subscription_success({}));
 				email = ''; //Eingabefeld leeren
 			} else {
-				showNotification(data.error || 'Es gab ein Problem bei der Anmeldung.');
+				showNotification(data.error || m.subscription_error({}));
 			}
 		} catch (error) {
-			showNotification('Es gab ein Problem bei der Verbindung zum Server.');
+			showNotification(m.connection_error({}));
 			console.error(error);
 		}
 	}

@@ -3,6 +3,7 @@ import { load } from './+page.server';
 import * as dbModule from '$lib/server/db';
 import { film } from '$lib/server/db/schema';
 import { fail } from '@sveltejs/kit';
+import * as m from '$lib/paraglide/messages.js';
 
 // Mock the entire db module
 vi.mock('$lib/server/db', () => ({
@@ -63,7 +64,7 @@ const consoleSpy = vi.spyOn(console, 'log');
 const result = await load({} as any);
 
 expect(consoleSpy).toHaveBeenCalledWith(mockError);
-expect(fail).toHaveBeenCalledWith(500, { error: 'Failed to load movies' });
-expect(result).toEqual({ status: 500, data: { error: 'Failed to load movies' } });
+expect(fail).toHaveBeenCalledWith(500, { error: m.internal_server_error({}) });
+expect(result).toEqual({ status: 500, data: { error: m.internal_server_error({}) } });
 });
 });

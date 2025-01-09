@@ -74,7 +74,7 @@ export const actions = {
 
         } catch (error) {
             console.error('Error saving seats:', error);
-            return fail(500, { error: true, message: error.message || 'Failed to save seat plan.' });
+            return fail(500, { error: true, message: 'Failed to save seat plan.' });
         }
 
         if (shouldRedirect) {

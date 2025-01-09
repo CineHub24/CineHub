@@ -1,4 +1,8 @@
+
+import { price } from '$lib/paraglide/messages';
+
 import { timeStamp } from 'console';
+
 import { sql } from 'drizzle-orm';
 import {
 	uuid,
@@ -17,14 +21,14 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin', 'inspector']);
-
+export const bookingEnum = pgEnum('bookingStatus', ['cart','completed']);
 export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'reserved',
 	'paid',
 	'validated',	
 	'refunded',
 ]);
-export const discountTypeEnum = pgEnum('discountType', ['percentage', 'fixed']);
+export const discountTypesEnum = pgEnum('discountType', ['percentage', 'fixed']);
 
 export const user = pgTable('User', {
 	id: text('id').primaryKey(),
@@ -59,6 +63,7 @@ export type PriceDiscount = typeof priceDiscount.$inferSelect;
 export type PriceDiscountForInsert = typeof priceDiscount.$inferInsert;
 export type TicketType = typeof ticketType.$inferSelect;
 export type Ticket = typeof ticket.$inferSelect;
+export type Booking = typeof booking.$inferSelect;
 
 export const film = pgTable('Film', {
 	id: serial('id').primaryKey(),
@@ -168,9 +173,10 @@ export const paymentType = pgTable('PaymentType', {
 
 export const priceDiscount = pgTable('PriceDiscount', {
 	id: serial('id').primaryKey(),
-	code: text('code'),
-  value: decimal('value', { precision: 10, scale: 2 }),
-  discountType: text('discountType'),
+	code: text('code').notNull(),
+	value: decimal('value', { precision: 10, scale: 2 }).notNull(),
+	discountType: discountTypesEnum('discountType').default('percentage').notNull(),
+	expiresAt: date('expiresAt')
 });
 
 export const ticket = pgTable('Ticket', {
@@ -189,7 +195,11 @@ export const booking = pgTable('Booking', {
 	id: serial('id').primaryKey(),
 	date: date('date'),
 	time: time('time'),
-	totalPrice: decimal('totalPrice'),
+	basePrice: decimal('basePrice'),
+	finalPrice: decimal('finalPrice'),
+	discountValue: decimal('discountValue'),
+	items : integer('items'),
+	status: bookingEnum('status').default('cart').notNull(),
   userId: text('userId').references(() => user.id),
   discount: integer('discount').references(() => priceDiscount.id),
 });

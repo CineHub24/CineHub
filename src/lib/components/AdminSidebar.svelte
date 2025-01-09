@@ -8,30 +8,38 @@
 		Columns,
 		ChevronRight,
 		ChevronLeft,
-		Logs
+		Logs,
+
+		PercentCircle
 
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
+	import * as m from '$lib/paraglide/messages.js';
 
 	export let isMenuExpanded = false;
 	let isMouseOverSidebar = false;
 
 	const sections = [
-		{ id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-		{ id: 'movies', icon: Film, label: 'Filme', path: '/admin/films' },
-		{ id: 'pricing', icon: DollarSign, label: 'Preissets', path: '/admin/price-set' },
-		{ id: 'cinemas', icon: Building, label: 'Kinos', path: '/admin/cinemas' },
-		{ id: 'halls', icon: Columns, label: 'Kinosäle', path: '/admin/rooms' },
-		{ id: 'logs', icon: Logs, label: 'Logs', path: '/admin/logs' }
+		{ id: 'dashboard', icon: LayoutDashboard, label: m.dashboard({}), path: '/admin' },
+		{ id: 'movies', icon: Film, label: m.movies({}), path: '/admin/films' },
+		{ id: 'pricing', icon: DollarSign, label: m.pricing({}), path: '/admin/pricing' },
+		{ id: 'discounts', icon: PercentCircle, label: m.discounts({}), path: '/admin/discounts' },
+		{ id: 'cinemas', icon: Building, label: m.cinemas({}), path: '/admin/cinemas' },
+		{ id: 'halls', icon: Columns, label: m.halls({}), path: '/admin/rooms' },
+		{ id: 'logs', icon: Logs, label: m.system_logs({}), path: '/admin/logs' }
 	];
 	$: currentPath = $page.url.pathname;
 
-function isActive(sectionPath: string) {
-if (sectionPath === '/admin') {
-return currentPath === '/admin' || currentPath === '/de/admin' || currentPath === '/en/admin';
-}
-return currentPath.startsWith(sectionPath) || currentPath.startsWith('/de' + sectionPath) || currentPath.startsWith('/en' + sectionPath);
-}
+	function isActive(sectionPath: string) {
+		if (sectionPath === '/admin') {
+			return currentPath === '/admin' || currentPath === '/de/admin' || currentPath === '/en/admin';
+		}
+		return (
+			currentPath.startsWith(sectionPath) ||
+			currentPath.startsWith('/de' + sectionPath) ||
+			currentPath.startsWith('/en' + sectionPath)
+		);
+	}
 
 	function handleMouseEnterSidebar() {
 		isMouseOverSidebar = true;
@@ -51,18 +59,19 @@ return currentPath.startsWith(sectionPath) || currentPath.startsWith('/de' + sec
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
 	class="
-    {isMenuExpanded ? 'w-64' : 'w-16'}
-    relative overflow-hidden
-    bg-white shadow-md
-    transition-all
-    duration-300
-    "
+	{isMenuExpanded ? 'w-64' : 'w-16'}
+	relative overflow-hidden
+	bg-white shadow-md
+	transition-all
+	duration-300
+	min-h-[92vh]
+	"
 	on:mouseenter={handleMouseEnterSidebar}
 	on:mouseleave={handleMouseLeaveSidebar}
 >
 	<div class="flex items-center justify-between border-b p-5 text-center text-xl font-bold">
 		{#if isMenuExpanded}
-			<span>Kino-Admin</span>
+			<span>{m.cinema_admin({})}</span>
 		{/if}
 		<button on:click={toggleMenu} class="ml-auto">
 			{#if isMenuExpanded}
@@ -78,10 +87,10 @@ return currentPath.startsWith(sectionPath) || currentPath.startsWith('/de' + sec
 				href={section.path}
 				title={section.label}
 				class="
-    flex w-full items-center p-3 transition hover:bg-gray-100
-    {isActive(section.path) ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}
-    {isMenuExpanded ? 'justify-start' : 'justify-center'}
-    "
+	flex w-full items-center p-3 transition hover:bg-gray-100
+	{isActive(section.path) ? 'bg-blue-50 text-blue-600' : 'text-gray-700'}
+	{isMenuExpanded ? 'justify-start' : 'justify-center'}
+	"
 			>
 				<svelte:component this={section.icon} />
 				{#if isMenuExpanded}

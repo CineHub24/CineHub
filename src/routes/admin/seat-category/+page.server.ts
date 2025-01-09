@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { seatCategory } from '$lib/server/db/schema';
+import { seatCategory, seat } from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 import * as m from '$lib/paraglide/messages.js';
@@ -8,9 +8,19 @@ const dbFail = fail(500, { message: m.internal_server_error({}), database: true 
 
 export const load = async ({ url }) => {
 	const seatCategories = await db.select().from(seatCategory).orderBy(seatCategory.price);
-	return {
-		seatCategories
-	};
+	if (seatCategories.length === 0) {
+		const standard = await db
+			.insert(seatCategory)
+			.values({ id: 0, name: 'Standard', price: '10', description: 'Standard'})
+			.returning();
+		return {
+			seatCategories:standard
+		};
+	} else {
+		return {
+			seatCategories: seatCategories
+		};
+	}
 };
 export const actions = {
 	createSeatCategory: async ({ request }) => {
@@ -20,6 +30,13 @@ export const actions = {
 		const price = data.get('price') as string;
 		const description = data.get('description') as string;
 		const emoji = data.get('emoji') as string;
+
+		if(!name || !price) {
+			return fail(400, { message: m.missing_inputs({}) });
+		}
+		if( parseFloat(price) < 0) {
+			return fail(400, { message: m.invalid_price({}) });
+		}
 
 		const newSeatCategory = {
 			name,
@@ -39,7 +56,12 @@ export const actions = {
 		const id = data.get('id') as unknown as number;
 
 		try {
-			await db.delete(seatCategory).where(eq(seatCategory.id, id));
+			const seats = await db.select().from(seat).where(eq(seat.categoryId, id));
+			if (seats.length === 0) {
+				await db.delete(seatCategory).where(eq(seatCategory.id, id));
+			} else {
+				return fail(400, { message: m.seat_category_in_use({}) });
+			}
 		} catch (e) {
 			return dbFail;
 		}
@@ -53,7 +75,10 @@ export const actions = {
 		const description = data.get('description') as string;
 
 		if (!id || !name) {
-			return fail(400, {message: m.missing_inputs({})});
+			return fail(400, { message: m.missing_inputs({}) });
+		}
+		if( parseFloat(price) < 0) {
+			return fail(400, { message: m.invalid_price({}) });
 		}
 
 		try {
