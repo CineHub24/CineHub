@@ -73,24 +73,18 @@
 </div>
 
 	<div class="additional-info">
-		<div class="bar-item grey">{m.directed_by({}) + " " + movie.director}</div>
-		<div class="bar-item grey">{m.released_in({}) + " " + movie.year}</div>
-		<div class="bar-item grey">{m.runtime({}) + " " + movie.runtime + 'min'}</div>
-	</div>
-
-	<div class="additional-info">
-		<div class="bar-item grey">
-			{movie.ageRating ? getGermanAgeRating(movie.ageRating) : m.not_available({})}
-		</div>
-	</div>
-
-	<div class="additional-info">
+		<div class="bar-item grey">{m.directed_by({})} {movie.director}</div>
+		<div class="bar-item grey">{m.released_in({})} {movie.year}</div>
+		<div class="bar-item grey">{movie.runtime} min</div>
+		<div class="bar-item grey">{movie.ageRating ? getGermanAgeRating(movie.ageRating) : 'N/A'}</div>
 		{#each movie.genres as genre}
 			<div class="bar-item bg-blue-600 text-white">{genre}</div>
 		{/each}
 	</div>
 
 	{#if shows.length > 0}
+		<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
+		<ShowsFilmDropdown {shows} movies={[movie]} />
 		<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
 		<ShowsFilmDropdown {shows} movies={[movie]} />
 	{/if}
