@@ -33,7 +33,7 @@
         couple: {
             name: 'Love Seat',
             width: 70,
-            height: 45,
+            height: 40,
             path: (w: number, h: number) => `
                 M 0 ${h * 0.2}
                 Q ${w * 0.2} 0, ${w * 0.5} 0
@@ -46,7 +46,7 @@
         vip: {
             name: 'VIP Recliner',
             width: 50,
-            height: 50,
+            height: 40,
             path: (w: number, h: number) => `
                 M ${w * 0.1} ${h * 0.1}
                 Q ${w * 0.5} 0, ${w * 0.9} ${h * 0.1}

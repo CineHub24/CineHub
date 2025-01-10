@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { languageAwareGoto } from '$lib/utils/languageAware';
     import type { PageData } from './$types';
     import { onMount } from 'svelte';
 
@@ -6,20 +7,6 @@
 
     const rotationStep = 15;
     const snappingThreshold = 10;
-    const alignmentThreshold = 8;
-    const patternThreshold = 15;
-
-    interface Category {
-        id: number;
-        name: string;
-        description: string;
-        color: string;
-        width: number;
-        height: number;
-        price: string;
-        isActive: boolean;
-        customPath: string;
-    }
 
     interface Block {
         id: number;
@@ -27,6 +14,8 @@
         top: number;
         rotation: number;
         categoryId: number;
+        row?: string;    
+        number?: number; 
     }
 
     interface DragState {
@@ -57,8 +46,30 @@
     }
 
     let name = data.room?.name ?? '';
-    let blocks: Block[] = data.room?.layout ? JSON.parse(data.room.layout) : [];
+    let selectedCinemaId: number | null = data.room?.cinemaId ?? null;
+    let blocks: Block[] = data.seats ;
     let isSubmitting = false;
+
+    $: {
+    if (data.seats) {
+        blocks = data.seats.map(seat => ({
+            ...seat,
+            // Ensure positions are numbers
+            left: Number(seat.left),
+            top: Number(seat.top),
+            rotation: Number(seat.rotation),
+            row: seat.row,
+            number: seat.seatNumber,
+            // Ensure ID is a number
+            id: Number(seat.id),
+            categoryId: Number(seat.categoryId)
+        }));
+    }
+}
+    
+    let nameError = '';
+    let   cinemaError = '';
+    let  rowError = '';
 
     let isDragging = false;
     let isDrawingSelectionBox = false;
@@ -72,7 +83,6 @@
     let isShiftPressed = false;
     let dragState: DragState | null = null;
 
-    // Optional: For visual feedback
     let saveStatus: 'idle' | 'success' | 'error' = 'idle';
 
     function getBlockDimensions(categoryId: number): { width: number; height: number } {
@@ -478,80 +488,101 @@
         });
     }
 
-    async function handleSave() {
-        if (isSubmitting) return;
-        isSubmitting = true;
-        saveStatus = 'idle';
 
-        try {
-            const payload = {
-                name,
-                blocks,
-                // ... any other data you need to send
-            };
+let dragThreshold = 5; // Minimum movement in pixels to qualify as a drag
+let isDraggingBlock = false; // Tracks if a block is being dragged
 
-            const response = await fetch('/api/save-layout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
+function handleMouseDownOnBlock(event: MouseEvent, clickedBlock: Block) {
+    event.preventDefault();
+    event.stopPropagation();
 
-            if (!response.ok) {
-                throw new Error('Failed to save layout');
-            }
-
-            console.log('Layout saved successfully');
-            saveStatus = 'success';
-            // Optionally, show a success notification to the user
-        } catch (error) {
-            console.error('Error saving:', error);
-            saveStatus = 'error';
-            // Optionally, show an error notification to the user
-        } finally {
-            isSubmitting = false;
-            // Optionally, hide the notification after a few seconds
-            setTimeout(() => {
-                saveStatus = 'idle';
-            }, 3000);
-        }
-    }
-
-    function handleMouseDownOnBlock(event: MouseEvent, clickedBlock: Block) {
-        event.preventDefault();
-        event.stopPropagation();
-    
-        if (!selectedBlocks.has(clickedBlock.id)) {
-            if (!event.metaKey && !event.ctrlKey) {
-                selectedBlocks = new Set([clickedBlock.id]);
-            } else {
-                const newSelection = new Set(selectedBlocks);
-                newSelection.add(clickedBlock.id);
-                selectedBlocks = newSelection;
-            }
-        } else if (event.metaKey || event.ctrlKey) {
+    // Handle selection
+    if (!selectedBlocks.has(clickedBlock.id)) {
+        if (!event.metaKey && !event.ctrlKey) {
+            selectedBlocks = new Set([clickedBlock.id]);
+        } else {
             const newSelection = new Set(selectedBlocks);
-            newSelection.delete(clickedBlock.id);
+            newSelection.add(clickedBlock.id);
             selectedBlocks = newSelection;
-            return;
         }
-    
-        const workspaceRect = workspace.getBoundingClientRect();
-        isDragging = true;
-        dragState = {
-            initialMouseX: event.clientX - workspaceRect.left,
-            initialMouseY: event.clientY - workspaceRect.top,
-            initialBlockPositions: new Map(
-                Array.from(selectedBlocks).map(id => {
-                    const block = blocks.find(b => b.id === id)!;
-                    return [id, { left: block.left, top: block.top }];
-                })
-            )
-        };
-    
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-        document.body.style.cursor = 'grabbing';
+    } else if (event.metaKey || event.ctrlKey) {
+        const newSelection = new Set(selectedBlocks);
+        newSelection.delete(clickedBlock.id);
+        selectedBlocks = newSelection;
+        return;
     }
+
+    // Get workspace rect once at the start of drag
+    const workspaceRect = workspace.getBoundingClientRect();
+    
+    // Initialize drag state with absolute mouse coordinates
+    const initialMouseX = event.clientX;
+    const initialMouseY = event.clientY;
+
+    isDragging = true;
+    dragState = {
+        initialMouseX: initialMouseX,
+        initialMouseY: initialMouseY,
+        initialBlockPositions: new Map(
+            Array.from(selectedBlocks).map(id => {
+                const block = blocks.find(b => b.id === id)!;
+                return [id, {
+                    left: block.left,
+                    top: block.top
+                }];
+            })
+        )
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+        if (!isDragging || !dragState) return;
+
+        // Calculate the total movement from the initial mouse position
+        const deltaX = event.clientX - dragState.initialMouseX;
+        const deltaY = event.clientY - dragState.initialMouseY;
+
+        // Create the new positions map
+        const newPositions = new Map<number, { x: number; y: number }>();
+        dragState.initialBlockPositions.forEach((initial, id) => {
+            newPositions.set(id, {
+                x: initial.left + deltaX,
+                y: initial.top + deltaY
+            });
+        });
+
+        // Apply snapping if shift isn't pressed
+        const finalPositions = !isShiftPressed ? applySnapping(newPositions) : newPositions;
+
+        // Update blocks with their new positions
+        blocks = blocks.map(block => {
+            const newPos = finalPositions.get(block.id);
+            if (newPos) {
+                return {
+                    ...block,
+                    left: newPos.x,
+                    top: newPos.y
+                };
+            }
+            return block;
+        });
+    };
+
+    const handleMouseUp = () => {
+        if (isDragging) {
+            isDragging = false;
+            dragState = null;
+            pushToHistory();
+            activeSnapLines = [];
+        }
+
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+}
+
     
     function handleMouseDownOnWorkspace(event: MouseEvent) {
         // Only start selection box if clicking directly on the workspace
@@ -693,6 +724,132 @@
         document.removeEventListener('mouseup', handleMouseUp);
     }
 
+    function reassignSeatNumbers(rowLetter: string) {
+    // Filter blocks that belong to the specified row
+    const blocksInRow = blocks
+        .filter(block => block.row === rowLetter)
+        .sort((a, b) => a.left - b.left); // Sort by left position (horizontal)
+
+    // Assign sequential numbers starting from 1
+    blocksInRow.forEach((block, index) => {
+        blocks = blocks.map(b => {
+            if (b.id === block.id) {
+                return { ...b, number: index + 1 };
+            }
+            return b;
+        });
+    });
+}
+
+    /**
+ * Assigns a row letter to all selected blocks and reassigns their numbers.
+ * @param rowLetter - The letter representing the row (e.g., 'A').
+ */
+function assignRowLetter(rowLetter: string) {
+    // Ensure rowLetter is uppercase and valid
+    rowLetter = rowLetter.toUpperCase();
+    if (!/^[A-Z]$/.test(rowLetter)) {
+        alert('Please enter a valid row letter (A-Z).');
+        return;
+    }
+
+    if (selectedBlocks.size === 0) {
+        alert('Please select blocks to assign to a row.');
+        return;
+    }
+
+    // Assign the row letter to all selected blocks
+    blocks = blocks.map(block => {
+        if (selectedBlocks.has(block.id)) {
+            return { ...block, row: rowLetter };
+        }
+        return block;
+    });
+
+    // Reassign numbers for the entire row to ensure uniqueness and order
+    reassignSeatNumbers(rowLetter);
+
+    // Clear the selection after assigning rows
+    selectedBlocks.clear();
+}
+
+
+async function handleSave() {
+    console.log('Saving room layout...');
+    if (isSubmitting) return;
+
+    // **Reset Errors**
+     nameError = '';
+     cinemaError = '';
+     rowError = '';
+
+    // **Validation: Ensure Name is Not Empty**
+    if (!name.trim()) {
+        nameError = 'Room name is required.';
+    }
+
+    // **Validation: Ensure a Cinema is Selected**
+    if (!selectedCinemaId) {
+        cinemaError = 'Please select a cinema.';
+    }
+
+    // **Validation: Ensure All Seats Are Assigned to a Row and Number**
+    const unassignedBlocks = blocks.filter(block => !block.row || !block.number);
+    if (unassignedBlocks.length > 0) {
+        rowError = `${unassignedBlocks.length} seat(s) are not assigned to any row or number. Please assign them before saving.`;
+    }
+
+    // **Halt Save If There Are Any Errors**
+    if (nameError || cinemaError || rowError) {
+        return;
+    }
+
+    isSubmitting = true;
+    saveStatus = 'idle';
+
+    const form = new FormData();
+    form.append('isCreate', data.isCreate.toString());
+    form.append('name', name);
+    form.append('layout', JSON.stringify(blocks));
+    form.append('cinemaId', selectedCinemaId.toString());
+
+    if (!data.isCreate && data.room) {
+        form.append('id', data.room.id.toString());
+    }
+
+    try {
+        const response = await fetch('?/save', {
+            method: 'POST',
+            body: form
+        });
+
+        const result = await response.json();
+
+        console.log(result);
+
+        if (result.typre === 'success') {
+            console.log('Layout saved successfully');
+            saveStatus = 'success';
+            
+        } else if(result.type === 'error') {
+            throw new Error(result.message || 'Unknown error');
+        }else if (result.type === 'redirect') {
+            languageAwareGoto(result.location);
+        } 
+        saveStatus = 'success';
+
+    } catch (error) {
+        console.error('Error saving:', error);
+        saveStatus = 'error';
+    } finally {
+        isSubmitting = false;
+        setTimeout(() => {
+            saveStatus = 'idle';
+        }, 3000);
+    }
+}
+
+
     onMount(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Shift') {
@@ -741,12 +898,70 @@
             document.removeEventListener('mouseup', handleMouseUp);
         };
     });
+
+    async function submitForm() {
+    const form = new FormData();
+    form.append('isCreate', data.isCreate.toString());
+    form.append('name', name);
+    form.append('layout', JSON.stringify(blocks)); // blocks now include row and number
+
+    if (!data.isCreate) {
+        form.append('id', room.id.toString()); // 'room' is undefined
+    }
+
+    const response = await fetch('?/save', {
+        method: 'POST',
+        body: form
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        alert('Room saved successfully!');
+        // Optionally, redirect or update UI
+    } else {
+        alert(`Error: ${result.message}`);
+    }
+}
+
 </script>
 
 
 
 <!-- Top Bar -->
 <div class="flex items-center bg-gray-800 text-white h-16 px-4 shadow-md">
+    <!-- Room Name Input -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-4">
+        <div class="flex items-center space-x-2">
+            <label for="room-name" class="text-white font-medium">Room Name:</label>
+            <input
+                id="room-name"
+                type="text"
+                bind:value={name}
+                placeholder="Enter room name"
+                class="bg-gray-700 text-white px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+        </div>
+
+        <!-- Cinema Dropdown -->
+        <div class="flex items-center space-x-2">
+            <label for="cinema-select" class="text-white font-medium">Cinema:</label>
+            <select
+                id="cinema-select"
+                bind:value={selectedCinemaId}
+                class="bg-gray-700 text-white px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <option value="" disabled>Select a cinema</option>
+                {#each data.cinemas as cinema (cinema.id)}
+                    <option value={cinema.id}>{cinema.name}</option>
+                {/each}
+            </select>
+        </div>
+    </div>
+
+    <!-- Spacer to separate the inputs from the category list -->
+    <div class="flex-grow"></div>
+
+    <!-- Category List and Action Buttons -->
     <div class="flex space-x-4">
         {#each data.categories.filter(cat => cat.isActive) as category (category.id)}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -804,8 +1019,27 @@
         >
             Undo
         </button>
+
+
+        <button on:click={() => {
+            const rowLetter = prompt('Enter row letter (A-Z):');
+            if (rowLetter) assignRowLetter(rowLetter);
+        }}>
+            Assign Row
+        </button>
+
+
+        <button on:click={() => handleSave()}>
+            Save Room
+        </button>
     </div>
 </div>
+
+{#if rowError}
+    <div class="bg-red-500 text-white p-2 rounded mt-2 mx-4">
+        {rowError}
+    </div>
+{/if}
 
 <!-- Workspace Area -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -840,38 +1074,57 @@
         ></div>
     {/if}
 
-    <!-- Blocks -->
-    {#each blocks as block (block.id)}
-    {@const category = data.categories.find(c => c.id === block.categoryId)}
-    <div
-        class="absolute flex items-center justify-center text-white text-sm cursor-grab {selectedBlocks.has(block.id) ? 'border-2 border-blue-500' : ''}"
-        style="
-            left: {block.left}px; 
-            top: {block.top}px; 
-            width: {category?.width}px;
-            height: {category?.height}px;
-            transform: rotate({block.rotation}deg);
-        "
-        on:mousedown={(e) => handleMouseDownOnBlock(e, block)}
-        title={category?.description || category?.name || ''}
-    >
-        <svg 
-            width={category?.width} 
-            height={category?.height}
-            viewBox={`0 0 ${category?.width} ${category?.height}`}
-        >
-            <path
-                d={category?.customPath}
-                fill={category?.color}
-                stroke="white"
-                stroke-width="1"
-            />
-        </svg>
-        <span class="absolute inset-0 flex items-center justify-center">
-            {category?.name[0].toUpperCase() || '?'}
-        </span>
-    </div>
-    {/each}
+   <!-- Blocks Rendering Section -->
+   {#each blocks as block (block.id)}
+   {@const category = data.categories.find(c => c.id === block.categoryId)}
+   <div
+       class="absolute flex items-center justify-center text-white text-sm cursor-grab border-2"
+       class:border-blue-500={selectedBlocks.has(block.id)}
+       class:border-red-500={!selectedBlocks.has(block.id) && (!block.row || !block.number)}
+       style="
+           left: {block.left}px; 
+           top: {block.top}px; 
+           width: {category?.width}px;
+           height: {category?.height}px;
+           transform: rotate({block.rotation}deg);
+       "
+       on:mousedown={(e) => handleMouseDownOnBlock(e, block)}
+
+       title={category?.description || category?.name || ''}
+   >
+       <svg 
+           width={category?.width} 
+           height={category?.height}
+           viewBox={`0 0 ${category?.width} ${category?.height}`}
+       >
+           <path
+               d={category?.customPath}
+               fill={category?.color}
+               stroke="white"
+               stroke-width="1"
+           />
+       </svg>
+       <span class="absolute inset-0 flex items-center justify-center">
+           {category?.name[0].toUpperCase() || '?'}
+       </span>
+
+       {#if block.row}
+           <div class="absolute bottom-0 right-0 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded-tl">
+               {block.row}{block.number}
+           </div>
+       {/if}
+
+       <!-- Indicator for Unassigned Seats -->
+       {#if !block.row || !block.number}
+           <div class="absolute top-0 left-0 bg-red-600 text-white text-xs px-1 py-0.5 rounded-br">
+               Unassigned
+           </div>
+       {/if}
+   </div>
+{/each}
+
+   
+
 
     <!-- Optional: Save Status Notifications -->
     {#if saveStatus === 'success'}
@@ -885,3 +1138,13 @@
         </div>
     {/if}
 </div>
+
+<style>
+.border-red-500 {
+    border-color: #f87171; /* Tailwind's red-500 */
+}
+
+.bg-red-600 {
+    background-color: #dc2626; /* Tailwind's red-600 */
+}
+</style>

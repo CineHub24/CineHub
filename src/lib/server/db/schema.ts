@@ -1,5 +1,6 @@
 import { timeStamp } from 'console';
 import { sql } from 'drizzle-orm';
+import { float } from 'drizzle-orm/mysql-core';
 import {
 	uuid,
 	pgTable,
@@ -126,6 +127,9 @@ export const seat = pgTable('seat', {
   id: serial('id').primaryKey(),
   seatNumber: text('seatNumber').notNull(),
   row: text('row').notNull(),
+	rotation: decimal('rotation').notNull(),
+	top: decimal('top').notNull(),
+	left: decimal('left').notNull(),
   cinemaHall: integer('cinemaHall').notNull().references(() => cinemaHall.id, { onDelete: 'cascade' }),
   categoryId: integer('categoryId').notNull().references(() => seatCategory.id),
 });

@@ -105,8 +105,7 @@
         <button
             class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
             on:click={() => {
-                // Future: Implement add room functionality
-                alert('Add room functionality not implemented yet.');
+                goto('/admin/rooms/v2/create');
             }}
         >
             Add Room
