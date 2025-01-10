@@ -80,14 +80,24 @@
 
 {/key}
 
-<h2 class="px-5 text-xl font-bold">{m.movies({})}</h2>
+<h2 class="px-5 text-xl font-bold" style="margin-top: 40px;">
+    {m.current_movies({})}
+</h2>
 <div class="movies-container">
 	{#each movies as movie}
 		<div
 			role="button"
 			tabindex="0"
-			onmouseover={() => (hoveredMovie = { ...movie })}
-			onfocus={() => (hoveredMovie = { ...movie })}
+			onmouseover={() => {
+				if (hoveredMovie.id !== movie.id) {
+					hoveredMovie = { ...movie }; // Update only if it's a different movie
+				}
+			}}
+			onfocus={() => {
+				if (hoveredMovie.id !== movie.id) {
+					hoveredMovie = { ...movie }; // Update only if it's a different movie
+				}
+			}}
 			class="movie-card"
 		>
 			<MovieCard {movie} url="/film/{movie.id}" />
@@ -102,7 +112,7 @@
 
 <style>
 	.movies-container {
-		padding-top: 20px;
+		padding-top: 10px;
 		margin-left: 20px;
 		margin-right: 20px;
 		padding-bottom: 20px;
@@ -119,14 +129,12 @@
 		position: relative;
 		overflow: hidden;
 		background-color: white;
-		padding: 20px;
-		border-radius: 10px;
 		z-index: 1;
 	}
 
 	#background {
 		width: 100%;
-		height: 450px;
+		height: 550px;
 		object-fit: cover;
 	}
 
