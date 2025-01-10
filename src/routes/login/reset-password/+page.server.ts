@@ -40,7 +40,7 @@ export const actions = {
 					success: `Email was sent to Email: ${email}`
 				};
 			}
-			const resetEntry = await db.insert(passwordReset).values({ userId: selectedUser[0].id, expiresAt: new Date()}).returning();
+			const resetEntry = await db.insert(passwordReset).values({ userId: selectedUser[0].id, expiresAt: new Date(Date.now() + 15*60*1000)}).returning();
             try {
                 emailClient.sendResetPasswordEmail(resetEntry[0].token as string, email);
             } catch (error) {
@@ -68,8 +68,6 @@ export const actions = {
             return fail(400, { error: 'Invalid password' });
         }
         try {
-            console.log(token);
-            console.log(new Date());
             const userToChange = await db.select().from(passwordReset).where(and(eq(passwordReset.token, token as string), gte(passwordReset.expiresAt, new Date())));
             console.log(userToChange);
             if (userToChange.length === 0) {
