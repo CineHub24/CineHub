@@ -36,6 +36,7 @@ export class EmailService {
 		});
 		this.gmailUser = gmailUser;
 		this.logoPath = path.join(process.cwd(), 'static', 'favicon_white_bg.png');
+		this.logoPath = path.join(process.cwd(), 'static', 'favicon_white_bg.png');
 	}
 	private async generatePDFTicket(ticketInfo: {
 		Ticket: {
@@ -350,6 +351,32 @@ export class EmailService {
 						contentType: 'text/calendar'
 					}))
 				]
+			});
+		} catch (error) {
+			console.error('Fehler beim Versenden der E-Mail:', error);
+			throw new Error('E-Mail konnte nicht versendet werden');
+		}
+	}
+
+	async sendResetPasswordEmail(resetToken: string, recipientEmail: string): Promise<void> {
+		const emailContent = `
+      Hallo,
+
+Wir haben deine Anfrage zur Passwort-Zurücksetzung erhalten.
+
+Klicke auf den folgenden Link, um ein neues Passwort festzulegen: <a href="http://localhost:5173/login/reset-password?token=${resetToken}"> Passwort zurücksetzen </a>
+
+Dieser Link ist nur einmal verwendbar und verfällt in 15 Minuten.
+
+Ihr Cinehub-Team
+      `;
+
+		try {
+			await this.transporter.sendMail({
+				from: `"CineHub" <${this.gmailUser}>`,
+				to: recipientEmail,
+				subject: `Passwort-Zurücksetzung für CineHub`,
+				html: emailContent
 			});
 		} catch (error) {
 			console.error('Fehler beim Versenden der E-Mail:', error);

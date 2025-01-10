@@ -217,3 +217,11 @@ export const subscribersNewsletter = pgTable('subscribersNewsletter', {
 	id: serial('id').primaryKey(),
 	email: text('email').unique()
 });
+
+export const passwordReset = pgTable('passwordReset', {
+	id: serial('id').primaryKey(),
+	userId: text('userId').references(() => user.id),
+	token: uuid('token').defaultRandom().unique(),
+	expiresAt: timestamp('expiresAt').notNull()
+});
+	

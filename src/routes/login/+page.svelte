@@ -44,7 +44,7 @@
 				/>
 			</div>
 			<div class="flex justify-between text-sm">
-				<a href="/forgot-password" class="text-indigo-500 hover:underline">{m.forgot_password({})}</a>
+				<a href="/login/reset-password" class="text-indigo-500 hover:underline">{m.forgot_password({})}</a>
 			</div>
 			<!-- Error Message -->
 			{#if errorMessage}
