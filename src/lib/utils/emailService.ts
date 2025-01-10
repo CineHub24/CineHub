@@ -20,11 +20,12 @@ import path from 'path';
 import QRCode from 'qrcode';
 import axios from 'axios';
 
-import { PUBLIC_URL } from '$env/static/public';
+
 export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
 	logoPath: string;
+	private PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL;
 
 	constructor(gmailUser: string, gmailAppPassword: string) {
 		this.transporter = nodemailer.createTransport({
@@ -364,7 +365,7 @@ export class EmailService {
 
 Wir haben deine Anfrage zur Passwort-Zurücksetzung erhalten.
 
-Klicke auf den folgenden Link, um ein neues Passwort festzulegen: <a href="http://localhost:5173/login/reset-password?token=${resetToken}"> Passwort zurücksetzen </a>
+Klicke auf den folgenden Link, um ein neues Passwort festzulegen: <a href="${this.PUBLIC_URL}/login/reset-password?token=${resetToken}"> Passwort zurücksetzen </a>
 
 Dieser Link ist nur einmal verwendbar und verfällt in 15 Minuten.
 
@@ -535,7 +536,7 @@ Ihr Cinehub-Team
         <p>wir bedauern Ihnen mitteilen zu müssen, dass die Vorstellung von ${show[0].Film.title} am ${show[0].Showing.date} um ${show[0].Showing.time} leider abgesagt werden muss.</p>        
         <p>Wir bitten Sie um Ihr Verständnis und entschuldigen uns für die Unannehmlichkeiten.</p>
         
-        <p>Sie können für Ihr Ticket <a href="http://localhost:5173/refund">hier</a> eine volle Rückerstattung erhalten oder gegen ein Ticket für eine andere Vorstellung eintauschen.<p>
+        <p>Sie können für Ihr Ticket <a href="${this.PUBLIC_URL}/refund">hier</a> eine volle Rückerstattung erhalten oder gegen ein Ticket für eine andere Vorstellung eintauschen.<p>
         
         <p>Mit freundlichen Grüßen,<p>        
         
@@ -600,7 +601,7 @@ Ihr Cinehub-Team
 				const batch = emails.slice(i, i + batchSize);
 				const emailPromises = batch.map((email) => {
 					// Add unsubscribe footer for each email
-					const unsubscribeUrl = `${PUBLIC_URL}/api/unsubscribe/${encodeURIComponent(email)}`;
+					const unsubscribeUrl = `${this.PUBLIC_URL}/api/unsubscribe/${encodeURIComponent(email)}`;
 					const emailWithUnsubscribe = `
           ${htmlContent}
           <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-family: Arial, sans-serif; font-size: 14px; color: #64748b;">
