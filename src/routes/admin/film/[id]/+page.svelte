@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { goto } from '$app/navigation';
 	import ShowsByDate from '$lib/components/ShowsByDate.svelte';
 	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import type { PageData } from './$types';
 	import type { Film, freeSlots, Showing } from './+page.server.js';
+	import * as m from '$lib/paraglide/messages.js';
 
 	let { data }: { data: PageData } = $props();
 	let { film, shows, halls, priceSets } = data;
@@ -13,7 +13,6 @@
 	let activeTab: 'details' | 'shows' = $state('details');
 
 	function toggleShowForm() {
-		// showAddShowForm = !showAddShowForm;
 		languageAwareGoto("/admin/show/create/"+ film.id)
 	}
 
@@ -28,27 +27,26 @@
 	<div class="film-edit-container">
 		{#if film}
 			<div class="header">
-				<h2>Film bearbeiten: {film.title}</h2>
+				<h2>{m.edit_movie({})}: {film.title}</h2>
 				<form method="post" action="?/delete">
 					<div class="form-actions" style="margin: 0;">
-						<button style="background-color: red;">Löschen</button>
+						<button style="background-color: red;">{m.delete_something({})}</button>
 					</div>
 				</form>
 			</div>
 
-			<!-- Tabs -->
 			<div class="tabs">
 				<button
 					class={`tab ${activeTab === 'details' ? 'active' : ''}`}
 					onclick={() => (activeTab = 'details')}
 				>
-					Film Details
+					{m.movie_details({})}
 				</button>
 				<button
 					class={`tab ${activeTab === 'shows' ? 'active' : ''}`}
 					onclick={() => (activeTab = 'shows')}
 				>
-					Vorstellungen
+					{m.shows({})}
 				</button>
 			</div>
 
@@ -57,45 +55,45 @@
 					<div class="form-columns">
 						<div class="form-column">
 							<div class="form-group">
-								<label for="title">Titel:</label>
+								<label for="title">{m.title()}:</label>
 								<input name="title" bind:value={film.title} type="text" required />
 							</div>
 
 							<div class="form-group">
-								<label for="genre">Genre:</label>
+								<label for="genre">{m.genre()}:</label>
 								<input name="genre" bind:value={film.genres} type="text" required />
 							</div>
 
 							<div class="form-group">
-								<label for="runtime">Laufzeit:</label>
+								<label for="runtime">{m.runtime()}:</label>
 								<input readonly name="runtime" bind:value={film.runtime} type="text" required />
 							</div>
 						</div>
 						<div class="form-column">
 							<div class="form-group">
-								<label for="director">Regisseur:</label>
+								<label for="director">{m.director()}:</label>
 								<input name="director" bind:value={film.director} type="text" required />
 							</div>
 
 							<div class="form-group">
-								<label for="description">Beschreibung:</label>
+								<label for="description">{m.description()}:</label>
 								<textarea name="description" bind:value={film.description} required></textarea>
 							</div>
 						</div>
 					</div>
 
 					<div class="form-actions">
-						<button type="submit">Speichern</button>
+						<button type="submit">{m.save({})}</button>
 					</div>
 				</form>
 			{:else}
 				<div class="shows-section">
 					<div class="shows-header">
-						<h3>Vorstellungen</h3>
+						<h3>{m.shows({})}</h3>
 						<button
 							onclick={toggleShowForm}
 							class="add-show-button"
-							aria-label="Vorstellung hinzufügen"
+							aria-label={m.add_show({})}
 						>
 							+
 						</button>
@@ -105,7 +103,7 @@
 				</div>
 			{/if}
 		{:else}
-			<p class="not-found">Film nicht gefunden</p>
+			<p class="not-found">{m.movie_not_found({})}</p>
 		{/if}
 	</div>
 </div>
@@ -114,11 +112,11 @@
 	<div class="popup-overlay">
 		<div class="popup-content">
 			<button class="close-popup" onclick={toggleShowForm}>&times;</button>
-			<h3>Neue Vorstellung hinzufügen</h3>
+			<h3>{m.add_new_show({})}</h3>
 
 			{#if slots && slots.length > 0}
 				<div class="free-slots">
-					<h4>Freie Slots</h4>
+					<h4>{m.free_slots({})}</h4>
 					<div class="slots-list">
 						{#each slots as slot}
 							<form action="?/save" method="POST" onsubmit={() => selectSlot(slot)}>
@@ -136,30 +134,24 @@
 					</div>
 				</div>
 			{:else}
-				<form
-					method="post"
-					action="?/create"
-					name="create"
-					use:enhance={() => {
-						return async ({ result, update }) => {
-							if (result.type === 'success' && result.data?.slots) {
-								slots = result.data.slots as freeSlots[];
-							}
-							await update();
-						};
-					}}
-					class="add-show-form"
-				>
+				<form method="post" action="?/create" name="create" use:enhance={() => {
+					return async ({ result, update }) => {
+						if (result.type === 'success' && result.data?.slots) {
+							slots = result.data.slots as freeSlots[];
+						}
+						await update();
+					};
+				}} class="add-show-form">
 					<div class="form-group">
-						<label for="hall">Saal:</label>
+						<label for="hall">{m.hall()}:</label>
 						<select name="hall">
 							{#each halls as hall}
-								<option value={hall.id}>Saal {hall.name}</option>
+								<option value={hall.id}>{m.hall({})} {hall.name}</option>
 							{/each}
 						</select>
 					</div>
 					<div class="form-group">
-						<label for="priceSet">Preisset:</label>
+						<label for="priceSet">{m.price_set()}:</label>
 						<select name="priceSet">
 							{#each priceSets as set}
 								<option value={set.id}>{set.name}</option>
@@ -167,11 +159,11 @@
 						</select>
 					</div>
 					<div class="form-group">
-						<label for="date">Datum:</label>
+						<label for="date">{m.date()}:</label>
 						<input name="date" type="date" required />
 					</div>
 					<div class="form-actions">
-						<button type="submit">Freie Slots laden</button>
+						<button type="submit">{m.load_free_slots({})}</button>
 					</div>
 				</form>
 			{/if}

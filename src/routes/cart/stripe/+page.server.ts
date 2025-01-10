@@ -1,40 +1,22 @@
-import Stripe from 'stripe'
-const SECRET_STRIPE_KEY = import.meta.env.VITE_SECRET_STRIPE_KEY
-const DOMAIN = import.meta.env.VITE_DOMAIN
+// fetch matching Tickets (ticket.bookingId = bookingId) from DB => tickets can be shown on their on in the checkout windows
 
-const stripe = new Stripe(SECRET_STRIPE_KEY);
-const return_url = new URL(
-  '/examples/embedded-checkout/thanks?session_id={CHECKOUT_SESSION_ID}',
-  DOMAIN
-).toString()
+// add method that calculates the total price based on the singular tickets and the applied discount (read from booking table)
 
-export async function load() {
-  const price = await stripe.prices.create({
-    currency: 'eur',
-    unit_amount: 1000,
-    // recurring: {
-    //   interval: 'month',
-    // },
-    product_data: {
-      name: 'Irgendein Preis 10er',
-    },
-  });
+import { db } from '$lib/server/db';
+import { booking } from '$lib/server/db/schema';
+import { fail } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
 
-  const session = await stripe.checkout.sessions.create({
-    ui_mode: 'embedded',
-    line_items: [
-      {
-        price: price.id,
-        quantity: 1
-      }
-    ],
-    mode: 'payment',
-    return_url
-  })
+export const load = async ({ locals }) => {
+    const userId = locals.user!.id
 
-  console.log("Created a price + a session which expires at: " + session.expires_at)
+    const foundBookings = await db.select().from(booking).where(eq(booking.userId, userId));
 
-  return {
-    clientSecret: session.client_secret
-  }
-}
+    if(foundBookings.length == 0) {
+        return fail(400)
+    }
+
+    return {
+        booking: foundBookings[0],
+    };
+};

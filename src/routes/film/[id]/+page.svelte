@@ -34,43 +34,43 @@
 		}
 	}
 
-	function getGermanAgeRating(englishRating : string) {
+	function getGermanAgeRating(englishRating: string) {
 		switch (englishRating) {
 			case 'G':
-				return 'FSK 0';
+				return m.fsk_0({});
 			case 'PG':
-				return 'FSK 6';
+				return m.fsk_6({});
 			case 'PG-13':
-				return 'FSK 12';
+				return m.fsk_12({});
 			case 'R':
-				return 'FSK 16';
+				return m.fsk_16({});
 			case 'NC-17':
-				return 'FSK 18';
+				return m.fsk_18({});
 			default:
 				return englishRating;
 		}
 	}
 </script>
 
-{#if movie}
-	<div class="movie-details">
-		<img id="background" src={movie.backdrop} alt="{movie.title} Poster" />
-		<!-- <a href="/film/{hoveredMovie.id}">
-		<img id="poster" src={hoveredMovie.poster} alt="{hoveredMovie.title} Poster" /></a
-	> -->
-		<iframe
-			id="poster"
-			width="500"
-			height="300"
-			src={$trailerUrl}
-			frameborder="0"
-			allow="autoplay; encrypted-media"
-			allowfullscreen
-			title="Trailer"
-		></iframe>
-		<h3>{movie.title}</h3>
-		<p>{movie.description}</p>
+<div class="black-background">
+	{#if movie}
+<div class="movie-details">
+	<div class="background-overlay">
+		<img id="background" src={movie.backdrop} alt={`${movie.title} ${m.movie_poster({})}`} />
 	</div>
+	<iframe
+		id="poster"
+		width="500"
+		height="300"
+		src={$trailerUrl}
+		frameborder="0"
+		allow="autoplay; encrypted-media"
+		allowfullscreen
+		title={m.trailer({})}
+	></iframe>
+	<h3>{movie.title}</h3>
+	<p>{movie.description}</p>
+</div>
 
 	<div class="additional-info">
 		<div class="bar-item grey">{m.directed_by({})} {movie.director}</div>
@@ -82,40 +82,58 @@
 		{/each}
 	</div>
 
-	<!-- <div class="information">
-		<div class="details">
-			<h1>{movie?.title ?? $page.params.id}</h1>
-			<p>{movie.description}</p>
-			<p><strong>Erscheinungsdatum:</strong> {movie.year}</p>
-			<button class="trailer-button" onclick={fetchTrailer}>Trailer ansehen</button>
-		</div>
-		<img class="poster" src={movie.poster} alt={movie.title} />
-	</div> -->
 	{#if shows.length > 0}
-	<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
-	<ShowsFilmDropdown {shows} movies={[movie]} />
+		<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
+		<ShowsFilmDropdown {shows} movies={[movie]} />
+		<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
+		<ShowsFilmDropdown {shows} movies={[movie]} />
 	{/if}
-
 {:else}
-	<p>Der Film wurde nicht gefunden.</p>
+	<p>{m.movie_not_found({})}</p>
 {/if}
+</div>
 
 <style>
-	.movie-details {
-		position: relative;
-		overflow: hidden;
-		background-color: white;
-		padding: 20px;
-		padding-bottom: 0;
-		border-radius: 10px;
-		z-index: 1;
-	}
-
-	#background {
+	.black-background {
+		background-color: black;
+		color: white;
 		width: 100%;
-		height: 450px;
-		object-fit: cover;
+		box-sizing: border-box; /* Inklusive Padding im Layout */
 	}
+	.movie-details {
+	position: relative;
+	overflow: hidden;
+	background-color: white;
+	justify-content: flex-end;
+	z-index: 1;
+}
+
+/* Create the gradient overlay */
+.background-overlay {
+	position: relative;
+	width: 100%;
+		height: 70vh; /* 70% der Displayhöhe */
+	overflow: hidden;
+}
+
+#background {
+	width: 100%;
+	height: auto;
+	object-fit: cover;
+	display: block;
+}
+
+/* Gradient for the fade effect */
+.background-overlay::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 60%; /* Adjust height for the fade area */
+	background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+	pointer-events: none; /* Ensure it doesn't block interactions */
+}
 
 	#poster {
 		position: absolute;
@@ -155,8 +173,9 @@
 		flex-wrap: wrap; /* Allow items to wrap to the next line */
 		gap: 1rem; /* Space between items */
 		width: 100%;
-		padding: 20px;
-		justify-content: space-around;
+		padding: 8px;
+		align-items: flex-start; /* Vertikale Ausrichtung (optional) */
+	justify-content: flex-start; /* Links ausgerichtet */
 	}
 
 	.bar-item {
@@ -166,6 +185,7 @@
 	}
 
 	.grey {
-		background-color: #f0f0f0; /* Light gray background */
+	background-color: rgba(240, 240, 240, 0.15); /* Light gray background with 25% opacity */
 	}
+
 </style>

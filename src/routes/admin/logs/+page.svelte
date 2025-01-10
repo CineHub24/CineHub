@@ -1,18 +1,19 @@
 <script lang="ts">
+	import * as m from '$lib/paraglide/messages.js';
 	const { data } = $props();
 	const { logs } = data;
 </script>
 
 <div class="container">
-	<h1 class="py-4">System Logs</h1>
+	<h1 class="mb-4 text-2xl font-bold">{m.system_logs({})}</h1>
 	<table class="logs-table">
 		<thead>
 			<tr>
-				<th>ID</th>
-				<th>Level</th>
-				<th>Message</th>
-				<th>Metadata</th>
-				<th>Timestamp</th>
+				<th>{m.id({})}</th>
+				<th>{m.level({})}</th>
+				<th>{m.message({})}</th>
+				<th>{m.metadata({})}</th>
+				<th>{m.timestamp({})}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -22,7 +23,7 @@
 					<td class={log.level}>{log.level}</td>
 					<td>{log.message}</td>
 					<td><pre>{JSON.stringify(log.metadata, null, 2)}</pre></td>
-					<td>{log.createdAt ? new Date(log.createdAt).toLocaleString() : 'N/A'}</td>
+					<td>{log.createdAt ? new Date(log.createdAt).toLocaleString() : m.not_available({})}</td>
 				</tr>
 			{/each}
 		</tbody>
