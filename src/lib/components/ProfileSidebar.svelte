@@ -1,20 +1,10 @@
 <script lang="ts">
 	import {
-		LayoutDashboard,
-		Film,
-		CalendarCheck,
-		DollarSign,
-		Building,
-		Columns,
+		Tickets,
+		UserRoundPen,
+        Film,
 		ChevronRight,
-		ChevronLeft,
-		Logs,
-
-		PercentCircle,
-
-		Newspaper
-
-
+		ChevronLeft
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as m from '$lib/paraglide/messages.js';
@@ -23,19 +13,15 @@
 	let isMouseOverSidebar = false;
 
 	const sections = [
-		{ id: 'dashboard', icon: LayoutDashboard, label: m.dashboard({}), path: '/admin' },
-		{ id: 'movies', icon: Film, label: m.movies({}), path: '/admin/films' },
-		{ id: 'pricing', icon: DollarSign, label: m.pricing({}), path: '/admin/pricing' },
-		{ id: 'cinemas', icon: Building, label: m.cinemas({}), path: '/admin/cinemas' },
-		{ id: 'halls', icon: Columns, label: m.halls({}), path: '/admin/rooms' },
-		{ id: 'newsletter', icon: Newspaper, label: 'Newsletter', path: '/admin/newsletter' },
-		{ id: 'logs', icon: Logs, label: m.system_logs({}), path: '/admin/logs' }
+		{ id: 'profile', icon: UserRoundPen, label: 'Profile Data', path: '/profile' },
+		{ id: 'tickets', icon: Tickets, label: 'Tickets', path: '/profile/tickets' },
+		{ id: 'bookings', icon: Film, label: 'Bookings', path: '/profile/bookings' },
 	];
 	$: currentPath = $page.url.pathname;
 
 	function isActive(sectionPath: string) {
-		if (sectionPath === '/admin') {
-			return currentPath === '/admin' || currentPath === '/de/admin' || currentPath === '/en/admin';
+		if (sectionPath === '/profile') {
+			return currentPath === '/profile' || currentPath === '/de/profile' || currentPath === '/en/profile';
 		}
 		return (
 			currentPath.startsWith(sectionPath) ||
@@ -74,7 +60,7 @@
 >
 	<div class="flex items-center justify-between border-b p-5 text-center text-xl font-bold">
 		{#if isMenuExpanded}
-			<span>{m.cinema_admin({})}</span>
+			<span>{'Profile'}</span>
 		{/if}
 		<button on:click={toggleMenu} class="ml-auto">
 			{#if isMenuExpanded}

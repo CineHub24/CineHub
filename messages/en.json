@@ -290,6 +290,20 @@
 	"enter_amount": "Enter amount",
 	"expiration_date": "Expiration Date",
 
+	"seat_selection_for": "Seat Selection for",
+	"seats_successfully_booked": "Seats successfully booked!",
+	"selected_seats": "Selected Seats",
+	"seat": "Seat",
+	"total": "Total",
+	"book_selected_seats": "Book Selected Seats",
+	"no_seats_selected": "No seats selected.",
+	"screen": "Screen",
+	"standard": "Standard",
+	"premium": "Premium",
+	"vip": "VIP",
+	"booked": "Booked",
+	
+
 	"enter_email_reset_password":"Enter your email to reset your password",
 	"enter_email_reset_password_button":"Reset Password",
 	"back_to_login":"Back to Login",

@@ -2,6 +2,8 @@
 	import QRCode from 'qrcode';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
+	import { TicketCheck } from 'lucide-svelte'; 
+
 
 	export let data: PageData;
 
@@ -48,8 +50,20 @@
 </script>
 
 {#if Object.keys(groupedTickets).length === 0}
-	<div class="flex h-[80vh] items-center justify-center">
-		<p class="text-center italic text-gray-500">Du hast noch keine Tickets gekauft.</p>
+	<div class="flex min-h-screen flex-col items-center justify-center bg-gray-50">
+		<div class="text-center">
+			<TicketCheck size={64} class="mx-auto mb-4 text-gray-400" />
+			<h2 class="mb-2 text-2xl font-semibold text-gray-800">
+				Sie haben zur Zeit keine Tickets
+			</h2>
+			<p class="mb-6 text-gray-600">Entdecken Sie unsere Programm</p>
+			<a
+				href="/"
+				class="inline-block rounded-md bg-gray-200 px-6 py-3 font-medium text-gray-700 transition duration-300 hover:bg-gray-300"
+			>
+				Zum Programm
+			</a>
+		</div>
 	</div>
 {/if}
 

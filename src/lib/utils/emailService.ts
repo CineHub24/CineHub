@@ -19,6 +19,8 @@ import PDFDocument from 'pdfkit';
 import path from 'path';
 import QRCode from 'qrcode';
 import axios from 'axios';
+
+import { PUBLIC_URL } from '$env/static/public';
 export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
@@ -33,6 +35,7 @@ export class EmailService {
 			}
 		});
 		this.gmailUser = gmailUser;
+		this.logoPath = path.join(process.cwd(), 'static', 'favicon_white_bg.png');
 		this.logoPath = path.join(process.cwd(), 'static', 'favicon_white_bg.png');
 	}
 	private async generatePDFTicket(ticketInfo: {
@@ -587,6 +590,37 @@ Ihr Cinehub-Team
 		});
 
 		return calendar.toString();
+	}
+
+	async sendNewsletter(emails: string[], subject: string, htmlContent: string): Promise<void> {
+		try {
+			// Send emails in batches of 50 to avoid overwhelming the mail server
+			const batchSize = 50;
+			for (let i = 0; i < emails.length; i += batchSize) {
+				const batch = emails.slice(i, i + batchSize);
+				const emailPromises = batch.map((email) => {
+					// Add unsubscribe footer for each email
+					const unsubscribeUrl = `${PUBLIC_URL}/api/unsubscribe/${encodeURIComponent(email)}`;
+					const emailWithUnsubscribe = `
+          ${htmlContent}
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-family: Arial, sans-serif; font-size: 14px; color: #64748b;">
+              <a href="${unsubscribeUrl}" style="color: #64748b; text-decoration: underline;">Newsletter abbestellen</a>
+          </div>
+          `;
+
+					return this.transporter.sendMail({
+						from: `"CineHub Newsletter" <${this.gmailUser}>`,
+						to: email,
+						subject: subject,
+						html: emailWithUnsubscribe
+					});
+				});
+				await Promise.all(emailPromises);
+			}
+		} catch (error) {
+			console.error('Fehler beim Versenden der Newsletter:', error);
+			throw new Error('Newsletter konnte nicht versendet werden');
+		}
 	}
 }
 export interface fullTicket {
