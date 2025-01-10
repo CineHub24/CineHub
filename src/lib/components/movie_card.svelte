@@ -23,7 +23,7 @@
 			<button class="button trailer-button" on:click={openTrailer}>
 				Trailer
 			</button>
-			<a href={url} class="button tickets-button">Tickets</a>
+			<a href={url} class="button tickets-button">Details</a>
 		</div>
 	</div>
 </div>
@@ -37,8 +37,8 @@
 		overflow: hidden;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		transition: transform 0.2s;
-		height: 320px;
-		width: 175px;
+		height: 290px;
+		width: 170px;
 		cursor: pointer;
 	}
 	.movie-card:hover {

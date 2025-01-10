@@ -10,7 +10,10 @@
 		ChevronLeft,
 		Logs,
 
-		PercentCircle
+		PercentCircle,
+
+		Newspaper
+
 
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
@@ -26,6 +29,7 @@
 		{ id: 'discounts', icon: PercentCircle, label: m.discounts({}), path: '/admin/discounts' },
 		{ id: 'cinemas', icon: Building, label: m.cinemas({}), path: '/admin/cinemas' },
 		{ id: 'halls', icon: Columns, label: m.halls({}), path: '/admin/rooms' },
+		{ id: 'newsletter', icon: Newspaper, label: 'Newsletter', path: '/admin/newsletter' },
 		{ id: 'logs', icon: Logs, label: m.system_logs({}), path: '/admin/logs' }
 	];
 	$: currentPath = $page.url.pathname;
