@@ -176,7 +176,8 @@ export const priceDiscount = pgTable('PriceDiscount', {
 	code: text('code').notNull(),
 	value: decimal('value', { precision: 10, scale: 2 }).notNull(),
 	discountType: discountTypesEnum('discountType').default('percentage').notNull(),
-	expiresAt: date('expiresAt')
+	expiresAt: date('expiresAt'),
+	name: text('name')
 });
 
 export const ticket = pgTable('Ticket', {
