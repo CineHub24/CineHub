@@ -10,6 +10,7 @@ import {
 	ticket,
 	ticketType,
 	user,
+	type Discount,
 	type Showing,
 	type Ticket
 } from '$lib/server/db/schema';
@@ -591,6 +592,35 @@ Ihr Cinehub-Team
 		});
 
 		return calendar.toString();
+	}
+	async sendDiscountCode(email: string, discount:Discount ): Promise<void> {
+		console.log('discount', discount);
+		console.log('email', email);
+		const emailContent = `
+	  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+	  <p>Hey Filmfan,</p>
+	  
+	  <p>wir freuen uns, Ihnen einen Rabattcode für Ihren nächsten Kinobesuch anzubieten.</p>
+	  
+	  <p>Rabattcode: ${discount.code}</p>
+	  <p>Wert: ${discount.value} ${discount.discountType === 'percentage' ? '%' : '€'}</p>
+	  <p>Gültig bis: ${discount.expiresAt}</p>
+	  
+	  <p>Ihr Cinehub-Team</p>
+	  </div>
+	  `;
+
+		try {
+			await this.transporter.sendMail({
+				from: `"CineHub" <${this.gmailUser}>`,
+				to: email,
+				subject: `Ihr Rabattcode für CineHub`,
+				html: emailContent
+			});
+		} catch (error) {
+			console.error('Fehler beim Versenden der E-Mail:', error);
+			throw new Error('E-Mail konnte nicht versendet werden');
+		}
 	}
 
 	async sendNewsletter(emails: string[], subject: string, htmlContent: string): Promise<void> {
