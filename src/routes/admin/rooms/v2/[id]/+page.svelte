@@ -47,28 +47,57 @@
 
     let name = data.room?.name ?? '';
     let selectedCinemaId: number | null = data.room?.cinemaId ?? null;
-    let blocks: Block[] = data.seats ;
+
     let isSubmitting = false;
 
-    $: {
+    let blocks: Block[] = data.seats?.map(seat => ({
+    ...seat,
+    left: Number(seat.left),
+    top: Number(seat.top),
+    rotation: Number(seat.rotation),
+    row: seat.row,
+    number: seat.seatNumber,
+    id: Number(seat.id),
+    categoryId: Number(seat.categoryId)
+})) ?? [];
+
+onMount(() => {
     if (data.seats) {
+        // First, wait for workspace element to be available and measured
+        const workspaceRect = workspace.getBoundingClientRect();
+        
+        // Place blocks initially in absolute positions
         blocks = data.seats.map(seat => ({
             ...seat,
-            // Ensure positions are numbers
             left: Number(seat.left),
             top: Number(seat.top),
             rotation: Number(seat.rotation),
             row: seat.row,
             number: seat.seatNumber,
-            // Ensure ID is a number
             id: Number(seat.id),
             categoryId: Number(seat.categoryId)
         }));
+
+        // Now center the entire layout
+        const bounds = calculateLayoutBounds(blocks, getBlockDimensions);
+        const targetCenterX = workspaceRect.width / 2;
+        const targetCenterY = workspaceRect.height / 2;
+        
+        // Calculate the offset needed to center the layout
+        const offsetX = targetCenterX - bounds.centerX;
+        const offsetY = targetCenterY - bounds.centerY;
+
+        // Apply the offset to all blocks
+        blocks = blocks.map(block => ({
+            ...block,
+            left: block.left + offsetX,
+            top: block.top + offsetY
+        }));
     }
-}
+});
     
     let nameError = '';
-    let   cinemaError = '';
+    let  cinemaError = '';
     let  rowError = '';
 
     let isDragging = false;
@@ -84,6 +113,79 @@
     let dragState: DragState | null = null;
 
     let saveStatus: 'idle' | 'success' | 'error' = 'idle';
+
+
+function calculateLayoutBounds(blocks: Block[], getBlockDimensions: (categoryId: number) => { width: number; height: number }) {
+    if (blocks.length === 0) {
+        return { minX: 0, maxX: 0, minY: 0, maxY: 0, centerX: 0, centerY: 0 };
+    }
+
+    // Calculate bounds including block dimensions
+    const bounds = blocks.reduce((bounds, block) => {
+        const { width, height } = getBlockDimensions(block.categoryId);
+        const right = block.left + width;
+        const bottom = block.top + height;
+
+        return {
+            minX: Math.min(bounds.minX, block.left),
+            maxX: Math.max(bounds.maxX, right),
+            minY: Math.min(bounds.minY, block.top),
+            maxY: Math.max(bounds.maxY, bottom)
+        };
+    }, {
+        minX: Infinity,
+        maxX: -Infinity,
+        minY: Infinity,
+        maxY: -Infinity
+    });
+
+    // Calculate center point
+    const centerX = bounds.minX + (bounds.maxX - bounds.minX) / 2;
+    const centerY = bounds.minY + (bounds.maxY - bounds.minY) / 2;
+
+    return { ...bounds, centerX, centerY };
+}
+
+function normalizePositions(blocks: Block[], getBlockDimensions: (categoryId: number) => { width: number; height: number }): Block[] {
+    const bounds = calculateLayoutBounds(blocks, getBlockDimensions);
+    
+    return blocks.map(block => {
+        const { width, height } = getBlockDimensions(block.categoryId);
+        
+        // Calculate block center position
+        const blockCenterX = block.left + width / 2;
+        const blockCenterY = block.top + height / 2;
+        
+        // Return new block with positions relative to layout center
+        return {
+            ...block,
+            left: blockCenterX - bounds.centerX,
+            top: blockCenterY - bounds.centerY
+        };
+    });
+}
+
+function denormalizePositions(
+    blocks: Block[], 
+    getBlockDimensions: (categoryId: number) => { width: number; height: number },
+    targetCenterX: number,
+    targetCenterY: number
+): Block[] {
+    return blocks.map(block => {
+        const { width, height } = getBlockDimensions(block.categoryId);
+        
+        // Convert back to absolute positions
+        const absoluteCenterX = targetCenterX + block.left;
+        const absoluteCenterY = targetCenterY + block.top;
+        
+        return {
+            ...block,
+            left: absoluteCenterX - width / 2,
+            top: absoluteCenterY - height / 2
+        };
+    });
+}
+
 
     function getBlockDimensions(categoryId: number): { width: number; height: number } {
         const category = data.categories.find(c => c.id === categoryId);
@@ -806,16 +908,18 @@ async function handleSave() {
 
     isSubmitting = true;
     saveStatus = 'idle';
+// Normalize the positions before saving
+        const normalizedBlocks = normalizePositions(blocks, getBlockDimensions);
+        
+        const form = new FormData();
+        form.append('isCreate', data.isCreate.toString());
+        form.append('name', name);
+        form.append('layout', JSON.stringify(normalizedBlocks));
+        form.append('cinemaId', selectedCinemaId.toString());
 
-    const form = new FormData();
-    form.append('isCreate', data.isCreate.toString());
-    form.append('name', name);
-    form.append('layout', JSON.stringify(blocks));
-    form.append('cinemaId', selectedCinemaId.toString());
-
-    if (!data.isCreate && data.room) {
-        form.append('id', data.room.id.toString());
-    }
+        if (!data.isCreate && data.room) {
+            form.append('id', data.room.id.toString());
+        }
 
     try {
         const response = await fetch('?/save', {
@@ -898,30 +1002,6 @@ async function handleSave() {
             document.removeEventListener('mouseup', handleMouseUp);
         };
     });
-
-    async function submitForm() {
-    const form = new FormData();
-    form.append('isCreate', data.isCreate.toString());
-    form.append('name', name);
-    form.append('layout', JSON.stringify(blocks)); // blocks now include row and number
-
-    if (!data.isCreate) {
-        form.append('id', room.id.toString()); // 'room' is undefined
-    }
-
-    const response = await fetch('?/save', {
-        method: 'POST',
-        body: form
-    });
-
-    const result = await response.json();
-    if (result.success) {
-        alert('Room saved successfully!');
-        // Optionally, redirect or update UI
-    } else {
-        alert(`Error: ${result.message}`);
-    }
-}
 
 </script>
 

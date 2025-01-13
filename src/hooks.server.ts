@@ -64,6 +64,22 @@ const handleInspector: Handle = async ({ event, resolve }) => {
 const handleParaglide: Handle = i18n.handle();
 
 const handle: Handle = async ({ event, resolve }) => {
+
+	if (event.url.pathname.startsWith('/api/seats/') && event.url.pathname.endsWith('/stream')) {
+		// Set required headers for SSE
+		const response = await resolve(event, {
+			transformPageChunk: ({ html }) => html
+		});
+
+		// Ensure the connection stays alive
+		response.headers.set('Connection', 'keep-alive');
+		response.headers.set('Cache-Control', 'no-cache, no-transform');
+		response.headers.set('Content-Type', 'text/event-stream');
+		response.headers.set('X-Accel-Buffering', 'no');
+
+		return response;
+	}
+
 	if (event.url.pathname.startsWith('/admin')) {
 		return sequence(handleAuth, handleAdmin, handleParaglide)({ event, resolve });
 	}
@@ -72,5 +88,6 @@ const handle: Handle = async ({ event, resolve }) => {
 	}
 	return sequence(handleAuth, handleParaglide)({ event, resolve });
 };
+
 
 export { handle };
