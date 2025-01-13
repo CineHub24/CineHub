@@ -29,6 +29,7 @@ export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
 	logoPath: string;
+	private PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL;
 
 	constructor(gmailUser: string, gmailAppPassword: string) {
 		this.transporter = nodemailer.createTransport({
@@ -349,55 +350,107 @@ export class EmailService {
     <p>Mit freundlichen Grüßen,<br>Ihr CineHub-Team</p>
     </div>
     `;
-		}
-		// Überprüfen, ob Gutscheincodes gekauft wurden
-		if (newDiscounts && newDiscounts.length > 0) {
-			emailContent += `
-  <h2>Ihre gekauften Gutscheincodes:</h2>
-  <div style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
-  `;
+  }
+  // Überprüfen, ob Gutscheincodes gekauft wurden
+  if (newDiscounts && newDiscounts.length > 0) {
+    emailContent += `
+<h2>Ihre gekauften Gutscheincodes:</h2>
+<div style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+`;
 
-			for (const code of newDiscounts) {
-        if(code) {
-          emailContent += `
-          <p><strong>Code:</strong> ${code.code}</p>
-          <p><strong>Wert:</strong> ${code.value} €</p>
-          ${code.expiresAt ? `<p><strong>Gültig bis:</strong> ${new Date(code.expiresAt).toLocaleDateString()}</p>` : ''}
-          <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-          `;
-        }
-			}
+    for (const code of newDiscounts) {
+      if(code) {
+        emailContent += `
+        <p><strong>Code:</strong> ${code.code}</p>
+        <p><strong>Wert:</strong> ${code.value} €</p>
+        ${code.expiresAt ? `<p><strong>Gültig bis:</strong> ${new Date(code.expiresAt).toLocaleDateString()}</p>` : ''}
+        <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
+        `;
+      }
+    }
 
-			emailContent += '</div>';
-		}
+    emailContent += '</div>';
+  }
+    
+    // Generiere ICS-Dateien für jede Vorstellung
+    const icsPromises = Object.values(ticketsByShowing).map(showingTickets =>
+    this.generateICSFile(showingTickets[0])
+    );
+    const icsContents = await Promise.all(icsPromises);
+    
+    // Sende E-Mail mit PDF-Anhängen und ICS-Dateien
+    try {
+    await this.transporter.sendMail({
+    from: `"CineHub Ticket Service" <${this.gmailUser}>`,
+    to: recipientEmail,
+    subject: `Ihre Buchungsbestätigung`,
+    html: emailContent,
+    attachments: [
+    // PDF Tickets
+    ...pdfBuffers.map((buffer, index) => ({
+    filename: `ticket-${tickets[index].Ticket.id}.pdf`,
+    content: buffer,
+    contentType: 'application/pdf'
+    })),
+    // ICS Dateien
+    ...icsContents.map((content, index) => ({
+    filename: `kinovorstellung-${index + 1}.ics`,
+    content: content,
+    contentType: 'text/calendar'
+    }))
+    ]
+    });
+    } catch (error) {
+    console.error('Fehler beim Versenden der E-Mail:', error);
+    throw new Error('E-Mail konnte nicht versendet werden');
+    }
+    }
 
-		// Generiere ICS-Dateien für jede Vorstellung
-		const icsPromises = Object.values(ticketsByShowing).map((showingTickets) =>
-			this.generateICSFile(showingTickets[0])
-		);
-		const icsContents = await Promise.all(icsPromises);
+	async sendResetPasswordEmail(resetToken: string, recipientEmail: string): Promise<void> {
+		const emailContent = `
+      Hallo,
 
-		// Sende E-Mail mit PDF-Anhängen und ICS-Dateien
+Wir haben deine Anfrage zur Passwort-Zurücksetzung erhalten.
+
+Klicke auf den folgenden Link, um ein neues Passwort festzulegen: <a href="${this.PUBLIC_URL}/login/reset-password?token=${resetToken}"> Passwort zurücksetzen </a>
+
+Dieser Link ist nur einmal verwendbar und verfällt in 15 Minuten.
+
+Ihr Cinehub-Team
+      `;
+
 		try {
 			await this.transporter.sendMail({
-				from: `"CineHub Ticket Service" <${this.gmailUser}>`,
+				from: `"CineHub" <${this.gmailUser}>`,
 				to: recipientEmail,
-				subject: `Ihre Buchungsbestätigung`,
-				html: emailContent,
-				attachments: [
-					// PDF Tickets
-					...pdfBuffers.map((buffer, index) => ({
-						filename: `ticket-${tickets[index].Ticket.id}.pdf`,
-						content: buffer,
-						contentType: 'application/pdf'
-					})),
-					// ICS Dateien
-					...icsContents.map((content, index) => ({
-						filename: `kinovorstellung-${index + 1}.ics`,
-						content: content,
-						contentType: 'text/calendar'
-					}))
-				]
+				subject: `Passwort-Zurücksetzung für CineHub`,
+				html: emailContent
+			});
+		} catch (error) {
+			console.error('Fehler beim Versenden der E-Mail:', error);
+			throw new Error('E-Mail konnte nicht versendet werden');
+		}
+	}
+
+	async sendResetPasswordEmail(resetToken: string, recipientEmail: string): Promise<void> {
+		const emailContent = `
+      Hallo,
+
+Wir haben deine Anfrage zur Passwort-Zurücksetzung erhalten.
+
+Klicke auf den folgenden Link, um ein neues Passwort festzulegen: <a href="${this.PUBLIC_URL}/login/reset-password?token=${resetToken}"> Passwort zurücksetzen </a>
+
+Dieser Link ist nur einmal verwendbar und verfällt in 15 Minuten.
+
+Ihr Cinehub-Team
+      `;
+
+		try {
+			await this.transporter.sendMail({
+				from: `"CineHub" <${this.gmailUser}>`,
+				to: recipientEmail,
+				subject: `Passwort-Zurücksetzung für CineHub`,
+				html: emailContent
 			});
 		} catch (error) {
 			console.error('Fehler beim Versenden der E-Mail:', error);
@@ -556,7 +609,7 @@ export class EmailService {
         <p>wir bedauern Ihnen mitteilen zu müssen, dass die Vorstellung von ${show[0].Film.title} am ${show[0].Showing.date} um ${show[0].Showing.time} leider abgesagt werden muss.</p>        
         <p>Wir bitten Sie um Ihr Verständnis und entschuldigen uns für die Unannehmlichkeiten.</p>
         
-        <p>Sie können für Ihr Ticket <a href="http://localhost:5173/refund">hier</a> eine volle Rückerstattung erhalten oder gegen ein Ticket für eine andere Vorstellung eintauschen.<p>
+        <p>Sie können für Ihr Ticket <a href="${this.PUBLIC_URL}/refund">hier</a> eine volle Rückerstattung erhalten oder gegen ein Ticket für eine andere Vorstellung eintauschen.<p>
         
         <p>Mit freundlichen Grüßen,<p>        
         
@@ -611,6 +664,37 @@ export class EmailService {
 		});
 
 		return calendar.toString();
+	}
+
+	async sendNewsletter(emails: string[], subject: string, htmlContent: string): Promise<void> {
+		try {
+			// Send emails in batches of 50 to avoid overwhelming the mail server
+			const batchSize = 50;
+			for (let i = 0; i < emails.length; i += batchSize) {
+				const batch = emails.slice(i, i + batchSize);
+				const emailPromises = batch.map((email) => {
+					// Add unsubscribe footer for each email
+					const unsubscribeUrl = `${this.PUBLIC_URL}/api/unsubscribe/${encodeURIComponent(email)}`;
+					const emailWithUnsubscribe = `
+          ${htmlContent}
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-family: Arial, sans-serif; font-size: 14px; color: #64748b;">
+              <a href="${unsubscribeUrl}" style="color: #64748b; text-decoration: underline;">Newsletter abbestellen</a>
+          </div>
+          `;
+
+					return this.transporter.sendMail({
+						from: `"CineHub Newsletter" <${this.gmailUser}>`,
+						to: email,
+						subject: subject,
+						html: emailWithUnsubscribe
+					});
+				});
+				await Promise.all(emailPromises);
+			}
+		} catch (error) {
+			console.error('Fehler beim Versenden der Newsletter:', error);
+			throw new Error('Newsletter konnte nicht versendet werden');
+		}
 	}
 }
 export interface fullTicket {

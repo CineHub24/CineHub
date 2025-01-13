@@ -12,7 +12,7 @@
 	<div class="mb-8 flex flex-wrap gap-4">
 		<button
 			class="flex items-center gap-2 rounded bg-blue-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-blue-600"
-			onclick={() => languageAwareGoto('/admin/pricing')}
+			onclick={() => languageAwareGoto('/admin/discounts')}
 		>
 			<ArrowBigLeft class="h-5 w-5" />
 			{m.back({})}
