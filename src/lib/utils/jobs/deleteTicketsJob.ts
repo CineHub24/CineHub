@@ -5,9 +5,9 @@ import schedule from 'node-schedule';
 
 // Define the job
 export const deleteOldReservedTicketsJob = () => {
-    console.log('Scheduling job to delete old reserved tickets');
+    // console.log('Scheduling job to delete old reserved tickets');
     schedule.scheduleJob('*/1 * * * *', async () => {
-        console.log('Running job to delete old reserved tickets');
+        // console.log('Running job to delete old reserved tickets');
 
         const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
 
@@ -22,7 +22,7 @@ export const deleteOldReservedTicketsJob = () => {
                     )
                 );
 
-            console.log(oldReservedTickets);
+            // console.log(oldReservedTickets);
 
             if (oldReservedTickets.length > 0) {
                 const deletedCount = await db
@@ -34,12 +34,12 @@ export const deleteOldReservedTicketsJob = () => {
                         )
                     );
 
-                console.log(`${deletedCount} old reserved tickets deleted.`);
+                // console.log(`${deletedCount} old reserved tickets deleted.`);
             } else {
-                console.log('No old reserved tickets found.');
+                // console.log('No old reserved tickets found.');
             }
         } catch (error) {
-            console.error('Error running the ticket deletion job:', error);
+            // console.error('Error running the ticket deletion job:', error);
         }
     });
 };

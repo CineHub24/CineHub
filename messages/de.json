@@ -295,5 +295,17 @@
 	"generate_voucher": "Gutschein generieren",
 	"voucher_summary": "Gutschein Zusammenfassung",
 	"add_to_cart": "Zum Warenkorb hinzufügen",
-	"voucher_code": "Gutscheincode"
+	"voucher_code": "Gutscheincode",
+
+	"current_movies": "Aktuell im Kino",
+	"gift_cards": "Geschenkkarten",
+
+	"discount_not_found": "Rabattcode nicht gefunden oder abgelaufen",
+	"discount_applied": "Rabattcode erfolgreich angewendet",
+	"server_error_discount": "Serverfehler beim Überprüfen des Rabattcodes",
+	"no_valid_id": "Keine gültige ID zum Löschen angegeben",
+	"deleted": "erfolgreich gelöscht",
+	"ticket": "Ticket",
+	"gift_code": "Geschenkgutschein",
+	"server_error_delete": "Serverfehler beim Löschen des Elements"
 }

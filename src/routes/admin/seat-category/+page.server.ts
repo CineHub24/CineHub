@@ -8,19 +8,9 @@ const dbFail = fail(500, { message: m.internal_server_error({}), database: true 
 
 export const load = async ({ url }) => {
 	const seatCategories = await db.select().from(seatCategory).orderBy(seatCategory.price);
-	if (seatCategories.length === 0) {
-		const standard = await db
-			.insert(seatCategory)
-			.values({ id: 0, name: 'Standard', price: '10', description: 'Standard'})
-			.returning();
-		return {
-			seatCategories:standard
-		};
-	} else {
-		return {
-			seatCategories: seatCategories
-		};
-	}
+	return {
+		seatCategories: seatCategories
+	};
 };
 export const actions = {
 	createSeatCategory: async ({ request }) => {

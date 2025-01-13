@@ -122,7 +122,7 @@
 	<div class="absolute left-1/2 -translate-x-1/2 transform flex items-center space-x-16">
 		<!-- Navigation Buttons - shifted left -->
 		<div class="flex space-x-4 -translate-x-8">
-		  <a href="/discount" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+		  <a href="/gift-cards" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
 			{m.buy_discounts({})}
 		  </a>
 		</div>

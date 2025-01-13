@@ -1,5 +1,5 @@
 
-import { price } from '$lib/paraglide/messages';
+import { description, price } from '$lib/paraglide/messages';
 
 import { timeStamp } from 'console';
 
@@ -64,6 +64,7 @@ export type PriceDiscountForInsert = typeof priceDiscount.$inferInsert;
 export type TicketType = typeof ticketType.$inferSelect;
 export type Ticket = typeof ticket.$inferSelect;
 export type Booking = typeof booking.$inferSelect;
+export type GiftCode = typeof giftCodes.$inferSelect;
 
 export const film = pgTable('Film', {
 	id: serial('id').primaryKey(),
@@ -215,4 +216,16 @@ export const logs = pgTable('logs', {
 export const subscribersNewsletter = pgTable('subscribersNewsletter', {
 	id: serial('id').primaryKey(),
 	email: text('email').unique()
+});
+
+export const giftCodes = pgTable('giftCodes', {
+	id: serial('id').primaryKey(),
+	amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
+	description: text('description')
+});
+
+export const giftCodesUsed = pgTable('giftCodesUsed', {
+	id: serial('id').primaryKey(),
+	bookingId: integer('bookingId').references(() => booking.id),
+	giftCodeId: integer('giftCodeId').references(() => giftCodes.id)
 });

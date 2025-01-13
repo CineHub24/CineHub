@@ -15,21 +15,22 @@ import {
 	seatCategory,
 	type PriceSet,
 	type TicketType,
-	type SeatCategory
+	type SeatCategory,
+	giftCodes,
+	giftCodesUsed
 } from '$lib/server/db/schema';
+import type { Decimal } from '@prisma/client/runtime/library';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray } from 'drizzle-orm';
-import type { Tickets } from 'lucide-svelte';
+import * as m from '$lib/paraglide/messages.js';
 
-export interface TicketWithDetails {
-	Ticket: Ticket;
+// Updated interface to match database structure
+interface TicketData {
+	ticket: Ticket;
+	showing: Showing;
+	film: Film;
 	seat: Seat;
-	Showing: Showing;
-	Film: Film;
-	PriceSet: PriceSet;
-	TicketType: TicketType;
-	seatCategory: SeatCategory;
-  }
+}
 
 interface PriceCalculation {
 	basePrice: number;
@@ -38,24 +39,23 @@ interface PriceCalculation {
 		discountType: 'percentage' | 'absolute';
 	} | null;
 	discountedAmount: number;
+	giftCodeAmount: number;
 	vatRate: number;
 	vatAmount: number;
 	total: number;
 }
 
 async function calculatePrices(
-	tickets: {
-		Ticket: Ticket,
-		Showing: Showing,
-		Film: Film,
-		seat: Seat,
-	}[],
-	discount: any | null
+	tickets: TicketData[],
+	discount: any | null,
+	usedGiftCodes: (typeof giftCodes.$inferSelect)[]
 ): Promise<PriceCalculation> {
 	const vatRate = 0.19;
-	const basePrice = tickets.reduce((sum, ticket) => sum + Number(ticket.Ticket.price), 0);
+	const basePrice = tickets.reduce((sum, ticket) => sum + Number(ticket.ticket.price), 0);
 	let discountedPrice = basePrice;
 	let discountedAmount = 0;
+
+	const giftCodeAmount = usedGiftCodes.reduce((sum, code) => sum + Number(code.amount), 0);
 
 	if (discount) {
 		if (discount.discountType === 'percentage') {
@@ -67,21 +67,23 @@ async function calculatePrices(
 		}
 	}
 
-	const vatAmount = discountedPrice * vatRate;
-	console.log(discountedPrice);
+	const totalWithGiftCodes = discountedPrice + giftCodeAmount;
+	const vatAmount = totalWithGiftCodes * vatRate;
+
 	try {
 		await db
 			.update(booking)
 			.set({
 				basePrice: basePrice.toString(),
-				finalPrice: discountedPrice.toString(),
+				finalPrice: totalWithGiftCodes.toString(),
 				discountValue: discountedAmount.toString(),
-				items: tickets.length
+				items: tickets.length + usedGiftCodes.length
 			})
-			.where(eq(booking.id, Number(tickets[0].Ticket.bookingId)));
+			.where(eq(booking.id, Number(tickets[0].ticket.bookingId)));
 	} catch (error) {
 		console.log(error);
 	}
+
 	return {
 		basePrice,
 		discount: discount
@@ -91,17 +93,21 @@ async function calculatePrices(
 				}
 			: null,
 		discountedAmount,
+		giftCodeAmount,
 		vatRate,
 		vatAmount,
-		total: discountedPrice
+		total: totalWithGiftCodes
 	};
 }
 
 export const load = async ({ locals }) => {
 	try {
 		const userId = locals.user!.id;
-		const _booking = await db.select().from(booking).where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
-		console.log(_booking);
+		const _booking = await db
+			.select()
+			.from(booking)
+			.where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
+
 		if (_booking.length === 0) {
 			return {
 				booking: null,
@@ -110,15 +116,26 @@ export const load = async ({ locals }) => {
 					basePrice: 0,
 					discount: null,
 					discountedAmount: 0,
+					giftCodeAmount: 0,
 					vatRate: 0.19,
 					vatAmount: 0,
 					total: 0
 				}
 			};
 		}
+
 		const bookingId = _booking[0].id;
-		const tickets:TicketWithDetails[] = await db
-			.select()
+
+		const tickets = await db
+			.select({
+				ticket: ticket,
+				seat: seat,
+				showing: showing,
+				film: film,
+				priceSet: priceSet,
+				ticketType: ticketType,
+				seatCategory: seatCategory
+			})
 			.from(ticket)
 			.innerJoin(seat, eq(seat.id, ticket.seatId))
 			.innerJoin(showing, eq(showing.id, ticket.showingId))
@@ -127,36 +144,55 @@ export const load = async ({ locals }) => {
 			.innerJoin(ticketType, eq(ticketType.id, ticket.type))
 			.innerJoin(seatCategory, eq(seatCategory.id, seat.categoryId))
 			.where(eq(ticket.bookingId, Number(bookingId)));
-		if (showing === undefined) {
-			return fail(404, { error: true, message: 'Showing not found' });
-		}
-		console.log(bookingId);
-		console.log(tickets);
-		// Calculate initial prices without discount
+
+		const usedGiftCodes = await db
+			.select({
+				id: giftCodes.id,
+				amount: giftCodes.amount,
+				description: giftCodes.description
+			})
+			.from(giftCodesUsed)
+			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
+			.where(eq(giftCodesUsed.bookingId, bookingId));
+
+		const giftCodeAmount = usedGiftCodes.reduce((sum, code) => sum + Number(code.amount), 0);
 		let prices;
 		if (
 			_booking[0].basePrice === null ||
 			_booking[0].finalPrice === null ||
-			_booking[0].items !== tickets.length
+			_booking[0].items !== tickets.length + usedGiftCodes.length
 		) {
-			prices = await calculatePrices(tickets, null);
+			const ticketData: TicketData[] = tickets.map((t) => ({
+				ticket: t.ticket,
+				showing: t.showing,
+				film: t.film,
+				seat: t.seat
+			}));
+			prices = await calculatePrices(ticketData, null, usedGiftCodes);
 		} else {
+			const storedDiscountValue = Number(_booking[0].discountValue) || 0;
 			prices = {
 				basePrice: Number(_booking[0].basePrice),
-				discount: {
-					value: Number(_booking[0].discountValue),
-					discountType: 'none'
-				},
-				discountedAmount: Number(_booking[0].discountValue),
+				discount:
+					storedDiscountValue > 0
+						? {
+								value: storedDiscountValue,
+								discountType: 'none'
+							}
+						: null,
+				discountedAmount: storedDiscountValue,
+				giftCodeAmount: giftCodeAmount,
 				vatRate: 0.19,
 				vatAmount: Number(_booking[0].finalPrice) * 0.19,
 				total: Number(_booking[0].finalPrice)
 			};
 		}
+
 		return {
 			booking: _booking[0],
-			tickets: tickets as TicketWithDetails[],
-			prices: prices
+			tickets,
+			prices,
+			giftCodes: usedGiftCodes
 		};
 	} catch (error) {
 		console.log(error);
@@ -180,46 +216,82 @@ export const actions = {
 					)
 				);
 
+			console.log(discount);
+			console.log(discountCode);
+
 			if (discount.length === 0) {
-				return fail(400, { error: 'Discount code not found or expired' });
+				return fail(400, { error: m.discount_not_found({}) });
 			}
 
-			// Get current booking's tickets to calculate new prices
 			const userId = locals.user!.id;
 			const _booking = await db.select().from(booking).where(eq(booking.userId, userId));
-			const tickets = await db
-			.select()
-			.from(ticket)
-			.innerJoin(seat, eq(seat.id, ticket.seatId))
-			.innerJoin(showing, eq(showing.id, ticket.showingId))
-			.innerJoin(film, eq(film.id, showing.filmid))
-			.where(eq(ticket.bookingId, Number(_booking[0].id)));
 
-			// Calculate new prices with discount
-			const prices = await calculatePrices(tickets, discount[0]);
+			const tickets = await db
+				.select({
+					ticket: ticket,
+					seat: seat,
+					showing: showing,
+					film: film
+				})
+				.from(ticket)
+				.innerJoin(seat, eq(seat.id, ticket.seatId))
+				.innerJoin(showing, eq(showing.id, ticket.showingId))
+				.innerJoin(film, eq(film.id, showing.filmid))
+				.where(eq(ticket.bookingId, Number(_booking[0].id)));
+
+			const usedGiftCodes = await db
+				.select({
+					id: giftCodes.id,
+					amount: giftCodes.amount,
+					description: giftCodes.description
+				})
+				.from(giftCodesUsed)
+				.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
+				.where(eq(giftCodesUsed.bookingId, _booking[0].id));
+
+			const ticketData: TicketData[] = tickets.map((t) => ({
+				ticket: t.ticket,
+				showing: t.showing,
+				film: t.film,
+				seat: t.seat
+			}));
+
+			const prices = await calculatePrices(ticketData, discount[0], usedGiftCodes);
 
 			return {
-				success: 'Discount code applied successfully',
+				success: m.discount_applied({}),
 				discount: discount[0],
 				prices
 			};
 		} catch (error) {
 			console.log(error);
-			return fail(500, { error: 'Server error while checking discount code' });
+			return fail(500, { error: m.server_error_discount({}) });
 		}
 	},
 	delete: async ({ request, locals }) => {
 		const data = await request.formData();
-		const ticketId = data.get('ticketId') as string;
+		const ticketId = data.get('ticketId') as string | null;
+		const giftCodeId = data.get('giftCodeId') as string | null;
 
 		try {
-			await db.delete(ticket).where(eq(ticket.id, Number(ticketId)));
+			if (ticketId) {
+				await db.delete(ticket).where(eq(ticket.id, Number(ticketId)));
+			} else if (giftCodeId) {
+				await db.delete(giftCodesUsed).where(eq(giftCodesUsed.giftCodeId, Number(giftCodeId)));
+			} else {
+				return fail(400, { error: m.no_valid_id({}) });
+			}
+
+			// Refresh booking data
 			await db
 				.update(booking)
 				.set({ basePrice: null, finalPrice: null, discountValue: null, items: null })
 				.where(eq(booking.userId, locals.user!.id));
+
+			return { success: `${ticketId ? m.ticket({}) : m.gift_code({})} ${m.deleted({})}` };
 		} catch (error) {
-			return fail(500, { error: 'Server error while deleting ticket' });
+			console.error(error);
+			return fail(500, { error: m.server_error_delete({}) });
 		}
 	}
 };
