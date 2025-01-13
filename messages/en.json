@@ -287,7 +287,7 @@
 	"enter_percentage": "Enter decimal value (e.g. 0.5 for 50%)",
 	"enter_amount": "Enter amount",
 	"expiration_date": "Expiration Date",
-	
+
 	"seat_selection_for": "Seat Selection for",
 	"seats_successfully_booked": "Seats successfully booked!",
 	"selected_seats": "Selected Seats",
@@ -300,17 +300,35 @@
 	"premium": "Premium",
 	"vip": "VIP",
 	"booked": "Booked",
-	
-	
-	"enter_email_reset_password":"Enter your email to reset your password",
-	"enter_email_reset_password_button":"Reset Password",
-	"back_to_login":"Back to Login",
-	"enter_new_password":"Enter your new password",
-	"set_new_password":"Set New Password",
-	"new_password":"New Password",
-	"confirm_password":"Confirm New Password",
-	"confirm_new_password":"Confirm New Password",
-	"set_new_password_button":"Set New Password",
-	"passwords_do_not_match":"Passwords do not match"
-	
+
+	"enter_email_reset_password": "Enter your email to reset your password",
+	"enter_email_reset_password_button": "Reset Password",
+	"back_to_login": "Back to Login",
+	"enter_new_password": "Enter your new password",
+	"set_new_password": "Set New Password",
+	"new_password": "New Password",
+	"confirm_password": "Confirm New Password",
+	"confirm_new_password": "Confirm New Password",
+	"set_new_password_button": "Set New Password",
+	"passwords_do_not_match": "Passwords do not match",
+
+	"buy_discounts": "Buy Discount Codes",
+	"buy_voucher": "Buy Gift Voucher",
+	"voucher_description": "Purchase a gift voucher for future cinema visits. The voucher code can be redeemed later when buying tickets.",
+	"create_voucher": "Create Voucher",
+	"voucher_amount": "Voucher Amount",
+	"generate_voucher": "Generate Voucher",
+	"voucher_summary": "Voucher Summary",
+	"add_to_cart": "Add to Cart",
+	"voucher_code": "Voucher Code",
+	"current_movies": "Now Showing",
+	"gift_cards": "Gift Cards",
+	"discount_not_found": "Discount code not found or expired",
+	"discount_applied": "Discount code successfully applied",
+	"server_error_discount": "Server error while checking discount code",
+	"no_valid_id": "No valid ID provided for deletion",
+	"deleted": "successfully deleted",
+	"ticket": "Ticket",
+	"gift_code": "Gift Code",
+	"server_error_delete": "Server error while deleting item"
 }

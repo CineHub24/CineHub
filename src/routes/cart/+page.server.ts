@@ -216,15 +216,13 @@ export const actions = {
 					)
 				);
 
-			console.log(discount);
-			console.log(discountCode);
-
 			if (discount.length === 0) {
 				return fail(400, { error: m.discount_not_found({}) });
 			}
 
 			const userId = locals.user!.id;
-			const _booking = await db.select().from(booking).where(eq(booking.userId, userId));
+			const _booking = await db.select().from(booking).where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
+			console.log(_booking[0]);
 
 			const tickets = await db
 				.select({
@@ -255,9 +253,10 @@ export const actions = {
 				film: t.film,
 				seat: t.seat
 			}));
+			console.log(tickets, usedGiftCodes);
 
 			const prices = await calculatePrices(ticketData, discount[0], usedGiftCodes);
-
+			console.log(prices);
 			return {
 				success: m.discount_applied({}),
 				discount: discount[0],
@@ -286,7 +285,7 @@ export const actions = {
 			await db
 				.update(booking)
 				.set({ basePrice: null, finalPrice: null, discountValue: null, items: null })
-				.where(eq(booking.userId, locals.user!.id));
+				.where(and(eq(booking.userId, locals.user!.id), ne(booking.status, 'completed')));
 
 			return { success: `${ticketId ? m.ticket({}) : m.gift_code({})} ${m.deleted({})}` };
 		} catch (error) {

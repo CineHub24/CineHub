@@ -58,6 +58,7 @@
 	let stripe: Stripe | null = null;
 	let discountCode = '';
 
+
 	$: groupedTickets = Object.entries(
 		tickets.reduce(
 			(acc, ticket) => {
