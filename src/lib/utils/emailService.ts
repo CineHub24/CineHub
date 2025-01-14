@@ -622,6 +622,38 @@ Ihr Cinehub-Team
 			throw new Error('E-Mail konnte nicht versendet werden');
 		}
 	}
+	async sendWelcomeEmail(email: string): Promise<void> {
+	
+		const emailContent = `
+		<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+		<p>Hallo Filmfan,<p>
+
+<p>Herzlich willkommen im CineHub! Wir freuen uns sehr, dass du nun Teil unserer Film-Familie bist.<p>
+
+<p>Bereit für unvergessliche Kinoerlebnisse? Dann Tauche ein in die Welt des Films und sei einer der Ersten, die neue Blockbuster erleben.</p>
+
+<p>Wir wünschen dir viel Spaß und gute Unterhaltung!</p>
+
+<p>Ihr Cinema-Team</p>
+		
+</div>		
+		`;
+		try {
+			await this.transporter.sendMail({
+				from: `"CineHub" <${this.gmailUser}>`,
+				to: email,
+				subject: `Willkommen im CineHub`,
+				html: emailContent
+			});
+		} catch (error) {
+			console.error('Fehler beim Versenden der E-Mail:', error);
+			throw new Error('E-Mail konnte nicht versendet werden');
+		}
+
+	
+	}
+
+
 
 	async sendNewsletter(emails: string[], subject: string, htmlContent: string): Promise<void> {
 		try {

@@ -6,6 +6,7 @@ import {
 } from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
+import { EmailService } from '$lib/utils/emailService';
 import { generateUserId } from '$lib/utils/user';
 import type { RequestEvent } from '@sveltejs/kit';
 import type { OAuth2Tokens } from 'arctic';
@@ -74,7 +75,19 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const sessionToken = generateSessionToken();
 	const session = await createSession(sessionToken, userId);
 	setSessionTokenCookie(event, sessionToken, session.expiresAt);
-
+	try {
+		const gmailUser = import.meta.env.VITE_GMAIL_USER;
+		const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
+		const emailClient = new EmailService(gmailUser, gmailAppPassword);
+		await emailClient.sendWelcomeEmail(emails[0].email as string);
+	} catch (error) {
+		return new Response(JSON.stringify({ message: 'Failed to send welcome email' }), {
+			status: 500,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	}
 	return new Response(null, {
 		status: 302,
 		headers: {
