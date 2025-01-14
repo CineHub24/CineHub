@@ -85,8 +85,6 @@
 	{#if shows.length > 0}
 		<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
 		<ShowsFilmDropdown {shows} movies={[movie]} />
-		<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
-		<ShowsFilmDropdown {shows} movies={[movie]} />
 	{/if}
 {:else}
 	<p>{m.movie_not_found({})}</p>

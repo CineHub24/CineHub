@@ -278,7 +278,6 @@
 
 
 
-
 	
 	"discount_codes": "Rabattcodes",
 	"discount_codes_description": "Erstellen und verwalten Sie Rabattcodes für spezielle Aktionen oder Kundengruppen.",
@@ -293,5 +292,35 @@
 	"discount_value": "Rabattwert",
 	"enter_percentage": "Dezimalwert eingeben (z.B. 0,5 für 50%)",
 	"enter_amount": "Betrag eingeben",
-	"expiration_date": "Ablaufdatum"
+	
+
+	"seat_selection_for": "Sitzplatzauswahl für",
+	"seats_successfully_booked": "Sitzplätze erfolgreich gebucht!",
+	"selected_seats": "Ausgewählte Sitzplätze",
+	"seat": "Sitz",
+	"total": "Gesamt",
+	"book_selected_seats": "Ausgewählte Sitzplätze buchen",
+	"no_seats_selected": "Keine Sitzplätze ausgewählt.",
+	"screen": "Leinwand",
+	"standard": "Standard",
+	"premium": "Premium",
+	"vip": "VIP",
+	"booked": "Gebucht",
+	"expiration_date": "Ablaufdatum",
+
+	"enter_email_reset_password":"Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
+	"enter_email_reset_password_button":"Passwort zurücksetzen",
+	"back_to_login":"Zurück zum Login",
+	"enter_new_password":"Neues Passwort eingeben",
+	"set_new_password":"Neues Passwort setzen",
+	"new_password":"Neues Passwort",
+	"confirm_password":"Passwort bestätigen",
+	"confirm_new_password":"Neues Passwort bestätigen",
+	"set_new_password_button":"Passwort setzen",
+	"passwords_do_not_match":"Passwörter stimmen nicht überein"
+	
+
+
+
+	
 }

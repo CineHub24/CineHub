@@ -98,7 +98,7 @@
 		<button
 			type="button"
 			class="group relative cursor-pointer overflow-hidden rounded-xl bg-white p-6 text-left shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-			onclick={() => languageAwareGoto('/admin/discounts/create')}
+			onclick={() => languageAwareGoto('/admin/discounts')}
 		>
 			<div class="mb-4 flex items-center justify-between">
 				<Percent class="h-12 w-12 text-yellow-500" />
