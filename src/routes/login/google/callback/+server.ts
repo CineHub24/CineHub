@@ -10,9 +10,10 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateUserId } from '$lib/utils/user';
-
+import { fail } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';
 import type { OAuth2Tokens } from 'arctic';
+import { EmailService } from '$lib/utils/emailService';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const storedState = event.cookies.get('google_oauth_state') ?? null;
@@ -79,6 +80,19 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const sessionToken = generateSessionToken();
 	const session = createSession(sessionToken, userId);
 	setSessionTokenCookie(event, sessionToken, (await session).expiresAt);
+	try {
+		const gmailUser = import.meta.env.VITE_GMAIL_USER;
+		const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
+		const emailClient = new EmailService(gmailUser, gmailAppPassword);
+		await emailClient.sendWelcomeEmail(email as string);
+	} catch (error) {
+		return new Response(JSON.stringify({ message: 'Failed to send welcome email' }), {
+			status: 500,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	}
 	return new Response(null, {
 		status: 302,
 		headers: {
