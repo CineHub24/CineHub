@@ -18,13 +18,11 @@ export async function GET({ params }: RequestEvent) {
         throw error(400, 'Missing showingId parameter');
     }
 
-    // Initialize or get showing clients
     if (!clients.has(showingId)) {
         clients.set(showingId, new Set());
     }
     const showingClients = clients.get(showingId)!;
 
-    // Check connection limit
     if (showingClients.size >= CONFIG.MAX_CLIENTS_PER_SHOWING) {
         throw error(503, 'Too many connections for this showing');
     }
@@ -41,11 +39,9 @@ export async function GET({ params }: RequestEvent) {
             };
 
             try {
-                // Configure connection
                 controller.enqueue(new TextEncoder().encode(`retry: ${CONFIG.RETRY_INTERVAL}\n\n`));
                 controller.enqueue(new TextEncoder().encode(': keep-alive\n\n'));
 
-                // Grab all tickets with user info
                 const ticketsWithUsers = await db
                     .select({
                         id: ticket.id,
@@ -57,7 +53,6 @@ export async function GET({ params }: RequestEvent) {
                     .leftJoin(booking, eq(ticket.bookingId, booking.id))
                     .where(eq(ticket.showingId, parseInt(showingId)));
 
-                // The SSE payload: an array of seat statuses
                 const seatStatus = ticketsWithUsers.map((t) => ({
                     id: t.id,
                     seatId: t.seatId,
@@ -69,7 +64,6 @@ export async function GET({ params }: RequestEvent) {
 
                 client.controller.enqueue(new TextEncoder().encode(message));
 
-                // Set up periodic keep-alive
                 client.keepAliveInterval = setInterval(() => {
                     try {
                         if (Date.now() - client.connectedAt.getTime() > CONFIG.CONNECTION_TIMEOUT) {
@@ -82,7 +76,6 @@ export async function GET({ params }: RequestEvent) {
                     }
                 }, CONFIG.KEEP_ALIVE_INTERVAL);
 
-                // Add client to showing
                 showingClients.add(client);
                 console.log(`Client connected to showing ${showingId}, total clients: ${showingClients.size}`);
 

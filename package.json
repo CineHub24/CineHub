@@ -82,7 +82,6 @@
 		"pdfkit": "^0.16.0",
 		"postgres": "^3.4.4",
 		"qrcode": "^1.5.4",
-		"svelte-multiselect": "^11.0.0-rc.1",
-		"ws": "^8.18.0"
+		"svelte-multiselect": "^11.0.0-rc.1"
 	}
 }

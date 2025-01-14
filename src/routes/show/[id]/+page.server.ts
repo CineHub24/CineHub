@@ -35,16 +35,20 @@ export const actions = {
         const formData = await request.formData();
         const showingId = Number(formData.get('showingId'));
         const seatId = Number(formData.get('seatId'));
+        const ticketTypeId = formData.get('ticketType') ? Number(formData.get('ticketType')) : null;
 
         try {
-            // Check if seat is already reserved or booked
             const existingTicket = await db.select()
                 .from(ticket)
-                .where(and(
-                    eq(ticket.showingId, showingId),
-                    eq(ticket.seatId, seatId),
-                    inArray(ticket.status, ['reserved', 'paid'])
-                ))
+                .leftJoin(booking, eq(ticket.bookingId, booking.id))
+                .where(
+                    and(
+                        eq(ticket.showingId, showingId),
+                        eq(ticket.seatId, seatId),
+                        inArray(ticket.status, ['reserved', 'paid']),
+                        sql`${booking.userId} <> ${locals.user.id}`
+                    )
+                )
                 .limit(1);
 
             if (existingTicket.length > 0) {
@@ -53,13 +57,68 @@ export const actions = {
                 });
             }
 
-            // Get or create booking for user
+            // 1. Get seat and its category.
+            const [currentSeat] = await db.select()
+                .from(seat)
+                .where(eq(seat.id, seatId));
+
+            if (!currentSeat) {
+                return fail(400, { error: 'Seat not found' });
+            }
+
+            const [category] = await db.select()
+                .from(seatCategory)
+                .where(eq(seatCategory.id, currentSeat.categoryId));
+
+            if (!category) {
+                return fail(400, { error: 'Seat category not found' });
+            }
+
+            // 2. Get the showing and its price set.
+            const [currentShowing] = await db.select()
+                .from(showing)
+                .where(eq(showing.id, showingId));
+            if (!currentShowing) {
+                return fail(400, { error: 'Showing not found' });
+            }
+
+            const [currentPriceSet] = await db.select()
+                .from(priceSet)
+                .where(eq(priceSet.id, currentShowing.priceSetId));
+
+            if (!currentPriceSet) {
+                return fail(400, { error: 'Price set not found' });
+            }
+
+            // 3. Calculate final price.
+            let finalPrice = null;
+            if (ticketTypeId) {
+                const [selectedTicketType] = await db.select()
+                    .from(ticketType)
+                    .where(eq(ticketType.id, ticketTypeId));
+                if (!selectedTicketType) {
+                    return fail(400, { error: 'Ticket type not found' });
+                }
+
+                const basePrice = Number(category.price);
+                const typeMultiplier = Number(selectedTicketType.factor);
+                const priceSetMultiplier = Number(currentPriceSet.priceFactor);
+                finalPrice = (basePrice * typeMultiplier * priceSetMultiplier).toFixed(2);
+            } else {
+                const basePrice = Number(category.price);
+                const priceSetMultiplier = Number(currentPriceSet.priceFactor);
+                finalPrice = (basePrice * priceSetMultiplier).toFixed(2);
+            }
+
+            // 4. Get or create an active booking for the user.
             let bookings = await db.select()
                 .from(booking)
-                .where(and(
-                    eq(booking.userId, locals.user.id),
-                    ne(booking.status, "completed")
-                ));
+                .where(
+                    and(
+                        eq(booking.userId, locals.user.id),
+                        ne(booking.status, "completed")
+                    )
+                );
 
             if (bookings.length === 0) {
                 bookings = await db.insert(booking)
@@ -68,18 +127,43 @@ export const actions = {
                     })
                     .returning();
             }
-
             const userBooking = bookings[0];
 
-            // Create temporary reservation ticket
-            await db.insert(ticket)
-                .values({
-                    status: "reserved",
-                    showingId,
-                    bookingId: userBooking.id,
-                    seatId,
-                    expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes from now
-                });
+            // Check if there's already a reservation for this user on the same seat and showing.
+            const [userTicket] = await db.select()
+                .from(ticket)
+                .where(
+                    and(
+                        eq(ticket.showingId, showingId),
+                        eq(ticket.seatId, seatId),
+                        eq(ticket.bookingId, userBooking.id)
+                    )
+                )
+                .limit(1);
+
+            if (userTicket) {
+                // Allow update if the ticket belongs to the current user.
+                await db.update(ticket)
+                    .set({
+                        status: "reserved",
+                        type: ticketTypeId,
+                        price: finalPrice,
+                        expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+                    })
+                    .where(eq(ticket.id, userTicket.id));
+            } else {
+                // Otherwise, insert a new reservation.
+                await db.insert(ticket)
+                    .values({
+                        status: "reserved",
+                        showingId,
+                        bookingId: userBooking.id,
+                        seatId,
+                        type: ticketTypeId,
+                        price: finalPrice,
+                        expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes from now
+                    });
+            }
 
             if (showingId) {
                 await notifySeatChange(showingId.toString());
@@ -92,6 +176,10 @@ export const actions = {
             });
         }
     },
+
+
+
+
 
     cancelSeat: async ({ request, locals }) => {
         if (!locals.user) {
@@ -137,7 +225,6 @@ export const actions = {
     },
 
 
-    //das hier funkctionert noch nicht
     bookSeats: async ({ request, locals }) => {
         let shouldRedirect = false;
 

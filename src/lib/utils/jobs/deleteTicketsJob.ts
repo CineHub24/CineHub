@@ -4,7 +4,6 @@ import { notifySeatChange } from '$lib/server/sse';
 import { eq, and, gt, lt } from 'drizzle-orm';
 import schedule from 'node-schedule';
 
-// Define the job
 export const deleteOldReservedTicketsJob = () => {
     console.log('Scheduling job to delete old reserved tickets');
     schedule.scheduleJob('*/1 * * * *', async () => {

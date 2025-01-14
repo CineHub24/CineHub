@@ -249,6 +249,7 @@
 		const form = new FormData();
 		form.append('showingId', showing.id.toString());
 		form.append('seatId', seat.id.toString());
+		form.append('ticketType', selectedSeats.find((s) => s.seat.id === seat.id)?.selectedTicketType.toString() || '');
 
 		const resp = await fetch('?/reserveSeat', {
 			method: 'POST',
@@ -291,12 +292,15 @@
 	 *************************************************************/
 	function updateTicketType(seatId: number, ticketTypeId: number) {
 		console.log(`[updateTicketType] seatID=${seatId}, newTicketType=${ticketTypeId}`);
+
 		selectedSeats = selectedSeats.map((sel) => {
 			if (sel.seat.id === seatId) {
 				return { ...sel, selectedTicketType: ticketTypeId };
 			}
 			return sel;
 		});
+
+		reserveSeat(seats.find((s) => s.id === seatId)!);
 	}
 
 	/*************************************************************

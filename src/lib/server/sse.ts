@@ -9,13 +9,12 @@ interface Client {
     connectedAt: Date;
 }
 
-// Keep track of connected clients with metadata
 export const clients = new Map<string, Set<Client>>();
 
 export const CONFIG = {
     KEEP_ALIVE_INTERVAL: 30000,
-    MAX_CLIENTS_PER_SHOWING: 100,
-    CONNECTION_TIMEOUT: 2 * 60 * 60 * 1000, // 2 hours
+    MAX_CLIENTS_PER_SHOWING: 150,
+    CONNECTION_TIMEOUT: 2 * 60 * 60 * 1000, // 2h
     RETRY_INTERVAL: 2000
 } as const;
 
@@ -31,18 +30,16 @@ export function cleanup(showingId: string, client: Client) {
         if (showingClients.size === 0) {
             clients.delete(showingId);
         }
-        console.log(`Client disconnected from showing ${showingId}, remaining clients: ${showingClients.size}`);
+        // console.log(`Client disconnected from showing ${showingId}, remaining clients: ${showingClients.size}`);
     }
 }
 
-// Function to notify clients of seat changes
 export async function notifySeatChange(showingId: string) {
-    console.log('Sending seat update via SSE');
+    // console.log('Sending seat update via SSE');
     const showingClients = clients.get(showingId);
     if (!showingClients?.size) return;
 
     try {
-        // Grab all tickets with user info
         const ticketsWithUsers = await db
             .select({
                 id: ticket.id,
@@ -54,7 +51,6 @@ export async function notifySeatChange(showingId: string) {
             .leftJoin(booking, eq(ticket.bookingId, booking.id))
             .where(eq(ticket.showingId, parseInt(showingId)));
 
-        // The SSE payload: an array of seat statuses
         const seatStatus = ticketsWithUsers.map((t) => ({
             id: t.id,
             seatId: t.seatId,
@@ -62,18 +58,18 @@ export async function notifySeatChange(showingId: string) {
             userId: t.userId
         }));
 
-        console.log('Seat status:', seatStatus);
+        // console.log('Seat status:', seatStatus);
 
         const message = encodeSSE('seats', seatStatus);
         const deadClients = new Set<Client>();
 
         for (const client of showingClients) {
             try {
-                console.log('Sending seat update:', {
-                    type: 'seats',
-                    data: seatStatus,
-                    timestamp: new Date().toISOString()
-                });
+                // console.log('Sending seat update:', {
+                //     type: 'seats',
+                //     data: seatStatus,
+                //     timestamp: new Date().toISOString()
+                // });
                 client.controller.enqueue(new TextEncoder().encode(message));
             } catch (error) {
                 console.error('Error sending to client, marking for cleanup:', error);
@@ -81,7 +77,6 @@ export async function notifySeatChange(showingId: string) {
             }
         }
 
-        // Cleanup any failed clients
         for (const client of deadClients) {
             cleanup(showingId, client);
         }
