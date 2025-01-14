@@ -10,10 +10,17 @@ import {
 	showing,
 	type Cinema,
 	type CinemaHall,
-	type Film
+	type Film,
+	type Showing
 } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { languageAwareRedirect } from '$lib/utils/languageAware.js';
+import { hall } from '$lib/paraglide/messages';
+import dna from 'lucide-svelte/icons/dna';
+interface Conflict {
+	failed:any;
+	blocking: any;
+	}
 
 interface TimeWindow {
 	start: string | null;
@@ -95,29 +102,66 @@ export const actions = {
 		let endTime = data.get('endTime') as string;
 		const priceSetId = Number(data.get('priceSet'));
 		const date = data.get('date') as string;
-
-		console.log(
-			'film' +
-				filmId +
-				'hall' +
-				hallId +
-				'start' +
-				startTime +
-				'end' +
-				endTime +
-				'price' +
-				priceSetId +
-				'data' +
-				date
-		);
+		const isRecurring = data.get('isRecurring') as string;
+		const recurrenceCount = Number(data.get('recurrenceCount'));
+		const recurrenceUnit = data.get('recurrenceUnit') as string;
+		const recurrenceEndDate = data.get('recurrenceEndDate') as string;
+		console.log('before', hallId);
 		if (endTime === '00:00') {
 			endTime = '24:00';
 		}
-
+		console.log(isRecurring);
 		try {
-			await db
-				.insert(showing)
-				.values({
+			if (isRecurring === 'on') {
+				const shows = generateRecurringShowings(
+					date,
+					startTime,
+					endTime,
+					recurrenceCount,
+					recurrenceUnit,
+					recurrenceEndDate
+				);
+				const conflicts:Conflict[] = [];
+				const successfulShows = [];
+
+				for (const show of shows) {
+					const isAvailable = await checkTimeWindowAvailability(
+						db,
+						hallId,
+						new Date(show.date),
+						show.startTime,
+						show.endTime
+					);
+
+					if (isAvailable) {
+						await db.insert(showing).values({
+							filmid: filmId,
+							hallid: hallId,
+							time: show.startTime,
+							endTime: show.endTime,
+							priceSetId: priceSetId,
+							date: show.date
+						});
+						successfulShows.push(show);
+					} else {
+						const conflictedShow = await db.select().from(showing).innerJoin(film,eq(film.id,showing.filmid)).where(and(eq(showing.hallid, hallId), eq(showing.date, show.date), gte(showing.time, show.startTime), lte(showing.time, show.endTime)));
+						const conflictMap:Conflict = {
+							failed: show,
+							blocking: conflictedShow[0]
+						}
+						conflicts.push(conflictMap);
+					}
+				}
+
+				if (conflicts.length > 0) {
+					return {
+						success: true,
+						conflicts: conflicts,
+						successfulShows: successfulShows
+					};
+				}
+			} else {
+				await db.insert(showing).values({
 					filmid: filmId,
 					hallid: hallId,
 					time: startTime,
@@ -125,13 +169,37 @@ export const actions = {
 					priceSetId: priceSetId,
 					date: date
 				});
+			}
 		} catch (error) {
 			console.log(error);
-			return fail(500, { error: 'Server-Fehler beim Speichern der Vorstellung' });
+			return fail(500, { error: 'Server-Fehler beim Speichern der Vorstellung(en)' });
 		}
 		return languageAwareRedirect(302, `/admin/film/${filmId}`);
 	}
 } satisfies Actions;
+
+async function checkTimeWindowAvailability(
+	db: PostgresJsDatabase,
+	hallId: number,
+	date: Date,
+	startTime: string,
+	endTime: string
+): Promise<boolean> {
+	const dateStr = date.toISOString().split('T')[0];
+	const existingShowings = await db
+		.select()
+		.from(showing)
+		.where(
+			and(
+				eq(showing.hallid, hallId),
+				eq(showing.date, dateStr),
+				gte(showing.time, startTime),
+				lte(showing.time, endTime)
+			)
+		);
+
+	return existingShowings.length === 0;
+}
 
 async function getAvailableTimeWindows(
 	db: PostgresJsDatabase,
@@ -223,4 +291,39 @@ function calculateTimeDifference(start: string, end: string): number {
 	}
 
 	return Math.floor((endTime.getTime() - time.getTime()) / (1000 * 60));
+}
+
+function generateRecurringShowings(
+	startDate: string,
+	startTime: string,
+	endTime: string,
+	recurrenceCount: number,
+	recurrenceUnit: string,
+	recurrenceEndDate: string
+): { date: string; startTime: string; endTime: string }[] {
+	const showings = [];
+	let currentDate = new Date(startDate);
+	const endDate = new Date(recurrenceEndDate);
+
+	while (currentDate <= endDate) {
+		showings.push({
+			date: currentDate.toISOString().split('T')[0],
+			startTime,
+			endTime
+		});
+
+		switch (recurrenceUnit) {
+			case 'days':
+				currentDate.setDate(currentDate.getDate() + 1);
+				break;
+			case 'weeks':
+				currentDate.setDate(currentDate.getDate() + 7);
+				break;
+			case 'months':
+				currentDate.setMonth(currentDate.getMonth() + 1);
+				break;
+		}
+	}
+	console.log('reapted shows', showings);
+	return showings;
 }

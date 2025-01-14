@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { CinemaHall } from '$lib/server/db/schema';
+	import type { CinemaHall, Showing } from '$lib/server/db/schema';
 	import type { ActionData, PageData, SubmitFunction } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
+
+	interface Conflict {
+		failed: any;
+		blocking: any;
+	}
 
 	export let data: PageData;
 	const { selectedFilm, priceSets, cinemas } = data;
@@ -19,6 +24,12 @@
 	let filteredHalls: CinemaHall[] = [];
 	let cleaningTime = 15;
 	let advertisementTime = 15;
+
+	// Neue Variablen für wiederkehrende Vorstellungen
+	let isRecurring = false;
+	let recurrenceCount = 1;
+	let recurrenceUnit = 'days';
+	let recurrenceEndDate = '';
 
 	$: totalDuration = Number(filmRuntime) + cleaningTime + advertisementTime;
 
@@ -98,11 +109,29 @@
 		};
 	};
 
-	const enhanceSaveShowing: SubmitFunction = () => {
-		return async ({ update }) => {
-			await update({ reset: false });
+	let conflicts: Conflict[] = [];
+	let successfulShows = [];
+	let showConflictPopup = false;
+
+	const enhanceSaveShowing = () => {
+		return async ({ result }) => {
+			if (result.type === 'success' && result.data.conflicts) {
+				conflicts = result.data.conflicts;
+				successfulShows = result.data.successfulShows;
+				showConflictPopup = true;
+			} else if (result.type === 'redirect') {
+				// Handle successful save without conflicts
+				window.location.href = result.location;
+			}
 		};
 	};
+
+	function handleConflictResolution() {
+		// Implement your conflict resolution logic here
+		// This could involve letting the user choose which shows to keep or skip
+		// After resolution, you might want to try saving the remaining shows again
+		showConflictPopup = false;
+	}
 </script>
 
 <div class="p-4">
@@ -263,7 +292,54 @@
 						</p>
 					{/if}
 				{/if}
-
+				{#if showConflictPopup}
+<div class="fixed inset-0 h-full w-full overflow-y-auto bg-gray-600 bg-opacity-50 flex items-center justify-center" id="my-modal">
+<div class="bg-white rounded-lg shadow-xl p-6 m-4 max-w-xl w-full">
+<h3 class="text-xl font-semibold text-gray-900 mb-4">Konflikte gefunden</h3>
+<p class="text-sm text-gray-600 mb-4">
+Die folgenden Vorstellungen konnten nicht gespeichert werden:
+</p>
+<div class="overflow-x-auto">
+<table class="min-w-full bg-white">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fehlgeschlagen</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blockiert durch</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+{#each conflicts as conflict}
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+{conflict.failed.date}<br>
+{conflict.failed.startTime} - {conflict.failed.endTime}
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+<a href="/admin/show/{conflict.blocking.Showing.id}" class="text-blue-600 hover:text-blue-800">
+{conflict.blocking.Film.title}<br>
+{conflict.blocking.Showing.date}<br>
+{conflict.blocking.Showing.time} - {conflict.blocking.Showing.endTime}
+</a>
+</td>
+</tr>
+{/each}
+</tbody>
+</table>
+</div>
+<p class="mt-4 text-sm text-gray-600">
+Erfolgreich gespeicherte Vorstellungen: {successfulShows.length}
+</p>
+<div class="mt-6 flex justify-end">
+<button
+class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+on:click={handleConflictResolution}
+>
+Konflikte auflösen
+</button>
+</div>
+</div>
+</div>
+{/if}
 				{#if isValidStartTime}
 					<form method="POST" action="?/saveShowing" use:enhance={enhanceSaveShowing}>
 						<input type="hidden" name="startTime" value={selectedStartTime} />
@@ -273,11 +349,60 @@
 						<input type="hidden" name="hallId" value={selectedHall} />
 						<input type="hidden" name="date" value={selectedDate} />
 						<input type="hidden" name="priceSet" value={priceSet} />
+
+						<div class="mb-4">
+							<label class="flex items-center">
+								<input type="checkbox" bind:checked={isRecurring} name="isRecurring" class="mr-2" />
+								Wiederkehrende Vorstellung
+							</label>
+						</div>
+
+						{#if isRecurring}
+							<div class="space-y-4">
+								<div>
+									<label for="recurrenceCount" class="mb-2 block">Anzahl der Wiederholungen</label>
+									<input
+										type="number"
+										id="recurrenceCount"
+										name="recurrenceCount"
+										bind:value={recurrenceCount}
+										min="1"
+										class="w-full rounded border p-2"
+									/>
+								</div>
+
+								<div>
+									<label for="recurrenceUnit" class="mb-2 block">Einheit</label>
+									<select
+										id="recurrenceUnit"
+										name="recurrenceUnit"
+										bind:value={recurrenceUnit}
+										class="w-full rounded border p-2"
+									>
+										<option value="days">Tage</option>
+										<option value="weeks">Wochen</option>
+										<option value="months">Monate</option>
+									</select>
+								</div>
+
+								<div>
+									<label for="recurrenceEndDate" class="mb-2 block">Enddatum</label>
+									<input
+										type="date"
+										id="recurrenceEndDate"
+										name="recurrenceEndDate"
+										bind:value={recurrenceEndDate}
+										class="w-full rounded border p-2"
+									/>
+								</div>
+							</div>
+						{/if}
+
 						<button
 							type="submit"
 							class="w-full rounded bg-green-500 p-2 text-white hover:bg-green-600"
 						>
-							{m.save_screening({})}
+							{isRecurring ? 'Wiederkehrende Vorstellungen speichern' : 'Vorstellung speichern'}
 						</button>
 					</form>
 				{/if}
