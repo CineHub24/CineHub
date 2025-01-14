@@ -7,6 +7,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { generateUserId } from '$lib/utils/user';
 import { validateEmail, validatePassword } from '$lib/utils/user';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
+import { EmailService } from '$lib/utils/emailService';
 
 export const load: PageServerLoad = async (event) => {
 	return {};
@@ -41,6 +42,14 @@ export const actions: Actions = {
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		} catch (e) {
 			return fail(500, { message: 'An error has occurred ' + e });
+		}
+		try {
+			const gmailUser = import.meta.env.VITE_GMAIL_USER;
+			const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
+			const emailClient = new EmailService(gmailUser, gmailAppPassword);
+			await emailClient.sendWelcomeEmail(email as string);
+		} catch (error) {
+			return fail(500, { message: 'Failed to send welcome email' });
 		}
 		return languageAwareRedirect(302, '/');
 	}
