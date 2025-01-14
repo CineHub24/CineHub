@@ -31,7 +31,7 @@
     }
 
     function handleEdit(roomId: number) {
-        goto(`/admin/rooms/v2/${roomId}`);
+        goto(`/admin/rooms/${roomId}`);
     }
 </script>
 

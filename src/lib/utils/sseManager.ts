@@ -43,7 +43,7 @@ export function createSSEManager(
 
             eventSource.onmessage = (event) => {
                 try {
-                    console.log('SSE message received:', event.data);
+                    // console.log('SSE message received:', event.data);
                     const data = JSON.parse(event.data);
                     onUpdate(data);
                 } catch (error) {

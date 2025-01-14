@@ -199,7 +199,7 @@ export const actions: Actions = {
             });
         }
         if (shouldRedirect) {
-            throw languageAwareRedirect(303, `/admin/rooms/v2/${room.id}`);
+            throw languageAwareRedirect(303, `/admin/rooms/${room.id}`);
         }
     }
 } satisfies Actions;

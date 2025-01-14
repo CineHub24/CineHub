@@ -21,7 +21,7 @@ export const deleteOldReservedTicketsJob = () => {
                     )
                 );
 
-            console.log(oldReservedTickets);
+            // console.log(oldReservedTickets);
 
             if (oldReservedTickets.length > 0) {
                 oldReservedTickets.forEach(async (oldReservedTicket) => {
