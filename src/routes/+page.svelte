@@ -6,6 +6,7 @@
 	import type { Film, Showing } from '$lib/server/db/schema';
 	import { onMount } from 'svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import { showNotification } from '$lib/stores/notification';
 
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -80,7 +81,7 @@
 
 {/key}
 
-<h2 class="px-5 text-xl font-bold" style="margin-top: 40px;">
+<h2 class="px-5 text-3xl font-bold" style="margin-top: 40px;">
     {m.current_movies({})}
 </h2>
 <div class="movies-container">
@@ -89,6 +90,7 @@
 			role="button"
 			tabindex="0"
 			onmouseover={() => {
+				showNotification("New message received", "info");
 				if (hoveredMovie.id !== movie.id) {
 					hoveredMovie = { ...movie }; // Update only if it's a different movie
 				}
@@ -106,7 +108,8 @@
 </div>
 <br />
 {#if shows.length > 0}
-	<h2 class="px-5 text-xl font-bold">{m.shows({})}</h2>
+	<h2 class="px-5 text-3xl font-bold" style="margin-top: 40px;">
+		{m.shows({})}</h2>
 	<ShowsFilmDropdown {shows} {movies} />
 {/if}
 

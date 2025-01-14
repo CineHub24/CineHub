@@ -2,43 +2,107 @@
   import { notification } from '$lib/stores/notification';
   import { fly } from 'svelte/transition';
   import { onDestroy } from 'svelte';
-
-  let message: string | null = null;
+  import type { NotificationData } from '$lib/stores/notification';
+  
+  let notificationData: NotificationData | null = null;
   
   const unsubscribe = notification.subscribe(value => {
-    message = value;
+  notificationData = value;
   });
-
+  
+  function closeNotification() {
+  notification.set(null);
+  }
+  
   onDestroy(() => {
-    unsubscribe(); // Abonnement beim Zerstören der Komponente aufheben
+  unsubscribe();
   });
-</script>
-
-{#if message}
-  <div class="notification-overlay" transition:fly={{ y: 100, duration: 500 }}>
-    <div class="notification-content">
-      {message}
-    </div>
+  
+  $: typeClass = notificationData?.type || 'info';
+  $: icon = {
+  info: '❕',
+  alert: '⚠️',
+  success: '✅',
+  error: '❌'
+  }[notificationData?.type || 'info'];
+  </script>
+  
+  {#if notificationData}
+  <div
+  class="notification-overlay {typeClass}"
+  in:fly={{ x: 100, y: -100, duration: 500, opacity: 0 }}
+  out:fly={{ x: 100, y: -100, duration: 300 }}
+  >
+  <div class="notification-content">
+  <span class="icon">{icon}</span>
+  {notificationData.message}
   </div>
-{/if}
-
-<style>
+  <button class="close-button" on:click={closeNotification}>×</button>
+  </div>
+  {/if}
+  
+  <style>
   .notification-overlay {
-    position: fixed;
-    bottom: 1rem; /* Positionieren Sie es am unteren Rand */
-    left: 50%;
-    transform: translateX(-50%);
-    background: #f0f0f0; /* Heller Hintergrund für den Light Mode */
-    color: #333; /* Dunkle Textfarbe */
-    padding: 0.75rem;
-    border-radius: 8px; /* Abgerundete Ecken */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Leichter Schatten */
-    z-index: 9999;
-    font-size: 1rem;
-    border: 1px solid #ccc; /* Rand um die Benachrichtigung */
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  max-width: 400px;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 9999;
+  border: 1px solid;
   }
-
+  
   .notification-content {
-    font-weight: normal; /* Kein fetter Text */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
   }
-</style>
+  
+  .icon {
+  font-size: 1.1rem;
+  }
+  
+  .close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  margin-left: 1rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  }
+  
+  .close-button:hover {
+  opacity: 1;
+  }
+  
+  /* Type-specific styles */
+  .info {
+  border-color: #3498db;
+  color: #2980b9;
+  }
+  
+  .alert {
+  border-color: #f1c40f;
+  color: #f39c12;
+  }
+  
+  .success {
+  border-color: #2ecc71;
+  color: #27ae60;
+  }
+  
+  .error {
+  border-color: #e74c3c;
+  color: #c0392b;
+  }
+  </style>
