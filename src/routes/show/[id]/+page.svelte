@@ -238,6 +238,7 @@
 			seats = seats.map((s) => (s.id === seat.id ? { ...seat } : s));
 			return;
 		}
+		// seats = seats.map((s) => (s.id === seat.id ? { ...seat, pending: false } : s));
 	}
 
 	async function cancelSeat(seat: Seat) {
@@ -368,7 +369,7 @@
 
 			seats = seats.map((localSeat) => {
 				const update = seatStatusData.find((st) => st.seatId === localSeat.id);
-				
+
 				if (!update) {
 					// Not in the server response => seat is "available"
 					return transformSeat({
