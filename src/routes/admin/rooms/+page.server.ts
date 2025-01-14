@@ -2,10 +2,11 @@
 
 import { db } from "$lib/server/db";
 import { eq } from 'drizzle-orm';
-import { cinemaHall } from "$lib/server/db/schema";
-import type { Actions, PageServerLoad } from "./$types";
+import { cinema, cinemaHall } from "$lib/server/db/schema";
+import type { Actions, PageServerLoad } from "./v2/$types";
 import { fail } from "@sveltejs/kit";
 import { logToDB } from "$lib/utils/dbLogger";
+import { url } from "node:inspector";
 
 export const actions = {
     deleteCinemaHall: async (event) => {
@@ -44,8 +45,20 @@ export const actions = {
 } satisfies Actions;
 
 // Load function to return cinema halls data
-export const load: PageServerLoad = async () => {
-    const cinemaHalls = await db.select().from(cinemaHall);
+export const load: PageServerLoad = async ({ url }) => {
+    // Extract cinemaId from query parameters
+    const cinemaIdParam = url.searchParams.get('cinemaId');
+    const cinemaId = cinemaIdParam ? Number(cinemaIdParam) : null;
 
-    return { cinemaHalls };
+    // Fetch all cinemas for the filter dropdown
+    const cinemas = await db.select().from(cinema);
+
+    // Fetch cinema halls based on cinemaId if provided
+    let cinemaHallsQuery = db.select().from(cinemaHall);
+    if (cinemaId) {
+        cinemaHallsQuery = cinemaHallsQuery.where(eq(cinemaHall.cinemaId, cinemaId));
+    }
+    const cinemaHalls = await cinemaHallsQuery;
+
+    return { cinemaHalls, cinemas, selectedCinemaId: cinemaId };
 };
