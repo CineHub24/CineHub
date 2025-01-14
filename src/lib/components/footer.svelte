@@ -49,7 +49,7 @@
 				<ul class="space-y-2">
 					<li><a href="/" class="transition hover:text-gray-600">{m.home({})}</a></li>
 					<!-- <li><a href="/program" class="transition hover:text-gray-600">{m.program({})}</a></li> -->
-					<li><a href="/tickets" class="transition hover:text-gray-600">{m.tickets({})}</a></li>
+					<li><a href="/profile/tickets" class="transition hover:text-gray-600">{m.tickets({})}</a></li>
 					<li><a href="/about-us" class="transition hover:text-gray-600">{m.about({})}</a></li>
 				</ul>
 			</div>

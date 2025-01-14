@@ -16,8 +16,7 @@ import {
 	date,
 	time,
 	decimal,
-	jsonb,
-	varchar
+	jsonb
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin', 'inspector']);
@@ -27,6 +26,7 @@ export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'paid',
 	'validated',	
 	'refunded',
+	'payAtCinema'
 ]);
 export const discountTypesEnum = pgEnum('discountType', ['percentage', 'fixed']);
 
