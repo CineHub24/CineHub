@@ -13,7 +13,6 @@
 		}
 	}
 </script>
-
 {#if isAdminMode}
 	<!-- Admin Layout -->
 	<div class="movie-card admin">
@@ -75,6 +74,7 @@
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		transition: transform 0.2s;
 		width: 220px;
+		height: 290px;
 		cursor: pointer;
 	}
 

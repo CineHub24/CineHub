@@ -176,7 +176,8 @@ export const priceDiscount = pgTable('PriceDiscount', {
 	code: text('code').notNull(),
 	value: decimal('value', { precision: 10, scale: 2 }).notNull(),
 	discountType: discountTypesEnum('discountType').default('percentage').notNull(),
-	expiresAt: date('expiresAt')
+	expiresAt: date('expiresAt'),
+	name: text('name')
 });
 
 export const ticket = pgTable('Ticket', {
@@ -216,3 +217,11 @@ export const subscribersNewsletter = pgTable('subscribersNewsletter', {
 	id: serial('id').primaryKey(),
 	email: text('email').unique()
 });
+
+export const passwordReset = pgTable('passwordReset', {
+	id: serial('id').primaryKey(),
+	userId: text('userId').references(() => user.id),
+	token: uuid('token').defaultRandom().unique(),
+	expiresAt: timestamp('expiresAt').notNull()
+});
+	

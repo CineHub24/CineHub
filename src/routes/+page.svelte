@@ -82,7 +82,7 @@
 {/key}
 
 <h2 class="px-5 text-3xl font-bold" style="margin-top: 40px;">
-    {m.current_movies({})}
+    {m.current_movies({}) || 'Now playing'}
 </h2>
 <div class="movies-container">
 	{#each movies as movie}

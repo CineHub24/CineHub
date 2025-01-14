@@ -1,10 +1,17 @@
 <script lang="ts">
 	import Button from '$lib/components/button.svelte';
-	import type { seat, seatCategory, ticketType as ticketTypesT, showing as showingT, cinemaHall as hallT } from '$lib/server/db/schema';
+	import * as m from '$lib/paraglide/messages.js';
+	import type {
+		seat,
+		seatCategory,
+		ticketType as ticketTypesT,
+		showing as showingT,
+		cinemaHall as hallT
+	} from '$lib/server/db/schema';
 	import type { Ticket } from 'lucide-svelte';
 
 	type SeatType = typeof seat.$inferSelect;
-	type Seat = SeatType & { booked?: boolean }
+	type Seat = SeatType & { booked?: boolean };
 	type SeatCategory = typeof seatCategory.$inferSelect;
 	type Showing = typeof showingT.$inferSelect;
 	type TicketType = typeof ticketTypesT.$inferSelect;
@@ -19,7 +26,7 @@
 
 	let showing: Showing = data.showing!;
 	let hall: HallType = data.hall!;
-	let seatPlan:(SeatResponse | null)[][] = data?.seatPlan || [];
+	let seatPlan: (SeatResponse | null)[][] = data?.seatPlan || [];
 	let ticketTypes: TicketType[] = data.ticketTypes!;
 	let selectedSeats: SeatResponse[] = $state([]);
 
@@ -29,40 +36,41 @@
 			if (isSelected(seatResponse.seat)) {
 				selectedSeats = selectedSeats.filter((s) => s.seat.id !== seatResponse.seat.id);
 			} else {
-				selectedSeats = [...selectedSeats, { ...seatResponse, selectedTicketType: ticketTypes[0]?.id }];
+				selectedSeats = [
+					...selectedSeats,
+					{ ...seatResponse, selectedTicketType: ticketTypes[0]?.id }
+				];
 			}
 		}
 	}
 
 	const isSelected = (seat: Seat): boolean => selectedSeats.some((s) => s.seat.id === seat.id);
-	
+
 	function updateTicketType(seatId: number, ticketTypeId: number) {
-		selectedSeats = selectedSeats.map(seat => 
-			seat.seat.id === seatId 
-				? { ...seat, selectedTicketType: ticketTypeId }
-				: seat
+		selectedSeats = selectedSeats.map((seat) =>
+			seat.seat.id === seatId ? { ...seat, selectedTicketType: ticketTypeId } : seat
 		);
 	}
 
 	function getTicketPrice(seatResponse: SeatResponse): number {
-		const ticketType = ticketTypes.find(t => t.id === seatResponse.selectedTicketType);
-		return Number(ticketType!.factor) *  Number(seatResponse.seatCategory.price)
+		const ticketType = ticketTypes.find((t) => t.id === seatResponse.selectedTicketType);
+		return Number(ticketType!.factor) * Number(seatResponse.seatCategory.price);
 	}
-	
+
 	function calculateTotal(): number {
 		return selectedSeats.reduce((total, seat) => total + getTicketPrice(seat), 0);
 	}
 </script>
 
 <div class="seat-selection-container">
-	<h1>Seat Selection for {showing?.date}</h1>
-	<h2>Hall: {hall?.name}</h2>
+	<h1>{m.seat_selection_for({})} {showing?.date}</h1>
+	<h2>{m.hall({})}: {hall?.name}</h2>
 
-	{#if form?.success}
+	<!-- {#if form?.success}
 		<div class="success-message">
-			Seats successfully booked!
+			{m.seats_successfully_booked({})}
 		</div>
-	{/if}
+	{/if} -->
 
 	{#if form?.error}
 		<div class="error-message">
@@ -76,6 +84,8 @@
 				<div class="row">
 					{#each row as seat, colIndex}
 						{#if seat}
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								class="seat"
 								class:selected={isSelected(seat.seat)}
@@ -93,7 +103,7 @@
 		</div>
 
 		<div class="summary">
-			<h2>Selected Seats</h2>
+			<h2>{m.selected_seats({})}</h2>
 			{#if selectedSeats.length > 0}
 				<form method="POST" action="?/bookSeats">
 					<input type="hidden" name="showingId" value={showing?.id} />
@@ -103,16 +113,20 @@
 						<input type="hidden" name="price" value={getTicketPrice(seatResponse)} />
 						<div class="seat-info">
 							<div class="seat-details">
-								<span class="seat-number">Seat {seatResponse.seat.row}{seatResponse.seat.seatNumber}</span>
+								<span class="seat-number"
+									>{m.seat({})} {seatResponse.seat.row}{seatResponse.seat.seatNumber}</span
+								>
 								<span class="seat-type">{seatResponse.seatCategory.name}</span>
 								<select
 									class="ticket-type-select"
 									value={seatResponse.selectedTicketType}
-									onchange={(e) => updateTicketType(seatResponse.seat.id, Number(e.currentTarget.value))}
+									onchange={(e) =>
+										updateTicketType(seatResponse.seat.id, Number(e.currentTarget.value))}
 								>
 									{#each ticketTypes as ticketType}
 										<option value={ticketType.id}>
-											{ticketType.name} - ${Number(seatResponse.seatCategory.price) * Number(ticketType.factor)}  
+											{ticketType.name} - ${Number(seatResponse.seatCategory.price) *
+												Number(ticketType.factor)}
 										</option>
 									{/each}
 								</select>
@@ -121,43 +135,42 @@
 						</div>
 					{/each}
 					<div class="total-price">
-						<span>Total:</span>
+						<span>{m.total({})}</span>
 						<span class="price">${calculateTotal()}</span>
 					</div>
-					<Button type="submit">Book Selected Seats</Button>
+					<Button type="submit">{m.book_selected_seats({})}</Button>
 				</form>
 			{:else}
-				<p>No seats selected.</p>
+				<p>{m.no_seats_selected({})}</p>
 			{/if}
 		</div>
 	</div>
 
+	<!-- Screen Indicator -->
+	<div class="relative mb-12">
+		<div class="mx-auto h-2 w-3/4 -skew-y-1 transform rounded-lg bg-gray-300"></div>
+		<p class="mt-2 text-center text-gray-500">{m.screen({})}</p>
+	</div>
 
-	    <!-- Screen Indicator -->
-		<div class="relative mb-12">
-			<div class="w-3/4 mx-auto h-2 bg-gray-300 rounded-lg transform -skew-y-1"></div>
-			<p class="text-center text-gray-500 mt-2">Screen</p>
+	<!-- Seat Legend -->
+	<div class="mb-6 flex justify-center gap-4">
+		<div class="flex items-center gap-2">
+			<div class="h-6 w-6 rounded bg-yellow-500"></div>
+			<span>{m.standard({})}</span>
 		</div>
-
-		<!-- Seat Legend -->
-		<div class="flex justify-center gap-4 mb-6">
-			<div class="flex items-center gap-2">
-				<div class="w-6 h-6 bg-yellow-500 rounded"></div>
-				<span>Standard</span>
-			</div>
-			<div class="flex items-center gap-2">
-				<div class="w-6 h-6 bg-blue-500 rounded"></div>
-				<span>Premium</span>
-			</div>
-			<div class="flex items-center gap-2">
-				<div class="w-6 h-6 bg-purple-500 rounded"></div>
-				<span>VIP</span>
-			</div>
-			<div class="flex items-center gap-2">
-				<div class="w-6 h-6 bg-gray-500 rounded"></div>
-				<span>Booked</span>
-			</div>
+		<div class="flex items-center gap-2">
+			<div class="h-6 w-6 rounded bg-blue-500"></div>
+			<span>{m.premium({})}</span>
 		</div>
+		<div class="flex items-center gap-2">
+			<div class="h-6 w-6 rounded bg-purple-500"></div>
+			<span>{m.vip({})}</span>
+		</div>
+		<div class="flex items-center gap-2">
+			<div class="h-6 w-6 rounded bg-gray-500"></div>
+			<span>{m.booked({})}</span>
+		</div>
+	</div>
 </div>
 
 <style>
@@ -183,7 +196,7 @@
 	}
 
 	.success-message {
-		background-color: #4CAF50;
+		background-color: #4caf50;
 		color: white;
 		padding: 10px;
 		border-radius: 4px;
@@ -219,7 +232,9 @@
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
-		transition: background-color 0.3s, border-color 0.3s;
+		transition:
+			background-color 0.3s,
+			border-color 0.3s;
 	}
 
 	.seat:hover {
