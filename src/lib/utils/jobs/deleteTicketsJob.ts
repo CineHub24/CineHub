@@ -1,13 +1,12 @@
 import { db } from '$lib/server/db';
 import { ticket } from '$lib/server/db/schema';
+import { notifySeatChange } from '$lib/server/sse';
 import { eq, and, gt, lt } from 'drizzle-orm';
 import schedule from 'node-schedule';
 
-// Define the job
 export const deleteOldReservedTicketsJob = () => {
     console.log('Scheduling job to delete old reserved tickets');
     schedule.scheduleJob('*/1 * * * *', async () => {
-        console.log('Running job to delete old reserved tickets');
 
         const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
 
@@ -22,9 +21,12 @@ export const deleteOldReservedTicketsJob = () => {
                     )
                 );
 
-            console.log(oldReservedTickets);
+            // console.log(oldReservedTickets);
 
             if (oldReservedTickets.length > 0) {
+                oldReservedTickets.forEach(async (oldReservedTicket) => {
+                    notifySeatChange(oldReservedTicket.showingId!);
+                });
                 const deletedCount = await db
                     .delete(ticket)
                     .where(
@@ -33,11 +35,9 @@ export const deleteOldReservedTicketsJob = () => {
                             lt(ticket.createdAt, fifteenMinutesAgo)
                         )
                     );
-
-                console.log(`${deletedCount} old reserved tickets deleted.`);
-            } else {
-                console.log('No old reserved tickets found.');
+                // console.log(`Deleted ${deletedCount} old reserved tickets`);
             }
+
         } catch (error) {
             console.error('Error running the ticket deletion job:', error);
         }

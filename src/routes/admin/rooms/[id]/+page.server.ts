@@ -1,193 +1,205 @@
+// src/routes/rooms/v2/[id]/+page.server.ts
+import { fail, redirect } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { seat, cinemaHall, seatCategory, cinema } from '$lib/server/db/schema';
+import { cinemaHall, seatCategory, seat, type Seat, cinema } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-import { fail, redirect, type Actions } from '@sveltejs/kit';
-import type { PageServerLoad } from '../$types';
+import { languageAwareGoto, languageAwareRedirect } from '$lib/utils/languageAware';
 
-interface Seat {
-    id: number, 
-    seatNumber: string;
-    row: string;
-    cinemaHall: number;
-    categoryId: number
+
+interface Block {
+    id: number;
+    left: number;
+    top: number;
+    rotation: number;
+    categoryId: number;
+    row?: string;
+    number?: number;
 }
-
-export const actions = {
-    saveSeats: async ({ request }) => {
-        let shouldRedirect = false;
-
-        try {
-            const formData = await request.formData();
-            const seatPlanData = formData.get('seatPlanData');
-            const name = formData.get('name');
-            const cinemaId = formData.get('cinemaId');
-            const hallId = formData.get('hallId');
-
-            if (!name) throw new Error('No hall number provided');
-
-            if (typeof seatPlanData !== 'string') throw new Error('Invalid seat plan data');
-
-            const seats: Seat[] = JSON.parse(seatPlanData);
-
-            // Check if the cinema hall already exists
-            const existingHall = await db
-                .select({
-                    id: cinemaHall.id,
-                    name: cinemaHall.name,
-                })
-                .from(cinemaHall)
-                .where(eq(cinemaHall.id, Number(hallId)));
-
-            let cinemaHallId;
-            if (existingHall.length === 0) {
-                // Insert a new cinema hall
-                const insertedHall = await db
-                    .insert(cinemaHall)
-                    .values({ name: name?.toString() ?? '', capacity: seats.length, cinemaId: Number(cinemaId) })
-                    .returning({ id: cinemaHall.id });
-
-                cinemaHallId = insertedHall[0].id;
-            } else {
-                cinemaHallId = existingHall[0].id;
-
-                // Update the capacity and name if the hall already exists
-                await db
-                    .update(cinemaHall)
-                    .set({ capacity: seats.length, name: name!.toString() })
-                    .where(eq(cinemaHall.id, cinemaHallId));
-            }
-
-            // Map seat data with cinemaHall ID
-            const seatsWithHall = seats.map((seat) => ({
-                seatNumber: seat.seatNumber,
-                row: seat.row,
-                cinemaHall: cinemaHallId,
-                categoryId: seat.categoryId,
-
-            }));
-            console.log(seatsWithHall);
-            // delete existing seats and insert new ones
-            await db.delete(seat).where(eq(seat.cinemaHall, cinemaHallId));
-            await db.insert(seat).values(seatsWithHall);
-
-            shouldRedirect = true;
-
-        } catch (error) {
-            console.error('Error saving seats:', error);
-            return fail(500, { error: true, message: 'Failed to save seat plan.' });
-        }
-
-        if (shouldRedirect) {
-            throw redirect(303, '/admin/rooms');
-        }
-    },
-} satisfies Actions;
-
-
-
-function organizeSeats(seats: Seat[]) {
-    if (!seats || seats.length === 0) return null;
-
-    // First, determine the dimensions of the grid
-    let rows = new Set(seats.map(seat => seat.row));
-    const rowArray = Array.from(rows);
-    // A1 - B1 - D1 -> insert null for C1
-    let lastLetter = '';
-    rowArray.forEach((row, index) => {
-        const letter = row.charAt(0);
-        if (lastLetter) {
-            const nextLetter = String.fromCharCode(lastLetter.charCodeAt(0) + 1);
-            if (letter !== nextLetter && index != rows.size - 1) {
-
-                rows.add(nextLetter);
-            }
-        }
-        lastLetter = letter;
-    });
-    rows = new Set(Array.from(rows).sort());
-    const maxSeatNumber = Math.max(...seats.map(seat =>
-        parseInt(seat.seatNumber.replace(/[A-Z]/g, ''))));
-
-    // Create sorted arrays of row letters and seat numbers
-    const rowLetters = Array.from(rows).sort();
-    const numColumns = maxSeatNumber;
-
-    // Initialize the 2D array with nulls
-    const seatGrid: (Seat | null)[][] = rowLetters.map(() =>
-        Array(numColumns).fill(null)
-    );
-
-    // Place seats in their correct positions
-    seats.forEach(seat => {
-        const rowIndex = rowLetters.indexOf(seat.row);
-        // Extract the number from seatNumber (e.g., "A1" -> 1)
-        const seatNum = parseInt(seat.seatNumber.replace(/[A-Z]/g, ''));
-        if (rowIndex !== -1 && seatNum > 0) {
-            seatGrid[rowIndex][seatNum - 1] = seat;
-        }
-    });
-
-    // Remove trailing null columns if they're empty in all rows
-    let lastNonNullColumn = 0;
-    for (let col = numColumns - 1; col >= 0; col--) {
-        const hasSeatsInColumn = seatGrid.some(row => row[col] !== null);
-        if (hasSeatsInColumn) {
-            lastNonNullColumn = col;
-            break;
-        }
-    }
-
-    // Trim the arrays to remove unused columns
-    return seatGrid.map(row => row.slice(0, lastNonNullColumn + 1));
-}
-
-// function validateSeatGrid(grid: (Seat | null)[][]) {
-//     if (!grid || grid.length === 0) return false;
-
-//     const rowLengths = new Set(grid.map(row => row.length));
-//     if (rowLengths.size !== 1) {
-//         console.error('Inconsistent row lengths in seat grid');
-//         return false;
-//     }
-
-//     for (const row of grid) {
-//         for (let i = 0; i < row.length; i++) {
-//             const seat = row[i];
-//             if (seat !== null) {
-//                 const seatNum = parseInt(seat.seatNumber.replace(/[A-Z]/g, ''));
-//                 if (seatNum !== i + 1) {
-//                     console.error(`Seat number mismatch at position ${i}`, seat);
-//                     return false;
-//                 }
-//             }
-//         }
-//     }
-
-//     return true;
-// }
 
 export const load: PageServerLoad = async ({ params }) => {
-    const cinemas = await db.select().from(cinema);
-    const categories = await db.select().from(seatCategory);
+    try {
+        const idParam = params.id;
+        const isCreate = idParam === 'create';
+        let room = null;
+        let seats: Seat = [];
 
-    const prop = params.id;
+        if (!isCreate) {
+            const roomId = parseInt(idParam);
+            if (isNaN(roomId)) {
+                return fail(400, { error: 'Invalid room ID.' });
+            }
 
-    if (isNaN(prop)) return { categories, cinemaHall: null, seatPlan: null, cinemas };
+            room = (await db.select().from(cinemaHall)
+                .where(eq(cinemaHall.id, roomId)))[0];
+
+            if (!room) {
+                return fail(404, { error: 'Room not found.' });
+            }
+
+            // Fetch seats for the room
+            seats = await db.select().from(seat)
+                .where(eq(seat.cinemaHall, room!.id));
+
+            // Optionally, verify if the room belongs to the current user's cinema
+            // Example:
+            // if (room.cinemaId !== currentUserCinemaId) {
+            //     return fail(403, { error: 'Unauthorized access to this room.' });
+            // }
+        }
+
+        const cinemas = await db.select().from(cinema);
+        // Fetch seat categories
+        const categories = await db.select().from(seatCategory)
+            .where(eq(seatCategory.isActive, true));
 
 
-    const hall = await db.select().from(cinemaHall)
-        .where(eq(cinemaHall.id, Number(prop)))
-        .limit(1);
 
-    const seats = await db.select().from(seat)
-        .where(eq(seat.cinemaHall, Number(prop)));
-
-    const organizedSeats = seats.length > 0 ? organizeSeats(seats) : null;
-
-    return {
-        categories,
-        cinemaHall: hall[0] || null,
-        seatPlan: organizedSeats,
-        cinemas
-    };
+        return {
+            room,
+            categories,
+            isCreate,
+            cinemas,
+            seats   
+            // You can include additional data as needed
+        };
+    } catch (error) {
+        console.error("Error in load function:", error);
+        return fail(500, { error: 'Failed to load data.' });
+    }
 };
+
+export const actions: Actions = {
+    save: async ({ request }) => {
+        let shouldRedirect = false;
+
+        let room = null;
+
+
+        const formData = await request.formData();
+        const isCreate = formData.get('isCreate') === 'true';
+        const name = formData.get('name') as string;
+        const layout = formData.get('layout') as string;
+        const cinemaId = parseInt(formData.get('cinemaId') as string);
+
+        if (!name || !layout || isNaN(cinemaId)) {
+            return fail(400, {
+                success: false,
+                message: 'Name, layout, and cinema ID are required'
+            });
+        }
+
+        try {
+            const layoutData: Block[] = JSON.parse(layout);
+            // Calculate capacity from layout (number of seats)
+            const capacity = layoutData.length;
+
+            if (isCreate) {
+                // Create new room
+                const newRoom = await db.insert(cinemaHall)
+                    .values({
+                        name,
+                        layout: layout, // Storing layout as JSON string
+                        capacity,
+                        cinemaId,
+                        isActive: true
+                    })
+                    .returning();
+
+                room = newRoom[0];
+            } else {
+                // Update existing room
+                const id = parseInt(formData.get('id') as string);
+                if (isNaN(id)) {
+                    return fail(400, { success: false, message: 'Invalid room ID.' });
+                }
+
+                const updatedRoom = await db.update(cinemaHall)
+                    .set({
+                        name,
+                        layout: layout, // Update layout
+                        capacity
+                    })
+                    .where(eq(cinemaHall.id, id))
+                    .returning();
+
+                room = updatedRoom[0];
+            }
+
+            if (!room) {
+                return fail(500, { success: false, message: 'Failed to create or update room.' });
+            }
+
+            // **Handle Seats within a Transaction for Data Integrity**
+            await db.transaction(async (tx) => {
+                if (!isCreate) {
+                    // Delete existing seats
+                    await tx.delete(seat)
+                        .where(eq(seat.cinemaHall, room.id));
+                }
+
+                // Prepare seats to insert
+                const seatsToInsert: Omit<Seat, 'id'>[] = [];
+
+                // Group blocks by row
+                const rowsMap: Map<string, Block[]> = new Map();
+
+                layoutData.forEach(block => {
+                    if (!block.row || !block.number) {
+                        throw new Error(`Block ID ${block.id} is missing row or number.`);
+                    }
+
+                    if (!rowsMap.has(block.row)) {
+                        rowsMap.set(block.row, []);
+                    }
+
+                    rowsMap.get(block.row)!.push(block);
+                });
+
+                // Iterate over each row to assign seat numbers based on x-coordinate
+                rowsMap.forEach((blocksInRow, rowLetter) => {
+                    // Sort blocks by x-coordinate (left to right)
+                    blocksInRow.sort((a, b) => a.left - b.left);
+
+                    blocksInRow.forEach((block, index) => {
+                        // Assign seat number based on sorted order
+                        const seatNumber = index + 1;
+
+                        seatsToInsert.push({
+                            cinemaHall: room.id,
+                            row: rowLetter,
+                            rotation: block.rotation,
+                            seatNumber: seatNumber,
+                            left: block.left,
+                            top: block.top,
+                            categoryId: block.categoryId,
+                            isActive: true,
+                        });
+                    });
+                });
+
+                // Bulk insert seats
+                await tx.insert(seat).values(seatsToInsert);
+            });
+
+
+            if (isCreate) {
+                shouldRedirect = true;
+            } else {
+                return {
+                    success: true,
+                    data: room
+                };
+            }
+        } catch (error) {
+            console.error('Error saving room:', error);
+            return fail(500, {
+                success: false,
+                message: 'Failed to save room'
+            });
+        }
+        if (shouldRedirect) {
+            throw languageAwareRedirect(303, `/admin/rooms/${room.id}`);
+        }
+    }
+} satisfies Actions;
