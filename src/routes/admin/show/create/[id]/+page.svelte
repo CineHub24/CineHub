@@ -14,7 +14,7 @@
 	let { halls } = data;
 	console.log('initial: ' + halls);
 	export let form: ActionData;
-
+	const units = ['Tag', 'Woche', 'Monat'];
 	let filmRuntime = selectedFilm.runtime;
 	let selectedDate = new Date().toISOString().slice(0, 10);
 	let priceSet = 0;
@@ -24,12 +24,33 @@
 	let filteredHalls: CinemaHall[] = [];
 	let cleaningTime = 15;
 	let advertisementTime = 15;
+	let showPopup = false;
+	let repeatEvery = 1;
+	let repeatUnit = 'Woche';
+	
+
+
+	function openPopup() {
+		showPopup = true;
+	}
+
+	function closePopup() {
+		showPopup = false;
+		isRecurring = false;
+	}
+
+	function handleSubmit() {
+		// Hier können Sie die Logik zum Speichern der Wiederholung implementieren
+		isRecurring = true;
+		showPopup = false;
+	}
 
 	// Neue Variablen für wiederkehrende Vorstellungen
 	let isRecurring = false;
 	let recurrenceCount = 1;
 	let recurrenceUnit = 'days';
 	let recurrenceEndDate = '';
+	let endDate = '';
 
 	$: totalDuration = Number(filmRuntime) + cleaningTime + advertisementTime;
 
@@ -293,117 +314,163 @@
 					{/if}
 				{/if}
 				{#if showConflictPopup}
-<div class="fixed inset-0 h-full w-full overflow-y-auto bg-gray-600 bg-opacity-50 flex items-center justify-center" id="my-modal">
-<div class="bg-white rounded-lg shadow-xl p-6 m-4 max-w-xl w-full">
-<h3 class="text-xl font-semibold text-gray-900 mb-4">Konflikte gefunden</h3>
-<p class="text-sm text-gray-600 mb-4">
-Die folgenden Vorstellungen konnten nicht gespeichert werden:
-</p>
-<div class="overflow-x-auto">
-<table class="min-w-full bg-white">
-<thead class="bg-gray-50">
-<tr>
-<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fehlgeschlagen</th>
-<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Blockiert durch</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-gray-200">
-{#each conflicts as conflict}
-<tr>
-<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-{conflict.failed.date}<br>
-{conflict.failed.startTime} - {conflict.failed.endTime}
-</td>
-<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-<a href="/admin/show/{conflict.blocking.Showing.id}" class="text-blue-600 hover:text-blue-800">
-{conflict.blocking.Film.title}<br>
-{conflict.blocking.Showing.date}<br>
-{conflict.blocking.Showing.time} - {conflict.blocking.Showing.endTime}
-</a>
-</td>
-</tr>
-{/each}
-</tbody>
-</table>
-</div>
-<p class="mt-4 text-sm text-gray-600">
-Erfolgreich gespeicherte Vorstellungen: {successfulShows.length}
-</p>
-<div class="mt-6 flex justify-end">
-<button
-class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-on:click={handleConflictResolution}
->
-Konflikte auflösen
-</button>
-</div>
-</div>
-</div>
-{/if}
-				{#if isValidStartTime}
-					<form method="POST" action="?/saveShowing" use:enhance={enhanceSaveShowing}>
-						<input type="hidden" name="startTime" value={selectedStartTime} />
-						<input type="hidden" name="endTime" value={calculatedEndTime} />
-						<input type="hidden" name="totalDuration" value={totalDuration} />
-						<input type="hidden" name="filmId" value={selectedFilm.id} />
-						<input type="hidden" name="hallId" value={selectedHall} />
-						<input type="hidden" name="date" value={selectedDate} />
-						<input type="hidden" name="priceSet" value={priceSet} />
-
-						<div class="mb-4">
-							<label class="flex items-center">
-								<input type="checkbox" bind:checked={isRecurring} name="isRecurring" class="mr-2" />
-								Wiederkehrende Vorstellung
-							</label>
-						</div>
-
-						{#if isRecurring}
-							<div class="space-y-4">
-								<div>
-									<label for="recurrenceCount" class="mb-2 block">Anzahl der Wiederholungen</label>
-									<input
-										type="number"
-										id="recurrenceCount"
-										name="recurrenceCount"
-										bind:value={recurrenceCount}
-										min="1"
-										class="w-full rounded border p-2"
-									/>
-								</div>
-
-								<div>
-									<label for="recurrenceUnit" class="mb-2 block">Einheit</label>
-									<select
-										id="recurrenceUnit"
-										name="recurrenceUnit"
-										bind:value={recurrenceUnit}
-										class="w-full rounded border p-2"
-									>
-										<option value="days">Tage</option>
-										<option value="weeks">Wochen</option>
-										<option value="months">Monate</option>
-									</select>
-								</div>
-
-								<div>
-									<label for="recurrenceEndDate" class="mb-2 block">Enddatum</label>
-									<input
-										type="date"
-										id="recurrenceEndDate"
-										name="recurrenceEndDate"
-										bind:value={recurrenceEndDate}
-										class="w-full rounded border p-2"
-									/>
-								</div>
+					<div
+						class="fixed inset-0 flex h-full w-full items-center justify-center overflow-y-auto bg-gray-600 bg-opacity-50"
+						id="my-modal"
+					>
+						<div class="m-4 w-full max-w-xl rounded-lg bg-white p-6 shadow-xl">
+							<h3 class="mb-4 text-xl font-semibold text-gray-900">Konflikte gefunden</h3>
+							<p class="mb-4 text-sm text-gray-600">
+								Die folgenden Vorstellungen konnten nicht gespeichert werden:
+							</p>
+							<div class="overflow-x-auto">
+								<table class="min-w-full bg-white">
+									<thead class="bg-gray-50">
+										<tr>
+											<th
+												class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+												>Fehlgeschlagen</th
+											>
+											<th
+												class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+												>Blockiert durch</th
+											>
+										</tr>
+									</thead>
+									<tbody class="divide-y divide-gray-200">
+										{#each conflicts as conflict}
+											<tr>
+												<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+													{conflict.failed.date}<br />
+													{conflict.failed.startTime} - {conflict.failed.endTime}
+												</td>
+												<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+													<a
+														href="/admin/show/{conflict.blocking.Showing.id}"
+														target="_blank"
+														class="text-blue-600 hover:text-blue-800"
+													>
+														{conflict.blocking.Film.title}<br />
+														{conflict.blocking.Showing.date}<br />
+														{conflict.blocking.Showing.time} - {conflict.blocking.Showing.endTime}
+													</a>
+												</td>
+											</tr>
+										{/each}
+									</tbody>
+								</table>
 							</div>
-						{/if}
-
-						<button
-							type="submit"
-							class="w-full rounded bg-green-500 p-2 text-white hover:bg-green-600"
-						>
-							{isRecurring ? 'Wiederkehrende Vorstellungen speichern' : 'Vorstellung speichern'}
-						</button>
+							<p class="mt-4 text-sm text-gray-600">
+								Erfolgreich gespeicherte Vorstellungen: {successfulShows.length}
+							</p>
+							<div class="mt-6 flex justify-end">
+								<button
+									class="rounded-md bg-blue-500 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+									on:click={handleConflictResolution}
+								>
+									Schließen
+								</button>
+							</div>
+						</div>
+					</div>
+				{/if}
+				{#if isValidStartTime}
+				<form method="POST" action="?/saveShowing" use:enhance={enhanceSaveShowing}>
+					<input type="hidden" name="startTime" value={selectedStartTime} />
+					<input type="hidden" name="endTime" value={calculatedEndTime} />
+					<input type="hidden" name="totalDuration" value={totalDuration} />
+					<input type="hidden" name="filmId" value={selectedFilm.id} />
+					<input type="hidden" name="hallId" value={selectedHall} />
+					<input type="hidden" name="date" value={selectedDate} />
+					<input type="hidden" name="priceSet" value={priceSet} />
+					
+					<!-- Neue versteckte Felder für die wiederkehrenden Informationen -->
+					<input type="hidden" name="isRecurring" value={isRecurring} />
+					<input type="hidden" name="repeatEvery" value={repeatEvery} />
+					<input type="hidden" name="repeatUnit" value={repeatUnit} />
+					<input type="hidden" name="endDate" value={endDate} />
+					
+					<div class="mb-4">
+					<label class="flex items-center">
+					<input
+					type="checkbox"
+					bind:checked={isRecurring}
+					class="mr-2"
+					on:change={openPopup}
+					/>
+					Wiederkehrende Vorstellung
+					</label>
+					</div>
+					
+					{#if isRecurring}
+					<div class="mb-4 rounded bg-gray-100 p-4">
+					<p>Wiederholen alle {repeatEvery} {repeatUnit}{repeatEvery > 1 ? 'e' : ''}</p>
+					<p>Enddatum: {endDate}</p>
+					</div>
+					{/if}
+					
+					{#if showPopup}
+					<div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+					<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+					<h2 class="mb-4 text-2xl font-bold">Benutzerdefinierte Wiederholung</h2>
+					
+					<div class="mb-4">
+					<div class="flex items-center mb-2">
+					<span class="mr-2">Wiederholen alle</span>
+					<input
+					type="number"
+					bind:value={repeatEvery}
+					min="1"
+					class="w-16 rounded border p-2"
+					/>
+					<div class="relative ml-2 flex-grow">
+					<select
+					bind:value={repeatUnit}
+					class="w-full appearance-none rounded border bg-white p-2 pr-8"
+					>
+					{#each units as unit}
+					<option value={unit}>{unit}</option>
+					{/each}
+					</select>
+					</div>
+					</div>
+					<div class="flex items-center mt-2">
+					<span class="mr-2">Enddatum:</span>
+					<input
+					type="date"
+					bind:value={endDate}
+					class="rounded border p-2"
+					min={selectedDate}
+					/>
+					</div>
+					</div>
+					
+					<div class="flex justify-end space-x-2">
+					<button
+					type="button"
+					on:click={closePopup}
+					class="rounded border px-4 py-2 text-gray-600 hover:bg-gray-100"
+					>
+					Abbrechen
+					</button>
+					<button
+					type="button"
+					on:click={handleSubmit}
+					class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+					>
+					Bestätigen
+					</button>
+					</div>
+					</div>
+					</div>
+					{/if}
+					
+					<button
+					type="submit"
+					class="w-full rounded bg-green-500 p-2 text-white hover:bg-green-600"
+					>
+					{isRecurring ? 'Wiederkehrende Vorstellungen speichern' : 'Vorstellung speichern'}
+					</button>
 					</form>
 				{/if}
 			</div>

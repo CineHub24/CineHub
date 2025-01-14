@@ -11,12 +11,10 @@ import {
 	type Cinema,
 	type CinemaHall,
 	type Film,
-	type Showing
 } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { languageAwareRedirect } from '$lib/utils/languageAware.js';
-import { hall } from '$lib/paraglide/messages';
-import dna from 'lucide-svelte/icons/dna';
+import repeat from 'lucide-svelte/icons/repeat';
 interface Conflict {
 	failed:any;
 	blocking: any;
@@ -103,22 +101,22 @@ export const actions = {
 		const priceSetId = Number(data.get('priceSet'));
 		const date = data.get('date') as string;
 		const isRecurring = data.get('isRecurring') as string;
-		const recurrenceCount = Number(data.get('recurrenceCount'));
-		const recurrenceUnit = data.get('recurrenceUnit') as string;
-		const recurrenceEndDate = data.get('recurrenceEndDate') as string;
-		console.log('before', hallId);
+		const repeatEvery = Number(data.get('repeatEvery'));
+		const repeatUnit = data.get('repeatUnit') as string;
+		const recurrenceEndDate = data.get('endDate') as string;
+		console.log('recurrenceEndDate', recurrenceEndDate, repeatEvery, repeatUnit);
 		if (endTime === '00:00') {
 			endTime = '24:00';
 		}
 		console.log(isRecurring);
 		try {
-			if (isRecurring === 'on') {
+			if (isRecurring === 'true') {
 				const shows = generateRecurringShowings(
 					date,
 					startTime,
 					endTime,
-					recurrenceCount,
-					recurrenceUnit,
+					repeatEvery,
+					repeatUnit,
 					recurrenceEndDate
 				);
 				const conflicts:Conflict[] = [];
@@ -297,13 +295,20 @@ function generateRecurringShowings(
 	startDate: string,
 	startTime: string,
 	endTime: string,
-	recurrenceCount: number,
-	recurrenceUnit: string,
+	repeatEvery: number,
+	repeatUnit: string,
 	recurrenceEndDate: string
 ): { date: string; startTime: string; endTime: string }[] {
 	const showings = [];
 	let currentDate = new Date(startDate);
 	const endDate = new Date(recurrenceEndDate);
+	console.log(startDate,
+		startTime,
+		endTime,
+		repeatEvery,
+		repeatUnit,
+		recurrenceEndDate)
+	
 
 	while (currentDate <= endDate) {
 		showings.push({
@@ -312,17 +317,17 @@ function generateRecurringShowings(
 			endTime
 		});
 
-		switch (recurrenceUnit) {
-			case 'days':
-				currentDate.setDate(currentDate.getDate() + 1);
-				break;
-			case 'weeks':
-				currentDate.setDate(currentDate.getDate() + 7);
-				break;
-			case 'months':
-				currentDate.setMonth(currentDate.getMonth() + 1);
-				break;
-		}
+		switch (repeatUnit) {
+			case 'Tag':
+			currentDate.setDate(currentDate.getDate() + repeatEvery);
+			break;
+			case 'Woche':
+			currentDate.setDate(currentDate.getDate() + (7 * repeatEvery));
+			break;
+			case 'Monat':
+			currentDate.setMonth(currentDate.getMonth() + repeatEvery);
+			break;
+			}
 	}
 	console.log('reapted shows', showings);
 	return showings;
