@@ -330,5 +330,13 @@
 	"deleted": "erfolgreich gelöscht",
 	"ticket": "Ticket",
 	"gift_code": "Geschenkgutschein",
-	"server_error_delete": "Serverfehler beim Löschen des Elements"
+	"server_error_delete": "Serverfehler beim Löschen des Elements",
+	"gift_cards_description": "Kunden können Geschenkgutscheine für Freunde und Familie kaufen. Der Gutscheincode kann später beim Ticketkauf eingelöst werden.",
+
+	"create_new_gift_card": "Neuen Geschenkgutschein erstellen",
+	"new_gift_card": "Neuer Geschenkgutschein",
+	"gift_card_description": "Beschreibung des Geschenkgutscheins",
+	"gift_card_amount": "Geschenkgutscheinbetrag",
+	"gift_card": "Geschenkgutschein"
+
 }

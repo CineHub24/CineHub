@@ -156,6 +156,8 @@ export const load = async ({ locals }) => {
 			.where(eq(giftCodesUsed.bookingId, bookingId));
 
 		const giftCodeAmount = usedGiftCodes.reduce((sum, code) => sum + Number(code.amount), 0);
+
+		console.log(usedGiftCodes);
 		let prices;
 		if (
 			_booking[0].basePrice === null ||

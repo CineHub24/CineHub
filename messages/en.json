@@ -330,5 +330,13 @@
 	"deleted": "successfully deleted",
 	"ticket": "Ticket",
 	"gift_code": "Gift Code",
-	"server_error_delete": "Server error while deleting item"
+	"server_error_delete": "Server error while deleting item",
+	"gift_cards_description": "Customers can purchase a gift card for future cinema visits. The gift card code can be redeemed later when buying tickets.",
+
+
+	"create_new_gift_card": "Create New Gift Card",
+	"new_gift_card": "New Gift Card",
+	"gift_card_description": "Gift Card Description",
+	"gift_card_amount": "Gift Card Amount",
+	"gift_card": "Gift Card"
 }
