@@ -90,7 +90,6 @@
 			role="button"
 			tabindex="0"
 			onmouseover={() => {
-				showNotification("New message received", "info");
 				if (hoveredMovie.id !== movie.id) {
 					hoveredMovie = { ...movie }; // Update only if it's a different movie
 				}
