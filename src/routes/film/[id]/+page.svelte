@@ -2,7 +2,7 @@
 	import type { PageServerData } from './$types';
 	import { writable } from 'svelte/store';
 	import * as m from '$lib/paraglide/messages.js';
-	import ShowsFilmDropdown from '$lib/components/ShowsFilmDropdown.svelte';
+	import ShowsFilm from '$lib/components/ShowsFilm.svelte';
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 	const { data }: { data: PageServerData } = $props();
@@ -84,7 +84,7 @@
 
 	{#if shows.length > 0}
 		<h2 class="px-5 pt-3 text-xl font-bold">{m.shows({})}</h2>
-		<ShowsFilmDropdown {shows} movies={[movie]} />
+		<ShowsFilm {shows} movies={[movie]} />
 	{/if}
 {:else}
 	<p>{m.movie_not_found({})}</p>
