@@ -284,7 +284,7 @@
 	"percentage": "Prozentsatz",
 	"fixed_amount": "Fester Betrag",
 	"discount_value": "Rabattwert",
-	"enter_percentage": "Dezimalwert eingeben (z.B. 0,5 für 50%)",
+	"enter_percentage": "Dezimalwert eingeben (z.B. 0,3 für 30% Rabatt)",
 	"enter_amount": "Betrag eingeben",
 	"seat_selection_for": "Sitzplatzauswahl für",
 	"seats_successfully_booked": "Sitzplätze erfolgreich gebucht!",

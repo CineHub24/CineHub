@@ -284,7 +284,7 @@
 	"percentage": "Percentage",
 	"fixed_amount": "Fixed Amount",
 	"discount_value": "Discount Value",
-	"enter_percentage": "Enter decimal value (e.g. 0.5 for 50%)",
+	"enter_percentage": "Enter decimal value (e.g. 0.3 for 30% Discount)",
 	"enter_amount": "Enter amount",
 	"expiration_date": "Expiration Date",
 
