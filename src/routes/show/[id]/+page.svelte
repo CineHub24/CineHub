@@ -29,10 +29,10 @@
 		seatNumber?: string;
 		categoryId: number;
 
-		// Abgeleitet: Hilfsvariablen für die Anzeige
 		booked?: boolean; // = true, wenn entweder paid oder von jemand anderem reserviert
 		reservedByUser?: boolean; // = true, wenn currentUser diesen Sitz reserviert hat
 		reservedByOthers?: boolean;
+		pending?: boolean;
 	};
 
 	type SeatCategory = typeof seatCategory.$inferSelect & {
@@ -86,26 +86,26 @@
 	/*************************************************************
 	 *           FUNKTIONEN: PRICE & DIMENSIONS
 	 *************************************************************/
-	 function getTicketPrice(selection: SeatSelection): number {
-    const type = ticketTypes.find((t) => t.id === selection.selectedTicketType);
-    const factor = Number(type?.factor ?? 0);
-    const catPrice = Number(selection.seatCategory.price ?? 0);
+	function getTicketPrice(selection: SeatSelection): number {
+		const type = ticketTypes.find((t) => t.id === selection.selectedTicketType);
+		const factor = Number(type?.factor ?? 0);
+		const catPrice = Number(selection.seatCategory.price ?? 0);
 
-    if (isNaN(factor) || isNaN(catPrice)) return 0;
+		if (isNaN(factor) || isNaN(catPrice)) return 0;
 
-    const basePrice = factor * catPrice;
-    const finalPrice = basePrice * Number(priceSet.priceFactor);
-    
-    console.log(
-        `[getTicketPrice] SeatID=${selection.seat.id}, 
+		const basePrice = factor * catPrice;
+		const finalPrice = basePrice * Number(priceSet.priceFactor);
+
+		console.log(
+			`[getTicketPrice] SeatID=${selection.seat.id}, 
          TicketType=${type?.name}, 
          BasePrice=${basePrice},
          PriceFactor=${priceSet.priceFactor},
          FinalPrice=${finalPrice}`
-    );
-    
-    return finalPrice;
-}
+		);
+
+		return finalPrice;
+	}
 	function getBlockDimensions(categoryId: number) {
 		const c = seatCategories.find((cat) => cat.id === categoryId);
 		const width = c?.width ?? 40;
@@ -212,11 +212,19 @@
 			return;
 		}
 
+		seat.pending = true;
+		seats = seats.map((s) => (s.id === seat.id ? { ...seat } : s));
+
 		// Prüfen, ob dieser Sitz schon in selectedSeats ist
 		const isSelected = selectedSeats.some((sel) => sel.seat.id === seat.id);
 		if (isSelected) {
-			cancelSeat(seat);
-			console.log(' -> seat is already selected. Unselecting...');
+			const res = await cancelSeat(seat);
+			if (res.type === 'error') {
+				error = res.error || 'Failed to cancel seat';
+				seat.pending = false;
+				seats = seats.map((s) => (s.id === seat.id ? { ...seat } : s));
+				return;
+			}
 			selectedSeats = selectedSeats.filter((sel) => sel.seat.id !== seat.id);
 			return;
 		}
@@ -226,6 +234,8 @@
 		const res = await reserveSeat(seat);
 		if (res.type === 'error') {
 			error = res.error || 'Failed to reserve seat';
+			seat.pending = false;
+			seats = seats.map((s) => (s.id === seat.id ? { ...seat } : s));
 			return;
 		}
 	}
@@ -242,6 +252,7 @@
 		});
 		const json = await resp.json();
 		console.log('[cancelSeat] server response:', json);
+		return json;
 	}
 
 	async function reserveSeat(seat: Seat) {
@@ -249,7 +260,10 @@
 		const form = new FormData();
 		form.append('showingId', showing.id.toString());
 		form.append('seatId', seat.id.toString());
-		form.append('ticketType', selectedSeats.find((s) => s.seat.id === seat.id)?.selectedTicketType.toString() || '');
+		form.append(
+			'ticketType',
+			selectedSeats.find((s) => s.seat.id === seat.id)?.selectedTicketType.toString() || ''
+		);
 
 		const resp = await fetch('?/reserveSeat', {
 			method: 'POST',
@@ -287,9 +301,6 @@
 		console.log('[addSelectedSeat] selectedSeats now:', selectedSeats);
 	}
 
-	/*************************************************************
-	 *           FUNKTION: TICKET-TYPE VERÄNDERN
-	 *************************************************************/
 	function updateTicketType(seatId: number, ticketTypeId: number) {
 		console.log(`[updateTicketType] seatID=${seatId}, newTicketType=${ticketTypeId}`);
 
@@ -303,9 +314,6 @@
 		reserveSeat(seats.find((s) => s.id === seatId)!);
 	}
 
-	/*************************************************************
-	 *           FUNKTION: BUCHUNG ABSCHICKEN
-	 *************************************************************/
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 		console.log(
@@ -341,9 +349,6 @@
 		}
 	}
 
-	/*************************************************************
-	 *           SSE MANAGER ERSTELLEN
-	 *************************************************************/
 	const sseManager = createSSEManager(
 		showing.id,
 		// Callback für eingehende Sitz-Updates
@@ -363,28 +368,26 @@
 
 			seats = seats.map((localSeat) => {
 				const update = seatStatusData.find((st) => st.seatId === localSeat.id);
+				
 				if (!update) {
-					// Fehlt => seat ist "available"
+					// Not in the server response => seat is "available"
 					return transformSeat({
 						...localSeat,
 						status: 'available',
-						userId: null
+						userId: null,
+						pending: false // reset pending
 					});
 				} else {
-					// seat existiert => reserved/paid
+					// seat is either reserved or paid
 					return transformSeat({
 						...localSeat,
 						status: update.status as 'reserved' | 'paid',
-						userId: update.userId
+						userId: update.userId,
+						pending: false // reset pending
 					});
 				}
 			});
 
-			/**
-			 * selectedSeats anpassen:
-			 * - Falls ein seat nicht mehr "reservedByUser" ist => raus
-			 * - Falls neu "reservedByUser" und noch nicht drin => rein
-			 */
 			selectedSeats = selectedSeats.filter((sel) => {
 				const updated = seats.find((s) => s.id === sel.seat.id);
 				return updated?.reservedByUser;
@@ -437,6 +440,7 @@
 				const category = seatCategories.find((c) => c.id === seatObj.categoryId)!;
 
 				console.log(`[onMount] Marking seatID=${seatObj.id} as selected (already reserved)`);
+
 				return {
 					seat: seatObj,
 					seatCategory: category,
@@ -455,114 +459,108 @@
 	});
 
 	function getAvailableTicketTypes(): TicketType[] {
-    return ticketTypes.filter(type => 
-        priceSet.ticketTypes.includes(type.id)
-    );
+		return ticketTypes.filter((type) => priceSet.ticketTypes.includes(type.id));
+	}
 
+	function getFormattedPrice(categoryId: number, typeId: number): string {
+		const category = seatCategories.find((c) => c.id === categoryId);
+		const type = ticketTypes.find((t) => t.id === typeId);
 
-	
-}
+		if (!category || !type) return '0.00';
 
-function getFormattedPrice(categoryId: number, typeId: number): string {
-    const category = seatCategories.find(c => c.id === categoryId);
-    const type = ticketTypes.find(t => t.id === typeId);
-    
-    if (!category || !type) return '0.00';
-    
-    const price = Number(category.price) * Number(type.factor) * Number(priceSet.priceFactor);
-    return price.toFixed(2);
-}
+		const price = Number(category.price) * Number(type.factor) * Number(priceSet.priceFactor);
+		return price.toFixed(2);
+	}
 
-function isCategoryAllowed(categoryId: number): boolean {
-    return priceSet.seatCategoryPrices.includes(categoryId);
-}
-
+	function isCategoryAllowed(categoryId: number): boolean {
+		return priceSet.seatCategoryPrices.includes(categoryId);
+	}
 </script>
 
 <div class="mx-auto w-full max-w-[1400px] p-4">
-    <!-- Error Message -->
-    {#if error}
-        <div class="mb-4 text-red-500">{error}</div>
-    {/if}
+	<!-- Error Message -->
+	{#if error}
+		<div class="mb-4 text-red-500">{error}</div>
+	{/if}
 
-    <!-- Header with Show Info -->
-    <div class="mb-8 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50">
-        <div class="flex flex-col items-start justify-between p-6 md:flex-row md:items-center">
-            <div>
-                <h1 class="mb-2 text-3xl font-bold">Sitzplatzauswahl</h1>
-                <div class="flex flex-col md:flex-row md:gap-8">
-                    <div class="flex items-center gap-2">
-                        <span class="text-gray-600">Vorstellung:</span>
-                        <span class="font-semibold">{showing.date}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-gray-600">Saal:</span>
-                        <span class="font-semibold">{hall.name}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-4 text-right md:mt-0">
-                <div class="text-sm text-gray-600">Gesamtpreis</div>
-                <div class="text-2xl font-bold">${total.toFixed(2)}</div>
-            </div>
-        </div>
-    </div>
+	<!-- Header with Show Info -->
+	<div class="mb-8 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50">
+		<div class="flex flex-col items-start justify-between p-6 md:flex-row md:items-center">
+			<div>
+				<h1 class="mb-2 text-3xl font-bold">Sitzplatzauswahl</h1>
+				<div class="flex flex-col md:flex-row md:gap-8">
+					<div class="flex items-center gap-2">
+						<span class="text-gray-600">Vorstellung:</span>
+						<span class="font-semibold">{showing.date}</span>
+					</div>
+					<div class="flex items-center gap-2">
+						<span class="text-gray-600">Saal:</span>
+						<span class="font-semibold">{hall.name}</span>
+					</div>
+				</div>
+			</div>
+			<div class="mt-4 text-right md:mt-0">
+				<div class="text-sm text-gray-600">Gesamtpreis</div>
+				<div class="text-2xl font-bold">${total.toFixed(2)}</div>
+			</div>
+		</div>
+	</div>
 
-    <!-- Main Content -->
-    <div class="flex flex-col gap-8 lg:flex-row">
-        <!-- Left Side: Summary -->
-        <div class="order-2 w-full lg:order-1 lg:w-80 lg:flex-shrink-0">
-            <div class="rounded-lg bg-white p-4 shadow">
-                <h3 class="mb-4 text-xl font-bold">Ausgewählte Sitze</h3>
+	<!-- Main Content -->
+	<div class="flex flex-col gap-8 lg:flex-row">
+		<!-- Left Side: Summary -->
+		<div class="order-2 w-full lg:order-1 lg:w-80 lg:flex-shrink-0">
+			<div class="rounded-lg bg-white p-4 shadow">
+				<h3 class="mb-4 text-xl font-bold">Ausgewählte Sitze</h3>
 
-                {#if selectedSeats.length > 0}
-                    <div class="space-y-4">
-                        {#each selectedSeats as sel}
-                            <div class="rounded-lg border bg-white p-3">
-                                <div class="mb-2 flex justify-between">
-                                    <span class="font-bold">
-                                        {sel.seat.row}{sel.seat.seatNumber}
-                                    </span>
-                                    <span class="text-gray-600">
-                                        {sel.seatCategory.name}
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <select
-                                        class="rounded border p-1 text-sm"
-                                        value={sel.selectedTicketType}
-                                        onchange={(e) => updateTicketType(sel.seat.id, Number(e.currentTarget.value))}
-                                    >
-                                        {#each getAvailableTicketTypes() as tt}
-                                            <option value={tt.id}>
-                                                {tt.name} (${getFormattedPrice(sel.seatCategory.id, tt.id)})
-                                            </option>
-                                        {/each}
-                                    </select>
-                                    <span class="font-bold">${getTicketPrice(sel).toFixed(2)}</span>
-                                </div>
-                            </div>
-                        {/each}
-                    </div>
+				{#if selectedSeats.length > 0}
+					<div class="space-y-4">
+						{#each selectedSeats as sel}
+							<div class="rounded-lg border bg-white p-3">
+								<div class="mb-2 flex justify-between">
+									<span class="font-bold">
+										{sel.seat.row}{sel.seat.seatNumber}
+									</span>
+									<span class="text-gray-600">
+										{sel.seatCategory.name}
+									</span>
+								</div>
+								<div class="flex items-center justify-between">
+									<select
+										class="rounded border p-1 text-sm"
+										value={sel.selectedTicketType}
+										onchange={(e) => updateTicketType(sel.seat.id, Number(e.currentTarget.value))}
+									>
+										{#each getAvailableTicketTypes() as tt}
+											<option value={tt.id}>
+												{tt.name} (${getFormattedPrice(sel.seatCategory.id, tt.id)})
+											</option>
+										{/each}
+									</select>
+									<span class="font-bold">${getTicketPrice(sel).toFixed(2)}</span>
+								</div>
+							</div>
+						{/each}
+					</div>
 
-                    <div class="mt-6 border-t pt-4">
-                        <div class="mb-4 flex justify-between">
-                            <span class="font-bold">Summe:</span>
-                            <span class="text-xl font-bold">${total.toFixed(2)}</span>
-                        </div>
-                        <button
-                            onclick={handleSubmit}
-                            class="w-full rounded bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
-                        >
-                            Sitze buchen
-                        </button>
-                    </div>
-                {:else}
-                    <p class="text-gray-500">Keine Sitze ausgewählt</p>
-                {/if}
-            </div>
+					<div class="mt-6 border-t pt-4">
+						<div class="mb-4 flex justify-between">
+							<span class="font-bold">Summe:</span>
+							<span class="text-xl font-bold">${total.toFixed(2)}</span>
+						</div>
+						<button
+							onclick={handleSubmit}
+							class="w-full rounded bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
+						>
+							Sitze buchen
+						</button>
+					</div>
+				{:else}
+					<p class="text-gray-500">Keine Sitze ausgewählt</p>
+				{/if}
+			</div>
 
-						<!-- Legend -->
+			<!-- Legend -->
 			<div class="mt-4 rounded-lg bg-white p-4 shadow">
 				<h4 class="mb-3 font-bold">Legende</h4>
 				<div class="grid grid-cols-2 gap-3">
@@ -587,35 +585,31 @@ function isCategoryAllowed(categoryId: number): boolean {
 				</div>
 			</div>
 
-            <!-- Price Overview -->
-            <div class="mt-4 rounded-lg bg-white p-4 shadow">
-                <h4 class="mb-3 font-bold">Preisübersicht</h4>
-                <div class="space-y-2">
-                    {#each seatCategories.filter(cat => isCategoryAllowed(cat.id)) as category}
-                        <div class="text-sm">
-                            <div class="font-semibold">{category.name}</div>
-                            <div class="ml-2 space-y-1">
-                                {#each getAvailableTicketTypes() as type}
-                                    <div class="flex justify-between">
-                                        <span>{type.name}:</span>
-                                        <span>${getFormattedPrice(category.id, type.id)}</span>
-                                    </div>
-                                {/each}
-                            </div>
-                        </div>
-                    {/each}
-                </div>
-                {#if Number(priceSet.priceFactor) !== 1}
-                    <div class="mt-2 text-xs text-gray-500">
-                        * Preise inkl. {((Number(priceSet.priceFactor) - 1) * 100).toFixed(0)}% Aufschlag
-                    </div>
-                {/if}
-            </div>
-
-	
+			<!-- Price Overview -->
+			<div class="mt-4 rounded-lg bg-white p-4 shadow">
+				<h4 class="mb-3 font-bold">Preisübersicht</h4>
+				<div class="space-y-2">
+					{#each seatCategories.filter((cat) => isCategoryAllowed(cat.id)) as category}
+						<div class="text-sm">
+							<div class="font-semibold">{category.name}</div>
+							<div class="ml-2 space-y-1">
+								{#each getAvailableTicketTypes() as type}
+									<div class="flex justify-between">
+										<span>{type.name}:</span>
+										<span>${getFormattedPrice(category.id, type.id)}</span>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/each}
+				</div>
+				{#if Number(priceSet.priceFactor) !== 1}
+					<div class="mt-2 text-xs text-gray-500">
+						* Preise inkl. {((Number(priceSet.priceFactor) - 1) * 100).toFixed(0)}% Aufschlag
+					</div>
+				{/if}
+			</div>
 		</div>
-
-		
 
 		<!-- Right Side: Seat Layout -->
 		<div class="order-1 flex-grow overflow-auto lg:order-2">
@@ -645,6 +639,7 @@ function isCategoryAllowed(categoryId: number): boolean {
 								class="absolute flex items-center justify-center rounded transition-colors duration-200"
 								class:cursor-pointer={!seat.booked || seat.reservedByUser}
 								class:cursor-not-allowed={seat.booked && !seat.reservedByUser}
+								class:pending={seat.pending}
 								style="
                                 left: {seat.left}px;
                                 top: {seat.top}px;
@@ -690,3 +685,24 @@ function isCategoryAllowed(categoryId: number): boolean {
 		</div>
 	</div>
 </div>
+
+<style>
+	.pending {
+		animation: pulse 1s infinite;
+	}
+
+	@keyframes pulse {
+		0% {
+			transform: scale(1);
+			opacity: 1;
+		}
+		50% {
+			transform: scale(1.05);
+			opacity: 0.7;
+		}
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
+</style>
