@@ -17,7 +17,8 @@ import {
 	date,
 	time,
 	decimal,
-	jsonb
+	jsonb,
+	varchar
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin', 'inspector']);
