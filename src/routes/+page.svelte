@@ -6,6 +6,7 @@
 	import type { Film, Showing } from '$lib/server/db/schema';
 	import { onMount } from 'svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import { showNotification } from '$lib/stores/notification';
 
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
