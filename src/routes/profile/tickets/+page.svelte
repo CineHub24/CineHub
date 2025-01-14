@@ -101,8 +101,8 @@
 								<span class="ticket-id">#{ticket.id}</span>
 								<span class="price">{ticket.price} €</span>
 							</div>
-							<div class="status-badge" style="background-color: {getStatusColor(ticket.status)}">
-								{ticket.status === 'paid' ? 'Bezahlt' : 'Reserviert'}
+							<div class="status-badge" style="background-color: green">
+								{ticket.seatCategory}
 							</div>
 						</div>
 						<div class="qr-container">

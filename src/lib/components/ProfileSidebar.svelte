@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {
-		Tickets,
+		TicketCheck,
 		UserRoundPen,
         Film,
 		ChevronRight,
@@ -14,7 +14,7 @@
 
 	const sections = [
 		{ id: 'profile', icon: UserRoundPen, label: 'Profile Data', path: '/profile' },
-		{ id: 'tickets', icon: Tickets, label: 'Tickets', path: '/profile/tickets' },
+		{ id: 'tickets', icon: TicketCheck, label: 'Tickets', path: '/profile/tickets' },
 		{ id: 'bookings', icon: Film, label: 'Bookings', path: '/profile/bookings' },
 	];
 	$: currentPath = $page.url.pathname;

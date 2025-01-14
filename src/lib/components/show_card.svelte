@@ -1,63 +1,50 @@
 <script lang="ts">
-	import type { showing } from '$lib/server/db/schema';
-	import * as m from '$lib/paraglide/messages.js';
+    import type { showing } from '$lib/server/db/schema';
+    import * as m from '$lib/paraglide/messages.js';
 
-	let { movie, show, url } = $props();
-	type Show = typeof showing.$inferSelect;
+    let { movie, show, url } = $props();
+    type Show = typeof showing.$inferSelect;
 
-	// Hilfsfunktion zum Formatieren von Datum und Zeit
-	function formatShowDetails(show: Show) {
-		const timeStr = show.time ? show.time.slice(0, 5) : m.no_time({});
-		const endTimeStr = show.endTime ? show.endTime.slice(0, 5) : m.no_time({});
-		const languageStr = show.language ? `${show.language}` : '';
-		const dimensionStr = show.dimension ? `${show.dimension}` : '';
+    function formatShowDetails(show: Show) {
+        const timeStr = show.time ? show.time.slice(0, 5) : m.no_time({});
+        const endTimeStr = show.endTime ? show.endTime.slice(0, 5) : m.no_time({});
+        const languageStr = show.language ? `${show.language}` : '';
+        const dimensionStr = show.dimension ? `${show.dimension}` : '';
 
-		return `${timeStr} - ${endTimeStr} ${languageStr} ${dimensionStr}`.trim();
-	}
+        return `${timeStr} - ${endTimeStr} ${languageStr} ${dimensionStr}`.trim();
+    }
 </script>
 
-<a href={url}>
-	<div class="show-card">
-		<img src={movie.poster} alt={m.movie_poster({ title: movie.title })} />
-		<div class="details">
-			<h3 class="title">{movie.title}</h3>
-			<p class="description">{formatShowDetails(show)}</p>
-			<p class="description">{m.hall({})} {show.hallid}</p>
-		</div>
-	</div>
+<a href="{url}"
+    class="group block w-40 rounded-lg bg-white shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+>
+    <div class="relative aspect-[2/3] overflow-hidden">
+        <img
+            src={movie.poster}
+            alt={m.movie_poster({ title: movie.title })}
+            class="h-full w-full object-cover object-center transform group-hover:scale-105 transition-transform duration-300"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </div>
+    
+    <div class="p-3 space-y-2">
+        <h3 class="font-semibold text-gray-900 truncate text-center">
+            {movie.title}
+        </h3>
+        
+        <div class="space-y-1">
+            <p class="text-sm text-gray-600 text-center flex items-center justify-center space-x-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                </svg>
+                <span>{formatShowDetails(show)}</span>
+            </p>
+            
+            <div class="flex items-center justify-center">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    {m.hall({})} {show.hallid}
+                </span>
+            </div>
+        </div>
+    </div>
 </a>
-
-<style>
-	.show-card {
-		background-color: #f5f5f5;
-		border: 1px solid #ddd;
-		border-radius: 8px;
-		overflow: hidden;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		transition: transform 0.2s;
-		height: 320px;
-		width: 150px;
-	}
-	.show-card:hover {
-		transform: translateY(-5px);
-	}
-	.show-card img {
-		width: 100%;
-		height: auto;
-	}
-	.show-card .details {
-		padding: 15px;
-	}
-	.show-card .title {
-		font-size: 1rem;
-		text-align: center;
-		white-space: nowrap; /* Prevent text wrapping */
-		overflow: hidden; /* Hide overflowing text */
-		text-overflow: ellipsis; /* Add "..." for overflow */
-	}
-	.show-card .description {
-		font-size: 0.9rem;
-		color: #555;
-		text-align: center;
-	}
-</style>
