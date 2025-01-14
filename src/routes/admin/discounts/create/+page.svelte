@@ -2,7 +2,8 @@
 	import { languageAwareGoto } from '$lib/utils/languageAware.js';
 	import * as m from '$lib/paraglide/messages.js';
 	import { Save, ArrowBigLeft } from 'lucide-svelte';
-
+	import type { ActionData } from './$types';
+	const {form}:{form:ActionData} = $props();
 	let discountType = $state('percentage');
 </script>
 
@@ -12,7 +13,7 @@
 	<div class="mb-8 flex flex-wrap gap-4">
 		<button
 			class="flex items-center gap-2 rounded bg-blue-500 px-6 py-3 font-semibold text-white transition duration-300 ease-in-out hover:bg-blue-600"
-			onclick={() => languageAwareGoto('/admin/pricing')}
+			onclick={() => languageAwareGoto('/admin/discounts')}
 		>
 			<ArrowBigLeft class="h-5 w-5" />
 			{m.back({})}
@@ -90,6 +91,11 @@
 					class="w-full rounded-lg border-2 border-blue-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
 				/>
 			</div>
+			<div class="flex items-center">
+				<label for="newsletter" class="mb-2 block text-gray-700">Mit Newsletter versenden</label>
+				<input type="checkbox" id="newsletter" name="newsletter" class="ml-2">
+			</div>
+			
 
 			<button
 				type="submit"
@@ -100,4 +106,10 @@
 			</button>
 		</form>
 	</div>
+	{#if form?.success}
+		<p class="mt-4 text-green-500">{form.success}</p>
+	{/if}
+	{#if form?.error}
+		<p class="mt-4 text-red-500">{form.error}</p>
+	{/if}
 </div>
