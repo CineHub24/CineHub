@@ -17,6 +17,7 @@ import {
 	type TicketType,
 	type SeatCategory
 } from '$lib/server/db/schema';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray } from 'drizzle-orm';
 import type { Tickets } from 'lucide-svelte';
@@ -29,7 +30,7 @@ export interface TicketWithDetails {
 	PriceSet: PriceSet;
 	TicketType: TicketType;
 	seatCategory: SeatCategory;
-  }
+}
 
 interface PriceCalculation {
 	basePrice: number;
@@ -45,10 +46,10 @@ interface PriceCalculation {
 
 async function calculatePrices(
 	tickets: {
-		Ticket: Ticket,
-		Showing: Showing,
-		Film: Film,
-		seat: Seat,
+		Ticket: Ticket;
+		Showing: Showing;
+		Film: Film;
+		seat: Seat;
 	}[],
 	discount: any | null
 ): Promise<PriceCalculation> {
@@ -98,9 +99,15 @@ async function calculatePrices(
 }
 
 export const load = async ({ locals }) => {
+	if (!locals.user) {
+		return languageAwareRedirect(301, '/login');
+	}
 	try {
 		const userId = locals.user!.id;
-		const _booking = await db.select().from(booking).where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
+		const _booking = await db
+			.select()
+			.from(booking)
+			.where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
 		console.log(_booking);
 		if (_booking.length === 0) {
 			return {
@@ -117,7 +124,7 @@ export const load = async ({ locals }) => {
 			};
 		}
 		const bookingId = _booking[0].id;
-		const tickets:TicketWithDetails[] = await db
+		const tickets: TicketWithDetails[] = await db
 			.select()
 			.from(ticket)
 			.innerJoin(seat, eq(seat.id, ticket.seatId))
@@ -188,12 +195,12 @@ export const actions = {
 			const userId = locals.user!.id;
 			const _booking = await db.select().from(booking).where(eq(booking.userId, userId));
 			const tickets = await db
-			.select()
-			.from(ticket)
-			.innerJoin(seat, eq(seat.id, ticket.seatId))
-			.innerJoin(showing, eq(showing.id, ticket.showingId))
-			.innerJoin(film, eq(film.id, showing.filmid))
-			.where(eq(ticket.bookingId, Number(_booking[0].id)));
+				.select()
+				.from(ticket)
+				.innerJoin(seat, eq(seat.id, ticket.seatId))
+				.innerJoin(showing, eq(showing.id, ticket.showingId))
+				.innerJoin(film, eq(film.id, showing.filmid))
+				.where(eq(ticket.bookingId, Number(_booking[0].id)));
 
 			// Calculate new prices with discount
 			const prices = await calculatePrices(tickets, discount[0]);
