@@ -263,7 +263,7 @@
 		form.append('seatId', seat.id.toString());
 		form.append(
 			'ticketType',
-			selectedSeats.find((s) => s.seat.id === seat.id)?.selectedTicketType.toString() || ''
+			selectedSeats.find((s) => s.seat.id === seat.id)?.selectedTicketType.toString() || ticketTypes[0]?.id.toString()	// default ticket type for first selection
 		);
 
 		const resp = await fetch('?/reserveSeat', {
