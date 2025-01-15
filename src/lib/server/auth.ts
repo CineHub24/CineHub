@@ -84,7 +84,7 @@ export function setSessionTokenCookie(event: RequestEvent, token: string, expire
 	event.cookies.set(sessionCookieName, token, {
 		path: '/',
 		expires: expiresAt,
-		secure: false,  // Do not set secure flag when using HTTP!
+		secure: false,
 		sameSite: 'lax',
 	});
 }
