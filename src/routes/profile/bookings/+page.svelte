@@ -1,103 +1,72 @@
 <script lang="ts">
-    import type { PageServerData } from './$types';
-  
-    type Booking = {
-      showingDate: string | null;
-      showingTime: string | null;
-      movieTitle: string | null;
-      cinemaName: string | null;
-      hallName: string | null;
-      seatRow: string | null;
-      seatNumber: string | null;
-      finalPrice: string | null;
-      ticketTypeName: string | null;
-      ticketStatus: "reserved" | "booked" | "validated" | "cancelled";
-    };
-  
-    const { data }: { data: PageServerData } = $props();
-    const bkngs: Booking[] = data.bookings as Booking[];
-  
-    // Group tickets by booking for a compact view
-    const bookings = bkngs.reduce((acc: Record<string, Booking[]>, ticket) => {
-      const key = `${ticket.showingDate}_${ticket.showingTime}_${ticket.movieTitle}`;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(ticket);
-      return acc;
-    }, {});
-  </script>
-  
-  <div class="container mx-auto p-4 max-w-3xl">
-    <h1 class="text-2xl font-bold text-center mt-6 mb-4">Buchungsübersicht</h1>
-  
-    {#if Object.keys(bookings).length > 0}
-      <div class="bg-white shadow rounded p-4">
-        {#each Object.entries(bookings) as [key, showingTickets]}
-          {@const firstTicket = showingTickets[0]}
-          <div class="mb-6 border-b pb-4 last:border-b-0">
-            <h2 class="text-lg font-bold mb-2">{firstTicket.movieTitle || 'Unbekannter Film'}</h2>
-            <p class="text-gray-700 text-sm mb-2">
-              <strong>Vorstellung:</strong> {new Date(firstTicket.showingDate || '').toLocaleDateString('de-DE')} um {firstTicket.showingTime || 'Unbekannt'}
-            </p>
-            <p class="text-gray-700 text-sm mb-2">
-              <strong>Kino:</strong> {firstTicket.cinemaName || 'Unbekannt'}, Saal {firstTicket.hallName || 'Unbekannt'}
-            </p>
-            <p class="text-gray-700 text-sm mb-2">
-                <strong>Gesamtsumme:</strong> {firstTicket.finalPrice + '€' || 'Unbekannt'}
-            </p>
-  
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-              {#each showingTickets as ticket}
-                <div class="border rounded p-3 bg-gray-50">
-                  <p><strong>Platz:</strong> Reihe {ticket.seatRow || 'N/A'}, Platz {ticket.seatNumber || 'N/A'}</p>
-                  <p><strong>Typ:</strong> {ticket.ticketTypeName || 'N/A'}</p>
-                  <p class="text-right mt-2">
-                    <span class="px-2 py-1 rounded-full {ticket.ticketStatus === 'booked' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
-                      {ticket.ticketStatus}
-                    </span>
+	const { data }: { data: PageServerData } = $props();
+	const bookings = data.bookings;
+
+	const formatDate = (dateStr: string) => {
+		return new Date(dateStr).toLocaleDateString('de-DE');
+	};
+
+	const formatTime = (timeStr: string) => {
+		return timeStr?.slice(0, 5) || 'Unbekannt';
+	};
+
+	const getStatusColor = (status: string) => {
+		const statusColors = {
+			completed: 'bg-green-100 text-green-800',
+			cart: 'bg-yellow-100 text-yellow-800',
+			cancelled: 'bg-red-100 text-red-800',
+			default: 'bg-gray-100 text-gray-800'
+		};
+		return statusColors[status] || statusColors.default;
+	};
+</script>
+
+<div class="container mx-auto p-4 max-w-3xl">
+  <h1 class="text-2xl font-bold text-center mt-6 mb-4">Buchungsübersicht</h1>
+
+  {#if bookings && bookings.length > 0}
+    <div class="space-y-4">
+      {#each bookings as booking (booking.id)}
+        <a 
+          href="/booking/{booking.id}"
+          class="block bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-200"
+        >
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-sm text-gray-600">
+                Buchungsdatum: {formatDate(booking.date)} {formatTime(booking.time)}
+              </p>
+              <p class="text-sm text-gray-600">
+                Buchungsnummer: #{booking.id}
+              </p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm {getStatusColor(booking.status)}">
+              {booking.status}
+            </span>
+          </div>
+
+          <div class="border-t pt-4">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="font-medium">Anzahl Tickets: {booking.items}</p>
+                {#if booking.discountValue && booking.discountValue > 0}
+                  <p class="text-sm text-green-600">
+                    Rabatt: {booking.discountValue}€
                   </p>
-                </div>
-              {/each}
+                {/if}
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-gray-600">Ursprünglicher Preis: {booking.basePrice}€</p>
+                <p class="text-lg font-bold">Endpreis: {booking.finalPrice}€</p>
+              </div>
             </div>
           </div>
-        {/each}
-      </div>
-    {:else}
-      <div class="text-center py-8">
-        <p class="text-xl text-gray-600">Keine Buchungen gefunden.</p>
-      </div>
-    {/if}
-  </div>
-  
-  <style>
-    .container {
-      font-family: Arial, sans-serif;
-    }
-    .bg-white {
-      background-color: white;
-    }
-    .shadow {
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .rounded {
-      border-radius: 8px;
-    }
-    .border {
-      border: 1px solid #e2e8f0;
-    }
-    .text-center {
-      text-align: center;
-    }
-    .text-gray-700 {
-      color: #4a5568;
-    }
-    .text-sm {
-      font-size: 0.875rem;
-    }
-    .text-lg {
-      font-size: 1.125rem;
-    }
-    .font-bold {
-      font-weight: bold;
-    }
-  </style>
-  
+        </a>
+      {/each}
+    </div>
+  {:else}
+    <div class="bg-white shadow-lg rounded-lg p-8 text-center">
+      <p class="text-gray-600">Keine Buchungen gefunden.</p>
+    </div>
+  {/if}
+</div>
