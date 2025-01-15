@@ -2,7 +2,7 @@
 	import type { PageServerData } from './$types';
 	import { writable } from 'svelte/store';
 	import * as m from '$lib/paraglide/messages.js';
-	import ShowsFilm from '$lib/components/ShowsFilm.svelte';
+	import ShowsFilmDropdown from '$lib/components/ShowsFilmDropdown.svelte';
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 	const { data }: { data: PageServerData } = $props();
