@@ -9,6 +9,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import { ShoppingBasket, TicketCheck } from 'lucide-svelte';
+	import { showNotification } from '$lib/stores/notification';
 	let lang = languageTag();
 
 	// Prop for website name
@@ -96,37 +97,40 @@
 </script>
 
 <header class="relative flex items-center bg-gray-100 p-4 shadow-md">
-	<!-- Left: Logo und Site Name -->
-	<div class="flex items-center justify-between">
-		<a class="flex items-center space-x-4" href="/">
-			<img src="/favicon_white_bg.png" alt="Logo" class="h-10 w-10" />
-			<span class="text-xl font-bold text-gray-800">{siteName}</span>
-		</a>
-		{#if $page.url.pathname.replace(languageTag(), '') === '/'}
-			<select
-				id="cinema-select"
-				on:change={handleCinemaChange}
-				class="bg-gray-100 ml-14 h-8 w-full appearance-none rounded-lg border border-gray-300 px-1.5 text-base text-sm leading-none
-             transition duration-150 ease-in-out
-             hover:border-gray-400
-             focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-			>
-				{#each cinemas as cinema}
-					<option value={cinema.id}>{cinema.name}</option>
-				{/each}
-			</select>
-		{/if}
-	</div>
+    <!-- Left: Logo und Site Name -->
+    <div class="flex items-center justify-between">
+        <a class="flex items-center space-x-4" href="/">
+            <img src="/favicon_white_bg.png" alt="Logo" class="h-10 w-10" />
+            <span class="text-xl font-bold text-gray-800">{siteName}</span>
+        </a>
+        {#if $page.url.pathname.replace(languageTag(), '') === '/'}
+            <select
+                id="cinema-select"
+                on:change={handleCinemaChange}
+                class="bg-gray-100 ml-14 h-8 w-full appearance-none rounded-lg border border-gray-300 px-1.5 text-base text-sm leading-none
+                 transition duration-150 ease-in-out
+                 hover:border-gray-400
+                 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+                {#each cinemas as cinema}
+                    <option value={cinema.id}>{cinema.name}</option>
+                {/each}
+            </select>
+        {/if}
+    </div>
 
 	<!-- Center: Multilingual Greeting -->
 	{#if userName}
-		<div class="absolute left-1/2 -translate-x-1/2 transform text-center">
-			<span class="text-lg font-medium text-gray-700">
-				{randomGreeting.greeting}
-				{userName}!
-			</span>
-		</div>
-	{/if}
+    <div class="absolute left-1/2 -translate-x-1/2 transform text-center">
+        <span 
+            class="text-lg font-medium text-gray-400 hover:cursor-pointer" 
+            on:mouseenter={() => showNotification(`${randomGreeting.lang}`, "info")}
+        >
+            {randomGreeting.greeting}
+            {userName}!
+        </span>
+    </div>
+{/if}
 
 	<!-- Right: Profile Picture -->
 	<div class="relative ml-auto flex">

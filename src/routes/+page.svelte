@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+	import { fade, crossfade } from 'svelte/transition';
 	import MovieCard from '../lib/components/movie_card.svelte';
 	import ShowsFilmDropdown from '$lib/components/ShowsFilmDropdown.svelte';
 	import type { PageServerData } from './$types';
@@ -7,8 +7,15 @@
 	import { onMount } from 'svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { showNotification } from '$lib/stores/notification';
+    import { tweened } from 'svelte/motion';
+    import { cubicOut } from 'svelte/easing';
 
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+
+	const [send, receive] = crossfade({
+    duration: 800,
+    easing: cubicOut
+  });
 
 	const { data }: { data: PageServerData } = $props();
 
@@ -75,51 +82,82 @@
 </script>
 
 {#key hoveredMovie}
-	<div class="movie-details" in:fade={{ duration: 1500 }}>
-		<img
-			id="background"
-			src={hoveredMovie.backdrop}
-			alt={`${hoveredMovie.title} ${m.movie_poster({})}`}
-		/>
-		<iframe
-			id="poster"
-			width="500"
-			height="300"
-			src={hoveredMovie.trailer}
-			frameborder="0"
-			allow="autoplay; encrypted-media"
-			allowfullscreen
-			title={m.trailer_title({})}
-		></iframe>
-		<h3>{hoveredMovie.title}</h3>
-		<p>{hoveredMovie.description}</p>
-	</div>
+  <div class="movie-details" in:fade={{ duration: 1500 }}>
+    <!-- Backdrop mit crossfade Animation -->
+    {#key hoveredMovie.backdrop}
+      <img
+        id="background"
+        src={hoveredMovie.backdrop}
+        alt={`${hoveredMovie.title} ${m.movie_poster({})}`}
+        in:receive={{ key: 'backdrop' }}
+        out:send={{ key: 'backdrop' }}
+      />
+    {/key}
+
+    <iframe
+      id="poster"
+      width="500"
+      height="300"
+      src={hoveredMovie.trailer}
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+      title={m.trailer_title({})}
+    ></iframe>
+    <h3>{hoveredMovie.title}</h3>
+    <p>{hoveredMovie.description}</p>
+  </div>
 {/key}
 
 <!-- <h2 class="px-5 text-2xl font-bold mt-4">
     {m.movies({})}
 </h2> -->
-<div class="movies-container mt-4">
-	{#each movies as movie}
-		<div
-			role="button"
-			tabindex="0"
-			onmouseover={() => {
-				if (hoveredMovie.id !== movie.id) {
-					hoveredMovie = { ...movie }; // Update only if it's a different movie
-				}
-			}}
-			onfocus={() => {
-				if (hoveredMovie.id !== movie.id) {
-					hoveredMovie = { ...movie }; // Update only if it's a different movie
-				}
-			}}
-			class="movie-card"
-		>
-			<MovieCard {movie} url="/film/{movie.id}" />
+
+<div class="relative overflow-x-auto">
+    <!-- Horizontal scrollbare Liste -->
+    <div class="movies-container mt-4 flex items-center justify-between relative">
+		<div class="movies-list flex items-center gap-4">
+			{#each movies as movie}
+				<div
+					role="button"
+					tabindex="0"
+					onmouseover={() => {
+						if (hoveredMovie.id !== movie.id) {
+							hoveredMovie = { ...movie };
+						}
+					}}
+					onfocus={() => {
+						if (hoveredMovie.id !== movie.id) {
+							hoveredMovie = { ...movie };
+						}
+					}}
+					class="movie-card"
+				>
+					<MovieCard {movie} url="/film/{movie.id}" />
+				</div>
+			{/each}
 		</div>
-	{/each}
+	</div>
+
+    <!-- Rechts positionierter Button -->
+    <a
+    href="/all"
+    class="absolute top-1/2 right-8 transform -translate-y-1/2 flex h-16 w-16 items-center justify-center
+           rounded-full bg-gray-100 border border-gray-300
+           hover:border-gray-400 transition duration-150 ease-in-out
+           focus:outline-none focus:ring-2 focus:ring-blue-500"
+    aria-label="Alle Filme anzeigen"
+>
+    <img
+        src="right-arrow.png"
+        alt="Pfeil nach rechts"
+        class="h-8 w-8 opacity-60"
+    />
+</a>
+
 </div>
+
+
 <br />
 {#if shows.length > 0}
 	<div class="relative pt-4">
@@ -134,6 +172,8 @@
 	</div>
 	<ShowsFilmDropdown {shows} {movies} />
 {/if}
+
+
 
 
 
@@ -303,4 +343,35 @@
 			width: 90%;
 		}
 	}
+
+
+	.container {
+        position: relative;
+        display: inline-block; /* Passt sich der Größe des Buttons an */
+    }
+
+    .main-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .overlay-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 8px 16px;
+        font-size: 14px;
+        background-color: #ffc107;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 1; /* Stellt sicher, dass der Button oben ist */
+    }
 </style>
