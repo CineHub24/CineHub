@@ -21,7 +21,6 @@ const test = (event) => {
 
 
 const handleAuth: Handle = async ({ event, resolve }) => {
-	test(event);
 	const sessionToken = event.cookies.get(auth.sessionCookieName);
 	if (!sessionToken) {
 		event.locals.user = null;
