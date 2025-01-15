@@ -8,7 +8,9 @@ import { ticket,
     booking,
     seatCategory,
     ticketType,
-    priceDiscount } from '$lib/server/db/schema';
+    priceDiscount, 
+    giftCodes,
+    giftCodesUsed} from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, asc, and } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
@@ -31,9 +33,7 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
 	
     const{ id } = params;
     const bookingId = id;
-    console.log("bookingid" + bookingId);
     const initial = url.searchParams.get('initial');
-    console.log(initial)
 
     try{
         const ticketsWithDetails = await db
@@ -88,8 +88,16 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
         .leftJoin(booking, eq(ticket.bookingId, booking.id))
         .leftJoin(priceDiscount, eq(booking.discount, priceDiscount.id))
         .where(and(eq(ticket.bookingId, Number(bookingId)), eq(booking.userId, user.id)));
-        console.log("Tickets with details");
-        console.log(ticketsWithDetails);
+
+        const usedGiftCodes = await db
+			.select({
+				id: giftCodes.id,
+				amount: giftCodes.amount,
+				description: giftCodes.description
+			})
+			.from(giftCodesUsed)
+			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
+			.where(and(eq(giftCodesUsed.bookingId, Number(bookingId)), eq(giftCodesUsed.claimed, false)));
 
         // await db.update(ticket).set({ status: 'paid' }).where(eq(ticket.bookingId, Number(bookingId)));
         // await emailClient.sendBookingConfirmation(Number(bookingId), user.email as string);
@@ -98,6 +106,7 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
             //booking: foundBooking,
             user: user,
             tickets: ticketsWithDetails,
+            usedGiftCodes: usedGiftCodes
 		};
 	} catch (e) {
 		console.log(e);

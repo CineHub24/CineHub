@@ -21,7 +21,7 @@ import {
 } from '$lib/server/db/schema';
 import type { Decimal } from '@prisma/client/runtime/library';
 import { error, fail, type Actions } from '@sveltejs/kit';
-import { eq, lt, gte, ne, and, inArray } from 'drizzle-orm';
+import { eq, lt, gte, ne, and, inArray, not } from 'drizzle-orm';
 import * as m from '$lib/paraglide/messages.js';
 
 // Updated interface to match database structure
@@ -48,22 +48,43 @@ interface PriceCalculation {
 async function calculatePrices(
 	tickets: TicketData[],
 	discount: any | null,
-	usedGiftCodes: (typeof giftCodes.$inferSelect)[]
+	giftCards: (typeof giftCodes.$inferSelect)[]
 ): Promise<PriceCalculation> {
 	const vatRate = 0.19;
 	const basePrice = tickets.reduce((sum, ticket) => sum + Number(ticket.ticket.price), 0);
 	let discountedPrice = basePrice;
 	let discountedAmount = 0;
 
-	const giftCodeAmount = usedGiftCodes.reduce((sum, code) => sum + Number(code.amount), 0);
+	const giftCodeAmount = giftCards.reduce((sum, code) => sum + Number(code.amount), 0);
 
 	if (discount) {
-		if (discount.discountType === 'percentage') {
-			discountedAmount = basePrice * Number(discount.value);
-			discountedPrice = basePrice - discountedAmount;
+		// Prüfe zuerst, ob es sich um einen Geschenkgutschein handelt
+		const giftCard = await db
+			.select()
+			.from(giftCodesUsed)
+			.where(and(eq(giftCodesUsed.priceDiscountId, discount.id), eq(giftCodesUsed.claimed, false)));
+
+		if (giftCard.length > 0) {
+			// Es ist ein Geschenkgutschein - berechne den verbleibenden Wert
+			const remainingValue = Number(discount.value) - Number(giftCard[0].claimedValue);
+
+			if (remainingValue > 0) {
+				// Nutze nur den noch verfügbaren Betrag
+				discountedAmount = Math.min(remainingValue, basePrice);
+				discountedPrice = basePrice - discountedAmount;
+			} else {
+				// Kein Guthaben mehr verfügbar
+				discountedAmount = 0;
+				discountedPrice = basePrice;
+			}
 		} else {
-			discountedAmount = Number(discount.value);
-			discountedPrice = Math.max(0, basePrice - discountedAmount);
+			if (discount.discountType === 'percentage') {
+				discountedAmount = basePrice * Number(discount.value);
+				discountedPrice = basePrice - discountedAmount;
+			} else {
+				discountedAmount = Number(discount.value);
+				discountedPrice = Math.max(0, basePrice - discountedAmount);
+			}
 		}
 	}
 
@@ -77,13 +98,13 @@ async function calculatePrices(
 				basePrice: basePrice.toString(),
 				finalPrice: totalWithGiftCodes.toString(),
 				discountValue: discountedAmount.toString(),
-				items: tickets.length + usedGiftCodes.length
+				items: tickets.length + giftCards.length,
+				discount: discount ? discount.id : null
 			})
 			.where(eq(booking.id, Number(tickets[0].ticket.bookingId)));
 	} catch (error) {
 		console.log(error);
 	}
-
 	return {
 		basePrice,
 		discount: discount
@@ -145,7 +166,7 @@ export const load = async ({ locals }) => {
 			.innerJoin(seatCategory, eq(seatCategory.id, seat.categoryId))
 			.where(eq(ticket.bookingId, Number(bookingId)));
 
-		const usedGiftCodes = await db
+		const giftCards = await db
 			.select({
 				id: giftCodes.id,
 				amount: giftCodes.amount,
@@ -153,16 +174,15 @@ export const load = async ({ locals }) => {
 			})
 			.from(giftCodesUsed)
 			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
-			.where(eq(giftCodesUsed.bookingId, bookingId));
+			.where(and(eq(giftCodesUsed.bookingId, bookingId), eq(giftCodesUsed.claimed, false)));
 
-		const giftCodeAmount = usedGiftCodes.reduce((sum, code) => sum + Number(code.amount), 0);
+		const giftCodeAmount = giftCards.reduce((sum, code) => sum + Number(code.amount), 0);
 
-		console.log(usedGiftCodes);
 		let prices;
 		if (
 			_booking[0].basePrice === null ||
 			_booking[0].finalPrice === null ||
-			_booking[0].items !== tickets.length + usedGiftCodes.length
+			_booking[0].items !== tickets.length + giftCards.length
 		) {
 			const ticketData: TicketData[] = tickets.map((t) => ({
 				ticket: t.ticket,
@@ -170,7 +190,7 @@ export const load = async ({ locals }) => {
 				film: t.film,
 				seat: t.seat
 			}));
-			prices = await calculatePrices(ticketData, null, usedGiftCodes);
+			prices = await calculatePrices(ticketData, null, giftCards);
 		} else {
 			const storedDiscountValue = Number(_booking[0].discountValue) || 0;
 			prices = {
@@ -194,7 +214,7 @@ export const load = async ({ locals }) => {
 			booking: _booking[0],
 			tickets,
 			prices,
-			giftCodes: usedGiftCodes
+			giftCodes: giftCards
 		};
 	} catch (error) {
 		console.log(error);
@@ -208,23 +228,29 @@ export const actions = {
 		const discountCode = data.get('discount-code') as string;
 
 		try {
-			const discount = await db
+			const userId = locals.user!.id;
+			const _booking = await db
 				.select()
+				.from(booking)
+				.where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
+
+			const discount = await db
+				.select({
+					priceDiscount
+				})
 				.from(priceDiscount)
+				.leftJoin(giftCodesUsed, eq(priceDiscount.id, giftCodesUsed.priceDiscountId))
 				.where(
 					and(
 						eq(priceDiscount.code, discountCode),
-						gte(priceDiscount.expiresAt, new Date().toISOString())
+						gte(priceDiscount.expiresAt, new Date().toISOString()),
+						eq(giftCodesUsed.claimed, false)
 					)
 				);
 
 			if (discount.length === 0) {
 				return fail(400, { error: m.discount_not_found({}) });
 			}
-
-			const userId = locals.user!.id;
-			const _booking = await db.select().from(booking).where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
-			console.log(_booking[0]);
 
 			const tickets = await db
 				.select({
@@ -239,7 +265,7 @@ export const actions = {
 				.innerJoin(film, eq(film.id, showing.filmid))
 				.where(eq(ticket.bookingId, Number(_booking[0].id)));
 
-			const usedGiftCodes = await db
+			const giftCards = await db
 				.select({
 					id: giftCodes.id,
 					amount: giftCodes.amount,
@@ -247,7 +273,7 @@ export const actions = {
 				})
 				.from(giftCodesUsed)
 				.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
-				.where(eq(giftCodesUsed.bookingId, _booking[0].id));
+				.where(and(eq(giftCodesUsed.bookingId, _booking[0].id), eq(giftCodesUsed.claimed, false)));
 
 			const ticketData: TicketData[] = tickets.map((t) => ({
 				ticket: t.ticket,
@@ -255,13 +281,11 @@ export const actions = {
 				film: t.film,
 				seat: t.seat
 			}));
-			console.log(tickets, usedGiftCodes);
 
-			const prices = await calculatePrices(ticketData, discount[0], usedGiftCodes);
-			console.log(prices);
+			const prices = await calculatePrices(ticketData, discount[0].priceDiscount, giftCards);
 			return {
 				success: m.discount_applied({}),
-				discount: discount[0],
+				discount: discount[0].priceDiscount,
 				prices
 			};
 		} catch (error) {

@@ -235,5 +235,8 @@ export const giftCodes = pgTable('giftCodes', {
 export const giftCodesUsed = pgTable('giftCodesUsed', {
 	id: serial('id').primaryKey(),
 	bookingId: integer('bookingId').references(() => booking.id),
-	giftCodeId: integer('giftCodeId').references(() => giftCodes.id)
+	giftCodeId: integer('giftCodeId').references(() => giftCodes.id),
+	priceDiscountId: integer('priceDiscountId').references(() => priceDiscount.id),
+	claimed: boolean('claimed').default(false),
+	claimedValue: decimal('claimedValue', { precision: 10, scale: 2 })
 });

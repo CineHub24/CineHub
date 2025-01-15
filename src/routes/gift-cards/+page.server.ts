@@ -25,7 +25,7 @@ export const actions = {
 
         const formData = await request.formData();
         const giftCodeId = formData.get('giftCardId') as unknown as number;
-        console.log(giftCodeId);
+
         let bookings = await db.select().from(booking).where(and(eq(booking.userId, locals.user!.id), ne(booking.status, "completed")));
         if (bookings.length == 0) {
             const bookings = await db.insert(booking).values({

@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { eq, inArray, ne } from 'drizzle-orm';
+import { eq, inArray, ne, and } from 'drizzle-orm';
 import {
 	booking,
 	cinema,
@@ -47,7 +47,7 @@ export class EmailService {
 			token: string | null;
 			id: number;
 			type: number | null;
-			status: 'reserved' | 'paid' | 'validated';
+			status: 'reserved' | 'paid' | 'validated' | 'refunded';
 			showingId: number | null;
 			bookingId: number | null;
 			seatId: number | null;
@@ -269,26 +269,35 @@ export class EmailService {
 
 		const codesToBuy = await db
 			.select({
-        amount: giftCodes.amount
-      })
+				amount: giftCodes.amount
+			})
 			.from(giftCodesUsed)
 			.where(eq(giftCodesUsed.bookingId, bookingId))
-      .innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId));
+			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId));
 
-
-    const newDiscounts: PriceDiscountForInsert[] = [];
-    for(let code of codesToBuy) {
-      const newCode = await generateUniqueCode(6) as string;
-      newDiscounts.push({
-        code: newCode,
-        value: code.amount,
-        discountType: discountTypesEnum.enumValues[1],
-        expiresAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 7).toISOString()
-      })
-    }
-    if(newDiscounts.length > 0) {
-      await db.insert(priceDiscount).values(newDiscounts);
-    }
+		const newDiscounts: PriceDiscountForInsert[] = [];
+		for (let code of codesToBuy) {
+			const newCode = (await generateUniqueCode(6)) as string;
+			newDiscounts.push({
+				code: newCode,
+				value: code.amount,
+				discountType: discountTypesEnum.enumValues[1],
+				expiresAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365).toISOString()
+			});
+		}
+		if (newDiscounts.length > 0) {
+			const newPriceDiscountIDs = await db
+				.insert(priceDiscount)
+				.values(newDiscounts)
+				.returning({ id: priceDiscount.id });
+			newPriceDiscountIDs.map(async (discount) => {
+				await db
+					.update(giftCodesUsed)
+					.set({ priceDiscountId: discount.id })
+					.where(eq(giftCodesUsed.bookingId, bookingId));
+			});
+		}
+		await handleBookingDiscount(bookingId);
 
 		// Gruppiere Tickets nach Vorstellung
 		const ticketsByShowing: { [key: number]: any[] } = tickets.reduce(
@@ -350,81 +359,55 @@ export class EmailService {
     <p>Mit freundlichen Grüßen,<br>Ihr CineHub-Team</p>
     </div>
     `;
-  }
-  // Überprüfen, ob Gutscheincodes gekauft wurden
-  if (newDiscounts && newDiscounts.length > 0) {
-    emailContent += `
+		}
+		// Überprüfen, ob Gutscheincodes gekauft wurden
+		if (newDiscounts && newDiscounts.length > 0) {
+			emailContent += `
 <h2>Ihre gekauften Gutscheincodes:</h2>
 <div style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
 `;
 
-    for (const code of newDiscounts) {
-      if(code) {
-        emailContent += `
+			for (const code of newDiscounts) {
+				if (code) {
+					emailContent += `
         <p><strong>Code:</strong> ${code.code}</p>
         <p><strong>Wert:</strong> ${code.value} €</p>
         ${code.expiresAt ? `<p><strong>Gültig bis:</strong> ${new Date(code.expiresAt).toLocaleDateString()}</p>` : ''}
         <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
         `;
-      }
-    }
+				}
+			}
 
-    emailContent += '</div>';
-  }
-    
-    // Generiere ICS-Dateien für jede Vorstellung
-    const icsPromises = Object.values(ticketsByShowing).map(showingTickets =>
-    this.generateICSFile(showingTickets[0])
-    );
-    const icsContents = await Promise.all(icsPromises);
-    
-    // Sende E-Mail mit PDF-Anhängen und ICS-Dateien
-    try {
-    await this.transporter.sendMail({
-    from: `"CineHub Ticket Service" <${this.gmailUser}>`,
-    to: recipientEmail,
-    subject: `Ihre Buchungsbestätigung`,
-    html: emailContent,
-    attachments: [
-    // PDF Tickets
-    ...pdfBuffers.map((buffer, index) => ({
-    filename: `ticket-${tickets[index].Ticket.id}.pdf`,
-    content: buffer,
-    contentType: 'application/pdf'
-    })),
-    // ICS Dateien
-    ...icsContents.map((content, index) => ({
-    filename: `kinovorstellung-${index + 1}.ics`,
-    content: content,
-    contentType: 'text/calendar'
-    }))
-    ]
-    });
-    } catch (error) {
-    console.error('Fehler beim Versenden der E-Mail:', error);
-    throw new Error('E-Mail konnte nicht versendet werden');
-    }
-    }
+			emailContent += '</div>';
+		}
 
-	async sendResetPasswordEmail(resetToken: string, recipientEmail: string): Promise<void> {
-		const emailContent = `
-      Hallo,
+		// Generiere ICS-Dateien für jede Vorstellung
+		const icsPromises = Object.values(ticketsByShowing).map((showingTickets) =>
+			this.generateICSFile(showingTickets[0])
+		);
+		const icsContents = await Promise.all(icsPromises);
 
-Wir haben deine Anfrage zur Passwort-Zurücksetzung erhalten.
-
-Klicke auf den folgenden Link, um ein neues Passwort festzulegen: <a href="${this.PUBLIC_URL}/login/reset-password?token=${resetToken}"> Passwort zurücksetzen </a>
-
-Dieser Link ist nur einmal verwendbar und verfällt in 15 Minuten.
-
-Ihr Cinehub-Team
-      `;
-
+		// Sende E-Mail mit PDF-Anhängen und ICS-Dateien
 		try {
 			await this.transporter.sendMail({
-				from: `"CineHub" <${this.gmailUser}>`,
+				from: `"CineHub Ticket Service" <${this.gmailUser}>`,
 				to: recipientEmail,
-				subject: `Passwort-Zurücksetzung für CineHub`,
-				html: emailContent
+				subject: `Ihre Buchungsbestätigung`,
+				html: emailContent,
+				attachments: [
+					// PDF Tickets
+					...pdfBuffers.map((buffer, index) => ({
+						filename: `ticket-${tickets[index].Ticket.id}.pdf`,
+						content: buffer,
+						contentType: 'application/pdf'
+					})),
+					// ICS Dateien
+					...icsContents.map((content, index) => ({
+						filename: `kinovorstellung-${index + 1}.ics`,
+						content: content,
+						contentType: 'text/calendar'
+					}))
+				]
 			});
 		} catch (error) {
 			console.error('Fehler beim Versenden der E-Mail:', error);
@@ -709,4 +692,53 @@ export interface fullTicket {
 	uhrzeit: string;
 	saal: string;
 	showingId: number;
+}
+
+async function handleBookingDiscount(bookingId: number) {
+
+	// Hole Booking mit Discount
+	const bookingWithDiscount = await db
+		.select({
+			booking: booking,
+			discount: priceDiscount
+		})
+		.from(booking)
+		.leftJoin(priceDiscount, eq(booking.discount, priceDiscount.id))
+		.where(eq(booking.id, bookingId));
+	if (!bookingWithDiscount[0]?.discount) {
+		return;
+	}
+
+	// Prüfe ob es sich um einen Geschenkgutschein handelt
+	const giftCard = await db
+		.select()
+		.from(giftCodesUsed)
+		.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
+		.where(
+			and(
+				eq(giftCodesUsed.priceDiscountId, bookingWithDiscount[0].discount.id),
+				eq(giftCodesUsed.claimed, false)
+			)
+		);
+
+	if (giftCard.length > 0) {
+		const basePrice = Number(bookingWithDiscount[0].booking.basePrice);
+		const remainingValue = Number(giftCard[0].giftCodes.amount) -  Number(giftCard[0].giftCodesUsed.claimedValue);
+
+
+		if (remainingValue > 0) {
+			const discountedAmount = Math.min(remainingValue, basePrice);
+			const newClaimedValue = Number(giftCard[0].giftCodesUsed.claimedValue) + discountedAmount;
+			const isFullyClaimed = newClaimedValue >= Number(giftCard[0].giftCodes.amount);
+
+
+			await db
+				.update(giftCodesUsed)
+				.set({
+					claimedValue: String(newClaimedValue),
+					claimed: isFullyClaimed
+				})
+				.where(eq(giftCodesUsed.id, giftCard[0].giftCodesUsed.id));
+		}
+	}
 }
