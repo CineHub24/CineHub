@@ -96,13 +96,13 @@
 		const basePrice = factor * catPrice;
 		const finalPrice = basePrice * Number(priceSet.priceFactor);
 
-		console.log(
-			`[getTicketPrice] SeatID=${selection.seat.id}, 
-         TicketType=${type?.name}, 
-         BasePrice=${basePrice},
-         PriceFactor=${priceSet.priceFactor},
-         FinalPrice=${finalPrice}`
-		);
+		// console.log(
+		// 	`[getTicketPrice] SeatID=${selection.seat.id}, 
+        //  TicketType=${type?.name}, 
+        //  BasePrice=${basePrice},
+        //  PriceFactor=${priceSet.priceFactor},
+        //  FinalPrice=${finalPrice}`
+		// );
 
 		return finalPrice;
 	}
@@ -118,11 +118,11 @@
 	 *           FUNKTION: SITZ-TRANSFORMATION
 	 *************************************************************/
 	function transformSeat(raw: Seat): Seat {
-		console.log(`[transformSeat] Processing seat ${raw.id}:`, {
-			status: raw.status,
-			userId: raw.userId,
-			currentUser: data.user?.id
-		});
+		// console.log(`[transformSeat] Processing seat ${raw.id}:`, {
+		// 	status: raw.status,
+		// 	userId: raw.userId,
+		// 	currentUser: data.user?.id
+		// });
 
 		const s: Seat = {
 			...raw,
@@ -145,11 +145,11 @@
 			}
 		}
 
-		console.log(`[transformSeat] Result for seat ${s.id}:`, {
-			reservedByUser: s.reservedByUser,
-			reservedByOthers: s.reservedByOthers,
-			booked: s.booked
-		});
+		// console.log(`[transformSeat] Result for seat ${s.id}:`, {
+		// 	reservedByUser: s.reservedByUser,
+		// 	reservedByOthers: s.reservedByOthers,
+		// 	booked: s.booked
+		// });
 
 		return s;
 	}
@@ -203,12 +203,12 @@
 	 *           FUNKTION: SITZ TOGGLEN & RESERVIEREN
 	 *************************************************************/
 	async function toggleSeat(seat: Seat) {
-		console.log(
-			`[toggleSeat] clicked seatID=${seat.id}, booked=${seat.booked}, reservedByUser=${seat.reservedByUser}`
-		);
+		// console.log(
+		// 	`[toggleSeat] clicked seatID=${seat.id}, booked=${seat.booked}, reservedByUser=${seat.reservedByUser}`
+		// );
 		// Falls Sitz bezahlt/gebucht ist, aber nicht vom aktuellen User => no action
 		if (seat.booked && !seat.reservedByUser) {
-			console.log(' -> seat is booked but not by me. Doing nothing.');
+			// console.log(' -> seat is booked but not by me. Doing nothing.');
 			return;
 		}
 
@@ -230,7 +230,7 @@
 		}
 
 		// Andernfalls versuchen wir, den Sitz auf dem Server zu reservieren
-		console.log(`[toggleSeat] seat not selected yet. Reserving seatID=${seat.id}...`);
+		// console.log(`[toggleSeat] seat not selected yet. Reserving seatID=${seat.id}...`);
 		const res = await reserveSeat(seat);
 		if (res.type === 'error') {
 			error = res.error || 'Failed to reserve seat';
@@ -242,7 +242,7 @@
 	}
 
 	async function cancelSeat(seat: Seat) {
-		console.log(`[cancelSeat] seatID=${seat.id}`);
+		// console.log(`[cancelSeat] seatID=${seat.id}`);
 		const form = new FormData();
 		form.append('showingId', showing.id.toString());
 		form.append('seatId', seat.id.toString());
@@ -252,12 +252,12 @@
 			body: form
 		});
 		const json = await resp.json();
-		console.log('[cancelSeat] server response:', json);
+		// console.log('[cancelSeat] server response:', json);
 		return json;
 	}
 
 	async function reserveSeat(seat: Seat) {
-		console.log(`[reserveSeat] sending request to reserve seatID=${seat.id}`);
+		// console.log(`[reserveSeat] sending request to reserve seatID=${seat.id}`);
 		const form = new FormData();
 		form.append('showingId', showing.id.toString());
 		form.append('seatId', seat.id.toString());
@@ -271,20 +271,20 @@
 			body: form
 		});
 		const json = await resp.json();
-		console.log('[reserveSeat] server response:', json);
+		// console.log('[reserveSeat] server response:', json);
 		return json;
 	}
 
 	function addSelectedSeat(seat: Seat) {
-		console.log(`[addSelectedSeat] seatID=${seat.id}`);
+		// console.log(`[addSelectedSeat] seatID=${seat.id}`);
 		const category = seatCategories.find((c) => c.id === seat.categoryId);
 		if (!category) {
-			console.error(`[addSelectedSeat] No category found for seatID=${seat.id}`);
+			// console.error(`[addSelectedSeat] No category found for seatID=${seat.id}`);
 			return;
 		}
 		const defaultTicketType = ticketTypes[0]?.id;
 		if (!Number.isInteger(defaultTicketType)) {
-			console.error('[addSelectedSeat] No valid default ticket type found');
+			// console.error('[addSelectedSeat] No valid default ticket type found');
 			return;
 		}
 
@@ -299,11 +299,11 @@
 		];
 
 		seats = seats.map((s) => (s.id === seat.id ? newSeat : s));
-		console.log('[addSelectedSeat] selectedSeats now:', selectedSeats);
+		// console.log('[addSelectedSeat] selectedSeats now:', selectedSeats);
 	}
 
 	function updateTicketType(seatId: number, ticketTypeId: number) {
-		console.log(`[updateTicketType] seatID=${seatId}, newTicketType=${ticketTypeId}`);
+		// console.log(`[updateTicketType] seatID=${seatId}, newTicketType=${ticketTypeId}`);
 
 		selectedSeats = selectedSeats.map((sel) => {
 			if (sel.seat.id === seatId) {
@@ -317,14 +317,14 @@
 
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
-		console.log(
-			'[handleSubmit] Booking seats:',
-			selectedSeats.map((s) => s.seat.id)
-		);
+		// console.log(
+		// 	'[handleSubmit] Booking seats:',
+		// 	selectedSeats.map((s) => s.seat.id)
+		// );
 
 		if (selectedSeats.length === 0) {
 			error = 'Please select at least one seat.';
-			console.warn('[handleSubmit] No seats selected => error');
+			// console.warn('[handleSubmit] No seats selected => error');
 			return;
 		}
 
@@ -342,11 +342,11 @@
 		});
 
 		if (resp.ok) {
-			console.log('[handleSubmit] Booking success! Redirecting to /cart...');
+			// console.log('[handleSubmit] Booking success! Redirecting to /cart...');
 			window.location.href = '/cart';
 		} else {
 			error = 'Failed to book seats. Please try again.';
-			console.warn('[handleSubmit] Booking failed:', error);
+			// console.warn('[handleSubmit] Booking failed:', error);
 		}
 	}
 
@@ -357,7 +357,7 @@
 			console.log('[SSE] got seat update:', seatStatusData);
 
 			if (!Array.isArray(seatStatusData)) {
-				console.error('[SSE] invalid seat status data:', seatStatusData);
+				// console.error('[SSE] invalid seat status data:', seatStatusData);
 				return;
 			}
 
@@ -414,7 +414,7 @@
 	);
 
 	function manualRetryConnection() {
-		console.log('Manual SSE reconnect requested');
+		// console.log('Manual SSE reconnect requested');
 		sseManager.reconnect();
 	}
 
@@ -422,8 +422,8 @@
 	 *           ONMOUNT
 	 *************************************************************/
 	onMount(() => {
-		console.log('[onMount] data:', data);
-		console.log(`[onMount] userId = ${data.user?.id}`);
+		// console.log('[onMount] data:', data);
+		// console.log(`[onMount] userId = ${data.user?.id}`);
 
 		// 1) Seats zentrieren (und transformieren)
 		centerSeats();
@@ -433,14 +433,14 @@
 
 		// 3) Falls der User bereits reservierte Seats in userReservedSeats hatte
 		if (data.userReservedSeats) {
-			console.log('[onMount] userReservedSeats vorhanden:', data.userReservedSeats);
+			// console.log('[onMount] userReservedSeats vorhanden:', data.userReservedSeats);
 
 			selectedSeats = data.userReservedSeats.map((res) => {
 				// Passender Eintrag in seats-Array
 				const seatObj = seats.find((s) => s.id === res.seatId)!;
 				const category = seatCategories.find((c) => c.id === seatObj.categoryId)!;
 
-				console.log(`[onMount] Marking seatID=${seatObj.id} as selected (already reserved)`);
+				// console.log(`[onMount] Marking seatID=${seatObj.id} as selected (already reserved)`);
 
 				return {
 					seat: seatObj,
@@ -449,12 +449,12 @@
 				};
 			});
 
-			console.log('[onMount] selectedSeats now:', selectedSeats);
+			// console.log('[onMount] selectedSeats now:', selectedSeats);
 		}
 
 		// Cleanup, wenn das Component unmountet
 		return () => {
-			console.log('[onMount -> Unmount] Disconnecting SSE');
+			// console.log('[onMount -> Unmount] Disconnecting SSE');
 			sseManager.disconnect();
 		};
 	});
