@@ -1,14 +1,17 @@
 <script lang="ts">
+	// Previous script section remains exactly the same
 	import type { showing } from '$lib/server/db/schema';
 	import ShowCard from './show_card.svelte';
+	import { ChevronLeft, ChevronRight, CalendarDays, Clock } from 'lucide-svelte';
 
 	type Show = typeof showing.$inferSelect;
-
 	let { shows, movies } = $props();
 
-	let expandedDates: { [key: string]: boolean } = $state({});
+	// State Management
+	let currentWeekStart = $state(getWeekStart(new Date()));
+	let selectedDate = $state<Date>(new Date());
 
-	// Filtere Shows, deren Datum nicht in der Vergangenheit liegt
+	// Derived values
 	const filteredShows = $derived.by(() =>
 		shows.filter((show: { date: string | number | Date }) => {
 			const showDate = new Date(show.date);
@@ -18,120 +21,217 @@
 		})
 	);
 
-	// Gruppiere Shows nach Datum
-	const groupedShows = $derived.by(() => {
-		return filteredShows.reduce(
-			(acc: { [x: string]: any[] }, show: { date: string | number }) => {
-				if (show.date) {
-					if (!acc[show.date]) {
-						acc[show.date] = [];
-					}
-					acc[show.date].push(show);
-				}
-				return acc;
-			},
-			{} as { [key: string]: Show[] }
-		);
-	});
+	const selectedShows = $derived.by(() => getShowsForDate(selectedDate));
 
-	// Sortiere Daten nach Datum
-	const sortedDates = $derived.by(() => {
-		return Object.keys(groupedShows).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-	});
+	function getWeekStart(date: Date) {
+		const d = new Date(date);
+		const day = d.getDay();
+		const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+		return new Date(d.setDate(diff));
+	}
 
-	function defaultExpandAll() {
-		for (const date in groupedShows) {
-			expandedDates[date] = true;
+	function getWeekDates(startDate: Date) {
+		const dates = [];
+		const currentDate = new Date(startDate);
+
+		for (let i = 0; i < 7; i++) {
+			dates.push(new Date(currentDate));
+			currentDate.setDate(currentDate.getDate() + 1);
 		}
-		expandedDates = expandedDates;
+		return dates;
 	}
 
-	defaultExpandAll();
-
-	function toggleDate(date: string) {
-		expandedDates[date] = !expandedDates[date];
-		expandedDates = expandedDates;
+	function navigateWeek(direction: number) {
+		const newDate = new Date(currentWeekStart);
+		newDate.setDate(newDate.getDate() + direction * 7);
+		currentWeekStart = newDate;
 	}
 
-    function getMovieByShow(show: Show) {
-        return movies.find((movie: { id: number | null; }) => movie.id === show.filmid);
-    }
+	function goToCurrentWeek() {
+		currentWeekStart = getWeekStart(new Date());
+		selectedDate = new Date();
+	}
+
+	function getShowsForDate(date: Date) {
+		return filteredShows
+			.filter((show: { date: string | number | Date }) => {
+				const showDate = new Date(show.date);
+				return showDate.toDateString() === date.toDateString();
+			})
+			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	}
+
+	function isToday(date: Date) {
+		return new Date().toDateString() === date.toDateString();
+	}
+
+	function getMovieByShow(show: Show) {
+		return movies.find((movie: { id: number | null }) => movie.id === show.filmid);
+	}
+
+	function selectDate(date: Date) {
+		selectedDate = date;
+	}
+
+	function formatTime(startTime: string, endTime: string) {
+		return `${startTime.slice(0, 5)} - ${endTime.slice(0, 5)}`;
+	}
 </script>
 
-<div class="shows-container">
-	{#each sortedDates as date}
-		<div class="collapsible-date-list">
-			<button class="date-header" onclick={() => toggleDate(date)}>
-				<span class="toggle-icon">
-					{expandedDates[date] ? '▼' : '►'}
-				</span>
-				{new Date(date).toLocaleDateString('de-DE', {
-					weekday: 'long',
-					year: 'numeric',
-					month: 'long',
-					day: 'numeric'
-				})}
-			</button>
-
-			{#if expandedDates[date]}
-				<!-- <div class="list-content">
-					<div class="scrollable-content">
-						{#each groupedShows[date] as show}
-							<div class="show-item">
-								<a href="/admin/films/show/{show.id}">{formatShowDetails(show)}</a>
-								{#if show.hallid}
-									<span class="hall-info">Saal {show.hallid}</span>
-								{/if}
-							</div>
-						{/each}
-					</div>
-				</div> -->
-				<div class="movies-container">
-					{#each groupedShows[date] as show}
-						<ShowCard movie={getMovieByShow(show)} show={show} url="/show/{show.id}" />
-					{/each}
+<div class="mx-auto  px-4 py-2 mb-4 sm:px-6 lg:px-8">
+	<div class="flex h-[650px] flex-col overflow-hidden rounded-xl bg-white">
+		<!-- Calendar Header -->
+		<div class="flex items-center justify-between border-b p-4">
+			<h2 class="text-xl font-semibold text-gray-800">
+				{currentWeekStart.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+			</h2>
+			<div class="flex items-center space-x-4">
+				<button
+					class="flex items-center rounded-md bg-blue-50 px-3 py-1.5 text-blue-600 transition-colors hover:bg-blue-100"
+					on:click={goToCurrentWeek}
+				>
+					<CalendarDays class="mr-2 h-4 w-4" />
+					Heute
+				</button>
+				<div class="flex space-x-2">
+					<button
+						class="rounded-full p-2 transition-colors hover:bg-gray-100"
+						on:click={() => navigateWeek(-1)}
+					>
+						<ChevronLeft class="h-5 w-5 text-gray-600" />
+					</button>
+					<button
+						class="rounded-full p-2 transition-colors hover:bg-gray-100"
+						on:click={() => navigateWeek(1)}
+					>
+						<ChevronRight class="h-5 w-5 text-gray-600" />
+					</button>
 				</div>
-			{/if}
+			</div>
 		</div>
-	{/each}
+
+		<!-- Main Content Area -->
+		<div class="flex flex-1 overflow-hidden">
+			<!-- Calendar Days - Fixed width with own scroll -->
+			<div class="w-80 overflow-y-auto border-r">
+				{#each getWeekDates(currentWeekStart) as date}
+					{@const shows = getShowsForDate(date)}
+					<button
+						class={`group w-full border-b p-4 transition-colors last:border-b-0 ${
+							selectedDate.toDateString() === date.toDateString()
+								? 'bg-blue-50 hover:bg-blue-100'
+								: 'hover:bg-gray-50'
+						}`}
+						on:click={() => selectDate(date)}
+					>
+						<div class="flex items-center justify-between">
+							<div class="flex flex-col items-start">
+								<div class="text-sm font-medium text-gray-600">
+									{date.toLocaleDateString('de-DE', { weekday: 'long' })}
+								</div>
+								<div
+									class={`text-xl ${isToday(date) ? 'font-semibold text-blue-600' : 'text-gray-900'}`}
+								>
+									{date.getDate()}
+								</div>
+							</div>
+							{#if shows.length > 0}
+								<span
+									class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800"
+								>
+									{shows.length} Shows
+								</span>
+							{/if}
+						</div>
+					</button>
+				{/each}
+			</div>
+
+			<!-- Shows Section - Flexible width with fixed header -->
+			<div class="flex min-w-0 flex-1 flex-col">
+				<!-- Shows Header - Always visible -->
+				<div class="border-b bg-white p-6">
+					<h3 class="text-xl font-semibold text-gray-800">
+						Vorstellungen am {selectedDate.toLocaleDateString('de-DE', {
+							weekday: 'long',
+							day: 'numeric',
+							month: 'long'
+						})}
+					</h3>
+				</div>
+
+				<!-- Shows Content - Scrollable -->
+				<div class="flex-1 overflow-y-auto p-6">
+					{#if selectedShows.length === 0}
+						<div class="py-12 text-center">
+							<div class="text-lg text-gray-400">Keine Vorstellungen an diesem Tag</div>
+						</div>
+					{:else}
+						<div class="space-y-6">
+							{#each selectedShows as show}
+								{@const movie = getMovieByShow(show)}
+								<div
+									class="group relative rounded-xl border bg-white shadow-sm transition-all duration-200 hover:shadow-md"
+								>
+									<div class="p-4">
+										<div class="flex items-start gap-4">
+											<img src="{movie?.poster}" class="h-36 w-24 flex-shrink-0 rounded-lg bg-gray-200"/>
+
+											<div class="min-w-0 flex-1">
+												<div class="mb-2 flex flex-wrap items-center gap-3">
+													<span
+														class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
+													>
+														<Clock class="mr-1 h-4 w-4" />
+														{formatTime(show.time, show.endTime)}
+													</span>
+													{#if show.is3d}
+														<span
+															class="rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800"
+														>
+															3D
+														</span>
+													{/if}
+													{#if show.isOv}
+														<span
+															class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-800"
+														>
+															OV
+														</span>
+													{/if}
+												</div>
+
+												<h3 class="mb-1 text-lg font-semibold text-gray-900">
+													{movie?.title || 'Film titel'}
+												</h3>
+
+												<p class="mb-3 text-sm text-gray-600">
+													{movie?.description?.slice(0, 150)}...
+												</p>
+
+												<div class="flex items-center gap-4">
+													<a
+														href={`/show/${show.id}`}
+														class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+													>
+														Tickets buchen
+													</a>
+													<a
+														href={`/film/${movie?.id}`}
+														class="text-sm text-blue-600 hover:underline"
+													>
+														Mehr Informationen
+													</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							{/each}
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
-
-<style>
-	.shows-container {
-		width: 100%;
-		margin: 0 auto;
-		padding: 20px;
-	}
-
-	.collapsible-date-list {
-		margin-bottom: 10px;
-	}
-
-	.date-header {
-		width: 100%;
-		display: flex;
-		justify-content: start;
-		align-items: center;
-		cursor: pointer;
-		text-align: left;
-		font-weight: 600;
-	}
-
-	.toggle-icon {
-		margin-right: 10px;
-	}
-
-	.movies-container {
-		padding-top: 20px;
-		margin-left: 20px;
-		margin-right: 20px;
-		padding-bottom: 20px;
-		display: flex; /* Use flexbox for horizontal layout */
-		flex-wrap: nowrap; /* Prevent wrapping of items */
-		gap: 20px; /* Space between items */
-		overflow-x: auto; /* Enable horizontal scrolling */
-		scroll-behavior: smooth; /* Smooth scrolling effect */
-		width: auto; /* Full width for container */
-		box-sizing: border-box; /* Include padding in width */
-	}
-</style>

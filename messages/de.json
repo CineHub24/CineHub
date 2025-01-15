@@ -39,6 +39,7 @@
 	"already_account": "Haben Sie bereits ein Konto?",
 	"admin_tools": "Admin-Tools",
 	"movies": "Filme",
+	"current_movies": "Im Kino",
 	"shows": "Vorstellungen",
 	"directed_by": "Regie von",
 	"released_in": "Veröffentlicht",
@@ -182,10 +183,9 @@
 	"closes_at": "Schließt um",
 	"actions": "Aktionen",
 
-	"discount_name":"Name",
+	
 	"discount_management": "Rabatt-Verwaltung",
 	"discount_code":"Rabattcode",
-	"discount_value":"Wert",
 	"expires_at":"Ablaufdatum",
 	"new_discount": "Neuer Rabatt",
 	
@@ -257,5 +257,71 @@
 	"price_factor_placeholder": "Preisfaktor in Dezimal (z.B. 0,5 für 50%)",
 
 	"invalid_price": "Ungültiger Preis",
-	"invalid_factor": "Ungültiger Faktor"
+	"invalid_factor": "Ungültiger Faktor",
+	"submit": "Anwenden",
+
+	"cart_film": "Film:",
+	"cart_show": "Vorstellung:",
+	"cart_seat": "Sitz:",
+	"cart_typ": "Typ:",
+	"cart_price": "Preis:",
+	"cart_seattype": "Sitzkategorie:",
+	"cart_subtotal":"Zwischensumme:",
+	"cart_discount":"Rabatt",
+	"cart_enter_discount":"Code eingeben",
+	"cart_VAT":" inkl. MwSt",
+	"cart_total": "Gesamt:",
+	"cart_payment_type": "Zahlungsmethode:",
+	"cart_empty_h2":"Sie haben zur Zeit keine Artikel in Ihrem Warenkorb",
+	"cart_empty_p":"Entdecken Sie unsere Programm und füllen Sie Ihren Warenkorb",
+	"cart_goto_program":"Zum Programm",
+
+
+
+
+	
+	"discount_codes": "Rabattcodes",
+	"discount_codes_description": "Erstellen und verwalten Sie Rabattcodes für spezielle Aktionen oder Kundengruppen.",
+	"create_discount": "Rabatt erstellen",
+	"discount_name": "Rabattname",
+	"enter_discount_name": "Rabattnamen eingeben",
+	
+	"enter_discount_code": "Rabattcode eingeben",
+	"discount_type": "Rabatttyp",
+	"percentage": "Prozentsatz",
+	"fixed_amount": "Fester Betrag",
+	"discount_value": "Rabattwert",
+	"enter_percentage": "Dezimalwert eingeben (z.B. 0,5 für 50%)",
+	"enter_amount": "Betrag eingeben",
+	
+
+	"seat_selection_for": "Sitzplatzauswahl für",
+	"seats_successfully_booked": "Sitzplätze erfolgreich gebucht!",
+	"selected_seats": "Ausgewählte Sitzplätze",
+	"seat": "Sitz",
+	"total": "Gesamt",
+	"book_selected_seats": "Ausgewählte Sitzplätze buchen",
+	"no_seats_selected": "Keine Sitzplätze ausgewählt.",
+	"screen": "Leinwand",
+	"standard": "Standard",
+	"premium": "Premium",
+	"vip": "VIP",
+	"booked": "Gebucht",
+	"expiration_date": "Ablaufdatum",
+
+	"enter_email_reset_password":"Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
+	"enter_email_reset_password_button":"Passwort zurücksetzen",
+	"back_to_login":"Zurück zum Login",
+	"enter_new_password":"Neues Passwort eingeben",
+	"set_new_password":"Neues Passwort setzen",
+	"new_password":"Neues Passwort",
+	"confirm_password":"Passwort bestätigen",
+	"confirm_new_password":"Neues Passwort bestätigen",
+	"set_new_password_button":"Passwort setzen",
+	"passwords_do_not_match":"Passwörter stimmen nicht überein"
+	
+
+
+
+	
 }

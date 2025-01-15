@@ -9,11 +9,27 @@ import {
 	type Ticket,
 	type Seat,
 	type Showing,
-	type Film
+	type Film,
+	priceSet,
+	ticketType,
+	seatCategory,
+	type PriceSet,
+	type TicketType,
+	type SeatCategory
 } from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray } from 'drizzle-orm';
+import type { Tickets } from 'lucide-svelte';
 
+export interface TicketWithDetails {
+	Ticket: Ticket;
+	seat: Seat;
+	Showing: Showing;
+	Film: Film;
+	PriceSet: PriceSet;
+	TicketType: TicketType;
+	seatCategory: SeatCategory;
+  }
 
 interface PriceCalculation {
 	basePrice: number;
@@ -101,12 +117,15 @@ export const load = async ({ locals }) => {
 			};
 		}
 		const bookingId = _booking[0].id;
-		const tickets = await db
+		const tickets:TicketWithDetails[] = await db
 			.select()
 			.from(ticket)
 			.innerJoin(seat, eq(seat.id, ticket.seatId))
 			.innerJoin(showing, eq(showing.id, ticket.showingId))
 			.innerJoin(film, eq(film.id, showing.filmid))
+			.innerJoin(priceSet, eq(priceSet.id, showing.priceSetId))
+			.innerJoin(ticketType, eq(ticketType.id, ticket.type))
+			.innerJoin(seatCategory, eq(seatCategory.id, seat.categoryId))
 			.where(eq(ticket.bookingId, Number(bookingId)));
 		if (showing === undefined) {
 			return fail(404, { error: true, message: 'Showing not found' });
@@ -136,8 +155,8 @@ export const load = async ({ locals }) => {
 		}
 		return {
 			booking: _booking[0],
-			tickets,
-			prices
+			tickets: tickets as TicketWithDetails[],
+			prices: prices
 		};
 	} catch (error) {
 		console.log(error);
