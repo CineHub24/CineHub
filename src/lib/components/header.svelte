@@ -145,7 +145,7 @@
 					languageAwareGoto('/search/' + search);
 				}}
 			/>
-			<a class="relative mx-4 my-auto focus:outline-none" href="/tickets">
+			<a class="relative mx-4 my-auto focus:outline-none" href="/profile/tickets">
 				<TicketCheck size={24} color="#666666" />
 			</a>
 			<a class="relative mx-4 my-auto focus:outline-none" href="/cart">

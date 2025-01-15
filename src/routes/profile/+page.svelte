@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
 	import type { PageServerData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
 
@@ -17,6 +18,7 @@
 	};
 
 	let showSuccess = false;
+	let showPasswordChanged = $page.url.searchParams.has('passwordChanged');
 	let isFormModified = false;
 
 	function handleInputChange(event: Event) {
@@ -51,10 +53,9 @@
 
 				setTimeout(() => {
 					showSuccess = false;
+					showPasswordChanged = false;
 				}, 10000);
 			}
-			// Don't call update() as it would reset the form
-			// await update();
 		};
 	};
 </script>
@@ -69,6 +70,13 @@
 				<div class="success-message">
 					<span class="success-icon">✓</span>
 					Änderungen erfolgreich gespeichert
+				</div>
+			{/if}
+
+			{#if showPasswordChanged}
+				<div class="success-message">
+					<span class="success-icon">✓</span>
+					Passwort wurde erfolgreich geändert
 				</div>
 			{/if}
 
@@ -125,6 +133,9 @@
 				>
 					Speichern
 				</button>
+				<a href="/profile/change-password" class="change-password-btn">
+					Passwort ändern
+				</a>
 				<form method="post" action="?/logout" use:enhance class="logout-form">
 					<button class="logout-btn">{m.logout({})}</button>
 				</form>
@@ -147,7 +158,7 @@
 		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 		padding: 2rem;
 		width: 100%;
-		max-width: 400px;
+		max-width: 550px;
 		text-align: center;
 	}
 	.avatar {
@@ -223,16 +234,20 @@
 		justify-content: center;
 		gap: 1rem;
 		margin-top: 1rem;
+		flex-wrap: wrap;
 	}
-	.save-btn {
-		background-color: #2ecc71;
-		color: white;
+	.save-btn, .change-password-btn, .logout-btn {
 		border: none;
 		border-radius: 5px;
 		padding: 0.75rem 1.5rem;
 		font-size: 1rem;
 		cursor: pointer;
 		transition: all 0.3s ease;
+		text-decoration: none;
+	}
+	.save-btn {
+		background-color: #2ecc71;
+		color: white;
 	}
 	.save-btn:disabled {
 		background-color: #bdc3c7;
@@ -241,6 +256,13 @@
 	}
 	.save-btn:not(:disabled):hover {
 		background-color: #27ae60;
+	}
+	.change-password-btn {
+		background-color: #f39c12;
+		color: white;
+	}
+	.change-password-btn:hover {
+		background-color: #d68910;
 	}
 	.user-info {
 		margin-bottom: 1.5rem;
@@ -257,12 +279,6 @@
 	.logout-btn {
 		background-color: #3498db;
 		color: white;
-		border: none;
-		border-radius: 5px;
-		padding: 0.75rem 1.5rem;
-		font-size: 1rem;
-		cursor: pointer;
-		transition: background-color 0.3s ease;
 	}
 	.logout-btn:hover {
 		background-color: #2980b9;

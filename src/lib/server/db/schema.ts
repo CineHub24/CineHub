@@ -4,6 +4,7 @@ import { description, price } from '$lib/paraglide/messages';
 import { timeStamp } from 'console';
 
 import { sql } from 'drizzle-orm';
+import { float } from 'drizzle-orm/mysql-core';
 import {
 	uuid,
 	pgTable,
@@ -27,6 +28,7 @@ export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'paid',
 	'validated',	
 	'refunded',
+	'payAtCinema'
 ]);
 export const discountTypesEnum = pgEnum('discountType', ['percentage', 'fixed']);
 
@@ -65,6 +67,7 @@ export type TicketType = typeof ticketType.$inferSelect;
 export type Ticket = typeof ticket.$inferSelect;
 export type Booking = typeof booking.$inferSelect;
 export type GiftCode = typeof giftCodes.$inferSelect;
+export type Discount = typeof priceDiscount.$inferSelect;
 
 export const film = pgTable('Film', {
 	id: serial('id').primaryKey(),
@@ -132,17 +135,26 @@ export const seat = pgTable('seat', {
   id: serial('id').primaryKey(),
   seatNumber: text('seatNumber').notNull(),
   row: text('row').notNull(),
+	rotation: decimal('rotation').notNull(),
+	top: decimal('top').notNull(),
+	left: decimal('left').notNull(),
   cinemaHall: integer('cinemaHall').notNull().references(() => cinemaHall.id, { onDelete: 'cascade' }),
   categoryId: integer('categoryId').notNull().references(() => seatCategory.id),
 });
 
 export const seatCategory = pgTable('seatCategory', {
 	id: serial('id').primaryKey(),
-	name: text('name'),
-	description: text('description'),
-	emoji: text('emoji'),
-	price: decimal('price', { precision: 10, scale: 2 })
-});
+		createdAt: timestamp('createdAt').defaultNow(),
+		name: text('name'),
+		description: text('description'),
+		color: varchar('color', { length: 7 }).notNull(), // Hex color code like #FF0000
+		width: integer('width').notNull().default(40), // Changed from 'size' to 'width'
+		height: integer('height').notNull().default(40), // Changed from 'size' to 'height'
+		price: decimal('price', { precision: 10, scale: 2 }),
+		isActive: boolean('isActive').notNull().default(true),
+		customPath: text('customPath')
+	});
+
 
 export const priceSet = pgTable('PriceSet', {
   id: serial('id').primaryKey(),

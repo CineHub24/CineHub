@@ -1,83 +1,133 @@
+// src/routes/seat-categories/+page.server.ts
+import { fail } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './v3/$types';
 import { db } from '$lib/server/db';
-import { seatCategory, seat } from '$lib/server/db/schema';
-import { error, fail, type Actions } from '@sveltejs/kit';
-import { eq, lt, gte, ne } from 'drizzle-orm';
-import * as m from '$lib/paraglide/messages.js';
+import { seatCategory } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 
-const dbFail = fail(500, { message: m.internal_server_error({}), database: true });
 
-export const load = async ({ url }) => {
-	const seatCategories = await db.select().from(seatCategory).orderBy(seatCategory.price);
-	return {
-		seatCategories: seatCategories
-	};
+export const load: PageServerLoad = async () => {
+    try {
+        const categories = await db.select().from(seatCategory).where(
+            eq(seatCategory.isActive, true)
+        );
+
+        return {
+            categories
+        };
+    } catch (error) {
+        console.error('Error loading categories:', error);
+        return {
+            categories: []
+        };
+    }
 };
+
 export const actions = {
-	createSeatCategory: async ({ request }) => {
-		const data = await request.formData();
+    create: async ({ request }) => {
+        const formData = await request.formData();
 
-		const name = data.get('name') as string;
-		const price = data.get('price') as string;
-		const description = data.get('description') as string;
-		const emoji = data.get('emoji') as string;
+        // Convert and validate form data
+        const width = parseInt(formData.get('width') as string);
+        const height = parseInt(formData.get('height') as string);
+        const price = parseFloat(formData.get('price') as string);
 
-		if(!name || !price) {
-			return fail(400, { message: m.missing_inputs({}) });
-		}
-		if( parseFloat(price) < 0) {
-			return fail(400, { message: m.invalid_price({}) });
-		}
+        // Validate required fields
+        if (!formData.get('name') || !formData.get('color') || isNaN(width) || isNaN(height) || isNaN(price)) {
+            return fail(400, {
+                success: false,
+                message: 'Missing or invalid required fields',
+                values: Object.fromEntries(formData)
+            });
+        }
 
-		const newSeatCategory = {
-			name,
-			price,
-			description,
-			emoji
-		};
+        try {
+            const values = {
+                name: String(formData.get('name')),
+                description: formData.get('description') ? String(formData.get('description')) : null,
+                color: String(formData.get('color')),
+                width: width,
+                height: height,
+                price: price,
+                customPath: String(formData.get('customPath')),
+                isActive: true
+            } as const;
 
-		try {
-			await db.insert(seatCategory).values(newSeatCategory).execute();
-		} catch (e) {
-			return dbFail;
-		}
-	},
-	deleteSeatCategory: async ({ request, url }) => {
-		const data = await request.formData();
-		const id = data.get('id') as unknown as number;
 
-		try {
-			const seats = await db.select().from(seat).where(eq(seat.categoryId, id));
-			if (seats.length === 0) {
-				await db.delete(seatCategory).where(eq(seatCategory.id, id));
-			} else {
-				return fail(400, { message: m.seat_category_in_use({}) });
-			}
-		} catch (e) {
-			return dbFail;
-		}
-	},
-	updateSeatCategory: async ({ request }) => {
-		const data = await request.formData();
+            const newCategory = await db.insert(seatCategory)
+                .values(values)
+                .returning();
 
-		const id = data.get('id') as unknown as number;
-		const name = data.get('name') as string;
-		const price = data.get('price') as string;
-		const description = data.get('description') as string;
+            console.log('newCategory:', newCategory);
 
-		if (!id || !name) {
-			return fail(400, { message: m.missing_inputs({}) });
-		}
-		if( parseFloat(price) < 0) {
-			return fail(400, { message: m.invalid_price({}) });
-		}
+            return {
+                type: 'success',
+                data: newCategory[0]
+            };
+        } catch (error) {
+            console.error('Error creating seat category:', error);
+            return fail(500, {
+                success: false,
+                message: 'Failed to create seat category',
+                values: Object.fromEntries(formData)
+            });
+        }
+    },
 
-		try {
-			await db
-				.update(seatCategory)
-				.set({ name: name, price: price, description: description })
-				.where(eq(seatCategory.id, id));
-		} catch (e) {
-			return dbFail;
-		}
-	}
+
+    update: async ({ request }) => {
+        const formData = await request.formData();
+        const id = parseInt(formData.get('id') as string);
+
+        const width = parseInt(formData.get('width') as string);
+        const height = parseInt(formData.get('height') as string);
+        try {
+            const updatedCategory = await db
+                .update(seatCategory)
+                .set({
+                    name: String(formData.get('name')),
+                    description: formData.get('description') ? String(formData.get('description')) : null,
+                    color: String(formData.get('color')),
+                    width: width,
+                    height: height,
+                    price: formData.get('price') as string,
+                    customPath: String(formData.get('customPath'))
+                })
+                .where(eq(seatCategory.id, id))
+                .returning();
+
+            return {
+                type: 'success',
+                data: updatedCategory[0]
+            };
+        } catch (error) {
+            return fail(500, {
+                type: 'error',
+                message: 'Failed to update category'
+            });
+        }
+    },
+
+    delete: async ({ request }) => {
+        const formData = await request.formData();
+        const id = parseInt(formData.get('id') as string);
+
+        try {
+            // Soft delete by setting isActive to false
+            await db
+                .update(seatCategory)
+                .set({ isActive: false })
+                .where(eq(seatCategory.id, id));
+
+            return {
+                type: 'success',
+                message: 'Category deleted successfully'
+            };
+        } catch (error) {
+            return fail(500, {
+                type: 'error',
+                message: 'Failed to delete category'
+            });
+        }
+    }
 } satisfies Actions;

@@ -15,6 +15,7 @@ import {
 	ticketType,
 	user,
 	type PriceDiscountForInsert,
+	type Discount,
 	type Showing,
 	type Ticket
 } from '$lib/server/db/schema';
@@ -28,7 +29,6 @@ import { generateUniqueCode } from './randomCode';
 export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
-	logoPath: string;
 	private PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL;
 
 	constructor(gmailUser: string, gmailAppPassword: string) {
@@ -40,8 +40,7 @@ export class EmailService {
 			}
 		});
 		this.gmailUser = gmailUser;
-		this.logoPath = path.join(process.cwd(), 'static', 'favicon_white_bg.png');
-	}
+		}
 	private async generatePDFTicket(ticketInfo: {
 		Ticket: {
 			token: string | null;
@@ -137,7 +136,7 @@ export class EmailService {
 
 			// Logo oben rechts
 			try {
-				doc.image(this.logoPath, 490, 55, { width: 50, height: 50 });
+				doc.image(this.PUBLIC_URL + '/favicon_white_bg.png', 490, 55, { width: 50, height: 50 });
 			} catch (error) {
 				console.error('Fehler beim Laden des Logos:', error);
 				doc.text('CineHub', 490, 70);
@@ -648,6 +647,67 @@ Ihr Cinehub-Team
 
 		return calendar.toString();
 	}
+	async sendDiscountCode(email: string, discount:Discount ): Promise<void> {
+		console.log('discount', discount);
+		console.log('email', email);
+		const emailContent = `
+	  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+	  <p>Hey Filmfan,</p>
+	  
+	  <p>wir freuen uns, Ihnen einen Rabattcode für Ihren nächsten Kinobesuch anzubieten.</p>
+	  
+	  <p>Rabattcode: ${discount.code}</p>
+	  <p>Wert: ${discount.value} ${discount.discountType === 'percentage' ? '%' : '€'}</p>
+	  <p>Gültig bis: ${discount.expiresAt}</p>
+	  
+	  <p>Ihr Cinehub-Team</p>
+	  </div>
+	  `;
+
+		try {
+			await this.transporter.sendMail({
+				from: `"CineHub" <${this.gmailUser}>`,
+				to: email,
+				subject: `Ihr Rabattcode für CineHub`,
+				html: emailContent
+			});
+		} catch (error) {
+			console.error('Fehler beim Versenden der E-Mail:', error);
+			throw new Error('E-Mail konnte nicht versendet werden');
+		}
+	}
+	async sendWelcomeEmail(email: string): Promise<void> {
+	
+		const emailContent = `
+		<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+		<p>Hallo Filmfan,<p>
+
+<p>Herzlich willkommen im CineHub! Wir freuen uns sehr, dass du nun Teil unserer Film-Familie bist.<p>
+
+<p>Bereit für unvergessliche Kinoerlebnisse? Dann Tauche ein in die Welt des Films und sei einer der Ersten, die neue Blockbuster erleben.</p>
+
+<p>Wir wünschen dir viel Spaß und gute Unterhaltung!</p>
+
+<p>Ihr Cinema-Team</p>
+		
+</div>		
+		`;
+		try {
+			await this.transporter.sendMail({
+				from: `"CineHub" <${this.gmailUser}>`,
+				to: email,
+				subject: `Willkommen im CineHub`,
+				html: emailContent
+			});
+		} catch (error) {
+			console.error('Fehler beim Versenden der E-Mail:', error);
+			throw new Error('E-Mail konnte nicht versendet werden');
+		}
+
+	
+	}
+
+
 
 	async sendNewsletter(emails: string[], subject: string, htmlContent: string): Promise<void> {
 		try {
