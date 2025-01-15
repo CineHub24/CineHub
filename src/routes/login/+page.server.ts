@@ -10,8 +10,10 @@ import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
+
 		return languageAwareRedirect(302, '/');
 	}
+	console.log('event', event);
 	return {};
 };
 
@@ -52,6 +54,8 @@ export const actions: Actions = {
 
 		const sessionToken = auth.generateSessionToken();
 		const session = await auth.createSession(sessionToken, existingUser.id);
+		console.log('session', session);
+		console.log('sessionToken', sessionToken);
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		return languageAwareRedirect(302, '/');
