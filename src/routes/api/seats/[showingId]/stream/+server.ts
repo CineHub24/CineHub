@@ -94,11 +94,7 @@ export async function GET({ params }: RequestEvent) {
     });
 
     return new Response(stream, {
-        headers: {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache, no-transform',
-            'Connection': 'keep-alive',
-            'X-Accel-Buffering': 'no'
-        }
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+
     });
 }
