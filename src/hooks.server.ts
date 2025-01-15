@@ -5,7 +5,7 @@ import * as auth from '$lib/server/auth.js';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import deleteOldReservedTicketsJob from '$lib/utils/jobs/deleteTicketsJob';
 
-deleteOldReservedTicketsJob();
+//deleteOldReservedTicketsJob();
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	const sessionToken = event.cookies.get(auth.sessionCookieName);
