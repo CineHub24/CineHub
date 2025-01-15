@@ -133,7 +133,7 @@ export class EmailService {
 
 			// Logo oben rechts
 			try {
-				doc.image('/favicon_white_bg.png', 490, 55, { width: 50, height: 50 });
+				doc.image(this.PUBLIC_URL + '/favicon_white_bg.png', 490, 55, { width: 50, height: 50 });
 			} catch (error) {
 				console.error('Fehler beim Laden des Logos:', error);
 				doc.text('CineHub', 490, 70);
