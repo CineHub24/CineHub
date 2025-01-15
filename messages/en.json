@@ -322,7 +322,6 @@
 	"voucher_summary": "Voucher Summary",
 	"add_to_cart": "Add to Cart",
 	"voucher_code": "Voucher Code",
-	"current_movies": "Now Showing",
 	"gift_cards": "Gift Cards",
 	"discount_not_found": "Discount code not found or expired",
 	"discount_applied": "Discount code successfully applied",
@@ -334,10 +333,26 @@
 	"server_error_delete": "Server error while deleting item",
 	"gift_cards_description": "Customers can purchase a gift card for future cinema visits. The gift card code can be redeemed later when buying tickets.",
 
-
 	"create_new_gift_card": "Create New Gift Card",
 	"new_gift_card": "New Gift Card",
 	"gift_card_description": "Gift Card Description",
 	"gift_card_amount": "Gift Card Amount",
-	"gift_card": "Gift Card"
+	"gift_card": "Gift Card",
+
+	"cinehub_gift_cards": "CineHub Gift Cards",
+	"did_you_know": "Did You Know?",
+	"discover_fun_facts": "Discover exciting background information and curiosities from the world of film.",
+	"popcorn_fact_title": "Popcorn Fact",
+	"popcorn_fact_text": "Did you know that popcorn only became popular in cinemas in the 20th century?",
+	"film_reel_info_title": "Film Reel Info",
+	"film_reel_info_text": "In the past, films were stored on flammable nitrate film. Fortunately, that's different today!",
+	"cinema_sound_title": "Sound in Cinema",
+	"cinema_sound_text": "The first sound film was already premiered in 1927. A milestone in film history!",
+
+	"today": "Today",
+	"showings_on": "Showings on ",
+	"no_showings_today": "No showings today",
+	"film_title": "Film title",
+	"book_tickets": "Book tickets",
+	"more_information": "More information"
 }

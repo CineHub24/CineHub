@@ -46,7 +46,7 @@ export class EmailService {
 			token: string | null;
 			id: number;
 			type: number | null;
-			status: 'reserved' | 'paid' | 'validated' | 'refunded';
+			status: 'reserved' | 'paid' | 'validated' | 'refunded' | 'payAtCinema';
 			showingId: number | null;
 			bookingId: number | null;
 			seatId: number | null;

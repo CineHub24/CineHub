@@ -209,6 +209,10 @@ export const load = async ({ locals }) => {
 				total: Number(_booking[0].finalPrice)
 			};
 		}
+		console.log('booking: ', _booking[0]);
+		console.log('tickets: ', tickets);
+		console.log('prices: ', prices);
+		console.log('giftCodes: ', giftCards);
 
 		return {
 			booking: _booking[0],

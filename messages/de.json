@@ -39,7 +39,6 @@
 	"already_account": "Haben Sie bereits ein Konto?",
 	"admin_tools": "Admin-Tools",
 	"movies": "Filme",
-	"current_movies": "Im Kino",
 	"shows": "Vorstellungen",
 	"directed_by": "Regie von",
 	"released_in": "Veröffentlicht",
@@ -338,6 +337,23 @@
 	"new_gift_card": "Neuer Geschenkgutschein",
 	"gift_card_description": "Beschreibung des Geschenkgutscheins",
 	"gift_card_amount": "Geschenkgutscheinbetrag",
-	"gift_card": "Geschenkgutschein"
+	"gift_card": "Geschenkgutschein",
+
+	"cinehub_gift_cards": "CineHub Gutscheine",
+	"did_you_know": "Schon Gewusst?",
+	"discover_fun_facts": "Entdecke spannende Hintergrundinformationen und Kuriositäten aus der Welt des Films.",
+	"popcorn_fact_title": "Popcorn-Fakt",
+	"popcorn_fact_text": "Wusstest du, dass Popcorn erst im 20. Jahrhundert in Kinos populär wurde?",
+	"film_reel_info_title": "Filmrollen-Info",
+	"film_reel_info_text": "Früher wurden Filme auf brennbarem Nitratfilm gespeichert. Zum Glück ist das heute anders!",
+	"cinema_sound_title": "Ton im Kino",
+	"cinema_sound_text": "Der erste Tonfilm wurde bereits 1927 uraufgeführt. Ein Meilenstein der Filmgeschichte!",
+
+	"today": "Heute",
+	"showings_on": "Vorstellungen am ",
+	"no_showings_today": "Keine Vorstellungen an diesem Tag",
+	"film_title": "Film titel",
+	"book_tickets": "Tickets buchen",
+	"more_information": "Mehr Informationen"
 
 }
