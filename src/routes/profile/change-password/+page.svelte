@@ -1,8 +1,7 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
-	import { validatePassword } from '$lib/utils/user';
+    import { validatePassword } from '$lib/utils/user';
 
-    // Types for the change password form
     interface ActionData {
         error?: string;
         invalidCurrent?: boolean;
@@ -10,7 +9,7 @@
         mismatch?: boolean;
     }
 
-    // Update the script tag type definition
+    export let data: { hasNoPassword: boolean };
     export let form: ActionData | null = null;
 
     let showPassword = {
@@ -25,7 +24,6 @@
         confirmPassword: ''
     };
 
-    // Validation states
     let validationErrors = {
         newPassword: '',
         confirmPassword: ''
@@ -34,7 +32,7 @@
     function handlePasswordInput() {
         const isPasswordValid = validatePassword(formData.newPassword);
 
-        if (!isPasswordValid) {
+        if (!isPasswordValid && formData.newPassword !== '') {
             validationErrors.newPassword = 'Das neue Passwort muss Groß- & Kleinbuchstaben, Zahlen sowie Sonderzeichen enthalten und zwischen 8 und 255 Zeichen lang sein.';
         } else {
             validationErrors.newPassword = '';
@@ -47,6 +45,17 @@
                 validationErrors.confirmPassword = '';
             }
         }
+    }
+
+    function isSubmitDisabled() {
+        // Check if new password is empty or if there are validation errors
+        const hasValidationErrors = !!validationErrors.newPassword || !!validationErrors.confirmPassword;
+        const isNewPasswordEmpty = !formData.newPassword;
+        const isConfirmPasswordEmpty = !formData.confirmPassword;
+        const isCurrentPasswordRequired = !data.hasNoPassword;
+        const isCurrentPasswordEmpty = isCurrentPasswordRequired && !formData.currentPassword;
+
+        return hasValidationErrors || isNewPasswordEmpty || isConfirmPasswordEmpty || isCurrentPasswordEmpty;
     }
 
     function toggleShowPassword(field: keyof typeof showPassword) {
@@ -62,7 +71,7 @@
 
 <div class="password-change-container">
     <div class="password-change-card">
-        <h1>{"Passwort ändern"}</h1>
+        <h1>{data.hasNoPassword ? "Passwort festlegen" : "Passwort ändern"}</h1>
 
         {#if form?.error}
             <div class="error-message">
@@ -76,40 +85,42 @@
             use:enhance={submitForm}
             class="password-change-form"
         >
-            <div class="form-group">
-                <label for="currentPassword">{"Derzeitiges Passwort"}</label>
-                <div class="password-input-container">
-                    <input 
-                        type={showPassword.current ? 'text' : 'password'}
-                        id="currentPassword"
-                        name="currentPassword"
-                        bind:value={formData.currentPassword}
-                        class="form-input"
-                        class:error={form?.invalidCurrent}
-                        required
-                    />
-                    <button 
-                        type="button"
-                        class="toggle-password"
-                        onclick={() => toggleShowPassword('current')}
-                    >
-                        {showPassword.current ? '👁️' : '👁️‍🗨️'}
-                    </button>
+            {#if !data.hasNoPassword}
+                <div class="form-group">
+                    <label for="currentPassword">{"Derzeitiges Passwort"}</label>
+                    <div class="password-input-container">
+                        <input 
+                            type={showPassword.current ? 'text' : 'password'}
+                            id="currentPassword"
+                            name="currentPassword"
+                            bind:value={formData.currentPassword}
+                            class="form-input"
+                            class:error={form?.invalidCurrent}
+                            required
+                        />
+                        <button 
+                            type="button"
+                            class="toggle-password"
+                            on:click={() => toggleShowPassword('current')}
+                        >
+                            {showPassword.current ? '👁️' : '👁️‍🗨️'}
+                        </button>
+                    </div>
+                    {#if form?.invalidCurrent}
+                        <span class="error-text">{"Das derzeitige Passwort ist nicht korrekt"}</span>
+                    {/if}
                 </div>
-                {#if form?.invalidCurrent}
-                    <span class="error-text">{"Das derzeitige Passwort ist nicht korrekt"}</span>
-                {/if}
-            </div>
+            {/if}
 
             <div class="form-group">
-                <label for="newPassword">{"Neues Passwort"}</label>
+                <label for="newPassword">{data.hasNoPassword ? "Password" : "Neues Passwort"}</label>
                 <div class="password-input-container">
                     <input 
                         type={showPassword.new ? 'text' : 'password'}
                         id="newPassword"
                         name="newPassword"
                         bind:value={formData.newPassword}
-                        oninput={handlePasswordInput}
+                        on:input={handlePasswordInput}
                         class="form-input"
                         class:error={validationErrors.newPassword || form?.invalid}
                         required
@@ -117,7 +128,7 @@
                     <button 
                         type="button"
                         class="toggle-password"
-                        onclick={() => toggleShowPassword('new')}
+                        on:click={() => toggleShowPassword('new')}
                     >
                         {showPassword.new ? '👁️' : '👁️‍🗨️'}
                     </button>
@@ -128,14 +139,14 @@
             </div>
 
             <div class="form-group">
-                <label for="confirmPassword">{"Password bestätigen"}</label>
+                <label for="confirmPassword">{"Passwort bestätigen"}</label>
                 <div class="password-input-container">
                     <input 
                         type={showPassword.confirm ? 'text' : 'password'}
                         id="confirmPassword"
                         name="confirmPassword"
                         bind:value={formData.confirmPassword}
-                        oninput={handlePasswordInput}
+                        on:input={handlePasswordInput}
                         class="form-input"
                         class:error={validationErrors.confirmPassword || form?.mismatch}
                         required
@@ -143,7 +154,7 @@
                     <button 
                         type="button"
                         class="toggle-password"
-                        onclick={() => toggleShowPassword('confirm')}
+                        on:click={() => toggleShowPassword('confirm')}
                     >
                         {showPassword.confirm ? '👁️' : '👁️‍🗨️'}
                     </button>
@@ -155,8 +166,12 @@
 
             <div class="button-container">
                 <a href="/profile" class="cancel-btn">{"Abbrechen"}</a>
-                <button type="submit" class="submit-btn" disabled={!!validationErrors.newPassword || !!validationErrors.confirmPassword}>
-                    {"Passwort ändern"}
+                <button 
+                    type="submit" 
+                    class="submit-btn" 
+                    disabled={isSubmitDisabled()}
+                >
+                    {data.hasNoPassword ? "Passwort festlegen" : "Passwort ändern"}
                 </button>
             </div>
         </form>
@@ -179,7 +194,7 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         padding: 2rem;
         width: 100%;
-        max-width: 400px;
+        max-width: 500px;
     }
 
     h1 {
