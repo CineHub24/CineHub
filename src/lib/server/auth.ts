@@ -82,9 +82,10 @@ export async function invalidateSession(sessionId: string) {
 export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
 	console.log('setSessionTokenCookie', token, expiresAt);
 	event.cookies.set(sessionCookieName, token, {
+		path: '/',
 		expires: expiresAt,
-		domain: '.cinehub.tech',
-		path: '/'
+		secure: false,  // Do not set secure flag when using HTTP!
+		sameSite: 'lax',
 	});
 }
 
