@@ -22,7 +22,7 @@ export function createSSEManager(
 
         try {
             const url = `/api/seats/${showingId}/stream`;
-            console.log('Connecting to SSE:', { url, retryCount });
+            // console.log('Connecting to SSE:', { url, retryCount });
 
             eventSource = new EventSource(url);
             onStatusChange({
@@ -32,7 +32,7 @@ export function createSSEManager(
             });
 
             eventSource.onopen = () => {
-                console.log('SSE connection opened');
+                // console.log('SSE connection opened');
                 onStatusChange({
                     connectionStatus: 'connected',
                     connectionError: null,
@@ -43,7 +43,7 @@ export function createSSEManager(
 
             eventSource.onmessage = (event) => {
                 try {
-                    // console.log('SSE message received:', event.data);
+                    console.log('SSE message received:', event.data);
                     const data = JSON.parse(event.data);
                     onUpdate(data);
                 } catch (error) {
