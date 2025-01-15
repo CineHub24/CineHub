@@ -83,6 +83,7 @@ export function setSessionTokenCookie(event: RequestEvent, token: string, expire
 	console.log('setSessionTokenCookie', token, expiresAt);
 	event.cookies.set(sessionCookieName, token, {
 		expires: expiresAt,
+		domain: '.cinehub.tech',
 		path: '/'
 	});
 }
