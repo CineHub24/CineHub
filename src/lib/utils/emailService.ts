@@ -22,10 +22,10 @@ import QRCode from 'qrcode';
 import axios from 'axios';
 
 
+
 export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
-	logoPath: string;
 	private PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL;
 
 	constructor(gmailUser: string, gmailAppPassword: string) {
@@ -37,9 +37,7 @@ export class EmailService {
 			}
 		});
 		this.gmailUser = gmailUser;
-		this.logoPath = path.join(process.cwd(), 'static', 'favicon_white_bg.png');
-		this.logoPath = path.join(process.cwd(), 'static', 'favicon_white_bg.png');
-	}
+		}
 	private async generatePDFTicket(ticketInfo: {
 		Ticket: {
 			token: string | null;
@@ -135,7 +133,7 @@ export class EmailService {
 
 			// Logo oben rechts
 			try {
-				doc.image(this.logoPath, 490, 55, { width: 50, height: 50 });
+				doc.image('/favicon_white_bg.png', 490, 55, { width: 50, height: 50 });
 			} catch (error) {
 				console.error('Fehler beim Laden des Logos:', error);
 				doc.text('CineHub', 490, 70);
