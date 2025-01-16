@@ -1,9 +1,10 @@
 import { db } from '$lib/server/db';
-import { booking, giftCodesUsed, showing, ticket } from '$lib/server/db/schema';
+import { booking, discountTypesEnum, giftCodes, giftCodesUsed, priceDiscount, showing, ticket, type PriceDiscountForInsert } from '$lib/server/db/schema';
 import { EmailService } from '$lib/utils/emailService';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
+import { generateUniqueCode } from '$lib/utils/randomCode';
 import { fail, redirect } from '@sveltejs/kit'
-import { eq, inArray, sql } from 'drizzle-orm';
+import { eq, inArray, sql, and } from 'drizzle-orm';
 import Stripe from 'stripe'
 
 const SECRET_STRIPE_KEY = import.meta.env.VITE_SECRET_STRIPE_KEY
@@ -47,18 +48,94 @@ export async function load({ locals, url }) {
             await db.update(showing).set({soldTickets: sql`${showing.soldTickets} + ${updatedTickets.length}`,}).where(eq(showing.id, Number(updatedTickets[0].showingId)));
         }
 
-        // ToDo: Mika is updating this coding to run the proper backend logic for price discounts
-        // await db
-		// 	.update(giftCodesUsed)
-		// 	.set({ claimed: true })
-		// 	.where(inArray(giftCodesUsed.id, giftCodesUsedIdsArray));
+        const codesToBuy = await db
+			.select({
+				amount: giftCodes.amount
+			})
+			.from(giftCodesUsed)
+			.where(eq(giftCodesUsed.bookingId, Number(bookingId)))
+			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId));
+
+		const newDiscounts: PriceDiscountForInsert[] = [];
+		for (let code of codesToBuy) {
+			const newCode = (await generateUniqueCode(6)) as string;
+			newDiscounts.push({
+				code: newCode,
+				value: code.amount,
+				discountType: discountTypesEnum.enumValues[1],
+				expiresAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365).toISOString()
+			});
+		}
+		if (newDiscounts.length > 0) {
+			const newPriceDiscountIDs = await db
+				.insert(priceDiscount)
+				.values(newDiscounts)
+				.returning({ id: priceDiscount.id });
+			newPriceDiscountIDs.map(async (discount) => {
+				await db
+					.update(giftCodesUsed)
+					.set({ priceDiscountId: discount.id })
+					.where(eq(giftCodesUsed.bookingId, Number(bookingId)));
+			});
+		}
+
+        await handleBookingDiscount(Number(bookingId));
 
         await db.update(booking).set({ status: 'completed', date: new Date().toISOString().split('T')[0], time: new Date().toTimeString().split(' ')[0] }).where(eq(booking.id, Number(bookingId)));
 		
-        await emailClient.sendBookingConfirmation(Number(bookingId), locals.user.email as string);
+        await emailClient.sendBookingConfirmation(Number(bookingId), locals.user!.email as string);
 	} catch (e) {
 		console.error(e);
 		return fail(500, { error: 'Internal Server Error' });
 	}
     return redirect(302, '/booking/' + bookingId)
+}
+
+async function handleBookingDiscount(bookingId: number) {
+
+	// Hole Booking mit Discount
+	const bookingWithDiscount = await db
+		.select({
+			booking: booking,
+			discount: priceDiscount
+		})
+		.from(booking)
+		.leftJoin(priceDiscount, eq(booking.discount, priceDiscount.id))
+		.where(eq(booking.id, bookingId));
+	if (!bookingWithDiscount[0]?.discount) {
+		return;
+	}
+
+	// Prüfe ob es sich um einen Geschenkgutschein handelt
+	const giftCard = await db
+		.select()
+		.from(giftCodesUsed)
+		.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
+		.where(
+			and(
+				eq(giftCodesUsed.priceDiscountId, bookingWithDiscount[0].discount.id),
+				eq(giftCodesUsed.claimed, false)
+			)
+		);
+
+	if (giftCard.length > 0) {
+		const basePrice = Number(bookingWithDiscount[0].booking.basePrice);
+		const remainingValue = Number(giftCard[0].giftCodes.amount) -  Number(giftCard[0].giftCodesUsed.claimedValue);
+
+
+		if (remainingValue > 0) {
+			const discountedAmount = Math.min(remainingValue, basePrice);
+			const newClaimedValue = Number(giftCard[0].giftCodesUsed.claimedValue) + discountedAmount;
+			const isFullyClaimed = newClaimedValue >= Number(giftCard[0].giftCodes.amount);
+
+
+			await db
+				.update(giftCodesUsed)
+				.set({
+					claimedValue: String(newClaimedValue),
+					claimed: isFullyClaimed
+				})
+				.where(eq(giftCodesUsed.id, giftCard[0].giftCodesUsed.id));
+		}
+	}
 }
