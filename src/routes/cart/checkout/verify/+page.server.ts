@@ -53,8 +53,8 @@ export async function load({ locals, url }) {
 				amount: giftCodes.amount
 			})
 			.from(giftCodesUsed)
-			.where(eq(giftCodesUsed.bookingId, Number(bookingId)))
-			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId));
+			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
+			.where(inArray(giftCodesUsed.id, giftCodesUsedIdsArray.map((id) => Number(id))));
 
 		const newDiscounts: PriceDiscountForInsert[] = [];
 		for (let code of codesToBuy) {
