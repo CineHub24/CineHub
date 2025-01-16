@@ -1,25 +1,29 @@
 <script lang="ts">
-	let { movie, url } = $props();
-	function navigateToUrl() {
-		window.location.href = url;
-	}
+	import { languageAwareGoto } from "$lib/utils/languageAware";
+
+	let { movie } = $props();
 	function openTrailer(event: Event) {
 		event.stopPropagation();
 		if (movie.trailer) {
-			window.open(movie.trailer, "_blank");
+			window.open(movie.trailer, '_blank');
 		}
 	}
 </script>
-<div class="movie-card" on:click={navigateToUrl}>
-<img src={movie.poster} alt="{movie.title} Poster" />
-<div class="overlay">
-<h3 class="title">{movie.title}</h3>
-<div class="buttons">
-<button class="button trailer-button" on:click={openTrailer}>Trailer</button>
-<a href={url} class="button tickets-button">Details</a>
+
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div class="movie-card" onclick={() => languageAwareGoto(`/film/${movie.id}`)}>
+	<img src={movie.poster} alt="{movie.title} Poster" />
+	<div class="overlay">
+		<h3 class="title">{movie.title}</h3>
+		<div class="buttons">
+			<button class="button trailer-button" onclick={openTrailer}>Trailer</button>
+			<a href={`/film/${movie.id}`} class="button tickets-button">Details</a>
+		</div>
+	</div>
 </div>
-</div>
-</div>
+
 <style>
 	.movie-card {
 		position: relative;
