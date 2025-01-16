@@ -2,9 +2,9 @@ name: Docker Build and Push
 
 on:
   push:
-    branches: [ "node-adapter" ]  # or your default branch
+    branches: [ "main" ]  # or your default branch
   pull_request:
-    branches: [ "node-adapter" ]
+    branches: [ "main" ]
 
 jobs:
   build:
