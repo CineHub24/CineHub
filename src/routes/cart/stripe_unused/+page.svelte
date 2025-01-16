@@ -127,7 +127,6 @@
       buttonTheme={{googlePay: 'white'}}
       buttonType={{googlePay: 'donate'}}
       paymentMethodOrder={['googlePay', 'link', 'card']}/>
-  
   </Elements>
   
   <style>
