@@ -4,7 +4,6 @@ import { EmailService } from '$lib/utils/emailService';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { fail, redirect } from '@sveltejs/kit'
 import { eq, inArray } from 'drizzle-orm';
-import { date } from 'drizzle-orm/mysql-core';
 import Stripe from 'stripe'
 
 const SECRET_STRIPE_KEY = import.meta.env.VITE_SECRET_STRIPE_KEY
