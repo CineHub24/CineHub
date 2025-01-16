@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
-import { booking, ticket } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { booking, showing, ticket } from '$lib/server/db/schema';
+import { eq, sql } from 'drizzle-orm';
 import { EmailService } from '$lib/utils/emailService';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { languageAwareGoto, languageAwareRedirect } from '$lib/utils/languageAware';
@@ -54,11 +54,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const gmailUser = import.meta.env.VITE_GMAIL_USER;
 		const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
 		const emailClient = new EmailService(gmailUser, gmailAppPassword);
-
-		await db
+		console.log('Booking ID:', bookingId);
+		const updatedTicket = await db	
 			.update(ticket)
 			.set({ status: 'paid' })
-			.where(eq(ticket.bookingId, Number(bookingId)));
+			.where(eq(ticket.bookingId, Number(bookingId))).returning();
+		console.log('Updated Ticket:', updatedTicket);			
+		await db.update(showing).set({soldTickets: sql`${showing.soldTickets} + ${updatedTicket.length}`,}).where(eq(showing.id, Number(updatedTicket[0].showingId)));
         await db.update(booking).set({ status: 'completed' }).where(eq(booking.id, Number(bookingId)));
 		await emailClient.sendBookingConfirmation(Number(bookingId), locals.user.email as string);
 

@@ -108,7 +108,7 @@ export const showing = pgTable('Showing', {
 	language: text('language'),
 	dimension: text('dimension'),
 	cancelled: boolean('cancelled').default(false),
-	soldTickets: text('soldTickets')
+	soldTickets: integer('soldTickets')
 });
 
 export const cinema = pgTable('Cinema', {
