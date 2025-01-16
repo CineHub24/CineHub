@@ -57,9 +57,9 @@
 			<div>
 				<h3 class="mb-4 text-lg font-semibold">{m.legal({})}</h3>
 				<ul class="space-y-2">
-					<li><a href="#" class="transition hover:text-gray-600">{m.privacy_policy({})}</a></li>
-					<li><a href="#" class="transition hover:text-gray-600">{m.terms_of_service({})}</a></li>
-					<li><a href="#" class="transition hover:text-gray-600">{m.imprint({})}</a></li>
+					<li><a href="/legal/privacy-policy" class="transition hover:text-gray-600">{m.privacy_policy({})}</a></li>
+					<li><a href="/legal/terms-of-service" class="transition hover:text-gray-600">{m.terms_of_service({})}</a></li>
+					<li><a href="/legal/imprint" class="transition hover:text-gray-600">{m.imprint({})}</a></li>
 				</ul>
 			</div>
 			<!-- Newsletter Section -->

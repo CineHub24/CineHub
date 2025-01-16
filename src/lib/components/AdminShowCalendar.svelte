@@ -3,7 +3,6 @@
 	import type { showing } from '$lib/server/db/schema';
 	import ShowCard from './show_card.svelte';
 	import { ChevronLeft, ChevronRight, CalendarDays, Clock } from 'lucide-svelte';
-	import * as m from '$lib/paraglide/messages.js';
 
 	type Show = typeof showing.$inferSelect;
 	let { shows, movies } = $props();
@@ -79,7 +78,7 @@
 	}
 </script>
 
-<div class="mx-auto mb-4 px-4 py-2 sm:px-6 lg:px-8">
+<div class="mx-auto  px-4 py-2 mb-4 sm:px-6 lg:px-8">
 	<div class="flex h-[650px] flex-col overflow-hidden rounded-xl bg-white">
 		<!-- Calendar Header -->
 		<div class="flex items-center justify-between border-b p-4">
@@ -89,21 +88,21 @@
 			<div class="flex items-center space-x-4">
 				<button
 					class="flex items-center rounded-md bg-blue-50 px-3 py-1.5 text-blue-600 transition-colors hover:bg-blue-100"
-					onclick={goToCurrentWeek}
+					on:click={goToCurrentWeek}
 				>
 					<CalendarDays class="mr-2 h-4 w-4" />
-					{m.today({})}
+					Heute
 				</button>
 				<div class="flex space-x-2">
 					<button
 						class="rounded-full p-2 transition-colors hover:bg-gray-100"
-						onclick={() => navigateWeek(-1)}
+						on:click={() => navigateWeek(-1)}
 					>
 						<ChevronLeft class="h-5 w-5 text-gray-600" />
 					</button>
 					<button
 						class="rounded-full p-2 transition-colors hover:bg-gray-100"
-						onclick={() => navigateWeek(1)}
+						on:click={() => navigateWeek(1)}
 					>
 						<ChevronRight class="h-5 w-5 text-gray-600" />
 					</button>
@@ -123,7 +122,7 @@
 								? 'bg-blue-50 hover:bg-blue-100'
 								: 'hover:bg-gray-50'
 						}`}
-						onclick={() => selectDate(date)}
+						on:click={() => selectDate(date)}
 					>
 						<div class="flex items-center justify-between">
 							<div class="flex flex-col items-start">
@@ -140,8 +139,7 @@
 								<span
 									class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800"
 								>
-									{shows.length}
-									{m.shows({})}
+									{shows.length} Shows
 								</span>
 							{/if}
 						</div>
@@ -154,8 +152,7 @@
 				<!-- Shows Header - Always visible -->
 				<div class="border-b bg-white p-6">
 					<h3 class="text-xl font-semibold text-gray-800">
-						{m.showings_on({})}
-						{selectedDate.toLocaleDateString('de-DE', {
+						Vorstellungen am {selectedDate.toLocaleDateString('de-DE', {
 							weekday: 'long',
 							day: 'numeric',
 							month: 'long'
@@ -167,7 +164,7 @@
 				<div class="flex-1 overflow-y-auto p-6">
 					{#if selectedShows.length === 0}
 						<div class="py-12 text-center">
-							<div class="text-lg text-gray-400">{m.no_showings_today({})}</div>
+							<div class="text-lg text-gray-400">Keine Vorstellungen an diesem Tag</div>
 						</div>
 					{:else}
 						<div class="space-y-6">
@@ -178,11 +175,7 @@
 								>
 									<div class="p-4">
 										<div class="flex items-start gap-4">
-											<!-- svelte-ignore a11y_missing_attribute -->
-											<img
-												src={movie?.poster}
-												class="h-36 w-24 flex-shrink-0 rounded-lg bg-gray-200"
-											/>
+											<img src="{movie?.poster}" class="h-36 w-24 flex-shrink-0 rounded-lg bg-gray-200"/>
 
 											<div class="min-w-0 flex-1">
 												<div class="mb-2 flex flex-wrap items-center gap-3">
@@ -209,7 +202,7 @@
 												</div>
 
 												<h3 class="mb-1 text-lg font-semibold text-gray-900">
-													{movie?.title || m.film_title({})}
+													{movie?.title || 'Film titel'}
 												</h3>
 
 												<p class="mb-3 text-sm text-gray-600">
@@ -218,16 +211,16 @@
 
 												<div class="flex items-center gap-4">
 													<a
-														href={`/show/${show.id}`}
+														href={`/admin/show/${show.id}`}
 														class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
 													>
-														{m.book_tickets({})}
+														Vorstellung bearbeiten
 													</a>
 													<a
-														href={`/film/${movie?.id}`}
+														href={`/admin/film/${movie?.id}`}
 														class="text-sm text-blue-600 hover:underline"
 													>
-														{m.more_information({})}
+														Film bearbeiten
 													</a>
 												</div>
 											</div>

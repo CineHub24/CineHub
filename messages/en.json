@@ -184,9 +184,8 @@
 	"closes_at": "Closes at",
 	"actions": "Actions",
 
-	
 	"discount_management": "Discount Management",
-	
+
 	"expires_at": "Expires",
 	"new_discount": "New Discount",
 
@@ -256,7 +255,6 @@
 	"price_factor_placeholder": "Price factor in decimal (e.g. 0.5 for 50%)",
 
 	"invalid_price": "Invalid price",
-	
 
 	"submit": "Submit",
 	"cart_film": "Movie:",
@@ -267,7 +265,7 @@
 	"cart_seattype": "Seat Category:",
 	"cart_subtotal": "Subtotal:",
 	"cart_discount": "Discount",
-	"cart_enter_discount":"Enter Code",
+	"cart_enter_discount": "Enter Code",
 	"cart_VAT": " incl. VAT",
 	"cart_total": "Total:",
 	"cart_payment_type": "Payment Method:",
@@ -287,7 +285,7 @@
 	"percentage": "Percentage",
 	"fixed_amount": "Fixed Amount",
 	"discount_value": "Discount Value",
-	"enter_percentage": "Enter decimal value (e.g. 0.5 for 50%)",
+	"enter_percentage": "Enter decimal value (e.g. 0.3 for 30% Discount)",
 	"enter_amount": "Enter amount",
 	"expiration_date": "Expiration Date",
 
@@ -303,16 +301,58 @@
 	"premium": "Premium",
 	"vip": "VIP",
 	"booked": "Booked",
-	
 
-	"enter_email_reset_password":"Enter your email to reset your password",
-	"enter_email_reset_password_button":"Reset Password",
-	"back_to_login":"Back to Login",
-	"enter_new_password":"Enter your new password",
-	"set_new_password":"Set New Password",
-	"new_password":"New Password",
-	"confirm_password":"Confirm New Password",
-	"confirm_new_password":"Confirm New Password",
-	"set_new_password_button":"Set New Password",
-	"passwords_do_not_match":"Passwords do not match"
+	"enter_email_reset_password": "Enter your email to reset your password",
+	"enter_email_reset_password_button": "Reset Password",
+	"back_to_login": "Back to Login",
+	"enter_new_password": "Enter your new password",
+	"set_new_password": "Set New Password",
+	"new_password": "New Password",
+	"confirm_password": "Confirm New Password",
+	"confirm_new_password": "Confirm New Password",
+	"set_new_password_button": "Set New Password",
+	"passwords_do_not_match": "Passwords do not match",
+
+	"buy_discounts": "Buy Discount Codes",
+	"buy_voucher": "Buy Gift Voucher",
+	"voucher_description": "Purchase a gift voucher for future cinema visits. The voucher code can be redeemed later when buying tickets.",
+	"create_voucher": "Create Voucher",
+	"voucher_amount": "Voucher Amount",
+	"generate_voucher": "Generate Voucher",
+	"voucher_summary": "Voucher Summary",
+	"add_to_cart": "Add to Cart",
+	"voucher_code": "Voucher Code",
+	"gift_cards": "Gift Cards",
+	"discount_not_found": "Discount code not found or expired",
+	"discount_applied": "Discount code successfully applied",
+	"server_error_discount": "Server error while checking discount code",
+	"no_valid_id": "No valid ID provided for deletion",
+	"deleted": "successfully deleted",
+	"ticket": "Ticket",
+	"gift_code": "Gift Code",
+	"server_error_delete": "Server error while deleting item",
+	"gift_cards_description": "Customers can purchase a gift card for future cinema visits. The gift card code can be redeemed later when buying tickets.",
+
+	"create_new_gift_card": "Create New Gift Card",
+	"new_gift_card": "New Gift Card",
+	"gift_card_description": "Gift Card Description",
+	"gift_card_amount": "Gift Card Amount",
+	"gift_card": "Gift Card",
+
+	"cinehub_gift_cards": "CineHub Gift Cards",
+	"did_you_know": "Did You Know?",
+	"discover_fun_facts": "Discover exciting background information and curiosities from the world of film.",
+	"popcorn_fact_title": "Popcorn Fact",
+	"popcorn_fact_text": "Did you know that popcorn only became popular in cinemas in the 20th century?",
+	"film_reel_info_title": "Film Reel Info",
+	"film_reel_info_text": "In the past, films were stored on flammable nitrate film. Fortunately, that's different today!",
+	"cinema_sound_title": "Sound in Cinema",
+	"cinema_sound_text": "The first sound film was already premiered in 1927. A milestone in film history!",
+
+	"today": "Today",
+	"showings_on": "Showings on ",
+	"no_showings_today": "No showings today",
+	"film_title": "Film title",
+	"book_tickets": "Book tickets",
+	"more_information": "More information"
 }
