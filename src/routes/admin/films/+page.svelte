@@ -3,7 +3,6 @@
 	import { languageAwareGoto } from "$lib/utils/languageAware";
 	import MovieCard from "$lib/components/movie_card_admin.svelte";
   import * as m from '$lib/paraglide/messages.js';
-	import { languageAwareGoto } from "$lib/utils/languageAware";
 
     const { data } = $props();
     const { movies } = data;
