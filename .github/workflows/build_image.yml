@@ -1,0 +1,55 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches: [ "main" ]  # or your default branch
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Registry
+      uses: docker/login-action@v3
+      with:
+        # For Docker Hub:
+        # username: ${{ secrets.DOCKERHUB_USERNAME }}
+        # password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+        # For GitHub Container Registry:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        # For Docker Hub:
+        # tags: yourusername/yourrepo:latest
+        
+        # For GitHub Container Registry:
+        tags: ghcr.io/${{ github.repository }}:latest
+        build-args: |
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GITHUB_CLIENT_ID=${{ secrets.GH_CLIENT_ID }}
+          GITHUB_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }}
+          VITE_GMAIL_USER=${{ secrets.VITE_GMAIL_USER }}
+          VITE_GMAIL_APP_PASSWORD=${{ secrets.VITE_GMAIL_APP_PASSWORD }}
+          VITE_TMDB_API_KEY=${{ secrets.VITE_TMDB_API_KEY }}
+          VITE_OMDB_API_KEY=${{ secrets.VITE_OMDB_API_KEY }}
+          VITE_SECRET_PAYPAL=${{ secrets.VITE_SECRET_PAYPAL }}
+          VITE_CLIENT_ID_PAYPAL=${{ secrets.VITE_CLIENT_ID_PAYPAL }}
+          VITE_PUBLIC_STRIPE_KEY=${{ secrets.VITE_PUBLIC_STRIPE_KEY }}
+          VITE_SECRET_STRIPE_KEY=${{ secrets.VITE_SECRET_STRIPE_KEY }}
+          VITE_DOMAIN=${{ secrets.VITE_DOMAIN }}

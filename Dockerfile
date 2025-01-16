@@ -36,30 +36,46 @@ ARG VITE_PUBLIC_STRIPE_KEY
 ARG VITE_SECRET_STRIPE_KEY
 ARG VITE_DOMAIN
 
-# Debug DATABASE_URL
-RUN echo "Original DATABASE_URL: $DATABASE_URL" && \
-    cleaned_url=$(echo "$DATABASE_URL" | tr -d '"' | tr -d "'" | xargs) && \
-    echo "Cleaned DATABASE_URL: $cleaned_url" && \
-    echo "DATABASE_URL=$cleaned_url" > .env
+# Debug: Echo raw build args
+RUN echo "==== Raw Build Arguments ====" && \
+    echo "DATABASE_URL: '${DATABASE_URL}'" && \
+    echo "GOOGLE_CLIENT_ID: '${GOOGLE_CLIENT_ID}'" && \
+    echo "GOOGLE_CLIENT_SECRET: '${GOOGLE_CLIENT_SECRET}'" && \
+    echo "GITHUB_CLIENT_ID: '${GITHUB_CLIENT_ID}'" && \
+    echo "GITHUB_CLIENT_SECRET: '${GITHUB_CLIENT_SECRET}'" && \
+    echo "VITE_GMAIL_USER: '${VITE_GMAIL_USER}'" && \
+    echo "VITE_GMAIL_APP_PASSWORD: '${VITE_GMAIL_APP_PASSWORD}'" && \
+    echo "VITE_TMDB_API_KEY: '${VITE_TMDB_API_KEY}'" && \
+    echo "VITE_OMDB_API_KEY: '${VITE_OMDB_API_KEY}'" && \
+    echo "VITE_SECRET_PAYPAL: '${VITE_SECRET_PAYPAL}'" && \
+    echo "VITE_CLIENT_ID_PAYPAL: '${VITE_CLIENT_ID_PAYPAL}'" && \
+    echo "VITE_PUBLIC_STRIPE_KEY: '${VITE_PUBLIC_STRIPE_KEY}'" && \
+    echo "VITE_SECRET_STRIPE_KEY: '${VITE_SECRET_STRIPE_KEY}'" && \
+    echo "VITE_DOMAIN: '${VITE_DOMAIN}'" | sed 's/^/    /'
 
-# Write other environment variables to .env
-RUN echo "GOOGLE_CLIENT_ID=$(echo $GOOGLE_CLIENT_ID | tr -d '"' | xargs)" >> .env && \
-    echo "GOOGLE_CLIENT_SECRET=$(echo $GOOGLE_CLIENT_SECRET | tr -d '"' | xargs)" >> .env && \
-    echo "GITHUB_CLIENT_ID=$(echo $GITHUB_CLIENT_ID | tr -d '"' | xargs)" >> .env && \
-    echo "GITHUB_CLIENT_SECRET=$(echo $GITHUB_CLIENT_SECRET | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_GMAIL_USER=$(echo $VITE_GMAIL_USER | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_GMAIL_APP_PASSWORD=$(echo $VITE_GMAIL_APP_PASSWORD | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_TMDB_API_KEY=$(echo $VITE_TMDB_API_KEY | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_OMDB_API_KEY=$(echo $VITE_OMDB_API_KEY | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_SECRET_PAYPAL=$(echo $VITE_SECRET_PAYPAL | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_CLIENT_ID_PAYPAL=$(echo $VITE_CLIENT_ID_PAYPAL | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_PUBLIC_STRIPE_KEY=$(echo $VITE_PUBLIC_STRIPE_KEY | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_SECRET_STRIPE_KEY=$(echo $VITE_SECRET_STRIPE_KEY | tr -d '"' | xargs)" >> .env && \
-    echo "VITE_DOMAIN=$(echo $VITE_DOMAIN | tr -d '"' | xargs)" >> .env
+RUN env
 
-# Display final .env file (excluding sensitive data)
-RUN echo "Final .env file:" && \
-    cat .env | grep -v "_SECRET" | grep -v "PASSWORD" | grep -v "KEY"
+
+# Write clean environment variables to .env
+RUN touch .env && \
+    echo "DATABASE_URL='${DATABASE_URL}'" > .env && \
+    echo "GOOGLE_CLIENT_ID='${GOOGLE_CLIENT_ID}'" >> .env && \
+    echo "GOOGLE_CLIENT_SECRET='${GOOGLE_CLIENT_SECRET}'" >> .env && \
+    echo "GITHUB_CLIENT_ID='${GITHUB_CLIENT_ID}'" >> .env && \
+    echo "GITHUB_CLIENT_SECRET='${GITHUB_CLIENT_SECRET}'" >> .env && \
+    echo "VITE_GMAIL_USER='${VITE_GMAIL_USER}'" >> .env && \
+    echo "VITE_GMAIL_APP_PASSWORD='${VITE_GMAIL_APP_PASSWORD}'" >> .env && \
+    echo "VITE_TMDB_API_KEY='${VITE_TMDB_API_KEY}'" >> .env && \
+    echo "VITE_OMDB_API_KEY='${VITE_OMDB_API_KEY}'" >> .env && \
+    echo "VITE_SECRET_PAYPAL='${VITE_SECRET_PAYPAL}'" >> .env && \
+    echo "VITE_CLIENT_ID_PAYPAL='${VITE_CLIENT_ID_PAYPAL}'" >> .env && \
+    echo "VITE_PUBLIC_STRIPE_KEY='${VITE_PUBLIC_STRIPE_KEY}'" >> .env && \
+    echo "VITE_SECRET_STRIPE_KEY='${VITE_SECRET_STRIPE_KEY}'" >> .env && \
+    echo "VITE_DOMAIN='${VITE_DOMAIN}'" >> .env
+
+# Debug: Echo final .env contents
+RUN echo "==== Final .env file ====" && \
+    cat .env | sed 's/^/    /'
 
 # Install architecture-specific rollup package
 RUN npm install @rollup/rollup-linux-x64-gnu
@@ -76,5 +92,7 @@ COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/.env ./
 COPY --from=builder /app/node_modules ./node_modules
+
+EXPOSE 3000
 
 CMD ["node", "build/index.js"]

@@ -5,7 +5,7 @@ import { eq, and, gte } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { EmailService } from '$lib/utils/emailService.js';
 import { validatePassword } from '$lib/utils/user.js';
-import { hash } from '@node-rs/argon2';
+import { hash } from 'argon2';
 
 export const load = async ({ url }) => {
     const token = url.searchParams.get('token');
