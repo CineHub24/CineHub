@@ -3,6 +3,7 @@
 	import * as d3 from 'd3';
 	import AdminShowCalendar from '$lib/components/AdminShowCalendar.svelte';
 	import type { Cinema } from '$lib/server/db/schema';
+	import * as m from '$lib/paraglide/messages.js';
 	
 
 	let monthlySalesChart: SVGSVGElement;
@@ -353,7 +354,7 @@ console.log(filteredShows);
 			</header>
 
 			<div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-				{#each [{ title: 'Total Revenue', value: `$${summaryData.totalRevenue}` }, { title: 'Tickets Sold', value: summaryData.ticketsSold }, { title: 'Avg. Ticket Price', value: `$${Number(summaryData.avgTicketPrice).toFixed(2)}` }, { title: 'Occupancy Rate', value: `${Number(occupancyRate).toFixed(2)}%` }] as item}
+				{#each [{ title: m.total_revenue({}), value: `$${summaryData.totalRevenue}` }, { title: m.ticktets_sold({}), value: summaryData.ticketsSold }, { title: m.avg_ticket_price({}), value: `$${Number(summaryData.avgTicketPrice).toFixed(2)}` }, { title: m.occupancy_rate({}), value: `${Number(occupancyRate).toFixed(2)}%` }] as item}
 					<div class="rounded-lg bg-white p-6 shadow-md">
 						<h3 class="mb-2 text-sm font-medium text-gray-500">{item.title}</h3>
 						<p class="text-2xl font-bold text-gray-900">{item.value}</p>
@@ -363,11 +364,11 @@ console.log(filteredShows);
 
 			<div class="mb-8 grid gap-6 lg:grid-cols-2">
 				<div class="rounded-lg bg-white p-6 shadow-md">
-					<h2 class="mb-4 text-xl font-semibold text-gray-800">Monthly Ticket Sales</h2>
+					<h2 class="mb-4 text-xl font-semibold text-gray-800">{m.monthly_ticket_sales({})}</h2>
 					<svg bind:this={monthlySalesChart} class="w-full"></svg>
 				</div>
 				<div class="rounded-lg bg-white p-6 shadow-md">
-					<h2 class="mb-4 text-xl font-semibold text-gray-800">Revenue by Cinema</h2>
+					<h2 class="mb-4 text-xl font-semibold text-gray-800">{m.revenue_by_cinema({})}</h2>
 					<div class="flex h-[300px] w-full justify-center">
 						<svg bind:this={cinemaRevenueChart} class="h-full w-full"></svg>
 					</div>
@@ -375,13 +376,13 @@ console.log(filteredShows);
 			</div>
 
 			<div class="mb-8 rounded-lg bg-white p-6 shadow-md">
-				<h2 class="mb-4 text-xl font-semibold text-gray-800">Ticket Sales by Movie</h2>
+				<h2 class="mb-4 text-xl font-semibold text-gray-800">{m.ticket_sales_by_movie({})}</h2>
 				<svg bind:this={movieTicketSalesChart} class="w-full"></svg>
 			</div>
 
 			<div class="rounded-lg bg-white p-6 shadow-md">
 				<div class="flex items-center justify-between mb-4">
-				<h2 class="text-xl font-semibold text-gray-800">Show Calendar</h2>
+				<h2 class="text-xl font-semibold text-gray-800">{m.show_calendar({})}</h2>
 				<div class="relative">
 				<select
 				on:change={handleCinemaChange}
