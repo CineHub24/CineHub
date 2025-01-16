@@ -8,7 +8,7 @@
 	import GoogleAutocomplete from '$lib/components/GoogleAutocomplete.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { CreditCard, Ticket } from 'lucide-svelte';
-	import { Building, CreditCard, ShoppingBag, Tag, Trash2 } from 'lucide-svelte';
+	import { Building, ShoppingBag, Tag, Trash2 } from 'lucide-svelte';
 	import {
 		type Seat,
 		type PriceSet,
