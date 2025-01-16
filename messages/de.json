@@ -354,6 +354,20 @@
 	"no_showings_today": "Keine Vorstellungen an diesem Tag",
 	"film_title": "Film titel",
 	"book_tickets": "Tickets buchen",
-	"more_information": "Mehr Informationen"
+	"more_information": "Mehr Informationen",
+
+	"monthly_ticket_sales": "Monatliche Ticketverkäufe",
+	"revenue_by_cinema": "Umsatz nach Kino",
+	"ticket_sales_by_movie":"Ticketverkäufe nach Film",
+	"show_calendar": "Vorstellungs-Kalender",
+	"total_revenue": "Gesamtumsatz",
+	"ticktets_sold": "Tickets verkauft",
+	"avg_ticket_price": " Ø Ticketpreis",
+	"occupancy_rate": "Auslastung"
+
+
+	
+
+
 
 }

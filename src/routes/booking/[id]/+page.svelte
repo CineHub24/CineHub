@@ -16,7 +16,7 @@
 		seatNumber: string | null;
 		seatType: string | null;
 		ticketTypeName: string | null;
-		ticketStatus: 'reserved' | 'booked' | 'validated' | 'cancelled';
+		ticketStatus: 'reserved' | 'validated' | 'cancelled' | 'paid';
 		bookingId: number | null;
 		bookingDate: string | null;
 		bookingTime: string | null;
@@ -173,7 +173,7 @@
 													</div>
 													<div class="text-right">
 														<span
-															class="rounded-full px-3 py-1 {ticket.ticketStatus === 'booked'
+															class="rounded-full px-3 py-1 {ticket.ticketStatus === 'paid'
 																? 'bg-green-100 text-green-800'
 																: 'bg-gray-100 text-gray-800'}"
 														>

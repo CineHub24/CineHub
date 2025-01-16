@@ -354,5 +354,15 @@
 	"no_showings_today": "No showings today",
 	"film_title": "Film title",
 	"book_tickets": "Book tickets",
-	"more_information": "More information"
+	"more_information": "More information",
+
+	"monthly_ticket_sales": "Monthly Ticket Sales",
+	"revenue_by_cinema": "Revenue by Cinema",
+	"ticket_sales_by_movie":"Ticket Sales by Movie",
+	"show_calendar": "Show Calendar",
+	"total_revenue": "Total Revenue",
+	"ticktets_sold": "Tickets Sold",
+	"avg_ticket_price": "Avg. Ticket Price",
+	"occupancy_rate": "Occupancy Rate"
+
 }

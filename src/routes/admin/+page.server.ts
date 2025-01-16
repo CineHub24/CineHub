@@ -21,8 +21,7 @@ export const load = async (event) => {
 		.where(
 			and(
 				gte(table.showing.date, new Date().toISOString()),
-				ne(table.showing.cancelled, true),
-				eq(table.cinemaHall.cinemaId, 1)
+				ne(table.showing.cancelled, true),				
 			)
 		)
 		.orderBy(asc(table.showing.date));
@@ -141,8 +140,11 @@ export const load = async (event) => {
         
         console.log(occupancyRate[0].avgOccupancyRate);
         
+        const cinemas = await db.select().from(table.cinema).innerJoin(table.cinemaHall, eq(table.cinemaHall.cinemaId,table.cinema.id)).orderBy(table.cinema.name);
+        
 
 	return {
+        cinemas,
 		movies: movies,
 		shows: showsFiltered,
 		monthlyTicketSales: monthlyTicketSales,
