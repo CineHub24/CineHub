@@ -137,7 +137,7 @@
 					}}
 					class="movie-card"
 				>
-					<MovieCard {movie} url="/film/{movie.id}" />
+					<MovieCard {movie} />
 				</div>
 			{/each}
 		</div>
