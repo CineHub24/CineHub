@@ -270,7 +270,7 @@
 	}
 
 	/* Dropdown sichtbar bei Hover */
-	/* .relative:hover .absolute {
+	.relative:hover .absolute {
 		display: block;
-	} */
+	}
 </style>
