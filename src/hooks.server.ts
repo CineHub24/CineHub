@@ -8,18 +8,6 @@ import exp from 'constants';
 
 deleteOldReservedTicketsJob();
 
-const test = (event) => {
-	console.log('test');
-	// set a random cookie
-	event.cookies.set('sessionCookieName', 'test', {
-		path: '/',
-		secure: false,
-		sameSite: 'lax',
-	});
-}
-
-
-
 const handleAuth: Handle = async ({ event, resolve }) => {
 	const sessionToken = event.cookies.get(auth.sessionCookieName);
 	if (!sessionToken) {
