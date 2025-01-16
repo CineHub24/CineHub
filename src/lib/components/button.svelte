@@ -17,7 +17,7 @@
   </script>
   
   <style>
-    button {
+    Button {
       padding: 10px 20px;
       background-color: #007bff;
       color: white;
@@ -28,11 +28,11 @@
       transition: background-color 0.2s ease-in-out;
     }
   
-    button:hover {
+    Button:hover {
       background-color: #0056b3;
     }
   
-    button:disabled {
+    Button:disabled {
       background-color: #ccc;
       cursor: not-allowed;
     }
