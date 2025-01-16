@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db'
-import { booking, ticket } from '$lib/server/db/schema'
+import { booking, giftCodesUsed, ticket } from '$lib/server/db/schema'
 import { fail } from '@sveltejs/kit'
 import { and, eq, ne } from 'drizzle-orm'
 import Stripe from 'stripe'
@@ -25,14 +25,20 @@ export async function load({ locals }) {
   const bookingId = currentBooking.id;
 
   const _tickets = await db.select().from(ticket).where(eq(ticket.bookingId, bookingId));
+  const _giftCodesUsed = await db.select().from(giftCodesUsed).where(eq(giftCodesUsed.bookingId, bookingId));
 
-  if (_tickets.length == 0) {
-    return fail(500, { error: 'No tickets selected' })
+  if (_tickets.length == 0 && _giftCodesUsed.length == 0) {
+    return fail(500, { error: 'No tickets or giftcards selected' })
   }
 
   let ticketIds: string[] = [];
   for (var tckt of _tickets) {
     ticketIds.push(<string><unknown>tckt.id)
+  }
+
+  let giftCodesUsedIds: string[] = [];
+  for (var gft of _giftCodesUsed) {
+    giftCodesUsedIds.push(<string><unknown>gft.id)
   }
 
   let finalPrice = <string>currentBooking.finalPrice;
@@ -54,7 +60,7 @@ export async function load({ locals }) {
       {
         price_data: {
             product_data: {
-                name: 'Tickets',
+                name: 'Tickets/Giftcards',
                 tax_code: 'txcd_20030000',
             },
             currency: 'eur',
@@ -66,6 +72,7 @@ export async function load({ locals }) {
     metadata: {
       "booking_id": bookingId,
       "tickets": ticketIds.join(' '),
+      "giftcodes": giftCodesUsedIds.join(' '),
     },
     mode: 'payment',
     return_url

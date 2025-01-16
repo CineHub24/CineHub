@@ -145,7 +145,8 @@ export const load = async ({ locals }) => {
 					vatRate: 0.19,
 					vatAmount: 0,
 					total: 0
-				}
+				},
+				giftCodes: []
 			};
 		}
 
@@ -244,7 +245,8 @@ export const actions = {
 
 			const discount = await db
 				.select({
-					priceDiscount
+					priceDiscount,
+					giftCodesUsed
 				})
 				.from(priceDiscount)
 				.leftJoin(giftCodesUsed, eq(priceDiscount.id, giftCodesUsed.priceDiscountId))
@@ -252,11 +254,13 @@ export const actions = {
 					and(
 						eq(priceDiscount.code, discountCode),
 						gte(priceDiscount.expiresAt, new Date().toISOString()),
-						eq(giftCodesUsed.claimed, false)
 					)
 				);
 
-			if (discount.length === 0) {
+			if (discount.length === 0 || (discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed)) {
+				return fail(400, { error: m.discount_not_found({}) });
+			}
+			if(discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed) {
 				return fail(400, { error: m.discount_not_found({}) });
 			}
 

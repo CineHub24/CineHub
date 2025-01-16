@@ -1,9 +1,9 @@
 import { db } from '$lib/server/db';
-import { booking, ticket } from '$lib/server/db/schema';
+import { booking, giftCodesUsed, showing, ticket } from '$lib/server/db/schema';
 import { EmailService } from '$lib/utils/emailService';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { fail, redirect } from '@sveltejs/kit'
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import Stripe from 'stripe'
 
 const SECRET_STRIPE_KEY = import.meta.env.VITE_SECRET_STRIPE_KEY
@@ -25,6 +25,7 @@ export async function load({ locals, url }) {
 
     const bookingId = session.metadata!.booking_id;
     const ticketIds = session.metadata!.tickets;
+    const giftCodesUsedIds = session.metadata!.giftcodes;
 
     console.log('[Stripe Metadata] BookingID: ' + bookingId)
     console.log('[Stripe Metadata] Tickets: ' + ticketIds)
@@ -34,14 +35,25 @@ export async function load({ locals, url }) {
 		const gmailAppPassword = import.meta.env.VITE_GMAIL_APP_PASSWORD;
 		const emailClient = new EmailService(gmailUser, gmailAppPassword);
 
-        const ticketIdsArray = ticketIds.split(' ').map(Number)
+        const ticketIdsArray = ticketIds.split(' ').map(Number);
+        const giftCodesUsedIdsArray = giftCodesUsedIds.split(' ');
 
-        await db
+        const updatedTickets = await db
 			.update(ticket)
 			.set({ status: 'paid' })
-			.where(inArray(ticket.id, ticketIdsArray));
+			.where(inArray(ticket.id, ticketIdsArray)).returning();
 
-        await db.update(booking).set({ status: 'completed' }).where(eq(booking.id, Number(bookingId)));
+        if (updatedTickets.length > 0) {
+            await db.update(showing).set({soldTickets: sql`${showing.soldTickets} + ${updatedTickets.length}`,}).where(eq(showing.id, Number(updatedTickets[0].showingId)));
+        }
+
+        // ToDo: Mika is updating this coding to run the proper backend logic for price discounts
+        // await db
+		// 	.update(giftCodesUsed)
+		// 	.set({ claimed: true })
+		// 	.where(inArray(giftCodesUsed.id, giftCodesUsedIdsArray));
+
+        await db.update(booking).set({ status: 'completed', date: new Date().toISOString().split('T')[0], time: new Date().toTimeString().split(' ')[0] }).where(eq(booking.id, Number(bookingId)));
 		
         await emailClient.sendBookingConfirmation(Number(bookingId), locals.user.email as string);
 	} catch (e) {

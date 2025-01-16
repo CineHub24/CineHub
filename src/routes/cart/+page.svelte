@@ -7,7 +7,8 @@
 	import type { ActionData } from './$types';
 	import GoogleAutocomplete from '$lib/components/GoogleAutocomplete.svelte';
 	import * as m from '$lib/paraglide/messages.js';
-	import { ShoppingBag, Tag, Trash2 } from 'lucide-svelte';
+	import { CreditCard, Ticket } from 'lucide-svelte';
+	import { Building, ShoppingBag, Tag, Trash2 } from 'lucide-svelte';
 	import {
 		type Seat,
 		type PriceSet,
@@ -58,7 +59,6 @@
 	let stripe: Stripe | null = null;
 	let discountCode = '';
 
-
 	$: groupedTickets = Object.entries(
 		tickets.reduce(
 			(acc, ticket) => {
@@ -105,7 +105,7 @@
 	}
 </script>
 
-{#if tickets!.length !== 0 || giftCodes.length !== 0}
+{#if tickets!.length !== 0 || giftCodes!.length !== 0}
 	<div class="flex min-h-screen items-center justify-center bg-gray-50 p-4">
 		<div class="w-full max-w-7xl rounded-xl bg-white shadow-lg">
 			<div class="checkout-container">
@@ -226,13 +226,29 @@
 						</div>
 					</div>
 
-					<h2 class="section-title">{m.cart_payment_type({})}</h2>
-					<div class="payment-methods">
-						<PayPalButton
-							amount={currentPrices.total.toFixed(2)}
-							currency="EUR"
-							bookingId={booking.id}
-						/>
+					<h2 class="mb-6 text-xl font-semibold">{m.cart_payment_type({})}</h2>
+					<div class="flex max-w-md flex-col space-y-4">
+						<!-- Stripe Payment Button -->
+						<a href="/cart/checkout"
+							class="group flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-4 text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg"
+						>
+							<CreditCard class="mr-3 h-5 w-5 transition-transform group-hover:scale-110" />
+							<span class="font-medium">Pay with Stripe</span>
+					</a>
+
+						<!-- Cinema Payment Button (Disabled) -->
+						<button
+							disabled
+							class="relative flex w-full cursor-not-allowed items-center justify-center overflow-hidden rounded-lg bg-gray-100 px-6 py-4 text-gray-400 opacity-75 transition-all duration-200"
+						>
+							<Ticket class="mr-3 h-5 w-5" />
+							<span class="font-medium">Pay at Cinema</span>
+							<div
+								class="absolute -right-1 top-0 translate-y-2 rotate-45 transform bg-gray-200 px-2 py-1 text-xs"
+							>
+								Coming Soon
+							</div>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -368,6 +384,51 @@
 
 	.payment-methods {
 		margin-top: 30px;
+	}
+
+	.payment-buttons {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.payment-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		padding: 1rem;
+		border-radius: 8px;
+		font-weight: 600;
+		transition: all 0.2s ease;
+		border: none;
+		cursor: pointer;
+		width: 100%;
+	}
+
+	.stripe-button {
+		background-color: #635bff;
+		color: white;
+	}
+
+	.stripe-button:hover {
+		background-color: #4b44d1;
+	}
+
+	.cinema-button {
+		background-color: #f3f4f6;
+		color: #1f2937;
+		border: 2px solid #e5e7eb;
+	}
+
+	.cinema-button:hover {
+		background-color: #e5e7eb;
+	}
+
+	/* Focus styles for accessibility */
+	.payment-button:focus {
+		outline: 2px solid #4b44d1;
+		outline-offset: 2px;
 	}
 
 	.section-title {

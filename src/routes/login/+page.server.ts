@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { verify } from '@node-rs/argon2';
+import { verify } from 'argon2';
 import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
@@ -10,8 +10,10 @@ import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
+
 		return languageAwareRedirect(302, '/');
 	}
+	console.log('event', event);
 	return {};
 };
 
@@ -42,7 +44,7 @@ export const actions: Actions = {
 			validPassword = await verify(existingUser.password, password, {
 				memoryCost: 19456,
 				timeCost: 2,
-				outputLen: 32,
+				hashLength: 32,
 				parallelism: 1
 			});
 		}
@@ -52,6 +54,8 @@ export const actions: Actions = {
 
 		const sessionToken = auth.generateSessionToken();
 		const session = await auth.createSession(sessionToken, existingUser.id);
+		console.log('session', session);
+		console.log('sessionToken', sessionToken);
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		return languageAwareRedirect(302, '/');

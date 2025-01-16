@@ -5,7 +5,7 @@ import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { user } from '$lib/server/db/schema';
 import { validatePassword } from '$lib/utils/user.js';
-import { hash, verify } from '@node-rs/argon2';
+import { hash, verify } from 'argon2';
 
 export const load: PageServerLoad = async (event) => {
     if (!event.locals.user) {

@@ -1,12 +1,14 @@
 <script lang="ts">
 	import MovieCardAdmin from "$lib/components/movie_card_admin.svelte";
 	import { languageAwareGoto } from "$lib/utils/languageAware";
-    import * as m from '$lib/paraglide/messages.js';
+	import MovieCard from "$lib/components/movie_card_admin.svelte";
+  import * as m from '$lib/paraglide/messages.js';
+	import { languageAwareGoto } from "$lib/utils/languageAware";
 
     const { data } = $props();
     const { movies } = data;
-</script>
 
+</script>
 <div class="bg-white p-6 rounded-lg shadow">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-2xl font-bold">{m.movie_management({})}</h1>
