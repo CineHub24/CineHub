@@ -37,7 +37,7 @@ jobs:
         # tags: yourusername/yourrepo:latest
         
         # For GitHub Container Registry:
-        tags: ghcr.io/cinehub:latest
+        tags: ghcr.io/${{ github.repository_owner }}/cinehub:latest
         build-args: |
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
