@@ -7,6 +7,8 @@
     import Input from '$lib/components/input.svelte';
     import Select from '$lib/components/select.svelte';
 	import { age_rating } from '$lib/paraglide/messages';
+    import { showNotification } from '$lib/stores/notification';
+    import { LayoutGrid, List } from 'lucide-svelte';
 
     // PageServerData wird als "export let data" entgegengenommen
     export let data: PageServerData;
@@ -25,7 +27,7 @@
     let filteredMovies: FilmWithTrailer[] = [];
 
     const genres = [
-        'Alle', 'Action', 'Komödie', 'Drama', 'Horror',
+        'Alle Genres', 'Action', 'Komödie', 'Drama', 'Horror',
         'Science Fiction', 'Familie', 'Animation'
     ];
 
@@ -50,8 +52,7 @@
             const matchesSearch = movie.title
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase());
-            const matchesGenre =
-                selectedGenre === 'all' || movie.genre.includes(selectedGenre);
+            const matchesGenre = selectedGenre === 'all' || movie.genres.includes(selectedGenre);
 
             return matchesSearch && matchesGenre;
         })
@@ -71,7 +72,7 @@
 </script>
 
 <svelte:head>
-    <title>Alle Filme | Kino XYZ</title>
+    <title>Alle Filme</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 p-6">
@@ -94,29 +95,37 @@
         class="w-40 rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
     >
         {#each genres as genre}
-            <option value={genre === 'Alle' ? 'all' : genre}>
+            <option value={genre === 'Alle Genres' ? 'all' : genre}>
                 {genre}
             </option>
         {/each}
     </Select>
 
-    <Select
-        bind:value={selectedSort}
-        class="w-40 rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-        <option value="title">Nach Titel</option>
-        <option value="rating">Nach Bewertung</option>
-        <option value="releaseDate">Nach Erscheinungsdatum</option>
-    </Select>
-
-            <div class="ml-auto flex gap-2">
-                <Button on:click={() => (viewMode = 'grid')}>
-                    Kachelansicht
-                </Button>
-                <Button on:click={() => (viewMode = 'list')}>
-                    Listenansicht
-                </Button>
+    <div class="ml-auto flex items-center">
+        <div class="flex rounded-lg bg-gray-100 p-1 shadow-inner">
+            <!-- Grid View Toggle -->
+            <div
+                class="flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 transition-all duration-200 {viewMode === 'grid' 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'}"
+                on:click={() => (viewMode = 'grid')}
+            >
+                <LayoutGrid size={20} />
+                <span class="hidden sm:inline">Kacheln</span>
             </div>
+    
+            <!-- List View Toggle -->
+            <div
+                class="flex cursor-pointer items-center gap-2 rounded-md px-4 py-2 transition-all duration-200 {viewMode === 'list' 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'}"
+                on:click={() => (viewMode = 'list')}
+            >
+                <List size={20} />
+                <span class="hidden sm:inline">Liste</span>
+            </div>
+        </div>
+    </div>
         </div>
     </header>
 
@@ -127,14 +136,32 @@
             ></div>
         </div>
     {:else if filteredMovies.length === 0}
-        <div class="flex h-64 items-center justify-center">
-            <p class="text-lg text-gray-600">Keine Filme gefunden.</p>
-        </div>
+    <div class="flex h-64 flex-col items-center justify-center space-y-4">
+        <svg 
+            class="h-16 w-16 text-gray-400" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+        >
+            <path 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="1.5" 
+                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+            />
+        </svg>
+        <p class="text-lg font-medium text-gray-600">
+            Keine Filme gefunden
+        </p>
+        <p class="text-sm text-gray-500">
+            Bitte passen Sie Ihre Suchkriterien an
+        </p>
+    </div>
     {:else}
         <div
             class={
                 viewMode === 'grid'
-                    ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                    ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6'
                     : 'space-y-4'
             }
         >

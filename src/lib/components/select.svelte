@@ -1,4 +1,5 @@
 <script lang="ts">
+    
     export let value = '';
     export let disabled = false;
     export let error = false;
@@ -22,22 +23,4 @@
     >
         <slot />
     </select>
-    
-    <!-- Custom arrow icon -->
-    <div class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width="16" 
-            height="16" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            stroke-width="2" 
-            stroke-linecap="round" 
-            stroke-linejoin="round" 
-            class="text-gray-500"
-        >
-            <path d="m6 9 6 6 6-6"/>
-        </svg>
-    </div>
 </div>

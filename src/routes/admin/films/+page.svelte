@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MovieCard from "$lib/components/movie_card.svelte";
+	import MovieCardAdmin from "$lib/components/movie_card_admin.svelte";
 	import { languageAwareGoto } from "$lib/utils/languageAware";
     import * as m from '$lib/paraglide/messages.js';
 
@@ -19,7 +19,7 @@
     </div>
     <div class="grid grid-cols-[repeat(auto-fill,minmax(175px,1fr))] gap-5">
         {#each movies as movie}
-            <MovieCard {movie} url="/admin/film/{movie.id}" />
+            <MovieCardAdmin {movie} url="/admin/film/{movie.id}" />
         {/each}
     </div>
 </div>

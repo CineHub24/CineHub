@@ -11,33 +11,21 @@
 -->
 
 <script lang="ts">
-    export let type: 'button' | 'submit' | 'reset' = 'button';
-    export let onClick: () => void = () => {};
-    export let disabled: boolean = false;
-  </script>
-  
-  <style>
-    Button {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.2s ease-in-out;
-    }
-  
-    Button:hover {
-      background-color: #0056b3;
-    }
-  
-    Button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-  </style>
-  
-  <button type={type} on:click={onClick} disabled={disabled}>
-    <slot />
-  </button>
+  export let type: 'button' | 'submit' | 'reset' = 'button';
+  export let disabled: boolean = false;
+  export let variant: 'primary' | 'secondary' = 'primary';
+</script>
+
+<button 
+  {type} 
+  {disabled}
+  class="rounded-md px-4 py-2 text-sm font-medium transition-colors
+      {variant === 'primary' 
+          ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300' 
+          : 'bg-gray-100 text-gray-900 hover:bg-gray-200 disabled:bg-gray-50'
+      }
+      disabled:cursor-not-allowed"
+  on:click
+>
+  <slot />
+</button>
