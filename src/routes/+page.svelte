@@ -9,6 +9,7 @@
 	import { showNotification } from '$lib/stores/notification';
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
+	import { ArrowRight } from 'lucide-svelte';
 
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -148,11 +149,9 @@
            focus:outline-none focus:ring-2 focus:ring-blue-500"
     aria-label="Alle Filme anzeigen"
 >
-    <img
-        src="right-arrow.png"
-        alt="Pfeil nach rechts"
-        class="h-8 w-8 opacity-60"
-    />
+	<div>
+		<ArrowRight size={30} />
+	</div>
 </a>
 
 </div>
