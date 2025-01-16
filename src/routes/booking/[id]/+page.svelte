@@ -126,14 +126,14 @@
 										{new Date(firstTicket.showingDate || '').toLocaleDateString('de-DE')} um {firstTicket.showingTime ||
 											'Unbekannt'}
 									</p>
-									<p class="text-gray-700">
+									<!-- <p class="text-gray-700">
 										<strong>Sprache:</strong>
 										{firstTicket.showingLanguage || 'Unbekannt'}
 									</p>
 									<p class="text-gray-700">
 										<strong>Darstellungsdimension:</strong>
 										{firstTicket.showingDimension || 'Unbekannt'}
-									</p>
+									</p> -->
 								</div>
 
 								<div class="mb-4">

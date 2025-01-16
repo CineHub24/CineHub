@@ -20,6 +20,7 @@ import {
 	giftCodesUsed
 } from '$lib/server/db/schema';
 import type { Decimal } from '@prisma/client/runtime/library';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray, not } from 'drizzle-orm';
 import * as m from '$lib/paraglide/messages.js';
@@ -122,6 +123,9 @@ async function calculatePrices(
 }
 
 export const load = async ({ locals }) => {
+	if (!locals.user) {
+		return languageAwareRedirect(301, '/login');
+	}
 	try {
 		const userId = locals.user!.id;
 		const _booking = await db
