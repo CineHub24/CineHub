@@ -145,7 +145,8 @@ export const load = async ({ locals }) => {
 					vatRate: 0.19,
 					vatAmount: 0,
 					total: 0
-				}
+				},
+				giftCodes: []
 			};
 		}
 

@@ -187,6 +187,11 @@
 											<div class="min-w-0 flex-1">
 												<div class="mb-2 flex flex-wrap items-center gap-3">
 													<span
+														class="rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800"
+													>
+														{show.hallName}
+													</span>
+													<span
 														class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
 													>
 														<Clock class="mr-1 h-4 w-4" />

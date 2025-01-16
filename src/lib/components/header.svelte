@@ -104,7 +104,7 @@
             <img src="/favicon_white_bg.png" alt="Logo" class="h-10 w-10" />
             <span class="text-xl font-bold text-gray-800">{siteName}</span>
         </a>
-        {#if $page.url.pathname.replace(languageTag(), '') === '/'}
+        {#if $page.url.pathname.replace(languageTag(), '') === '/' || $page.url.pathname.replace(languageTag(), '').includes('/film/')}
             <select
                 id="cinema-select"
                 on:change={handleCinemaChange}
