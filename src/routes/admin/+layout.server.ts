@@ -1,8 +1,10 @@
+import { ticket } from '$lib/paraglide/messages.js';
 import { db } from '$lib/server/db';
-import { seatCategory, type SeatCategory } from '$lib/server/db/schema';
+import { priceSet, seatCategory, ticketType, type SeatCategory, type TicketType } from '$lib/server/db/schema';
 
 export const load = async (event) => {
     const seatCategories = await db.select().from(seatCategory).orderBy(seatCategory.price);
+    let newSeatCategory: number[] = []
     if (seatCategories.length === 0) {
         const standardSeat: SeatCategory = {
             id: 0,
@@ -17,6 +19,28 @@ export const load = async (event) => {
             createdAt: new Date(),
         };
 
-        await db.insert(seatCategory).values(standardSeat);
+        newSeatCategory = (await db.insert(seatCategory).values(standardSeat).returning({id: seatCategory.id})).map((cat) => (cat.id));
+    }
+
+    const ticketTypes = await db.select().from(ticketType);
+    let newticketType: number[] = []
+    if(ticketTypes.length === 0) {
+
+        newticketType = (await db.insert(ticketType).values({
+            name: 'Erwachsen',
+            description: 'Standard',
+            factor: '1',
+        }).returning({id: ticketType.id})).map((type) => (type.id));
+    }
+
+    const priceSets = await db.select().from(priceSet);
+    if(priceSets.length === 0) {
+        
+        await db.insert(priceSet).values({
+            name: 'Standard',
+            priceFactor: '1',
+            seatCategoryPrices: newSeatCategory ? newSeatCategory : seatCategories.map((cat) => cat.id),
+            ticketTypes: newticketType ? newticketType : ticketTypes.map((type) => type.id),
+        }).returning({id: priceSet.id});
     }
 }
