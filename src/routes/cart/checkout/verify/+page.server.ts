@@ -4,6 +4,7 @@ import { EmailService } from '$lib/utils/emailService';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { fail, redirect } from '@sveltejs/kit'
 import { eq, inArray } from 'drizzle-orm';
+import { date } from 'drizzle-orm/mysql-core';
 import Stripe from 'stripe'
 
 const SECRET_STRIPE_KEY = import.meta.env.VITE_SECRET_STRIPE_KEY
@@ -41,7 +42,7 @@ export async function load({ locals, url }) {
 			.set({ status: 'paid' })
 			.where(inArray(ticket.id, ticketIdsArray));
 
-        await db.update(booking).set({ status: 'completed' }).where(eq(booking.id, Number(bookingId)));
+        await db.update(booking).set({ status: 'completed', date: new Date().toISOString().split('T')[0], time: new Date().toTimeString().split(' ')[0] }).where(eq(booking.id, Number(bookingId)));
 		
         await emailClient.sendBookingConfirmation(Number(bookingId), locals.user.email as string);
 	} catch (e) {
