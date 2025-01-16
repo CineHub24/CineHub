@@ -8,9 +8,11 @@ import { ticket,
     booking,
     seatCategory,
     ticketType,
-    priceDiscount } from '$lib/server/db/schema';
-import { error, fail } from '@sveltejs/kit';
-import { eq, and } from 'drizzle-orm';
+    priceDiscount, 
+    giftCodes,
+    giftCodesUsed} from '$lib/server/db/schema';
+import { error, fail, type Actions } from '@sveltejs/kit';
+import { eq, lt, gte, ne, asc, and } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { EmailService } from '$lib/utils/emailService';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
@@ -31,9 +33,7 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
     // Fetch booking information
     const{ id } = params;
     const bookingId = id;
-    console.log("bookingid" + bookingId);
     const initial = url.searchParams.get('initial');
-    console.log(initial)
 
     try{
         const ticketsWithDetails = await db
@@ -90,6 +90,16 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
         .leftJoin(priceDiscount, eq(booking.discount, priceDiscount.id))
         .where(and(eq(ticket.bookingId, Number(bookingId)), eq(booking.userId, user.id)));
 
+        const usedGiftCodes = await db
+			.select({
+				id: giftCodes.id,
+				amount: giftCodes.amount,
+				description: giftCodes.description
+			})
+			.from(giftCodesUsed)
+			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
+			.where(and(eq(giftCodesUsed.bookingId, Number(bookingId)), eq(giftCodesUsed.claimed, false)));
+
         // await db.update(ticket).set({ status: 'paid' }).where(eq(ticket.bookingId, Number(bookingId)));
         // await emailClient.sendBookingConfirmation(Number(bookingId), user.email as string);
 
@@ -97,6 +107,7 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
             return {
                 user: user,
                 tickets: ticketsWithDetails,
+            usedGiftCodes: usedGiftCodes
             };
         }
 	} catch (e) {

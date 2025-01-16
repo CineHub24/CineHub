@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+	import { fade, crossfade } from 'svelte/transition';
 	import MovieCard from '../lib/components/movie_card.svelte';
 	import ShowsFilmDropdown from '$lib/components/ShowsFilmDropdown.svelte';
 	import type { PageServerData } from './$types';
@@ -7,14 +7,25 @@
 	import { onMount } from 'svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { showNotification } from '$lib/stores/notification';
+	import GiftCard from '$lib/components/GiftCard.svelte';
+    import { tweened } from 'svelte/motion';
+    import { cubicOut } from 'svelte/easing';
+	import { ArrowRight } from 'lucide-svelte';
 
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+
+	const [send, receive] = crossfade({
+    duration: 800,
+    easing: cubicOut
+  });
 
 	const { data }: { data: PageServerData } = $props();
 
 	let movies: FilmWithTrailer[] = data.movies;
 
 	let shows: Showing[] = data.shows;
+
+	let codes = data.codes;
 
 	type FilmWithTrailer = Film & {
 		trailer?: string; // Optionales Trailer-Attribut
@@ -57,69 +68,98 @@
 
 	const funFacts = [
 		{
-			title: 'Popcorn-Fakt',
-			text: 'Wusstest du, dass Popcorn erst im 20. Jahrhundert in Kinos populär wurde?',
+			title: m.popcorn_fact_title({}),
+			text: m.popcorn_fact_text({}),
 			image: '/popcorn.jpeg'
 		},
 		{
-			title: 'Filmrollen-Info',
-			text: 'Früher wurden Filme auf brennbarem Nitratfilm gespeichert. Zum Glück ist das heute anders!',
+			title: m.film_reel_info_title({}),
+			text: m.film_reel_info_text({}),
 			image: '/filmrolle.jpeg'
 		},
 		{
-			title: 'Ton im Kino',
-			text: 'Der erste Tonfilm wurde bereits 1927 uraufgeführt. Ein Meilenstein der Filmgeschichte!',
+			title: m.cinema_sound_title({}),
+			text: m.cinema_sound_text({}),
 			image: '/tonfilm.jpeg'
 		}
 	];
 </script>
 
 {#key hoveredMovie}
-	<div class="movie-details" in:fade={{ duration: 1500 }}>
-		<img
-			id="background"
-			src={hoveredMovie.backdrop}
-			alt={`${hoveredMovie.title} ${m.movie_poster({})}`}
-		/>
-		<iframe
-			id="poster"
-			width="500"
-			height="300"
-			src={hoveredMovie.trailer}
-			frameborder="0"
-			allow="autoplay; encrypted-media"
-			allowfullscreen
-			title={m.trailer_title({})}
-		></iframe>
-		<h3>{hoveredMovie.title}</h3>
-		<p>{hoveredMovie.description}</p>
-	</div>
+  <div class="movie-details" in:fade={{ duration: 1500 }}>
+    <!-- Backdrop mit crossfade Animation -->
+    {#key hoveredMovie.backdrop}
+      <img
+        id="background"
+        src={hoveredMovie.backdrop}
+        alt={`${hoveredMovie.title} ${m.movie_poster({})}`}
+        in:receive={{ key: 'backdrop' }}
+        out:send={{ key: 'backdrop' }}
+      />
+    {/key}
+
+    <iframe
+      id="poster"
+      width="500"
+      height="300"
+      src={hoveredMovie.trailer}
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+      title={m.trailer_title({})}
+    ></iframe>
+    <h3>{hoveredMovie.title}</h3>
+    <p>{hoveredMovie.description}</p>
+  </div>
 {/key}
 
 <!-- <h2 class="px-5 text-2xl font-bold mt-4">
     {m.movies({})}
 </h2> -->
-<div class="movies-container mt-4">
-	{#each movies as movie}
-		<div
-			role="button"
-			tabindex="0"
-			onmouseover={() => {
-				if (hoveredMovie.id !== movie.id) {
-					hoveredMovie = { ...movie }; // Update only if it's a different movie
-				}
-			}}
-			onfocus={() => {
-				if (hoveredMovie.id !== movie.id) {
-					hoveredMovie = { ...movie }; // Update only if it's a different movie
-				}
-			}}
-			class="movie-card"
-		>
-			<MovieCard {movie} url="/film/{movie.id}" />
+
+<div class="relative overflow-x-auto">
+    <!-- Horizontal scrollbare Liste -->
+    <div class="movies-container mt-4 flex items-center justify-between relative">
+		<div class="movies-list flex items-center gap-4">
+			{#each movies as movie}
+				<div
+					role="button"
+					tabindex="0"
+					onmouseover={() => {
+						if (hoveredMovie.id !== movie.id) {
+							hoveredMovie = { ...movie };
+						}
+					}}
+					onfocus={() => {
+						if (hoveredMovie.id !== movie.id) {
+							hoveredMovie = { ...movie };
+						}
+					}}
+					class="movie-card"
+				>
+					<MovieCard {movie} url="/film/{movie.id}" />
+				</div>
+			{/each}
 		</div>
-	{/each}
+	</div>
+
+    <!-- Rechts positionierter Button -->
+    <a
+    href="/all"
+    class="absolute top-1/2 right-8 transform -translate-y-1/2 flex h-16 w-16 items-center justify-center
+           rounded-full bg-gray-100 border border-gray-300
+           hover:border-gray-400 transition duration-150 ease-in-out
+           focus:outline-none focus:ring-2 focus:ring-blue-500"
+    aria-label="Alle Filme anzeigen"
+>
+	<div>
+		<ArrowRight size={30} />
+	</div>
+</a>
+
 </div>
+
+
 <br />
 {#if shows.length > 0}
 	<div class="relative pt-4">
@@ -142,28 +182,29 @@
 		<div class="w-full border-t border-gray-200/80"></div>
 	</div>
 	<div class="relative flex justify-center">
-		<h2 class="bg-white px-6 text-4xl font-bold text-gray-900">CineHub Gutscheine</h2>
+		<h2 class="bg-white px-6 text-4xl font-bold text-gray-900">{m.cinehub_gift_cards({})}</h2>
 	</div>
 </div>
 
-
-<!-- @Mika hier bitte Gutscheine anzeigen -->
-
-
+<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+	{#each codes as giftCard}
+		<GiftCard {giftCard} isAdminPage={false} />
+	{/each}
+</div>
 
 <div class="relative pt-6">
 	<div class="absolute inset-0 flex items-center px-8" aria-hidden="true">
 		<div class="w-full border-t border-gray-200/80"></div>
 	</div>
 	<div class="relative flex justify-center">
-		<h2 class="bg-white px-6 text-4xl font-bold text-gray-900">Schon Gewusst?</h2>
+		<h2 class="bg-white px-6 text-4xl font-bold text-gray-900">{m.did_you_know({})}</h2>
 	</div>
 </div>
 
-<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
+<div class="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
 	<div class="text-center">
 		<p class="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-			Entdecke spannende Hintergrundinformationen und Kuriositäten aus der Welt des Films.
+			{m.discover_fun_facts({})}
 		</p>
 	</div>
 
@@ -303,4 +344,35 @@
 			width: 90%;
 		}
 	}
+
+
+	.container {
+        position: relative;
+        display: inline-block; /* Passt sich der Größe des Buttons an */
+    }
+
+    .main-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .overlay-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 8px 16px;
+        font-size: 14px;
+        background-color: #ffc107;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 1; /* Stellt sicher, dass der Button oben ist */
+    }
 </style>
