@@ -12,11 +12,12 @@ export const sessionCookieName = 'auth-session';
 import { Google, GitHub } from 'arctic';
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '$env/static/private';
 import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
+import { PUBLIC_URL } from '$env/static/public';
 
 export const google = new Google(
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET,
-	'https://cine-hub-alpha.vercel.app/login/google/callback'
+	PUBLIC_URL + '/login/google/callback'
 );
 
 export const github = new GitHub(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, null);
