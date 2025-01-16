@@ -2,12 +2,16 @@
 	import { onMount } from 'svelte';
 	import * as d3 from 'd3';
 	import AdminShowCalendar from '$lib/components/AdminShowCalendar.svelte';
+	import type { Cinema } from '$lib/server/db/schema';
+	import * as m from '$lib/paraglide/messages.js';
+	
 
 	let monthlySalesChart: SVGSVGElement;
 	let cinemaRevenueChart: SVGSVGElement;
 	let movieTicketSalesChart: SVGSVGElement;
-	const { data } = $props();
+	export let data;
 	const {
+		cinemas,
 		movies,
 		shows,
 		monthlyTicketSales,
@@ -322,16 +326,18 @@
 	}
 
 	const totalRevenue = cinemaRevenue.reduce((sum, cinema) => sum + cinema.revenue, 0);
-	const ticketsSold = movieTicketSales.reduce((sum, movie) => sum + movie.ticketsSold, 0);
-	const avgTicketPrice = totalRevenue / ticketsSold;
+	const ticketsSold = movieTicketSales.reduce((sum, movie) => sum + movie.ticketsSold, 0);	
 
-	const calendarEvents = [
-		{ date: '2023-05-15', event: 'Premiere: Avengers: Endgame' },
-		{ date: '2023-05-18', event: 'Special Screening: The Godfather' },
-		{ date: '2023-05-20', event: 'Kids Day: Toy Story Marathon' },
-		{ date: '2023-05-25', event: 'Indie Film Festival' },
-		{ date: '2023-05-30', event: 'Discount Tuesday' }
-	];
+	let selectedCinema: Cinema['id'] = cinemas[0]?.CinemaHall.id;
+	
+$: filteredShows = shows.filter(show => show.hallid === selectedCinema);
+
+function handleCinemaChange(event: Event) {
+const select = event.target as HTMLSelectElement;
+selectedCinema = parseInt(select.value);
+console.log(selectedCinema);
+console.log(filteredShows);
+}
 </script>
 
 {#if data.legth === 0}
@@ -348,7 +354,7 @@
 			</header>
 
 			<div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-				{#each [{ title: 'Total Revenue', value: `$${summaryData.totalRevenue}` }, { title: 'Tickets Sold', value: summaryData.ticketsSold }, { title: 'Avg. Ticket Price', value: `$${Number(summaryData.avgTicketPrice).toFixed(2)}` }, { title: 'Occupancy Rate', value: `${Number(occupancyRate).toFixed(2)}%` }] as item}
+				{#each [{ title: m.total_revenue({}), value: `$${summaryData.totalRevenue}` }, { title: m.ticktets_sold({}), value: summaryData.ticketsSold }, { title: m.avg_ticket_price({}), value: `$${Number(summaryData.avgTicketPrice).toFixed(2)}` }, { title: m.occupancy_rate({}), value: `${Number(occupancyRate).toFixed(2)}%` }] as item}
 					<div class="rounded-lg bg-white p-6 shadow-md">
 						<h3 class="mb-2 text-sm font-medium text-gray-500">{item.title}</h3>
 						<p class="text-2xl font-bold text-gray-900">{item.value}</p>
@@ -358,11 +364,11 @@
 
 			<div class="mb-8 grid gap-6 lg:grid-cols-2">
 				<div class="rounded-lg bg-white p-6 shadow-md">
-					<h2 class="mb-4 text-xl font-semibold text-gray-800">Monthly Ticket Sales</h2>
+					<h2 class="mb-4 text-xl font-semibold text-gray-800">{m.monthly_ticket_sales({})}</h2>
 					<svg bind:this={monthlySalesChart} class="w-full"></svg>
 				</div>
 				<div class="rounded-lg bg-white p-6 shadow-md">
-					<h2 class="mb-4 text-xl font-semibold text-gray-800">Revenue by Cinema</h2>
+					<h2 class="mb-4 text-xl font-semibold text-gray-800">{m.revenue_by_cinema({})}</h2>
 					<div class="flex h-[300px] w-full justify-center">
 						<svg bind:this={cinemaRevenueChart} class="h-full w-full"></svg>
 					</div>
@@ -370,14 +376,29 @@
 			</div>
 
 			<div class="mb-8 rounded-lg bg-white p-6 shadow-md">
-				<h2 class="mb-4 text-xl font-semibold text-gray-800">Ticket Sales by Movie</h2>
+				<h2 class="mb-4 text-xl font-semibold text-gray-800">{m.ticket_sales_by_movie({})}</h2>
 				<svg bind:this={movieTicketSalesChart} class="w-full"></svg>
 			</div>
 
 			<div class="rounded-lg bg-white p-6 shadow-md">
-				<h2 class="mb-4 text-xl font-semibold text-gray-800">Show Calendar</h2>
-				<AdminShowCalendar {shows} {movies} />
-			</div>
+				<div class="flex items-center justify-between mb-4">
+				<h2 class="text-xl font-semibold text-gray-800">{m.show_calendar({})}</h2>
+				<div class="relative">
+				<select
+				on:change={handleCinemaChange}
+				class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+				>
+				{#each cinemas as cinema}
+				<option value={cinema.CinemaHall.id}>{cinema.Cinema.name}</option>
+				{/each}
+				</select>
+				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+
+				</div>
+				</div>
+				</div>
+				<AdminShowCalendar shows={filteredShows} {movies} />
+				</div>
 		</div>
 	</div>
 {/if}
