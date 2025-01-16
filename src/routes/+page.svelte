@@ -186,7 +186,7 @@
 	</div>
 </div>
 
-<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 px-8">
 	{#each codes as giftCard}
 		<GiftCard {giftCard} isAdminPage={false} />
 	{/each}

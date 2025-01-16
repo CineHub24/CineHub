@@ -7,6 +7,7 @@
 	import type { ActionData } from './$types';
 	import GoogleAutocomplete from '$lib/components/GoogleAutocomplete.svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import { CreditCard, Ticket } from 'lucide-svelte';
 	import { ShoppingBag, Tag, Trash2 } from 'lucide-svelte';
 	import {
 		type Seat,
@@ -57,7 +58,6 @@
 	let giftCodes = data.giftCodes as GiftCode[];
 	let stripe: Stripe | null = null;
 	let discountCode = '';
-
 
 	$: groupedTickets = Object.entries(
 		tickets.reduce(
@@ -226,13 +226,29 @@
 						</div>
 					</div>
 
-					<h2 class="section-title">{m.cart_payment_type({})}</h2>
-					<div class="payment-methods">
-						<PayPalButton
-							amount={currentPrices.total.toFixed(2)}
-							currency="EUR"
-							bookingId={booking.id}
-						/>
+					<h2 class="mb-6 text-xl font-semibold">{m.cart_payment_type({})}</h2>
+					<div class="flex max-w-md flex-col space-y-4">
+						<!-- Stripe Payment Button -->
+						<a href="/cart/checkout"
+							class="group flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-4 text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg"
+						>
+							<CreditCard class="mr-3 h-5 w-5 transition-transform group-hover:scale-110" />
+							<span class="font-medium">Pay with Stripe</span>
+					</a>
+
+						<!-- Cinema Payment Button (Disabled) -->
+						<button
+							disabled
+							class="relative flex w-full cursor-not-allowed items-center justify-center overflow-hidden rounded-lg bg-gray-100 px-6 py-4 text-gray-400 opacity-75 transition-all duration-200"
+						>
+							<Ticket class="mr-3 h-5 w-5" />
+							<span class="font-medium">Pay at Cinema</span>
+							<div
+								class="absolute -right-1 top-0 translate-y-2 rotate-45 transform bg-gray-200 px-2 py-1 text-xs"
+							>
+								Coming Soon
+							</div>
+						</button>
 					</div>
 				</div>
 			</div>
