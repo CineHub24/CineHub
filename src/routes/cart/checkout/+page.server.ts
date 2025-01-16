@@ -8,7 +8,7 @@ const DOMAIN = import.meta.env.VITE_DOMAIN
 
 const stripe = new Stripe(SECRET_STRIPE_KEY)
 const return_url = new URL(
-  '/cart/checkout/verify?session_id={CHECKOUT_SESSION_ID}',
+  '/cart/checkout/verify?session_id=',
   DOMAIN
 ).toString()
 
