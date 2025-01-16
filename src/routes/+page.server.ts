@@ -1,5 +1,7 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
+import type { Actions } from '@sveltejs/kit';
 import { gte, asc, and, ne, eq } from 'drizzle-orm';
 
 export const load = async (event) => {
@@ -29,8 +31,32 @@ export const load = async (event) => {
 	for (const show of shows) {
 		showsFiltered.push(show.Showing);
 	}
+	const codes = await db.select().from(table.giftCodes).orderBy(table.giftCodes.amount);
 	return {
 		movies: movies,
-		shows: showsFiltered
+		shows: showsFiltered,
+        codes: codes
 	};
 };
+export const actions = {
+    addToCart: async ({ request, locals }) => {
+
+        const formData = await request.formData();
+        const giftCodeId = formData.get('giftCardId') as unknown as number;
+
+        let bookings = await db.select().from(table.booking).where(and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, "completed")));
+        if (bookings.length == 0) {
+            const bookings = await db.insert(table.booking).values({
+                userId: locals.user!.id,                               
+            }).returning();
+        }
+        const currBooking = bookings[0];
+
+        await db
+            .insert(table.giftCodesUsed)
+            .values({giftCodeId: giftCodeId, bookingId: currBooking.id})
+
+        languageAwareRedirect(303, '/cart');
+    }
+
+} satisfies Actions;

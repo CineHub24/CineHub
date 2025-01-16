@@ -5,7 +5,7 @@ import { eq, and, gt, lt } from 'drizzle-orm';
 import schedule from 'node-schedule';
 
 export const deleteOldReservedTicketsJob = () => {
-    console.log('Scheduling job to delete old reserved tickets');
+    // console.log('Scheduling job to delete old reserved tickets');
     schedule.scheduleJob('*/1 * * * *', async () => {
 
         const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
@@ -39,7 +39,7 @@ export const deleteOldReservedTicketsJob = () => {
             }
 
         } catch (error) {
-            console.error('Error running the ticket deletion job:', error);
+            // console.error('Error running the ticket deletion job:', error);
         }
     });
 };

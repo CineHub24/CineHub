@@ -1,15 +1,20 @@
 import { db } from '$lib/server/db';
-import { eq, ne } from 'drizzle-orm';
+import { eq, inArray, ne, and } from 'drizzle-orm';
 import {
 	booking,
 	cinema,
 	cinemaHall,
+	discountTypesEnum,
 	film,
+	giftCodes,
+	giftCodesUsed,
+	priceDiscount,
 	seat,
 	showing,
 	ticket,
 	ticketType,
 	user,
+	type PriceDiscountForInsert,
 	type Discount,
 	type Showing,
 	type Ticket
@@ -20,9 +25,7 @@ import PDFDocument from 'pdfkit';
 import path from 'path';
 import QRCode from 'qrcode';
 import axios from 'axios';
-
-
-
+import { generateUniqueCode } from './randomCode';
 export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
@@ -43,7 +46,7 @@ export class EmailService {
 			token: string | null;
 			id: number;
 			type: number | null;
-			status: 'reserved' | 'paid' | 'validated';
+			status: 'reserved' | 'paid' | 'validated' | 'refunded' | 'payAtCinema';
 			showingId: number | null;
 			bookingId: number | null;
 			seatId: number | null;
@@ -262,7 +265,39 @@ export class EmailService {
 			.innerJoin(film, eq(showing.filmid, film.id))
 			.innerJoin(seat, eq(ticket.seatId, seat.id))
 			.innerJoin(cinema, eq(cinema.id, cinemaHall.cinemaId));
-		console.log(tickets);
+
+		const codesToBuy = await db
+			.select({
+				amount: giftCodes.amount
+			})
+			.from(giftCodesUsed)
+			.where(eq(giftCodesUsed.bookingId, bookingId))
+			.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId));
+
+		const newDiscounts: PriceDiscountForInsert[] = [];
+		for (let code of codesToBuy) {
+			const newCode = (await generateUniqueCode(6)) as string;
+			newDiscounts.push({
+				code: newCode,
+				value: code.amount,
+				discountType: discountTypesEnum.enumValues[1],
+				expiresAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365).toISOString()
+			});
+		}
+		if (newDiscounts.length > 0) {
+			const newPriceDiscountIDs = await db
+				.insert(priceDiscount)
+				.values(newDiscounts)
+				.returning({ id: priceDiscount.id });
+			newPriceDiscountIDs.map(async (discount) => {
+				await db
+					.update(giftCodesUsed)
+					.set({ priceDiscountId: discount.id })
+					.where(eq(giftCodesUsed.bookingId, bookingId));
+			});
+		}
+		await handleBookingDiscount(bookingId);
+
 		// Gruppiere Tickets nach Vorstellung
 		const ticketsByShowing: { [key: number]: any[] } = tickets.reduce(
 			(acc: { [key: number]: any[] }, ticket) => {
@@ -275,7 +310,6 @@ export class EmailService {
 			},
 			{}
 		);
-		console.log('ticketsByShowing');
 
 		// Generiere PDF für jedes Ticket
 		const pdfPromises = tickets.map((ticket) => this.generatePDFTicket(ticket));
@@ -294,35 +328,57 @@ export class EmailService {
     <p><strong>Gesamtpreis:</strong> ${bookingInformation[0].Booking.finalPrice} €</p>
     </div>
     `;
-		console.log(emailContent);
-		// Füge Details für jede Vorstellung hinzu
-		for (const [showingId, showingTickets] of Object.entries(ticketsByShowing)) {
-			const showing = showingTickets[0].Showing;
-			emailContent += `
-    <div style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
-    <h3>${showingTickets[0].Film.title}</h3>
-    <p><strong>Datum:</strong> ${showing.date}</p>
-    <p><strong>Zeit:</strong> ${showing.time}</p>
-    <p><strong>Saal:</strong> ${showingTickets[0].CinemaHall.name}</p>
-    <p><strong>Preis:</strong> ${showingTickets[0].Ticket.price} €</p>
-    `;
-			for (const ticket of showingTickets) {
+		if (Object.keys(ticketsByShowing).length > 0) {
+			emailContent += '<h2>Ihre gekauften Tickets:</h2>';
+
+			for (const [showingId, showingTickets] of Object.entries(ticketsByShowing)) {
+				const showing = showingTickets[0].Showing;
 				emailContent += `
+      <div style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+      <h3>${showingTickets[0].Film.title}</h3>
+      <p><strong>Datum:</strong> ${showing.date}</p>
+      <p><strong>Zeit:</strong> ${showing.time}</p>
+      <p><strong>Saal:</strong> ${showingTickets[0].CinemaHall.name}</p>
+      <p><strong>Preis:</strong> ${showingTickets[0].Ticket.price} €</p>
+      `;
+				for (const ticket of showingTickets) {
+					emailContent += `
       <p><strong>Ticket-ID:</strong> ${ticket.Ticket.id}</p>
       <p><strong>Reihe:</strong> ${ticket.seat.row}</p>
-      <p><strong>Sitzplatz:</strong> ${ticket.seat.seatNumber}</p>      
+      <p><strong>Sitzplatz:</strong> ${ticket.seat.seatNumber}</p>
       `;
+				}
+				emailContent += '</div>';
 			}
-			emailContent += '</div>';
-		}
 
-		emailContent += `
+			emailContent += `
     <p>Ihre Tickets finden Sie im Anhang dieser E-Mail.</p>
     <p>Bitte bringen Sie die Tickets ausgedruckt oder digital zur Vorstellung mit.</p>
     
     <p>Mit freundlichen Grüßen,<br>Ihr CineHub-Team</p>
     </div>
     `;
+		}
+		// Überprüfen, ob Gutscheincodes gekauft wurden
+		if (newDiscounts && newDiscounts.length > 0) {
+			emailContent += `
+<h2>Ihre gekauften Gutscheincodes:</h2>
+<div style="margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+`;
+
+			for (const code of newDiscounts) {
+				if (code) {
+					emailContent += `
+        <p><strong>Code:</strong> ${code.code}</p>
+        <p><strong>Wert:</strong> ${code.value} €</p>
+        ${code.expiresAt ? `<p><strong>Gültig bis:</strong> ${new Date(code.expiresAt).toLocaleDateString()}</p>` : ''}
+        <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
+        `;
+				}
+			}
+
+			emailContent += '</div>';
+		}
 
 		// Generiere ICS-Dateien für jede Vorstellung
 		const icsPromises = Object.values(ticketsByShowing).map((showingTickets) =>
@@ -696,4 +752,53 @@ export interface fullTicket {
 	uhrzeit: string;
 	saal: string;
 	showingId: number;
+}
+
+async function handleBookingDiscount(bookingId: number) {
+
+	// Hole Booking mit Discount
+	const bookingWithDiscount = await db
+		.select({
+			booking: booking,
+			discount: priceDiscount
+		})
+		.from(booking)
+		.leftJoin(priceDiscount, eq(booking.discount, priceDiscount.id))
+		.where(eq(booking.id, bookingId));
+	if (!bookingWithDiscount[0]?.discount) {
+		return;
+	}
+
+	// Prüfe ob es sich um einen Geschenkgutschein handelt
+	const giftCard = await db
+		.select()
+		.from(giftCodesUsed)
+		.innerJoin(giftCodes, eq(giftCodes.id, giftCodesUsed.giftCodeId))
+		.where(
+			and(
+				eq(giftCodesUsed.priceDiscountId, bookingWithDiscount[0].discount.id),
+				eq(giftCodesUsed.claimed, false)
+			)
+		);
+
+	if (giftCard.length > 0) {
+		const basePrice = Number(bookingWithDiscount[0].booking.basePrice);
+		const remainingValue = Number(giftCard[0].giftCodes.amount) -  Number(giftCard[0].giftCodesUsed.claimedValue);
+
+
+		if (remainingValue > 0) {
+			const discountedAmount = Math.min(remainingValue, basePrice);
+			const newClaimedValue = Number(giftCard[0].giftCodesUsed.claimedValue) + discountedAmount;
+			const isFullyClaimed = newClaimedValue >= Number(giftCard[0].giftCodes.amount);
+
+
+			await db
+				.update(giftCodesUsed)
+				.set({
+					claimedValue: String(newClaimedValue),
+					claimed: isFullyClaimed
+				})
+				.where(eq(giftCodesUsed.id, giftCard[0].giftCodesUsed.id));
+		}
+	}
 }

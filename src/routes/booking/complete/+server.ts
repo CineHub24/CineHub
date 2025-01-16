@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { booking, showing, ticket } from '$lib/server/db/schema';
+import { booking, giftCodesUsed, priceDiscount, showing, ticket } from '$lib/server/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import { EmailService } from '$lib/utils/emailService';
 import { json, type RequestHandler } from '@sveltejs/kit';
@@ -8,8 +8,8 @@ import { languageAwareGoto, languageAwareRedirect } from '$lib/utils/languageAwa
 const PAYPAL_API = 'https://api-m.sandbox.paypal.com'; // Sandbox URL
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_CLIENT_ID_PAYPAL;
 const PAYPAL_CLIENT_SECRET = import.meta.env.VITE_SECRET_PAYPAL;
-console.log(PAYPAL_CLIENT_ID);
-console.log(PAYPAL_CLIENT_SECRET);
+// console.log(PAYPAL_CLIENT_ID);
+// console.log(PAYPAL_CLIENT_SECRET);
 
 async function getAccessToken() {
 	const response = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
@@ -20,7 +20,7 @@ async function getAccessToken() {
 		}
 	});
 	const data = await response.json();
-	console.log(data);
+	// console.log(data);
 	return data.access_token;
 }
 
@@ -38,7 +38,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	if (!locals.user) {
 		return new Response('Unauthorized', { status: 401 });
 	}
-	console.log('POST /booking/[id]/server.ts');
 
 	const { orderId } = await request.json();
 	
