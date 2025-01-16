@@ -7,7 +7,7 @@
 	import type { ActionData } from './$types';
 	import GoogleAutocomplete from '$lib/components/GoogleAutocomplete.svelte';
 	import * as m from '$lib/paraglide/messages.js';
-	import { ShoppingBag, Tag, Trash2 } from 'lucide-svelte';
+	import { Building, CreditCard, ShoppingBag, Tag, Trash2 } from 'lucide-svelte';
 	import {
 		type Seat,
 		type PriceSet,
@@ -105,7 +105,7 @@
 	}
 </script>
 
-{#if tickets!.length !== 0 || giftCodes.length !== 0}
+{#if tickets!.length !== 0 || giftCodes!.length !== 0}
 	<div class="flex min-h-screen items-center justify-center bg-gray-50 p-4">
 		<div class="w-full max-w-7xl rounded-xl bg-white shadow-lg">
 			<div class="checkout-container">
@@ -228,11 +228,21 @@
 
 					<h2 class="section-title">{m.cart_payment_type({})}</h2>
 					<div class="payment-methods">
-						<PayPalButton
-							amount={currentPrices.total.toFixed(2)}
-							currency="EUR"
-							bookingId={booking.id}
-						/>
+						<div class="payment-buttons">
+							<button 
+								class="payment-button stripe-button"
+								on:click={() => goto('/cart/checkout')}
+							>
+								<CreditCard size={24} />
+								<span>Pay now</span>
+							</button>
+							<button 
+								class="payment-button cinema-button"
+							>
+								<Building size={24} />
+								<span>Pay at Cinema</span>
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -368,6 +378,51 @@
 
 	.payment-methods {
 		margin-top: 30px;
+	}
+
+	.payment-buttons {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.payment-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		padding: 1rem;
+		border-radius: 8px;
+		font-weight: 600;
+		transition: all 0.2s ease;
+		border: none;
+		cursor: pointer;
+		width: 100%;
+	}
+
+	.stripe-button {
+		background-color: #635bff;
+		color: white;
+	}
+
+	.stripe-button:hover {
+		background-color: #4b44d1;
+	}
+
+	.cinema-button {
+		background-color: #f3f4f6;
+		color: #1f2937;
+		border: 2px solid #e5e7eb;
+	}
+
+	.cinema-button:hover {
+		background-color: #e5e7eb;
+	}
+
+	/* Focus styles for accessibility */
+	.payment-button:focus {
+		outline: 2px solid #4b44d1;
+		outline-offset: 2px;
 	}
 
 	.section-title {
