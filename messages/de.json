@@ -39,7 +39,6 @@
 	"already_account": "Haben Sie bereits ein Konto?",
 	"admin_tools": "Admin-Tools",
 	"movies": "Filme",
-	"current_movies": "Im Kino",
 	"shows": "Vorstellungen",
 	"directed_by": "Regie von",
 	"released_in": "Veröffentlicht",
@@ -183,17 +182,15 @@
 	"closes_at": "Schließt um",
 	"actions": "Aktionen",
 
-	
 	"discount_management": "Rabatt-Verwaltung",
-	"discount_code":"Rabattcode",
-	"expires_at":"Ablaufdatum",
+	"discount_code": "Rabattcode",
+	"expires_at": "Ablaufdatum",
 	"new_discount": "Neuer Rabatt",
-	
 
 	"dashboard": "Dashboard",
 	"pricing_sets": "Preissets",
 	"pricing": "Preise",
-	"discounts":"Rabatte",
+	"discounts": "Rabatte",
 	"cinemas": "Kinos",
 	"halls": "Kinosäle",
 	"cinema_admin": "Kino-Admin",
@@ -266,35 +263,29 @@
 	"cart_typ": "Typ:",
 	"cart_price": "Preis:",
 	"cart_seattype": "Sitzkategorie:",
-	"cart_subtotal":"Zwischensumme:",
-	"cart_discount":"Rabatt",
-	"cart_enter_discount":"Code eingeben",
-	"cart_VAT":" inkl. MwSt",
+	"cart_subtotal": "Zwischensumme:",
+	"cart_discount": "Rabatt",
+	"cart_enter_discount": "Code eingeben",
+	"cart_VAT": " inkl. MwSt",
 	"cart_total": "Gesamt:",
 	"cart_payment_type": "Zahlungsmethode:",
-	"cart_empty_h2":"Sie haben zur Zeit keine Artikel in Ihrem Warenkorb",
-	"cart_empty_p":"Entdecken Sie unsere Programm und füllen Sie Ihren Warenkorb",
-	"cart_goto_program":"Zum Programm",
+	"cart_empty_h2": "Sie haben zur Zeit keine Artikel in Ihrem Warenkorb",
+	"cart_empty_p": "Entdecken Sie unsere Programm und füllen Sie Ihren Warenkorb",
+	"cart_goto_program": "Zum Programm",
 
-
-
-
-	
 	"discount_codes": "Rabattcodes",
 	"discount_codes_description": "Erstellen und verwalten Sie Rabattcodes für spezielle Aktionen oder Kundengruppen.",
 	"create_discount": "Rabatt erstellen",
 	"discount_name": "Rabattname",
 	"enter_discount_name": "Rabattnamen eingeben",
-	
+
 	"enter_discount_code": "Rabattcode eingeben",
 	"discount_type": "Rabatttyp",
 	"percentage": "Prozentsatz",
 	"fixed_amount": "Fester Betrag",
 	"discount_value": "Rabattwert",
-	"enter_percentage": "Dezimalwert eingeben (z.B. 0,5 für 50%)",
+	"enter_percentage": "Dezimalwert eingeben (z.B. 0,3 für 30% Rabatt)",
 	"enter_amount": "Betrag eingeben",
-	
-
 	"seat_selection_for": "Sitzplatzauswahl für",
 	"seats_successfully_booked": "Sitzplätze erfolgreich gebucht!",
 	"selected_seats": "Ausgewählte Sitzplätze",
@@ -318,10 +309,65 @@
 	"confirm_password":"Passwort bestätigen",
 	"confirm_new_password":"Neues Passwort bestätigen",
 	"set_new_password_button":"Passwort setzen",
-	"passwords_do_not_match":"Passwörter stimmen nicht überein"
+	"passwords_do_not_match":"Passwörter stimmen nicht überein",
+	"buy_discounts": "Gutscheincode kaufen",
+	"buy_voucher": "Gutschein kaufen",
+	"voucher_description": "Kaufen Sie einen Gutschein für zukünftige Kinobesuche. Der Gutscheincode kann später beim Ticketkauf eingelöst werden.",
+	"create_voucher": "Gutschein erstellen",
+	"voucher_amount": "Gutscheinbetrag",
+	"generate_voucher": "Gutschein generieren",
+	"voucher_summary": "Gutschein Zusammenfassung",
+	"add_to_cart": "Zum Warenkorb hinzufügen",
+	"voucher_code": "Gutscheincode",
+
+	"current_movies": "Aktuell im Kino",
+	"gift_cards": "Geschenkkarten",
+
+	"discount_not_found": "Rabattcode nicht gefunden oder abgelaufen",
+	"discount_applied": "Rabattcode erfolgreich angewendet",
+	"server_error_discount": "Serverfehler beim Überprüfen des Rabattcodes",
+	"no_valid_id": "Keine gültige ID zum Löschen angegeben",
+	"deleted": "erfolgreich gelöscht",
+	"ticket": "Ticket",
+	"gift_code": "Geschenkgutschein",
+	"server_error_delete": "Serverfehler beim Löschen des Elements",
+	"gift_cards_description": "Kunden können Geschenkgutscheine für Freunde und Familie kaufen. Der Gutscheincode kann später beim Ticketkauf eingelöst werden.",
+
+	"create_new_gift_card": "Neuen Geschenkgutschein erstellen",
+	"new_gift_card": "Neuer Geschenkgutschein",
+	"gift_card_description": "Beschreibung des Geschenkgutscheins",
+	"gift_card_amount": "Geschenkgutscheinbetrag",
+	"gift_card": "Geschenkgutschein",
+
+	"cinehub_gift_cards": "CineHub Gutscheine",
+	"did_you_know": "Schon Gewusst?",
+	"discover_fun_facts": "Entdecke spannende Hintergrundinformationen und Kuriositäten aus der Welt des Films.",
+	"popcorn_fact_title": "Popcorn-Fakt",
+	"popcorn_fact_text": "Wusstest du, dass Popcorn erst im 20. Jahrhundert in Kinos populär wurde?",
+	"film_reel_info_title": "Filmrollen-Info",
+	"film_reel_info_text": "Früher wurden Filme auf brennbarem Nitratfilm gespeichert. Zum Glück ist das heute anders!",
+	"cinema_sound_title": "Ton im Kino",
+	"cinema_sound_text": "Der erste Tonfilm wurde bereits 1927 uraufgeführt. Ein Meilenstein der Filmgeschichte!",
+
+	"today": "Heute",
+	"showings_on": "Vorstellungen am ",
+	"no_showings_today": "Keine Vorstellungen an diesem Tag",
+	"film_title": "Film titel",
+	"book_tickets": "Tickets buchen",
+	"more_information": "Mehr Informationen",
+
+	"monthly_ticket_sales": "Monatliche Ticketverkäufe",
+	"revenue_by_cinema": "Umsatz nach Kino",
+	"ticket_sales_by_movie":"Ticketverkäufe nach Film",
+	"show_calendar": "Vorstellungs-Kalender",
+	"total_revenue": "Gesamtumsatz",
+	"ticktets_sold": "Tickets verkauft",
+	"avg_ticket_price": " Ø Ticketpreis",
+	"occupancy_rate": "Auslastung"
+
+
 	
 
 
 
-	
 }

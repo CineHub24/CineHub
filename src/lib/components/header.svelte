@@ -4,11 +4,13 @@
 	import { languageTag, type AvailableLanguageTag } from '$lib/paraglide/runtime';
 	import SearchBar from './SearchBar.svelte';
 	import Cookies from 'js-cookie';
+	import { LogOut, LogIn, Globe, ClipboardCheck, Settings } from 'lucide-svelte';
 
 	import { i18n } from '$lib/i18n';
 	import * as m from '$lib/paraglide/messages.js';
 	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import { ShoppingBasket, TicketCheck } from 'lucide-svelte';
+	import { showNotification } from '$lib/stores/notification';
 	let lang = languageTag();
 
 	// Prop for website name
@@ -96,37 +98,40 @@
 </script>
 
 <header class="relative flex items-center bg-gray-100 p-4 shadow-md">
-	<!-- Left: Logo und Site Name -->
-	<div class="flex items-center justify-between">
-		<a class="flex items-center space-x-4" href="/">
-			<img src="/favicon_white_bg.png" alt="Logo" class="h-10 w-10" />
-			<span class="text-xl font-bold text-gray-800">{siteName}</span>
-		</a>
-		{#if $page.url.pathname.replace(languageTag(), '') === '/'}
-			<select
-				id="cinema-select"
-				on:change={handleCinemaChange}
-				class="bg-gray-100 ml-14 h-8 w-full appearance-none rounded-lg border border-gray-300 px-1.5 text-base text-sm leading-none
-             transition duration-150 ease-in-out
-             hover:border-gray-400
-             focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-			>
-				{#each cinemas as cinema}
-					<option value={cinema.id}>{cinema.name}</option>
-				{/each}
-			</select>
-		{/if}
-	</div>
+    <!-- Left: Logo und Site Name -->
+    <div class="flex items-center justify-between">
+        <a class="flex items-center space-x-4" href="/">
+            <img src="/favicon_white_bg.png" alt="Logo" class="h-10 w-10" />
+            <span class="text-xl font-bold text-gray-800">{siteName}</span>
+        </a>
+        {#if $page.url.pathname.replace(languageTag(), '') === '/'}
+            <select
+                id="cinema-select"
+                on:change={handleCinemaChange}
+                class="bg-gray-100 ml-14 h-8 w-full appearance-none rounded-lg border border-gray-300 px-1.5 text-base text-sm leading-none
+                 transition duration-150 ease-in-out
+                 hover:border-gray-400
+                 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+                {#each cinemas as cinema}
+                    <option value={cinema.id}>{cinema.name}</option>
+                {/each}
+            </select>
+        {/if}
+    </div>
 
 	<!-- Center: Multilingual Greeting -->
 	{#if userName}
-		<div class="absolute left-1/2 -translate-x-1/2 transform text-center">
-			<span class="text-lg font-medium text-gray-700">
-				{randomGreeting.greeting}
-				{userName}!
-			</span>
-		</div>
-	{/if}
+    <div class="absolute left-1/2 -translate-x-1/2 transform text-center">
+        <span 
+            class="text-lg font-medium text-gray-400 hover:cursor-pointer" 
+            on:mouseenter={() => showNotification(`${randomGreeting.lang}`, "info")}
+        >
+            {randomGreeting.greeting}
+            {userName}!
+        </span>
+    </div>
+{/if}
 
 	<!-- Right: Profile Picture -->
 	<div class="relative ml-auto flex">
@@ -170,70 +175,84 @@
 				<div
 					class="absolute right-0 z-50 w-60 rounded-lg border border-gray-200 bg-white shadow-lg"
 				>
-					<ul class="text-sm">
-						<li>
-							{#if userName}
-								<a
-									href="/logout"
-									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-									>{m.logout({})}</a
-								>
-							{:else}
-								<a
-									href="/login"
-									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-								>
-									{m.login({})}
-								</a>
-							{/if}
-						</li>
-						<li>
-							<button
-								on:click={() => {
-									if (lang === 'de') switchToLanguage('en');
-									else switchToLanguage('de');
-									lang = i18n.getLanguageFromUrl($page.url);
-								}}
-								class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-							>
-								{m.switch_language({ language: lang === 'en' ? 'deutsch' : 'english' })}
-							</button>
-						</li>
-						<!-- {#if userName}
-							<li>
-								<a
-									href="/tickets"
-									class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-									>{m.tickets({})}</a
-								>
-							</li>
-						{/if} -->
-						{#if $page.data.user?.role === 'admin' || $page.data.user?.role === 'inspector'}
-							<li>
-								<a
-									href="/validation"
-									class="block w-full bg-green-100 px-4 py-2 text-left text-gray-700 hover:bg-green-200"
-									>{m.validate_tickets({})}</a
-								>
-							</li>
-						{/if}
-						{#if $page.data.user?.role === 'admin'}
-							<li>
-								<a
-									href="/admin"
-									class="block w-full bg-green-100 px-4 py-2 text-left text-gray-700 hover:bg-green-200"
-									>{m.admin_tools({})}</a
-								>
-							</li>
-						{/if}
-						<!-- <li>
+				<ul class="rounded-lg shadow-lg bg-white divide-y divide-gray-100">
+					<li>
+					  {#if userName}
 						<a
-							href="/settings"
-							class="block w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-							>{m.settings({})}</a
+						  href="/logout"
+						  class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
 						>
-					</li> -->
-					</ul>
+						  <LogOut class="w-5 h-5 mr-3 text-gray-500" />
+						  <span>{m.logout({})}</span>
+						</a>
+					  {:else}
+						<a
+						  href="/login"
+						  class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+						>
+						  <LogIn class="w-5 h-5 mr-3 text-gray-500" />
+						  <span>{m.login({})}</span>
+						</a>
+					  {/if}
+					</li>
+				  
+					<li>
+					  <div class="px-4 py-3">
+						<div class="flex items-center justify-between">
+						  <div class="flex items-center">
+							<Globe class="w-5 h-5 mr-3 text-gray-500" />
+							<span class="text-gray-700">Sprache</span>
+						  </div>
+						  <div class="flex space-x-2">
+							<button
+							  class="px-3 py-1 rounded-full flex items-center space-x-1 transition-colors duration-200 {lang === 'en' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}"
+							  on:click={() => {
+								switchToLanguage('en');
+								lang = i18n.getLanguageFromUrl($page.url);
+							  }}
+							>
+							  <!-- <span>{flags.en}</span> -->
+							  <span>EN</span>
+							</button>
+							<button
+							  class="px-3 py-1 rounded-full flex items-center space-x-1 transition-colors duration-200 {lang === 'de' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'}"
+							  on:click={() => {
+								switchToLanguage('de');
+								lang = i18n.getLanguageFromUrl($page.url);
+							  }}
+							>
+							  <!-- <span>{flags.de}</span> -->
+							  <span>DE</span>
+							</button>
+						  </div>
+						</div>
+					  </div>
+					</li>
+				  
+					{#if $page.data.user?.role === 'admin' || $page.data.user?.role === 'inspector'}
+					  <li>
+						<a
+						  href="/validation"
+						  class="flex items-center px-4 py-3 text-gray-700 bg-green-50 hover:bg-green-100 transition-colors duration-200"
+						>
+						  <ClipboardCheck class="w-5 h-5 mr-3 text-green-600" />
+						  <span>{m.validate_tickets({})}</span>
+						</a>
+					  </li>
+					{/if}
+				  
+					{#if $page.data.user?.role === 'admin'}
+					  <li>
+						<a
+						  href="/admin"
+						  class="flex items-center px-4 py-3 text-gray-700 bg-green-50 hover:bg-green-100 transition-colors duration-200"
+						>
+						  <Settings class="w-5 h-5 mr-3 text-green-600" />
+						  <span>{m.admin_tools({})}</span>
+						</a>
+					  </li>
+					{/if}
+				  </ul>
 				</div>
 			{/if}
 		</div>

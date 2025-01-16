@@ -9,7 +9,7 @@
 
 	function formatValue (type: string, value: string) {
 		if (type === 'percentage') {
-			return `-${Math.round((1 - parseFloat(value)) * 100)}%`;
+			return `-${Math.round((parseFloat(value)) * 100)}%`;
 		}
 
 		return `-${value}€`;

@@ -712,7 +712,7 @@ function handleMouseDownOnBlock(event: MouseEvent, clickedBlock: Block) {
     function handleDrop(event: DragEvent) {
         event.preventDefault();
         const categoryId = parseInt(event.dataTransfer?.getData('categoryId') || '0');
-        if (!categoryId || !data.categories.find(c => c.id === categoryId)) return;
+        if (categoryId === undefined || !data.categories.find(c => c.id === categoryId)) return;
 
         const workspaceRect = workspace.getBoundingClientRect();
         const { width, height } = getBlockDimensions(categoryId);

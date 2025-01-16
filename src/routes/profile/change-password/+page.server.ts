@@ -8,19 +8,22 @@ import { validatePassword } from '$lib/utils/user.js';
 import { hash, verify } from 'argon2';
 
 export const load: PageServerLoad = async (event) => {
-    // Check if user is authenticated
     if (!event.locals.user) {
         return languageAwareRedirect(301, '/login');
     }
 
+    // Get user data to check if password exists
+    const users = await db.select().from(user).where(eq(user.id, event.locals.user.id));
+    const hasNoPassword = users[0]?.password == null || users[0]?.password == '';
+
     return {
-        user: event.locals.user
+        user: event.locals.user,
+        hasNoPassword
     };
 };
 
 export const actions: Actions = {
     changePassword: async (event) => {
-        // Check if user is authenticated
         if (!event.locals.user || !event.locals.session) {
             return fail(401, { error: 'Unauthorized' });
         }
@@ -30,16 +33,20 @@ export const actions: Actions = {
             const currentPassword = formData.get('currentPassword')?.toString();
             const newPassword = formData.get('newPassword')?.toString();
             const confirmPassword = formData.get('confirmPassword')?.toString();
+            
+            // Get user data to check if password exists
+            const users = await db.select().from(user).where(eq(user.id, event.locals.user.id));
+            console.log('Current PW: ' + users[0]?.password + "#")
+            const hasNoExistingPassword = users[0]?.password == null || users[0]?.password == '';
 
             // Validate inputs
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                return fail(400, { 
+            if ((!currentPassword && !hasNoExistingPassword) || !newPassword || !confirmPassword) {
+                return fail(400, {
                     error: 'Alle Felder müssen ausgefüllt werden',
                     missing: true
                 });
             }
 
-            // Check if new passwords match
             if (newPassword !== confirmPassword) {
                 return fail(400, {
                     error: 'Die neuen Passwörter stimmen nicht überein',
@@ -47,7 +54,6 @@ export const actions: Actions = {
                 });
             }
 
-            // Validate password requirements
             if (!validatePassword(newPassword)) {
                 return fail(400, {
                     error: 'Das neue Passwort muss Groß- & Kleinbuchstaben, Zahlen sowie Sonderzeichen enthalten und zwischen 8 und 255 Zeichen lang sein.',
@@ -55,29 +61,22 @@ export const actions: Actions = {
                 });
             }
 
-            // Get user from database to verify current password
-            const users = await db.select().from(user).where(eq(user.id, event.locals.user.id));
+            // Only verify current password if user has one
+            if (!hasNoExistingPassword) {
+                if (!users[0]?.password) {
+                    return fail(400, { error: 'Benutzer nicht gefunden' });
+                }
 
-            if (users.length != 1) {
-                return fail(400, { error: 'User not found'} );
+                const isValidPassword = await verify(users[0].password, <string | Buffer>currentPassword);
+                if (!isValidPassword) {
+                    return fail(400, {
+                        error: 'Das aktuelle Passwort ist nicht korrekt',
+                        invalidCurrent: true
+                    });
+                }
             }
 
-            const userData = users[0];
-
-            if (!userData?.password) {
-                return fail(400, { error: 'Benutzer nicht gefunden' });
-            }
-
-            // Verify current password
-            const isValidPassword = await verify(userData.password, currentPassword);
-            if (!isValidPassword) {
-                return fail(400, {
-                    error: 'Das aktuelle Passwort ist nicht korrekt',
-                    invalidCurrent: true
-                });
-            }
-
-            // Hash new password with same parameters as reset
+            // Hash and save new password
             const passwordHash = await hash(newPassword, {
                 memoryCost: 19456,
                 timeCost: 2,
@@ -85,17 +84,16 @@ export const actions: Actions = {
                 parallelism: 1
             });
 
-            // Update password in database
             await db
                 .update(user)
                 .set({ password: passwordHash })
                 .where(eq(user.id, event.locals.user.id));
+
         } catch (error) {
             console.error('Error changing password:', error);
             return fail(500, { error: 'Internal Server Error' });
         }
 
-        // Redirect to profile page with success message
         return languageAwareRedirect(303, '/profile?passwordChanged=true');
     }
 };
