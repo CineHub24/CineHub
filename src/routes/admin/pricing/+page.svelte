@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { languageAwareGoto } from '$lib/utils/languageAware.js';
 	import * as m from '$lib/paraglide/messages.js';
-	import { Tag, Ticket, Banknote, Percent } from 'lucide-svelte';
+	import { Tag, Ticket, Banknote, Percent, Gift } from 'lucide-svelte';
 </script>
 
 <div class="container mx-auto px-4 py-8">
@@ -119,6 +119,32 @@
 			<h2 class="mb-2 text-xl font-semibold text-gray-800">{m.discount_codes({})}</h2>
 			<p class="text-gray-600">
 				{m.discount_codes_description({})}
+			</p>
+		</button>
+		<button
+			type="button"
+			class="group relative cursor-pointer overflow-hidden rounded-xl bg-white p-6 text-left shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+			onclick={() => languageAwareGoto('/admin/gift-cards')}
+		>
+			<div class="mb-4 flex items-center justify-between">
+				<Gift class="h-12 w-12 text-red-500" />
+				<svg
+					class="h-6 w-6 transform text-gray-400 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-red-500"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<circle cx="12" cy="12" r="10" />
+					<path d="M12 16l4-4-4-4M8 12h8" />
+				</svg>
+			</div>
+			<h2 class="mb-2 text-xl font-semibold text-gray-800">{m.gift_cards({})}</h2>
+			<p class="text-gray-600">
+				{m.gift_cards_description({})}
 			</p>
 		</button>
 	</div>
