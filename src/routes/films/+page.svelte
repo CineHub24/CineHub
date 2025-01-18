@@ -71,10 +71,6 @@
         });
 </script>
 
-<svelte:head>
-    <title>Alle Filme</title>
-</svelte:head>
-
 <div class="min-h-screen bg-gray-50 p-6">
     <header class="mb-8">
         <h1 class="mb-4 text-3xl font-bold text-gray-800">

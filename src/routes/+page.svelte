@@ -145,7 +145,7 @@
 
     <!-- Rechts positionierter Button -->
     <a
-    href="/all"
+    href="/films"
     class="absolute top-1/2 right-8 transform -translate-y-1/2 flex h-16 w-16 items-center justify-center
            rounded-full bg-gray-100 border border-gray-300
            hover:border-gray-400 transition duration-150 ease-in-out
