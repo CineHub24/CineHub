@@ -29,7 +29,7 @@ import { generateUniqueCode } from './randomCode';
 export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
-	private PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL;
+	private PUBLIC_URL: string = import.meta.env.VITE_DOMAIN;
 
 	constructor(gmailUser: string, gmailAppPassword: string) {
 		this.transporter = nodemailer.createTransport({
