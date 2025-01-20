@@ -49,7 +49,7 @@
 					<div class="border-t pt-4">
 						<div class="flex items-center justify-between">
 							<div>
-								<p class="font-medium">Anzahl Tickets: {booking.items}</p>
+								<p class="font-medium">Anzahl Items: {booking.items}</p>
 								{#if booking.discountValue && booking.discountValue > 0}
 									<p class="text-sm text-green-600">
 										Rabatt: {booking.discountValue}€
