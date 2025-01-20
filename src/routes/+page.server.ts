@@ -53,7 +53,7 @@ export const actions = {
 			.from(table.giftCodes)
 			.where(eq(table.giftCodes.id, giftCodeId));
 
-		let bookings = await db
+		let userBooking = await db
 			.select()
 			.from(table.booking)
 			.where(and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed')));
@@ -64,8 +64,9 @@ export const actions = {
 					userId: locals.user!.id
 				})
 				.returning();
+			userBooking = newBooking;
 		}
-		const currBooking = bookings[0];
+		const currBooking = userBooking[0];
 
 		await db
 			.insert(table.giftCodesUsed)

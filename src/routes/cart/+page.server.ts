@@ -17,7 +17,8 @@ import {
 	type TicketType,
 	type SeatCategory,
 	giftCodes,
-	giftCodesUsed
+	giftCodesUsed,
+	type PriceDiscountForInsert
 } from '$lib/server/db/schema';
 import type { Decimal } from '@prisma/client/runtime/library';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
@@ -184,6 +185,24 @@ export const load = async ({ locals }) => {
 
 		const giftCodeAmount = giftCards.reduce((sum, code) => sum + Number(code.amount), 0);
 
+		console.log('booking discount: ', _booking[0].discount);	
+
+		let discount: PriceDiscountForInsert[] = [];
+		if(_booking[0].discount) {
+			discount = await db
+				.select()
+				.from(priceDiscount)
+				.where(
+					and(
+						eq(priceDiscount.id, _booking[0].discount),
+						gte(priceDiscount.expiresAt, new Date().toISOString()),
+					)
+				);
+		}
+
+		console.log('discount: ', discount);
+		console.log('length', discount.length === 0 ? null: discount);
+
 		let prices;
 		if (
 			_booking[0].basePrice === null ||
@@ -196,7 +215,7 @@ export const load = async ({ locals }) => {
 				film: t.film,
 				seat: t.seat
 			}));
-			prices = await calculatePrices(bookingId, ticketData, null, giftCards);
+			prices = await calculatePrices(bookingId, ticketData, (discount.length === 0 ? null: discount[0]) , giftCards);
 		} else {
 			const storedDiscountValue = Number(_booking[0].discountValue) || 0;
 			prices = {
@@ -318,6 +337,8 @@ export const actions = {
 		const data = await request.formData();
 		const ticketId = data.get('ticketId') as string | null;
 		const giftCodeId = data.get('giftCodeId') as string | null;
+
+		console.log('ticketId: ', ticketId);
 
 		try {
 			if (ticketId) {
