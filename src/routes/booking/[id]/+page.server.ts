@@ -10,8 +10,7 @@ import { ticket,
     ticketType,
     priceDiscount, 
     giftCodes,
-    giftCodesUsed,
-    booking} from '$lib/server/db/schema';
+    giftCodesUsed} from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, asc, and } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
