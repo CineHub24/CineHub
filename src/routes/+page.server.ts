@@ -49,13 +49,14 @@ export const actions = {
 	addToCart: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const giftCodeId = formData.get('giftCardId') as unknown as number;
+		const giftCard = await db.select().from(table.giftCodes).where(eq(table.giftCodes.id, giftCodeId));
 
 		let bookings = await db
 			.select()
 			.from(table.booking)
 			.where(and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed')));
 		if (bookings.length == 0) {
-			const bookings = await db
+			bookings = await db
 				.insert(table.booking)
 				.values({
 					userId: locals.user!.id
@@ -67,6 +68,8 @@ export const actions = {
 		await db
 			.insert(table.giftCodesUsed)
 			.values({ giftCodeId: giftCodeId, bookingId: currBooking.id });
+
+		await db.update(table.booking).set({finalPrice: currBooking.basePrice + giftCard[0].amount}).where(eq(table.booking.id, currBooking.id));
 
 		languageAwareRedirect(303, '/cart');
 	}

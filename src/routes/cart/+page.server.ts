@@ -47,6 +47,7 @@ interface PriceCalculation {
 }
 
 async function calculatePrices(
+	bookingId: number,
 	tickets: TicketData[],
 	discount: any | null,
 	giftCards: (typeof giftCodes.$inferSelect)[]
@@ -102,7 +103,7 @@ async function calculatePrices(
 				items: tickets.length + giftCards.length,
 				discount: discount ? discount.id : null
 			})
-			.where(eq(booking.id, Number(tickets[0].ticket.bookingId)));
+			.where(eq(booking.id, bookingId));
 	} catch (error) {
 		console.log(error);
 	}
@@ -195,7 +196,7 @@ export const load = async ({ locals }) => {
 				film: t.film,
 				seat: t.seat
 			}));
-			prices = await calculatePrices(ticketData, null, giftCards);
+			prices = await calculatePrices(bookingId, ticketData, null, giftCards);
 		} else {
 			const storedDiscountValue = Number(_booking[0].discountValue) || 0;
 			prices = {
@@ -294,7 +295,7 @@ export const actions = {
 				seat: t.seat
 			}));
 
-			const prices = await calculatePrices(ticketData, discount[0].priceDiscount, giftCards);
+			const prices = await calculatePrices(_booking[0].id, ticketData, discount[0].priceDiscount, giftCards);
 			return {
 				success: m.discount_applied({}),
 				discount: discount[0].priceDiscount,

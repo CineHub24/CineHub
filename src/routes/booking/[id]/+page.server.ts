@@ -10,7 +10,8 @@ import { ticket,
     ticketType,
     priceDiscount, 
     giftCodes,
-    giftCodesUsed} from '$lib/server/db/schema';
+    giftCodesUsed,
+    booking} from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, asc, and } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
@@ -36,6 +37,8 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
     const initial = url.searchParams.get('initial');
 
     try{
+        const bookingCompleted = (await db.select().from(booking).where(eq(booking.id, Number(bookingId))))[0];
+
         const ticketsWithDetails = await db
         .select({
             // Ticket Info
@@ -103,10 +106,11 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
         // await db.update(ticket).set({ status: 'paid' }).where(eq(ticket.bookingId, Number(bookingId)));
         // await emailClient.sendBookingConfirmation(Number(bookingId), user.email as string);
 
-        if (ticketsWithDetails[0].bookingStatus == 'completed') {
+        if (bookingCompleted.status == 'completed') {
             return {
                 user: user,
                 tickets: ticketsWithDetails,
+                booking: bookingCompleted,
             usedGiftCodes: usedGiftCodes
             };
         }

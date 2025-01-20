@@ -8,7 +8,7 @@ const DOMAIN = import.meta.env.VITE_DOMAIN
 
 const stripe = new Stripe(SECRET_STRIPE_KEY)
 const return_url = new URL(
-  '/cart/checkout/verify?session_id=',
+  '/cart/checkout/verify?session_id={CHECKOUT_SESSION_ID}',
   DOMAIN
 ).toString()
 
@@ -60,7 +60,7 @@ export async function load({ locals }) {
       {
         price_data: {
             product_data: {
-                name: 'Tickets/Giftcards',
+                name: 'Tickets & Giftcards',
                 tax_code: 'txcd_20030000',
             },
             currency: 'eur',

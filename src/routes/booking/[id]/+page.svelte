@@ -27,6 +27,7 @@
 
 	const { data }: { data: PageServerData } = $props();
 	const tickets: Ticket[] = data.tickets as Ticket[];
+	const booking = data.booking;
 	const user = data.user;
 	const usedGiftCodes = data.usedGiftCodes;
 
@@ -40,10 +41,10 @@
 		{} as Record<string, Ticket[]>
 	);
 
-	const bookingDate = tickets[0]?.bookingDate
-		? new Date(tickets[0].bookingDate).toLocaleDateString('de-DE')
+	const bookingDate = booking?.date
+		? new Date(booking.date).toLocaleDateString('de-DE')
 		: 'Unbekannt';
-	const bookingTime = tickets[0]?.bookingTime || 'Unbekannt';
+	const bookingTime = booking?.time || 'Unbekannt';
 	const totalPrice = tickets[0]?.bookingTotalPrice
 		? parseFloat(tickets[0].bookingTotalPrice).toFixed(2)
 		: '0.00';
@@ -63,7 +64,7 @@
 			<div class="mb-4">
 				<p class="text-gray-700">
 					<strong>Buchungs-ID:</strong>
-					{'#' + tickets[0]?.bookingId || 'Unbekannt'}
+					{'#' + booking?.id || 'Unbekannt'}
 				</p>
 				<p class="text-gray-700">
 					<strong>Buchungsdatum:</strong>
@@ -76,7 +77,7 @@
 				{#if tickets[0]?.discountCode}
 					<p class="text-green-600">
 						<strong>Rabatt:</strong>
-						{tickets[0]?.discountCode} ({tickets[0]?.discountValue || '0'}%)
+						{tickets[0]?.discountCode} ({tickets[0]?.discountValue || '0'})
 					</p>
 				{/if}
 			</div>
