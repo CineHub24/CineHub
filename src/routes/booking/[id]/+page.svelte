@@ -45,9 +45,7 @@
 		? new Date(booking.date).toLocaleDateString('de-DE')
 		: 'Unbekannt';
 	const bookingTime = booking?.time || 'Unbekannt';
-	const totalPrice = tickets[0]?.bookingTotalPrice
-		? parseFloat(tickets[0].bookingTotalPrice).toFixed(2)
-		: '0.00';
+	const totalPrice =  booking?.finalPrice ? booking.finalPrice : '0.00';
 
 	// Track expanded showing, default to the first one
 	const expandedShowing = writable(Object.keys(ticketsByShowing)[0] || null);

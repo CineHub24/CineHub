@@ -57,14 +57,13 @@ export const actions = {
 			.select()
 			.from(table.booking)
 			.where(and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed')));
-		if (bookings.length == 0) {
-			bookings = await db
+		if (userBooking.length == 0) {
+			userBooking = await db
 				.insert(table.booking)
 				.values({
 					userId: locals.user!.id
 				})
 				.returning();
-			userBooking = newBooking;
 		}
 		const currBooking = userBooking[0];
 
