@@ -254,14 +254,17 @@ export const actions = {
 				.where(
 					and(
 						eq(priceDiscount.code, discountCode),
-						gte(priceDiscount.expiresAt, new Date().toISOString()),
+						gte(priceDiscount.expiresAt, new Date().toISOString())
 					)
 				);
 
-			if (discount.length === 0 || (discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed)) {
+			if (
+				discount.length === 0 ||
+				(discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed)
+			) {
 				return fail(400, { error: m.discount_not_found({}) });
 			}
-			if(discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed) {
+			if (discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed) {
 				return fail(400, { error: m.discount_not_found({}) });
 			}
 
@@ -295,7 +298,12 @@ export const actions = {
 				seat: t.seat
 			}));
 
-			const prices = await calculatePrices(_booking[0].id, ticketData, discount[0].priceDiscount, giftCards);
+			const prices = await calculatePrices(
+				_booking[0].id,
+				ticketData,
+				discount[0].priceDiscount,
+				giftCards
+			);
 			return {
 				success: m.discount_applied({}),
 				discount: discount[0].priceDiscount,

@@ -53,9 +53,9 @@
 		expandedDates = expandedDates;
 	}
 
-    function getMovieByShow(show: Show) {
-        return movies.find((movie: { id: number | null; }) => movie.id === show.filmid);
-    }
+	function getMovieByShow(show: Show) {
+		return movies.find((movie: { id: number | null }) => movie.id === show.filmid);
+	}
 </script>
 
 <div class="shows-container">
@@ -88,7 +88,7 @@
 				</div> -->
 				<div class="movies-container">
 					{#each groupedShows[date] as show}
-						<ShowCard movie={getMovieByShow(show)} show={show} url="/show/{show.id}" />
+						<ShowCard movie={getMovieByShow(show)} {show} url="/show/{show.id}" />
 					{/each}
 				</div>
 			{/if}

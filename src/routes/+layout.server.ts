@@ -10,9 +10,10 @@ export const load: PageServerLoad = async (event) => {
 	// Find preferred cinema object (if it exists)
 	let preferredCinema = null;
 	if (preferredCinemaId) {
-		preferredCinema = cinemas.find((cinema) => cinema.id.toString() === preferredCinemaId.toString());
-	}else
-	{
+		preferredCinema = cinemas.find(
+			(cinema) => cinema.id.toString() === preferredCinemaId.toString()
+		);
+	} else {
 		preferredCinema = cinemas[0];
 	}
 

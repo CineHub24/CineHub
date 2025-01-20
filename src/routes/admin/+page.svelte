@@ -4,7 +4,6 @@
 	import AdminShowCalendar from '$lib/components/AdminShowCalendar.svelte';
 	import type { Cinema } from '$lib/server/db/schema';
 	import * as m from '$lib/paraglide/messages.js';
-	
 
 	let monthlySalesChart: SVGSVGElement;
 	let cinemaRevenueChart: SVGSVGElement;
@@ -326,18 +325,18 @@
 	}
 
 	const totalRevenue = cinemaRevenue.reduce((sum, cinema) => sum + cinema.revenue, 0);
-	const ticketsSold = movieTicketSales.reduce((sum, movie) => sum + movie.ticketsSold, 0);	
+	const ticketsSold = movieTicketSales.reduce((sum, movie) => sum + movie.ticketsSold, 0);
 
 	let selectedCinema: Cinema['id'] = cinemas[0]?.CinemaHall.id;
-	
-$: filteredShows = shows.filter(show => show.hallid === selectedCinema);
 
-function handleCinemaChange(event: Event) {
-const select = event.target as HTMLSelectElement;
-selectedCinema = parseInt(select.value);
-console.log(selectedCinema);
-console.log(filteredShows);
-}
+	$: filteredShows = shows.filter((show) => show.hallid === selectedCinema);
+
+	function handleCinemaChange(event: Event) {
+		const select = event.target as HTMLSelectElement;
+		selectedCinema = parseInt(select.value);
+		console.log(selectedCinema);
+		console.log(filteredShows);
+	}
 </script>
 
 {#if data.legth === 0}
@@ -381,25 +380,24 @@ console.log(filteredShows);
 			</div>
 
 			<div class="rounded-lg bg-white p-6 shadow-md">
-				<div class="flex items-center justify-between mb-4">
-				<h2 class="text-xl font-semibold text-gray-800">{m.show_calendar({})}</h2>
-				<div class="relative">
-				<select
-				on:change={handleCinemaChange}
-				class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-				>
-				{#each cinemas as cinema}
-				<option value={cinema.CinemaHall.id}>{cinema.Cinema.name}</option>
-				{/each}
-				</select>
-				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-
-				</div>
-				</div>
+				<div class="mb-4 flex items-center justify-between">
+					<h2 class="text-xl font-semibold text-gray-800">{m.show_calendar({})}</h2>
+					<div class="relative">
+						<select
+							on:change={handleCinemaChange}
+							class="block w-full appearance-none rounded border border-gray-300 bg-white px-4 py-2 pr-8 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+						>
+							{#each cinemas as cinema}
+								<option value={cinema.CinemaHall.id}>{cinema.Cinema.name}</option>
+							{/each}
+						</select>
+						<div
+							class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+						></div>
+					</div>
 				</div>
 				<AdminShowCalendar shows={filteredShows} {movies} />
-				</div>
+			</div>
 		</div>
 	</div>
 {/if}
-

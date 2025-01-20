@@ -9,12 +9,8 @@
 		ChevronRight,
 		ChevronLeft,
 		Logs,
-
 		PercentCircle,
-
 		Newspaper
-
-
 	} from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as m from '$lib/paraglide/messages.js';
@@ -63,11 +59,11 @@
 <div
 	class="
 	{isMenuExpanded ? 'w-64' : 'w-16'}
-	relative overflow-hidden
-	bg-white shadow-md
+	relative min-h-[92vh]
+	overflow-hidden bg-white
+	shadow-md
 	transition-all
 	duration-300
-	min-h-[92vh]
 	"
 	on:mouseenter={handleMouseEnterSidebar}
 	on:mouseleave={handleMouseLeaveSidebar}

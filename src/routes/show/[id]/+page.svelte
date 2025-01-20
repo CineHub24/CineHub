@@ -97,11 +97,11 @@
 		const finalPrice = basePrice * Number(priceSet.priceFactor);
 
 		// console.log(
-		// 	`[getTicketPrice] SeatID=${selection.seat.id}, 
-        //  TicketType=${type?.name}, 
-        //  BasePrice=${basePrice},
-        //  PriceFactor=${priceSet.priceFactor},
-        //  FinalPrice=${finalPrice}`
+		// 	`[getTicketPrice] SeatID=${selection.seat.id},
+		//  TicketType=${type?.name},
+		//  BasePrice=${basePrice},
+		//  PriceFactor=${priceSet.priceFactor},
+		//  FinalPrice=${finalPrice}`
 		// );
 
 		return finalPrice;
@@ -263,7 +263,8 @@
 		form.append('seatId', seat.id.toString());
 		form.append(
 			'ticketType',
-			selectedSeats.find((s) => s.seat.id === seat.id)?.selectedTicketType.toString() || ticketTypes[0]?.id.toString()	// default ticket type for first selection
+			selectedSeats.find((s) => s.seat.id === seat.id)?.selectedTicketType.toString() ||
+				ticketTypes[0]?.id.toString() // default ticket type for first selection
 		);
 
 		const resp = await fetch('?/reserveSeat', {

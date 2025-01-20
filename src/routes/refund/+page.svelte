@@ -4,32 +4,31 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { formatDate, formatTime } from '$lib/utils/formatter.js';
 
-	let { data, form }: { data: PageData, form: ActionData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 	let { refundableShows } = data;
 
-	console.log(form)
-
-
+	console.log(form);
 </script>
 
 <div class="refund-page">
 	<div class="refund-container">
 		{#if form}
-				<div class="message">
-					{#if form.database || form.missing}
-						<div class="alert">
-							{form.message}
-						</div>
-					{:else if form.newCodeCreated}
+			<div class="message">
+				{#if form.database || form.missing}
+					<div class="alert">
+						{form.message}
+					</div>
+				{:else if form.newCodeCreated}
 					<div class="banner success">
-						<p>{form.message}: {form.code} 
-							<br>
+						<p>
+							{form.message}: {form.code}
+							<br />
 							<a href="/" data-sveltekit-preload class="banner-link">{m.book_here({})}</a>
 						</p>
 					</div>
-					{/if}
-				</div>
-			{/if}
+				{/if}
+			</div>
+		{/if}
 		<h1>{m.refund_options_for_cancelled_shows({})}</h1>
 
 		{#if refundableShows.length === 0}
@@ -184,12 +183,12 @@
 		font-weight: 500;
 	}
 	.banner-link {
-    text-decoration: underline;
-    font-weight: bold;
-    color: inherit;
-	display: inline-block;
-    margin-top: 0.5rem;
-  }
+		text-decoration: underline;
+		font-weight: bold;
+		color: inherit;
+		display: inline-block;
+		margin-top: 0.5rem;
+	}
 	.alert {
 		padding: 1rem;
 		border-radius: 8px;

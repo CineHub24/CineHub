@@ -20,7 +20,6 @@
 		// Checke auch Teilstrings wie "/cart/"
 		return authPages.some((route) => $page.route.id?.startsWith(route));
 	});
-
 </script>
 
 <ParaglideJS {i18n}>

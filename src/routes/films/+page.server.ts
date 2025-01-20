@@ -6,6 +6,6 @@ export const load = async (event) => {
 	const movies = await db.select().from(table.film);
 
 	return {
-		movies: movies,
+		movies: movies
 	};
 };

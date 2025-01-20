@@ -47,11 +47,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		const cinemas = await db.select().from(cinema);
 		// Fetch seat categories
-		const categories = await db
-			.select()
-			.from(seatCategory)
-			.where(eq(seatCategory.isActive, true));
-
+		const categories = await db.select().from(seatCategory).where(eq(seatCategory.isActive, true));
 
 		return {
 			room,

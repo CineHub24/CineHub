@@ -4,7 +4,15 @@ import type { Actions } from './$types';
 import { eq } from 'drizzle-orm';
 
 import { db } from '$lib/server/db';
-import { cinemaHall, film, seat, seatCategory, showing, ticket, ticketType } from '$lib/server/db/schema';
+import {
+	cinemaHall,
+	film,
+	seat,
+	seatCategory,
+	showing,
+	ticket,
+	ticketType
+} from '$lib/server/db/schema';
 
 export const actions = {
 	validate: async ({ request }) => {
@@ -65,7 +73,7 @@ export const actions = {
 			const updatedTicket = await db
 				.update(ticket)
 				.set({ status: 'validated' })
-				.where(eq(ticket.id, foundTicket[0].id))
+				.where(eq(ticket.id, foundTicket[0].id));
 			return {
 				success: true,
 				message: `Ticket gültig - Saal ${foundTicket[0].saal}}`,
@@ -77,7 +85,7 @@ export const actions = {
 					uhrzeit: foundTicket[0].uhrzeit,
 					saal: foundTicket[0].saal,
 					sitz: foundTicket[0].row + foundTicket[0].number,
-					category: foundTicket[0].category,
+					category: foundTicket[0].category
 				}
 			};
 		} catch (error) {

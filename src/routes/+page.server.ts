@@ -7,7 +7,7 @@ import { gte, asc, and, ne, eq } from 'drizzle-orm';
 
 export const load = async (event) => {
 	let preferredCinemaId = event.cookies.get('preferredCinema');
-	
+
 	if (!preferredCinemaId) {
 		const cinemas = await db.select().from(table.cinema).orderBy(table.cinema.name);
 		preferredCinemaId = cinemas[0].id;
@@ -24,7 +24,7 @@ export const load = async (event) => {
 			filmid: table.showing.filmid,
 			hallid: table.showing.hallid,
 			cancelled: table.showing.cancelled,
-			hallName: table.cinemaHall.name,
+			hallName: table.cinemaHall.name
 		})
 		.from(table.showing)
 		.innerJoin(table.cinemaHall, eq(table.showing.hallid, table.cinemaHall.id))
@@ -37,7 +37,6 @@ export const load = async (event) => {
 		)
 		.orderBy(asc(table.showing.date));
 
-
 	const codes = await db.select().from(table.giftCodes).orderBy(table.giftCodes.amount);
 	return {
 		movies: movies,
@@ -49,7 +48,10 @@ export const actions = {
 	addToCart: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const giftCodeId = formData.get('giftCardId') as unknown as number;
-		const giftCard = await db.select().from(table.giftCodes).where(eq(table.giftCodes.id, giftCodeId));
+		const giftCard = await db
+			.select()
+			.from(table.giftCodes)
+			.where(eq(table.giftCodes.id, giftCodeId));
 
 		let bookings = await db
 			.select()
@@ -69,7 +71,10 @@ export const actions = {
 			.insert(table.giftCodesUsed)
 			.values({ giftCodeId: giftCodeId, bookingId: currBooking.id });
 
-		await db.update(table.booking).set({finalPrice: currBooking.basePrice + giftCard[0].amount}).where(eq(table.booking.id, currBooking.id));
+		await db
+			.update(table.booking)
+			.set({ finalPrice: currBooking.basePrice + giftCard[0].amount })
+			.where(eq(table.booking.id, currBooking.id));
 
 		languageAwareRedirect(303, '/cart');
 	}

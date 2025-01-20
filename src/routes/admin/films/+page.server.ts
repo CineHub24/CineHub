@@ -10,7 +10,7 @@ export const load = async (event) => {
 			movies: movies
 		};
 	} catch (error) {
-        console.log(error);
-        return fail(500, { error: m.internal_server_error({}) });
-    }
+		console.log(error);
+		return fail(500, { error: m.internal_server_error({}) });
+	}
 };
