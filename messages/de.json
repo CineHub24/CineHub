@@ -300,16 +300,16 @@
 	"booked": "Gebucht",
 	"expiration_date": "Ablaufdatum",
 
-	"enter_email_reset_password":"Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
-	"enter_email_reset_password_button":"Passwort zurücksetzen",
-	"back_to_login":"Zurück zum Login",
-	"enter_new_password":"Neues Passwort eingeben",
-	"set_new_password":"Neues Passwort setzen",
-	"new_password":"Neues Passwort",
-	"confirm_password":"Passwort bestätigen",
-	"confirm_new_password":"Neues Passwort bestätigen",
-	"set_new_password_button":"Passwort setzen",
-	"passwords_do_not_match":"Passwörter stimmen nicht überein",
+	"enter_email_reset_password": "Geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
+	"enter_email_reset_password_button": "Passwort zurücksetzen",
+	"back_to_login": "Zurück zum Login",
+	"enter_new_password": "Neues Passwort eingeben",
+	"set_new_password": "Neues Passwort setzen",
+	"new_password": "Neues Passwort",
+	"confirm_password": "Passwort bestätigen",
+	"confirm_new_password": "Neues Passwort bestätigen",
+	"set_new_password_button": "Passwort setzen",
+	"passwords_do_not_match": "Passwörter stimmen nicht überein",
 	"buy_discounts": "Gutscheincode kaufen",
 	"buy_voucher": "Gutschein kaufen",
 	"voucher_description": "Kaufen Sie einen Gutschein für zukünftige Kinobesuche. Der Gutscheincode kann später beim Ticketkauf eingelöst werden.",
@@ -358,16 +358,10 @@
 
 	"monthly_ticket_sales": "Monatliche Ticketverkäufe",
 	"revenue_by_cinema": "Umsatz nach Kino",
-	"ticket_sales_by_movie":"Ticketverkäufe nach Film",
+	"ticket_sales_by_movie": "Ticketverkäufe nach Film",
 	"show_calendar": "Vorstellungs-Kalender",
 	"total_revenue": "Gesamtumsatz",
 	"ticktets_sold": "Tickets verkauft",
 	"avg_ticket_price": " Ø Ticketpreis",
 	"occupancy_rate": "Auslastung"
-
-
-	
-
-
-
 }

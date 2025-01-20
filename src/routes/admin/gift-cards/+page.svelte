@@ -141,12 +141,12 @@
 					</form>
 				{:else}
 					<h2 class="mb-4 text-2xl font-semibold text-gray-800">{m.gift_card({})}</h2>
-                    <div class="mb-4">
-                        <strong class="mb-2 block text-gray-700">{m.gift_card_description({})}:</strong>
-                        <p class="rounded-lg bg-gray-100 p-2">{giftCard.description}</p>
-                    </div>
 					<div class="mb-4">
-                        <strong class="mb-2 block text-gray-700">{m.gift_card_amount({})}:</strong>
+						<strong class="mb-2 block text-gray-700">{m.gift_card_description({})}:</strong>
+						<p class="rounded-lg bg-gray-100 p-2">{giftCard.description}</p>
+					</div>
+					<div class="mb-4">
+						<strong class="mb-2 block text-gray-700">{m.gift_card_amount({})}:</strong>
 						<p class="rounded-lg bg-gray-100 p-2">{giftCard.amount}€</p>
 					</div>
 					<div class="flex justify-between">

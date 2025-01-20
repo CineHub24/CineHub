@@ -3,7 +3,6 @@
 	import type { ActionData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
 
-
 	let { form }: { form: ActionData } = $props();
 
 	let errorMessage = $state('');
@@ -22,7 +21,9 @@
 		<h2 class="mb-6 text-center text-2xl font-bold text-gray-800">{m.login_to_account({})}</h2>
 		<form method="post" action="?/login" class="space-y-4">
 			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">{m.email_address({})}</label>
+				<label for="email" class="block text-sm font-medium text-gray-700"
+					>{m.email_address({})}</label
+				>
 				<input
 					type="email"
 					id="email"
@@ -33,7 +34,9 @@
 				/>
 			</div>
 			<div class="relative">
-				<label for="password" class="block text-sm font-medium text-gray-700">{m.password({})}</label>
+				<label for="password" class="block text-sm font-medium text-gray-700"
+					>{m.password({})}</label
+				>
 				<input
 					type="password"
 					id="password"
@@ -44,7 +47,9 @@
 				/>
 			</div>
 			<div class="flex justify-between text-sm">
-				<a href="/login/reset-password" class="text-indigo-500 hover:underline">{m.forgot_password({})}</a>
+				<a href="/login/reset-password" class="text-indigo-500 hover:underline"
+					>{m.forgot_password({})}</a
+				>
 			</div>
 			<!-- Error Message -->
 			{#if errorMessage}
@@ -84,7 +89,8 @@
 		</div>
 
 		<div class="mt-6 text-center text-sm text-gray-600">
-			{m.no_account({})} <a href="/register" class="text-indigo-500 hover:underline">{m.sign_up({})}</a>
+			{m.no_account({})}
+			<a href="/register" class="text-indigo-500 hover:underline">{m.sign_up({})}</a>
 		</div>
 	</div>
 </div>

@@ -87,11 +87,11 @@
 	}
 
 	function formatSeatCategory(category: any) {
-		return `${category.name}${category.description ? ' ('+ category.description + ')': ''}: ${category.price}€`;
+		return `${category.name}${category.description ? ' (' + category.description + ')' : ''}: ${category.price}€`;
 	}
 
 	function formatTicketType(type: any) {
-		return `${type.name}${type.description ? ' ('+ type.description + ')': ''}: (${Math.round(parseFloat(type.factor ?? '1') * 100)}%)`;
+		return `${type.name}${type.description ? ' (' + type.description + ')' : ''}: (${Math.round(parseFloat(type.factor ?? '1') * 100)}%)`;
 	}
 </script>
 

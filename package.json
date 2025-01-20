@@ -10,6 +10,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
+		"lint:write": "prettier --write . && eslint .",
 		"test:unit": "vitest",
 		"test:unit:coverage": "vitest --coverage",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
@@ -30,7 +31,6 @@
 		"@testing-library/svelte": "^5.2.6",
 		"@types/d3": "^7.4.3",
 		"@types/jest": "^29.5.14",
-
 		"@vitest/coverage-v8": "^2.1.6",
 		"autoprefixer": "^10.4.20",
 		"drizzle-kit": "^0.22.0",

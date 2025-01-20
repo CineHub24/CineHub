@@ -44,7 +44,13 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, email: table.user.email, role: table.user.role, firstname: table.user.firstName, lastname: table.user.lastName },
+			user: {
+				id: table.user.id,
+				email: table.user.email,
+				role: table.user.role,
+				firstname: table.user.firstName,
+				lastname: table.user.lastName
+			},
 			session: table.session
 		})
 		.from(table.session)
@@ -88,15 +94,15 @@ export function setSessionTokenCookie(event: RequestEvent, token: string, expire
 		event.cookies.set('sss', 'test', {
 			path: '/',
 			secure: false,
-			sameSite: 'lax',
+			sameSite: 'lax'
 		});
-	}
-	test(event);	
+	};
+	test(event);
 	event.cookies.set(sessionCookieName, token, {
 		path: '/',
 		expires: expiresAt,
 		secure: false,
-		sameSite: 'lax',
+		sameSite: 'lax'
 	});
 }
 

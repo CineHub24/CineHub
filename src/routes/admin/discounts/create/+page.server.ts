@@ -6,9 +6,8 @@ import {
 	type PriceDiscountForInsert
 } from '$lib/server/db/schema.js';
 import { EmailService } from '$lib/utils/emailService.js';
-import {fail} from "@sveltejs/kit"
-import { eq, and} from 'drizzle-orm';
-
+import { fail } from '@sveltejs/kit';
+import { eq, and } from 'drizzle-orm';
 
 export const actions = {
 	create: async ({ request }) => {
@@ -29,12 +28,15 @@ export const actions = {
 			discountType: discountType as 'percentage' | 'fixed',
 			expiresAt: expiresAt
 		};
-            
+
 		try {
-            const alredyExists = await db.select().from(priceDiscount).where(eq(priceDiscount.code,code));
-            if(alredyExists.length > 0){
-                return fail(400,{error: 'Discount code already exists'});
-            }
+			const alredyExists = await db
+				.select()
+				.from(priceDiscount)
+				.where(eq(priceDiscount.code, code));
+			if (alredyExists.length > 0) {
+				return fail(400, { error: 'Discount code already exists' });
+			}
 
 			const createdDiscount: Discount[] = await db
 				.insert(priceDiscount)
@@ -48,15 +50,15 @@ export const actions = {
 				const subscribers = await db.select().from(subscribersNewsletter);
 				for (const subscriber of subscribers) {
 					try {
-                        await emailClient.sendDiscountCode(subscriber.email as string, createdDiscount[0]);
-                    } catch (error) {
-                        continue;
-                    }
+						await emailClient.sendDiscountCode(subscriber.email as string, createdDiscount[0]);
+					} catch (error) {
+						continue;
+					}
 				}
 			}
-            return { success: "Discount created successfully" };
+			return { success: 'Discount created successfully' };
 		} catch (e) {
-			return fail(500,{error: 'Failed to create discount'});
+			return fail(500, { error: 'Failed to create discount' });
 		}
 	}
 };

@@ -3,14 +3,13 @@
 	import type { ActionData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
 
-
 	let { form }: { form: ActionData } = $props();
 
 	// Reactive variables for passwords
 	let password = $state('');
 	let confirmPassword = $state('');
 	let errorMessage = $state('');
-	if(form?.message) {
+	if (form?.message) {
 		errorMessage = form.message;
 	}
 
@@ -36,16 +35,14 @@
 >
 	<div class="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
 		<div class="mb-6 flex justify-center">
-			<img
-				src="/favicon_white_bg.png"
-				alt="Logo"
-				class="h-20 w-20"
-			/>
+			<img src="/favicon_white_bg.png" alt="Logo" class="h-20 w-20" />
 		</div>
 		<h2 class="mb-6 text-center text-2xl font-bold text-gray-800">{m.register_new({})}</h2>
 		<form method="post" action="?/register" class="space-y-4" onsubmit={handleSubmit}>
 			<div>
-				<label for="email" class="block text-sm font-medium text-gray-700">{m.email_address({})}</label>
+				<label for="email" class="block text-sm font-medium text-gray-700"
+					>{m.email_address({})}</label
+				>
 				<input
 					type="email"
 					id="email"
@@ -56,7 +53,9 @@
 				/>
 			</div>
 			<div>
-				<label for="password" class="block text-sm font-medium text-gray-700">{m.password({})}</label>
+				<label for="password" class="block text-sm font-medium text-gray-700"
+					>{m.password({})}</label
+				>
 				<input
 					type="password"
 					id="password"
@@ -68,7 +67,9 @@
 				/>
 			</div>
 			<div>
-				<label for="confirm-password" class="block text-sm font-medium text-gray-700">{m.password_confirm({})}</label>
+				<label for="confirm-password" class="block text-sm font-medium text-gray-700"
+					>{m.password_confirm({})}</label
+				>
 				<input
 					type="password"
 					id="confirm-password"
@@ -94,7 +95,8 @@
 		</form>
 
 		<div class="mt-6 text-center text-sm text-gray-600">
-		 	{m.already_account({})} <a href="/login" class="text-indigo-500 hover:underline">{m.login({})}</a>
+			{m.already_account({})}
+			<a href="/login" class="text-indigo-500 hover:underline">{m.login({})}</a>
 		</div>
 	</div>
 </div>

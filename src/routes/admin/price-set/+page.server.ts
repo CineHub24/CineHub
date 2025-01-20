@@ -46,7 +46,7 @@ export const actions = {
 
 		const { seatCategories, ticketTypes } = JSONFormatter(seatCategoryIds, ticketTypeIds);
 
-        if( parseFloat(priceFactor) < 0) {
+		if (parseFloat(priceFactor) < 0) {
 			return fail(400, { message: m.invalid_factor({}) });
 		}
 
@@ -93,7 +93,7 @@ export const actions = {
 		if (seatCategories.length === 0 || ticketTypes.length === 0) {
 			return fail(400, { message: m.no_empty_array({}), empty: true });
 		}
-        if( parseFloat(priceFactor) < 0) {
+		if (parseFloat(priceFactor) < 0) {
 			return fail(400, { message: m.invalid_factor({}) });
 		}
 

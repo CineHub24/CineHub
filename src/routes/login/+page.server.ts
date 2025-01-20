@@ -10,7 +10,6 @@ import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
-
 		return languageAwareRedirect(302, '/');
 	}
 	console.log('event', event);

@@ -2,8 +2,7 @@
 	import QRCode from 'qrcode';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
-	import { TicketCheck } from 'lucide-svelte'; 
-
+	import { TicketCheck } from 'lucide-svelte';
 
 	export let data: PageData;
 
@@ -53,9 +52,7 @@
 	<div class="flex min-h-screen flex-col items-center justify-center bg-gray-50">
 		<div class="text-center">
 			<TicketCheck size={64} class="mx-auto mb-4 text-gray-400" />
-			<h2 class="mb-2 text-2xl font-semibold text-gray-800">
-				Sie haben zur Zeit keine Tickets
-			</h2>
+			<h2 class="mb-2 text-2xl font-semibold text-gray-800">Sie haben zur Zeit keine Tickets</h2>
 			<p class="mb-6 text-gray-600">Entdecken Sie unsere Programm</p>
 			<a
 				href="/"
