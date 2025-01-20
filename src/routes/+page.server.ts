@@ -50,19 +50,20 @@ export const actions = {
 		const formData = await request.formData();
 		const giftCodeId = formData.get('giftCardId') as unknown as number;
 
-		let bookings = await db
+		let userBooking = await db
 			.select()
 			.from(table.booking)
 			.where(and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed')));
-		if (bookings.length == 0) {
-			const bookings = await db
+		if (userBooking.length == 0) {
+			const newBooking = await db
 				.insert(table.booking)
 				.values({
 					userId: locals.user!.id
 				})
 				.returning();
+			userBooking = newBooking;
 		}
-		const currBooking = bookings[0];
+		const currBooking = userBooking[0];
 
 		await db
 			.insert(table.giftCodesUsed)
