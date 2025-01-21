@@ -3,7 +3,7 @@
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { cinema, cinemaHall } from '$lib/server/db/schema';
-import type { Actions, PageServerLoad } from './v2/$types';
+import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import { logToDB } from '$lib/utils/dbLogger';
 import { url } from 'node:inspector';

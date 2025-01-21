@@ -67,7 +67,7 @@ export const actions = {
 		const id = data.get('priceSetId') as unknown as number;
 
 		if (!id) {
-			return fail(400, { message: m.missing_inputs });
+			return fail(400, { message: m.missing_inputs({}) });
 		}
 
 		try {
