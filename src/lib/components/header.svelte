@@ -11,6 +11,9 @@
 	import { languageAwareGoto } from '$lib/utils/languageAware';
 	import { ShoppingBasket, TicketCheck } from 'lucide-svelte';
 	import { showNotification } from '$lib/stores/notification';
+import ShoppingCart from '$lib/components/ShoppingCart.svelte';
+	
+
 	let lang = languageTag();
 
 	// Prop for website name
@@ -144,9 +147,7 @@
 			<a class="relative mx-4 my-auto focus:outline-none" href="/profile/tickets">
 				<TicketCheck size={24} color="#666666" />
 			</a>
-			<a class="relative mx-4 my-auto focus:outline-none" href="/cart">
-				<ShoppingBasket size={24} color="#666666" />
-			</a>
+			<ShoppingCart />
 		{/if}
 
 		<div
