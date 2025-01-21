@@ -363,11 +363,34 @@
 	"total_revenue": "Gesamtumsatz",
 	"ticktets_sold": "Tickets verkauft",
 	"avg_ticket_price": " Ø Ticketpreis",
-	"occupancy_rate": "Auslastung"
+	"occupancy_rate": "Auslastung",
 
+	"seat_selection": "Sitzplatzauswahl",
+	"showing": "Vorstellung:",
+	"total_price": "Gesamtpreis",
+	"sum": "Summe:",
+	"book_seats": "Sitze buchen",
+	"legend": "Legende",
+	"paid": "Bezahlt",
+	"reserved": "Reserviert",
+	"selected": "Ausgewählt",
+	"price_overview": "Preisübersicht",
+	"price_markup": "* Preise inkl. {0}% Aufschlag",
 
-	
-
-
+	"thank_you_order": "Danke für deine Bestellung",
+	"booking_id": "Buchungs-ID:",
+	"booking_date": "Buchungsdatum:",
+	"discount": "Rabatt:",
+	"purchased_gift_vouchers": "Gekaufte Geschenkgutscheine",
+	"code": "Code:",
+	"code_in_email": "Sie können den Code in Ihrer Bestätigungs-E-Mail einsehen",
+	"value": "Wert:",
+	"unknown_movie": "Unbekannter Film",
+	"unknown": "Unbekannt",
+	"row": "Reihe",
+	"place": "Platz",
+	"category": "Kategorie:",
+	"ticket_type": "Ticket-Typ:",
+	"no_booking_data": "Keine Buchungsdaten gefunden."
 
 }

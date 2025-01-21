@@ -363,6 +363,34 @@
 	"total_revenue": "Total Revenue",
 	"ticktets_sold": "Tickets Sold",
 	"avg_ticket_price": "Avg. Ticket Price",
-	"occupancy_rate": "Occupancy Rate"
+	"occupancy_rate": "Occupancy Rate",
+
+	"seat_selection": "Seat Selection",
+	"showing": "Showing:",
+	"total_price": "Total Price",
+	"sum": "Sum:",
+	"book_seats": "Book Seats",
+	"legend": "Legend",
+	"paid": "Paid",
+	"reserved": "Reserved",
+	"selected": "Selected",
+	"price_overview": "Price Overview",
+	"price_markup": "* Prices include {0}% markup",
+
+	"thank_you_order": "Thank you for your order",
+	"booking_id": "Booking ID:",
+	"booking_date": "Booking Date:",
+	"discount": "Discount:",
+	"purchased_gift_vouchers": "Purchased Gift Vouchers",
+	"code": "Code:",
+	"code_in_email": "You can view the code in your confirmation email",
+	"value": "Value:",
+	"unknown_movie": "Unknown Movie",
+	"unknown": "Unknown",
+	"row": "Row",
+	"place": "Place",
+	"category": "Category:",
+	"ticket_type": "Ticket Type:",
+	"no_booking_data": "No booking data found."
 
 }
