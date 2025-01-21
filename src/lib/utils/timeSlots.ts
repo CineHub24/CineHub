@@ -115,26 +115,12 @@ export const conflictingShowings = async (
 				eq(showing.date, date),
 				eq(showing.cancelled, false),
 				or(
-					between(
-					    showing.time,
-						startTime,
-						endTime
-                    ),
-					between(
-                        showing.endTime,
-                        startTime,
-						endTime
-                    ),
-					and(
-                        gte(showing.time, startTime),
-                        lte(showing.endTime, endTime)
-                    ),
-                    and(
-                        lte(showing.time, startTime),
-                        gte(showing.endTime, endTime)
-                    )
+					between(showing.time, startTime, endTime),
+					between(showing.endTime, startTime, endTime),
+					and(gte(showing.time, startTime), lte(showing.endTime, endTime)),
+					and(lte(showing.time, startTime), gte(showing.endTime, endTime))
 				)
 			)
 		);
 	return conflictingShowings;
-}
+};

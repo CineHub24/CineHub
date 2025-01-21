@@ -78,7 +78,7 @@
 	}
 </script>
 
-<div class="mx-auto  px-4 py-2 mb-4 sm:px-6 lg:px-8">
+<div class="mx-auto mb-4 px-4 py-2 sm:px-6 lg:px-8">
 	<div class="flex h-[650px] flex-col overflow-hidden rounded-xl bg-white">
 		<!-- Calendar Header -->
 		<div class="flex items-center justify-between border-b p-4">
@@ -175,7 +175,10 @@
 								>
 									<div class="p-4">
 										<div class="flex items-start gap-4">
-											<img src="{movie?.poster}" class="h-36 w-24 flex-shrink-0 rounded-lg bg-gray-200"/>
+											<img
+												src={movie?.poster}
+												class="h-36 w-24 flex-shrink-0 rounded-lg bg-gray-200"
+											/>
 
 											<div class="min-w-0 flex-1">
 												<div class="mb-2 flex flex-wrap items-center gap-3">

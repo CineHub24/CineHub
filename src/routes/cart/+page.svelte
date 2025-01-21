@@ -229,12 +229,13 @@
 					<h2 class="mb-6 text-xl font-semibold">{m.cart_payment_type({})}</h2>
 					<div class="flex max-w-md flex-col space-y-4">
 						<!-- Stripe Payment Button -->
-						<a href="/cart/checkout"
+						<a
+							href="/cart/checkout"
 							class="group flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-4 text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg"
 						>
 							<CreditCard class="mr-3 h-5 w-5 transition-transform group-hover:scale-110" />
 							<span class="font-medium">Pay with Stripe</span>
-					</a>
+						</a>
 
 						<!-- Cinema Payment Button (Disabled) -->
 						<button

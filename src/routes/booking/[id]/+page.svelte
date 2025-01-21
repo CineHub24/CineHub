@@ -28,6 +28,7 @@
 
 	const { data }: { data: PageServerData } = $props();
 	const tickets: Ticket[] = data.tickets as Ticket[];
+	const booking = data.booking;
 	const user = data.user;
 	const usedGiftCodes = data.usedGiftCodes;
 
@@ -41,13 +42,11 @@
 		{} as Record<string, Ticket[]>
 	);
 
-	const bookingDate = tickets[0]?.bookingDate
-		? new Date(tickets[0].bookingDate).toLocaleDateString('de-DE')
+	const bookingDate = booking?.date
+		? new Date(booking.date).toLocaleDateString('de-DE')
 		: 'Unbekannt';
-	const bookingTime = tickets[0]?.bookingTime || 'Unbekannt';
-	const totalPrice = tickets[0]?.bookingTotalPrice
-		? parseFloat(tickets[0].bookingTotalPrice).toFixed(2)
-		: '0.00';
+	const bookingTime = booking?.time || 'Unbekannt';
+	const totalPrice =  booking?.finalPrice ? booking.finalPrice : '0.00';
 
 	// Track expanded showing, default to the first one
 	const expandedShowing = writable(Object.keys(ticketsByShowing)[0] || null);
@@ -65,7 +64,7 @@
 			<div class="mb-4">
 				<p class="text-gray-700">
 					<strong>{m.booking_id({})}</strong>
-					{'#' + tickets[0]?.bookingId || m.unknown({})}
+					{'#' + booking?.id || m.unknown({})}
 				</p>
 				<p class="text-gray-700">
 					<strong>{m.booking_date({})}</strong>
@@ -78,7 +77,7 @@
 				{#if tickets[0]?.discountCode}
 					<p class="text-green-600">
 						<strong>{m.discount({})}</strong>
-						{tickets[0]?.discountCode} ({tickets[0]?.discountValue || '0'}%)
+						{tickets[0]?.discountCode} ({tickets[0]?.discountValue || '0'})
 					</p>
 				{/if}
 			</div>

@@ -21,7 +21,9 @@ export const actions = {
 
 			// Get all subscriber emails
 			const subscribers = await db.select().from(subscribersNewsletter);
-			const emails = subscribers.map((sub) => sub.email).filter((email): email is string => email !== null);
+			const emails = subscribers
+				.map((sub) => sub.email)
+				.filter((email): email is string => email !== null);
 
 			if (emails.length === 0) {
 				return fail(400, {

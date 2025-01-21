@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { languageAwareGoto } from "$lib/utils/languageAware";
+	import { languageAwareGoto } from '$lib/utils/languageAware';
 
 	let { movie } = $props();
 	function openTrailer(event: Event) {
