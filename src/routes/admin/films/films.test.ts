@@ -7,64 +7,64 @@ import * as m from '$lib/paraglide/messages.js';
 
 // Mock the entire db module
 vi.mock('$lib/server/db', () => ({
-db: {
-select: vi.fn().mockReturnThis(),
-from: vi.fn().mockReturnThis(),
-}
+	db: {
+		select: vi.fn().mockReturnThis(),
+		from: vi.fn().mockReturnThis()
+	}
 }));
 
 // Mock fail function
 vi.mock('@sveltejs/kit', () => ({
-fail: vi.fn((status, data) => ({ status, data }))
+	fail: vi.fn((status, data) => ({ status, data }))
 }));
 
 describe('load function', () => {
-beforeEach(() => {
-vi.clearAllMocks();
-});
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-it('should return all movies when successful', async () => {
-const mockMovies = [
-{ id: 1, title: 'Movie 1' },
-{ id: 2, title: 'Movie 2' },
-];
+	it('should return all movies when successful', async () => {
+		const mockMovies = [
+			{ id: 1, title: 'Movie 1' },
+			{ id: 2, title: 'Movie 2' }
+		];
 
-const mockDb = dbModule.db as any;
-mockDb.from.mockResolvedValue(mockMovies);
+		const mockDb = dbModule.db as any;
+		mockDb.from.mockResolvedValue(mockMovies);
 
-const result = await load({} as any);
+		const result = await load({} as any);
 
-expect(mockDb.select).toHaveBeenCalled();
-expect(mockDb.from).toHaveBeenCalledWith(film);
-expect(result).toEqual({
-movies: mockMovies
-});
-});
+		expect(mockDb.select).toHaveBeenCalled();
+		expect(mockDb.from).toHaveBeenCalledWith(film);
+		expect(result).toEqual({
+			movies: mockMovies
+		});
+	});
 
-it('should handle empty result', async () => {
-const mockDb = dbModule.db as any;
-mockDb.from.mockResolvedValue([]);
+	it('should handle empty result', async () => {
+		const mockDb = dbModule.db as any;
+		mockDb.from.mockResolvedValue([]);
 
-const result = await load({} as any);
+		const result = await load({} as any);
 
-expect(mockDb.select).toHaveBeenCalled();
-expect(mockDb.from).toHaveBeenCalledWith(film);
-expect(result).toEqual({
-movies: []
-});
-});
+		expect(mockDb.select).toHaveBeenCalled();
+		expect(mockDb.from).toHaveBeenCalledWith(film);
+		expect(result).toEqual({
+			movies: []
+		});
+	});
 
-it('should handle database errors', async () => {
-const mockError = new Error('Database error');
-const mockDb = dbModule.db as any;
-mockDb.from.mockRejectedValue(mockError);
+	it('should handle database errors', async () => {
+		const mockError = new Error('Database error');
+		const mockDb = dbModule.db as any;
+		mockDb.from.mockRejectedValue(mockError);
 
-const consoleSpy = vi.spyOn(console, 'log');
+		const consoleSpy = vi.spyOn(console, 'log');
 
-const result = await load({} as any);
+		const result = await load({} as any);
 
-expect(consoleSpy).toHaveBeenCalledWith(mockError);
-expect(fail).toHaveBeenCalledWith(500, { error: m.internal_server_error({}) });
-expect(result).toEqual({ status: 500, data: { error: m.internal_server_error({}) } });
-});
+		expect(consoleSpy).toHaveBeenCalledWith(mockError);
+		expect(fail).toHaveBeenCalledWith(500, { error: m.internal_server_error({}) });
+		expect(result).toEqual({ status: 500, data: { error: m.internal_server_error({}) } });
+	});
 });

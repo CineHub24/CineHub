@@ -29,7 +29,7 @@ import { generateUniqueCode } from './randomCode';
 export class EmailService {
 	private transporter: nodemailer.Transporter;
 	private gmailUser: string;
-	private PUBLIC_URL: string = import.meta.env.VITE_PUBLIC_URL;
+	private PUBLIC_URL: string = import.meta.env.VITE_DOMAIN;
 
 	constructor(gmailUser: string, gmailAppPassword: string) {
 		this.transporter = nodemailer.createTransport({
@@ -40,7 +40,7 @@ export class EmailService {
 			}
 		});
 		this.gmailUser = gmailUser;
-		}
+	}
 	private async generatePDFTicket(ticketInfo: {
 		Ticket: {
 			token: string | null;
@@ -647,7 +647,7 @@ Ihr Cinehub-Team
 
 		return calendar.toString();
 	}
-	async sendDiscountCode(email: string, discount:Discount ): Promise<void> {
+	async sendDiscountCode(email: string, discount: Discount): Promise<void> {
 		console.log('discount', discount);
 		console.log('email', email);
 		const emailContent = `
@@ -677,7 +677,6 @@ Ihr Cinehub-Team
 		}
 	}
 	async sendWelcomeEmail(email: string): Promise<void> {
-	
 		const emailContent = `
 		<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
 		<p>Hallo Filmfan,<p>
@@ -703,11 +702,7 @@ Ihr Cinehub-Team
 			console.error('Fehler beim Versenden der E-Mail:', error);
 			throw new Error('E-Mail konnte nicht versendet werden');
 		}
-
-	
 	}
-
-
 
 	async sendNewsletter(emails: string[], subject: string, htmlContent: string): Promise<void> {
 		try {
@@ -755,7 +750,6 @@ export interface fullTicket {
 }
 
 async function handleBookingDiscount(bookingId: number) {
-
 	// Hole Booking mit Discount
 	const bookingWithDiscount = await db
 		.select({
@@ -783,14 +777,13 @@ async function handleBookingDiscount(bookingId: number) {
 
 	if (giftCard.length > 0) {
 		const basePrice = Number(bookingWithDiscount[0].booking.basePrice);
-		const remainingValue = Number(giftCard[0].giftCodes.amount) -  Number(giftCard[0].giftCodesUsed.claimedValue);
-
+		const remainingValue =
+			Number(giftCard[0].giftCodes.amount) - Number(giftCard[0].giftCodesUsed.claimedValue);
 
 		if (remainingValue > 0) {
 			const discountedAmount = Math.min(remainingValue, basePrice);
 			const newClaimedValue = Number(giftCard[0].giftCodesUsed.claimedValue) + discountedAmount;
 			const isFullyClaimed = newClaimedValue >= Number(giftCard[0].giftCodes.amount);
-
 
 			await db
 				.update(giftCodesUsed)

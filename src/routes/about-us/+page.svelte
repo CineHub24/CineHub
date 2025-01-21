@@ -11,32 +11,32 @@
 		{
 			name: 'Luca Bäck',
 			role: 'Developer',
-			github: 'https://github.com/luca-baeck',
+			github: 'https://github.com/luca-baeck'
 		},
 		{
 			name: 'Felix Erhard',
 			role: 'Developer',
-			github: 'https://github.com/',
+			github: 'https://github.com/'
 		},
 		{
 			name: 'Johannes Kling',
 			role: 'Developer',
-			github: 'https://github.com/',
+			github: 'https://github.com/'
 		},
 		{
 			name: 'Mika Jun',
 			role: 'Developer',
-			github: 'https://github.com/',
+			github: 'https://github.com/'
 		},
 		{
 			name: 'Jonathan Wieder',
 			role: 'Developer',
-			github: 'https://github.com/',
+			github: 'https://github.com/'
 		},
 		{
 			name: 'Nico Wrede',
 			role: 'Developer',
-			github: 'https://github.com/',
+			github: 'https://github.com/'
 		}
 	];
 
@@ -73,8 +73,7 @@
 		<div class="team-grid">
 			{#each developers as dev}
 				<div class="team-card">
-					<div class="badge-container">
-					</div>
+					<div class="badge-container"></div>
 					<div class="dev-info flex flex-col items-center justify-center">
 						<h3>{dev.name}</h3>
 						<p>{dev.role}</p>

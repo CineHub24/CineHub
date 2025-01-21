@@ -4,7 +4,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { ArrowBigLeft, Tag, Save, Trash2, CircleX, Edit } from 'lucide-svelte';
 
-	let { data, form }: { data: PageData, form: ActionData } = $props();
+	let { data, form }: { data: PageData; form: ActionData } = $props();
 
 	const { ticketTypes } = data;
 

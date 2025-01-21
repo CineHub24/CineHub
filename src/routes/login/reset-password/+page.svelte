@@ -40,7 +40,7 @@
 						class="mt-1 w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200"
 						placeholder={m.enter_email({})}
 					/>
-				</div>				
+				</div>
 
 				<button
 					type="submit"
@@ -53,16 +53,16 @@
 			<div class="mt-6 text-center text-sm text-gray-600">
 				<a href="/login" class="text-indigo-500 hover:underline">{m.back_to_login({})}</a>
 			</div>
-            {#if form?.success}
-                <div class="mt-6 text-center text-sm text-green-500">
-                    {form.success}
-                </div>
-                {/if}
-                {#if form?.error}
-                <div class="mt-6 text-center text-sm text-red-500">
-                    {form.error}
-                    </div>
-            {/if}
+			{#if form?.success}
+				<div class="mt-6 text-center text-sm text-green-500">
+					{form.success}
+				</div>
+			{/if}
+			{#if form?.error}
+				<div class="mt-6 text-center text-sm text-red-500">
+					{form.error}
+				</div>
+			{/if}
 		</div>
 	</div>
 {:else}
@@ -134,16 +134,16 @@
 			<div class="mt-6 text-center text-sm text-gray-600">
 				<a href="/login" class="text-indigo-500 hover:underline">{m.back_to_login({})}</a>
 			</div>
-            {#if form?.success}
-                <div class="mt-6 text-center text-sm text-green-500">
-                    {form.success}
-                </div>
-                {/if}
-                {#if form?.error}
-                <div class="mt-6 text-center text-sm text-red-500">
-                    {form.error}
-                    </div>
-            {/if}
+			{#if form?.success}
+				<div class="mt-6 text-center text-sm text-green-500">
+					{form.success}
+				</div>
+			{/if}
+			{#if form?.error}
+				<div class="mt-6 text-center text-sm text-red-500">
+					{form.error}
+				</div>
+			{/if}
 		</div>
 	</div>
 {/if}

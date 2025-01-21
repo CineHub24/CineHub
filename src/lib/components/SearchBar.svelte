@@ -7,11 +7,10 @@
 	let searchbarEl;
 	export let onSubmit = (string) => {}; // Accept onSubmit as a prop with a default empty function
 	const dispatch = createEventDispatcher();
-	
+
 	function handleMouseEnter() {
 		isExpanded = true;
 	}
-
 
 	function handleMouseLeave() {
 		searchValue = '';
@@ -48,8 +47,8 @@
 	on:mouseleave={handleMouseLeave}
 	role="search"
 >
-<form on:submit={handleSubmit} class="search-wrapper" class:expanded={isExpanded}>
-	<input
+	<form on:submit={handleSubmit} class="search-wrapper" class:expanded={isExpanded}>
+		<input
 			type="text"
 			bind:value={searchValue}
 			placeholder={isExpanded ? m.search_placeholder({}) : ''}

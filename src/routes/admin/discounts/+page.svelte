@@ -7,14 +7,13 @@
 	const { data, form }: { data: PageData; form: ActionData } = $props();
 	const { discounts } = data;
 
-	function formatValue (type: string, value: string) {
+	function formatValue(type: string, value: string) {
 		if (type === 'percentage') {
-			return `-${Math.round((parseFloat(value)) * 100)}%`;
+			return `-${Math.round(parseFloat(value) * 100)}%`;
 		}
 
 		return `-${value}€`;
 	}
-
 </script>
 
 <div class="container mx-auto px-4 py-8">
@@ -67,7 +66,9 @@
 					<tr class="transition-colors duration-200 hover:bg-gray-50">
 						<td class="whitespace-nowrap px-6 py-4">{discount.name}</td>
 						<td class="whitespace-nowrap px-6 py-4">{discount.code}</td>
-						<td class="whitespace-nowrap px-6 py-4">{formatValue(discount.discountType, discount.value)}</td>
+						<td class="whitespace-nowrap px-6 py-4"
+							>{formatValue(discount.discountType, discount.value)}</td
+						>
 						<td class="whitespace-nowrap px-6 py-4">{discount.expiresAt}</td>
 						<td class="whitespace-nowrap px-6 py-4">
 							<div class="flex space-x-2">

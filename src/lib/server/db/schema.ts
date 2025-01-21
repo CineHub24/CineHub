@@ -1,4 +1,3 @@
-
 import { description, price } from '$lib/paraglide/messages';
 
 import { timeStamp } from 'console';
@@ -22,11 +21,11 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin', 'inspector']);
-export const bookingEnum = pgEnum('bookingStatus', ['cart','completed']);
+export const bookingEnum = pgEnum('bookingStatus', ['cart', 'completed']);
 export const ticketStatusEnum = pgEnum('ticketStatus', [
 	'reserved',
 	'paid',
-	'validated',	
+	'validated',
 	'refunded',
 	'payAtCinema'
 ]);
@@ -109,7 +108,7 @@ export const showing = pgTable('Showing', {
 	language: text('language'),
 	dimension: text('dimension'),
 	cancelled: boolean('cancelled').default(false),
-	soldTickets: integer('soldTickets').default(0),
+	soldTickets: integer('soldTickets').default(0)
 });
 
 export const cinema = pgTable('Cinema', {
@@ -122,53 +121,54 @@ export const cinema = pgTable('Cinema', {
 });
 
 export const cinemaHall = pgTable('CinemaHall', {
-  id: serial("id").primaryKey(),
-  name: text('name'),
-  capacity: integer('capacity'),
+	id: serial('id').primaryKey(),
+	name: text('name'),
+	capacity: integer('capacity'),
 	cinemaId: integer('cinemaId')
 		.notNull()
-		.references(() => cinema.id, { onDelete: 'cascade' }) 
-
+		.references(() => cinema.id, { onDelete: 'cascade' })
 });
 
 export const seat = pgTable('seat', {
-  id: serial('id').primaryKey(),
-  seatNumber: text('seatNumber').notNull(),
-  row: text('row').notNull(),
+	id: serial('id').primaryKey(),
+	seatNumber: text('seatNumber').notNull(),
+	row: text('row').notNull(),
 	rotation: decimal('rotation').notNull(),
 	top: decimal('top').notNull(),
 	left: decimal('left').notNull(),
-  cinemaHall: integer('cinemaHall').notNull().references(() => cinemaHall.id, { onDelete: 'cascade' }),
-  categoryId: integer('categoryId').notNull().references(() => seatCategory.id),
+	cinemaHall: integer('cinemaHall')
+		.notNull()
+		.references(() => cinemaHall.id, { onDelete: 'cascade' }),
+	categoryId: integer('categoryId')
+		.notNull()
+		.references(() => seatCategory.id)
 });
 
 export const seatCategory = pgTable('seatCategory', {
 	id: serial('id').primaryKey(),
-		createdAt: timestamp('createdAt').defaultNow(),
-		name: text('name'),
-		description: text('description'),
-		color: varchar('color', { length: 7 }).notNull(), // Hex color code like #FF0000
-		width: integer('width').notNull().default(40), // Changed from 'size' to 'width'
-		height: integer('height').notNull().default(40), // Changed from 'size' to 'height'
-		price: decimal('price', { precision: 10, scale: 2 }),
-		isActive: boolean('isActive').notNull().default(true),
-		customPath: text('customPath')
-	});
-
+	createdAt: timestamp('createdAt').defaultNow(),
+	name: text('name'),
+	description: text('description'),
+	color: varchar('color', { length: 7 }).notNull(), // Hex color code like #FF0000
+	width: integer('width').notNull().default(40), // Changed from 'size' to 'width'
+	height: integer('height').notNull().default(40), // Changed from 'size' to 'height'
+	price: decimal('price', { precision: 10, scale: 2 }),
+	isActive: boolean('isActive').notNull().default(true),
+	customPath: text('customPath')
+});
 
 export const priceSet = pgTable('PriceSet', {
-  id: serial('id').primaryKey(),
-  name: text('name'),
-  seatCategoryPrices: integer("seatCategoryPrices")
-    .array()
-    .notNull()
-    .default(sql`ARRAY [1,2,3,4,5]`),
-  ticketTypes: integer('ticketTypes')
-    .array()
-    .notNull()
-    .default(sql`ARRAY [1,2,3,4,5]`),
-  priceFactor: decimal('priceFactor', { precision: 10, scale: 3 })
-    .default(sql`'1'::integer`)
+	id: serial('id').primaryKey(),
+	name: text('name'),
+	seatCategoryPrices: integer('seatCategoryPrices')
+		.array()
+		.notNull()
+		.default(sql`ARRAY [1,2,3,4,5]`),
+	ticketTypes: integer('ticketTypes')
+		.array()
+		.notNull()
+		.default(sql`ARRAY [1,2,3,4,5]`),
+	priceFactor: decimal('priceFactor', { precision: 10, scale: 3 }).default(sql`'1'::integer`)
 });
 
 export const ticketType = pgTable('TicketType', {
@@ -209,13 +209,13 @@ export const booking = pgTable('Booking', {
 	id: serial('id').primaryKey(),
 	date: date('date'),
 	time: time('time'),
-	basePrice: decimal('basePrice'),
-	finalPrice: decimal('finalPrice'),
+	basePrice: decimal('basePrice').default(sql`0`),
+	finalPrice: decimal('finalPrice').default(sql`0`),
 	discountValue: decimal('discountValue'),
-	items : integer('items'),
+	items: integer('items'),
 	status: bookingEnum('status').default('cart').notNull(),
-  userId: text('userId').references(() => user.id),
-  discount: integer('discount').references(() => priceDiscount.id),
+	userId: text('userId').references(() => user.id),
+	discount: integer('discount').references(() => priceDiscount.id)
 });
 
 export const logs = pgTable('logs', {
@@ -237,7 +237,7 @@ export const passwordReset = pgTable('passwordReset', {
 	token: uuid('token').defaultRandom().unique(),
 	expiresAt: timestamp('expiresAt').notNull()
 });
-	
+
 export const giftCodes = pgTable('giftCodes', {
 	id: serial('id').primaryKey(),
 	amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),

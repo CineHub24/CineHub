@@ -12,12 +12,12 @@ export const sessionCookieName = 'auth-session';
 import { Google, GitHub } from 'arctic';
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '$env/static/private';
 import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
-import { PUBLIC_URL } from '$env/static/public';
+import { VITE_DOMAIN } from '$env/static/private';
 
 export const google = new Google(
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET,
-	PUBLIC_URL + '/login/google/callback'
+	VITE_DOMAIN + '/login/google/callback'
 );
 
 export const github = new GitHub(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, null);
@@ -44,7 +44,13 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, email: table.user.email, role: table.user.role, firstname: table.user.firstName, lastname: table.user.lastName },
+			user: {
+				id: table.user.id,
+				email: table.user.email,
+				role: table.user.role,
+				firstname: table.user.firstName,
+				lastname: table.user.lastName
+			},
 			session: table.session
 		})
 		.from(table.session)
@@ -88,15 +94,15 @@ export function setSessionTokenCookie(event: RequestEvent, token: string, expire
 		event.cookies.set('sss', 'test', {
 			path: '/',
 			secure: false,
-			sameSite: 'lax',
+			sameSite: 'lax'
 		});
-	}
-	test(event);	
+	};
+	test(event);
 	event.cookies.set(sessionCookieName, token, {
 		path: '/',
 		expires: expiresAt,
 		secure: false,
-		sameSite: 'lax',
+		sameSite: 'lax'
 	});
 }
 

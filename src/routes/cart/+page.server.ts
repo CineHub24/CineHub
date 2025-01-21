@@ -17,7 +17,8 @@ import {
 	type TicketType,
 	type SeatCategory,
 	giftCodes,
-	giftCodesUsed
+	giftCodesUsed,
+	type PriceDiscountForInsert
 } from '$lib/server/db/schema';
 import type { Decimal } from '@prisma/client/runtime/library';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
@@ -47,6 +48,7 @@ interface PriceCalculation {
 }
 
 async function calculatePrices(
+	bookingId: number,
 	tickets: TicketData[],
 	discount: any | null,
 	giftCards: (typeof giftCodes.$inferSelect)[]
@@ -102,7 +104,7 @@ async function calculatePrices(
 				items: tickets.length + giftCards.length,
 				discount: discount ? discount.id : null
 			})
-			.where(eq(booking.id, Number(tickets[0].ticket.bookingId)));
+			.where(eq(booking.id, bookingId));
 	} catch (error) {
 		console.log(error);
 	}
@@ -183,6 +185,24 @@ export const load = async ({ locals }) => {
 
 		const giftCodeAmount = giftCards.reduce((sum, code) => sum + Number(code.amount), 0);
 
+		console.log('booking discount: ', _booking[0].discount);	
+
+		let discount: PriceDiscountForInsert[] = [];
+		if(_booking[0].discount) {
+			discount = await db
+				.select()
+				.from(priceDiscount)
+				.where(
+					and(
+						eq(priceDiscount.id, _booking[0].discount),
+						gte(priceDiscount.expiresAt, new Date().toISOString()),
+					)
+				);
+		}
+
+		console.log('discount: ', discount);
+		console.log('length', discount.length === 0 ? null: discount);
+
 		let prices;
 		if (
 			_booking[0].basePrice === null ||
@@ -195,7 +215,7 @@ export const load = async ({ locals }) => {
 				film: t.film,
 				seat: t.seat
 			}));
-			prices = await calculatePrices(ticketData, null, giftCards);
+			prices = await calculatePrices(bookingId, ticketData, (discount.length === 0 ? null: discount[0]) , giftCards);
 		} else {
 			const storedDiscountValue = Number(_booking[0].discountValue) || 0;
 			prices = {
@@ -253,14 +273,17 @@ export const actions = {
 				.where(
 					and(
 						eq(priceDiscount.code, discountCode),
-						gte(priceDiscount.expiresAt, new Date().toISOString()),
+						gte(priceDiscount.expiresAt, new Date().toISOString())
 					)
 				);
 
-			if (discount.length === 0 || (discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed)) {
+			if (
+				discount.length === 0 ||
+				(discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed)
+			) {
 				return fail(400, { error: m.discount_not_found({}) });
 			}
-			if(discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed) {
+			if (discount[0].giftCodesUsed && discount[0].giftCodesUsed?.claimed) {
 				return fail(400, { error: m.discount_not_found({}) });
 			}
 
@@ -294,7 +317,12 @@ export const actions = {
 				seat: t.seat
 			}));
 
-			const prices = await calculatePrices(ticketData, discount[0].priceDiscount, giftCards);
+			const prices = await calculatePrices(
+				_booking[0].id,
+				ticketData,
+				discount[0].priceDiscount,
+				giftCards
+			);
 			return {
 				success: m.discount_applied({}),
 				discount: discount[0].priceDiscount,
@@ -309,6 +337,8 @@ export const actions = {
 		const data = await request.formData();
 		const ticketId = data.get('ticketId') as string | null;
 		const giftCodeId = data.get('giftCodeId') as string | null;
+
+		console.log('ticketId: ', ticketId);
 
 		try {
 			if (ticketId) {

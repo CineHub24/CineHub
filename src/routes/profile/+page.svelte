@@ -24,10 +24,9 @@
 	function handleInputChange(event: Event) {
 		const input = event.target as HTMLInputElement;
 		formData = { ...formData, [input.name]: input.value };
-		
-		isFormModified = 
-			formData.firstname !== (user.firstname || '') ||
-			formData.lastname !== (user.lastname || '');
+
+		isFormModified =
+			formData.firstname !== (user.firstname || '') || formData.lastname !== (user.lastname || '');
 	}
 
 	function getFirstNameFromEmail(email: string): string {
@@ -46,7 +45,7 @@
 			if (result.type === 'success') {
 				showSuccess = true;
 				isFormModified = false;
-				
+
 				// Update the user data
 				user.firstname = formData.firstname;
 				user.lastname = formData.lastname;
@@ -65,7 +64,7 @@
 		{#if user}
 			<div class="avatar">{userName[0].toUpperCase()}</div>
 			<h1>{m.welcome({})}, {userName}!</h1>
-			
+
 			{#if showSuccess}
 				<div class="success-message">
 					<span class="success-icon">✓</span>
@@ -80,37 +79,37 @@
 				</div>
 			{/if}
 
-			<form 
-				id="updateProfile" 
-				method="post" 
-				action="?/updateProfile" 
+			<form
+				id="updateProfile"
+				method="post"
+				action="?/updateProfile"
 				use:enhance={submitForm}
 				class="edit-profile-form"
 			>
 				<div class="form-group">
 					<label for="firstname">Vorname</label>
-					<input 
-						type="text" 
-						id="firstname" 
-						name="firstname" 
-						bind:value={formData.firstname} 
+					<input
+						type="text"
+						id="firstname"
+						name="firstname"
+						bind:value={formData.firstname}
 						on:input={handleInputChange}
 						class="form-input"
 					/>
 				</div>
-				
+
 				<div class="form-group">
 					<label for="lastname">Nachname</label>
-					<input 
-						type="text" 
-						id="lastname" 
-						name="lastname" 
+					<input
+						type="text"
+						id="lastname"
+						name="lastname"
 						bind:value={formData.lastname}
 						on:input={handleInputChange}
 						class="form-input"
 					/>
 				</div>
-				
+
 				<div class="form-group">
 					<label for="email">Email</label>
 					<p id="email" class="form-text">{user.email}</p>
@@ -125,17 +124,10 @@
 			</div>
 
 			<div class="button-container">
-				<button 
-					type="submit" 
-					form="updateProfile" 
-					class="save-btn" 
-					disabled={!isFormModified}
-				>
+				<button type="submit" form="updateProfile" class="save-btn" disabled={!isFormModified}>
 					Speichern
 				</button>
-				<a href="/profile/change-password" class="change-password-btn">
-					Passwort ändern
-				</a>
+				<a href="/profile/change-password" class="change-password-btn"> Passwort ändern </a>
 				<form method="post" action="?/logout" use:enhance class="logout-form">
 					<button class="logout-btn">{m.logout({})}</button>
 				</form>
@@ -236,7 +228,9 @@
 		margin-top: 1rem;
 		flex-wrap: wrap;
 	}
-	.save-btn, .change-password-btn, .logout-btn {
+	.save-btn,
+	.change-password-btn,
+	.logout-btn {
 		border: none;
 		border-radius: 5px;
 		padding: 0.75rem 1.5rem;

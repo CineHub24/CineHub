@@ -13,7 +13,7 @@
 	let activeTab: 'details' | 'shows' = $state('details');
 
 	function toggleShowForm() {
-		languageAwareGoto("/admin/show/create/"+ film.id)
+		languageAwareGoto('/admin/show/create/' + film.id);
 	}
 
 	let slots: freeSlots[] = $state([]);
@@ -90,11 +90,7 @@
 				<div class="shows-section">
 					<div class="shows-header">
 						<h3>{m.shows({})}</h3>
-						<button
-							onclick={toggleShowForm}
-							class="add-show-button"
-							aria-label={m.add_show({})}
-						>
+						<button onclick={toggleShowForm} class="add-show-button" aria-label={m.add_show({})}>
 							+
 						</button>
 					</div>
@@ -134,14 +130,20 @@
 					</div>
 				</div>
 			{:else}
-				<form method="post" action="?/create" name="create" use:enhance={() => {
-					return async ({ result, update }) => {
-						if (result.type === 'success' && result.data?.slots) {
-							slots = result.data.slots as freeSlots[];
-						}
-						await update();
-					};
-				}} class="add-show-form">
+				<form
+					method="post"
+					action="?/create"
+					name="create"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							if (result.type === 'success' && result.data?.slots) {
+								slots = result.data.slots as freeSlots[];
+							}
+							await update();
+						};
+					}}
+					class="add-show-form"
+				>
 					<div class="form-group">
 						<label for="hall">{m.hall()}:</label>
 						<select name="hall">

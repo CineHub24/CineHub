@@ -33,7 +33,7 @@ export const actions = {
 			const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
 			const data = await res.json();
 			console.log(data);
-			if(data.Response !== 'False') {
+			if (data.Response !== 'False') {
 				const movies: Movie[] = data.Search.map((movie: any) => ({
 					imdbID: movie.imdbID,
 					title: movie.Title,
@@ -41,7 +41,7 @@ export const actions = {
 					year: movie.Year,
 					poster: movie.Poster
 				}));
-	
+
 				return {
 					movies: movies
 				};
@@ -111,7 +111,7 @@ export const actions = {
 		}
 
 		const imdbID = formData.get('imdbID')?.toString();
-		if (!imdbID) return fail(400, { error: 'IMDB ID is required' });	
+		if (!imdbID) return fail(400, { error: 'IMDB ID is required' });
 		const tmdbID = await gettmdbID(imdbID);
 
 		async function getBackdropImage(tmdbID: string): Promise<string | null> {
@@ -124,7 +124,7 @@ export const actions = {
 					return `https://image.tmdb.org/t/p/original/${data.backdrops[0].file_path}`;
 				}
 			} catch (error) {
-				console.error('Error fetching backdrop image:', error);		
+				console.error('Error fetching backdrop image:', error);
 			}
 			return null;
 		}
