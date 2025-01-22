@@ -71,5 +71,5 @@ export async function load({ locals, url }) {
 		console.error(e);
 		return fail(500, { error: 'Internal Server Error' });
 	}
-	return redirect(302, '/booking/' + bookingId);
+	return languageAwareRedirect(302, '/booking/' + bookingId);
 }

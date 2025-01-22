@@ -58,7 +58,7 @@
 		<div class="date-group">
 			<button class="date-header" onclick={() => toggleDate(date)}>
 				<span class="date-text">
-					{new Date(date).toLocaleDateString('de-DE', {
+					{new Date(date).toLocaleDateString(m.language_date_string({}), {
 						weekday: 'long',
 						year: 'numeric',
 						month: 'long',

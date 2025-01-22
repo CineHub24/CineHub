@@ -5,6 +5,7 @@
 	import { fade } from 'svelte/transition';
 	import type { PageData, Actions } from './$types';
 	import { goto, invalidateAll } from '$app/navigation';
+	import { languageAwareGoto } from '$lib/utils/languageAware';
 
 	export let data: PageData;
 	export let form: { success?: boolean; message?: string; error?: string } | null = null;
@@ -31,7 +32,7 @@
 	}
 
 	function handleEdit(roomId: number) {
-		goto(`/admin/rooms/${roomId}`);
+		languageAwareGoto(`/admin/rooms/${roomId}`);
 	}
 </script>
 
@@ -105,7 +106,7 @@
 		<button
 			class="rounded bg-green-500 px-4 py-2 text-white transition-colors hover:bg-green-600"
 			on:click={() => {
-				goto('/admin/rooms/create');
+				languageAwareGoto('/admin/rooms/create');
 			}}
 		>
 			Add Room

@@ -391,6 +391,38 @@
 	"place": "Platz",
 	"category": "Kategorie:",
 	"ticket_type": "Ticket-Typ:",
-	"no_booking_data": "Keine Buchungsdaten gefunden."
+	"no_booking_data": "Keine Buchungsdaten gefunden.",
+	"at": "um",
+
+	"booking_overview": "Buchungsübersicht",
+	"booking_number": "Buchungsnummer:",
+	"number_of_items": "Anzahl Items:",
+	"original_price": "Ursprünglicher Preis:",
+	"final_price": "Endpreis:",
+	"no_bookings_found": "Keine Buchungen gefunden.",
+
+	"set_password": "Passwort festlegen",
+	"change_password": "Passwort ändern",
+	"current_password": "Derzeitiges Passwort",
+	"current_password_incorrect": "Das derzeitige Passwort ist nicht korrekt",
+	"password_requirements": "Das neue Passwort muss Groß- & Kleinbuchstaben, Zahlen sowie Sonderzeichen enthalten und zwischen 8 und 255 Zeichen lang sein.",
+
+	"changes_saved_successfully": "Änderungen erfolgreich gespeichert",
+	"password_changed_successfully": "Passwort wurde erfolgreich geändert",
+	"first_name": "Vorname",
+	"last_name": "Nachname",
+	"email": "Email",
+
+	"language_date_string": "de-DE",
+	"profile_data": "Profil Daten",
+	"bookings": "Buchungen",
+
+	"movie_title": "Film titel",
+	"edit_showing": "Vorstellung bearbeiten",
+
+	"cinema_description": "Seit 2020 bringen wir magische Momente auf die große Leinwand. Mit modernster Technik und komfortablen Sitzen bieten wir unseren Besuchern ein unvergessliches Kinoerlebnis.",
+	"our_team": "Unser Team",
+	"developer": "Entwickler"
+
 
 }

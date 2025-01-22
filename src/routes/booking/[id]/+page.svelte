@@ -43,7 +43,7 @@
 	);
 
 	const bookingDate = booking?.date
-		? new Date(booking.date).toLocaleDateString('de-DE')
+		? new Date(booking.date).toLocaleDateString(m.language_date_string({}))
 		: 'Unbekannt';
 	const bookingTime = booking?.time || 'Unbekannt';
 	const totalPrice =  booking?.finalPrice ? booking.finalPrice : '0.00';
@@ -68,7 +68,7 @@
 				</p>
 				<p class="text-gray-700">
 					<strong>{m.booking_date({})}</strong>
-					{bookingDate} um {bookingTime}
+					{bookingDate} {m.at({})} {bookingTime}
 				</p>
 				<p class="text-gray-700">
 					<strong>{m.total_price({})}</strong>
@@ -125,7 +125,7 @@
 								<div class="mb-4">
 									<p class="text-gray-700">
 										<strong>{m.showing({})}</strong>
-										{new Date(firstTicket.showingDate || '').toLocaleDateString('de-DE')} um {firstTicket.showingTime ||
+										{new Date(firstTicket.showingDate || '').toLocaleDateString(m.language_date_string({}))} um {firstTicket.showingTime ||
 											m.unknown({})}
 									</p>
 								</div>

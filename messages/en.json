@@ -391,6 +391,37 @@
 	"place": "Place",
 	"category": "Category:",
 	"ticket_type": "Ticket Type:",
-	"no_booking_data": "No booking data found."
+	"no_booking_data": "No booking data found.", 
+	"at": "at",
+
+	"booking_overview": "Booking Overview",
+	"booking_number": "Booking number:",
+	"number_of_items": "Number of items:",
+	"original_price": "Original price:",
+	"final_price": "Final price:",
+	"no_bookings_found": "No bookings found.",
+
+	"set_password": "Set Password",
+	"change_password": "Change Password",
+	"current_password": "Current Password",
+	"current_password_incorrect": "The current password is incorrect",
+	"password_requirements": "The new password must contain uppercase & lowercase letters, numbers, and special characters, and be between 8 and 255 characters long.",
+
+	"changes_saved_successfully": "Changes saved successfully",
+	"password_changed_successfully": "Password changed successfully",
+	"first_name": "First Name",
+	"last_name": "Last Name",
+	"email": "Email",
+
+	"language_date_string": "en-EN",
+	"profile_data": "Profile Data",
+	"bookings": "Bookings",
+	"movie_title": "Movie title",
+	"edit_showing": "Edit showing",
+
+	"cinema_description": "Since 2020, we've been bringing magical moments to the big screen. With state-of-the-art technology and comfortable seating, we offer our visitors an unforgettable cinema experience.",
+	"our_team": "Our Team",
+	"developer": "Developer"
+	
 
 }

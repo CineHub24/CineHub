@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { showing } from '$lib/server/db/schema';
 	import ShowCard from './show_card.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	type Show = typeof showing.$inferSelect;
 
@@ -65,7 +66,7 @@
 				<span class="toggle-icon">
 					{expandedDates[date] ? '▼' : '►'}
 				</span>
-				{new Date(date).toLocaleDateString('de-DE', {
+				{new Date(date).toLocaleDateString(m.language_date_string({}), {
 					weekday: 'long',
 					year: 'numeric',
 					month: 'long',
