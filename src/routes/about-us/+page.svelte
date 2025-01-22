@@ -1,42 +1,42 @@
 <script>
 	import { dev } from '$app/environment';
+	import * as m from '$lib/paraglide/messages.js';
 
 	const kinoInfo = {
 		name: 'CineHub',
 		image: '/lobby.jpeg',
-		description:
-			'Seit 2020 bringen wir magische Momente auf die große Leinwand. Mit modernster Technik und komfortablen Sitzen bieten wir unseren Besuchern ein unvergessliches Kinoerlebnis.'
+		description: m.cinema_description({})
 	};
 	let developers = [
 		{
 			name: 'Luca Bäck',
-			role: 'Developer',
+			role: m.developer({}),
 			github: 'https://github.com/luca-baeck'
 		},
 		{
 			name: 'Felix Erhard',
-			role: 'Developer',
-			github: 'https://github.com/'
+			role: m.developer({}),
+			github: 'https://github.com/FelixErhard'
 		},
 		{
 			name: 'Johannes Kling',
-			role: 'Developer',
-			github: 'https://github.com/'
+			role: m.developer({}),
+			github: 'https://github.com/Jochern'
 		},
 		{
 			name: 'Mika Jun',
-			role: 'Developer',
-			github: 'https://github.com/'
+			role: m.developer({}),
+			github: 'https://github.com/junisonne'
 		},
 		{
 			name: 'Jonathan Wieder',
-			role: 'Developer',
-			github: 'https://github.com/'
+			role: m.developer({}),
+			github: 'https://github.com/JonathanWDR'
 		},
 		{
 			name: 'Nico Wrede',
-			role: 'Developer',
-			github: 'https://github.com/'
+			role: m.developer({}),
+			github: 'https://github.com/nicowre'
 		}
 	];
 
@@ -69,7 +69,7 @@
 		</div>
 	</section>
 	<section class="team">
-		<h2>Unser Team</h2>
+		<h2>{m.our_team({})}</h2>
 		<div class="team-grid">
 			{#each developers as dev}
 				<div class="team-card">
@@ -93,7 +93,8 @@
 									<path
 										d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
 									></path>
-								</svg> GitHub
+								</svg>
+								Github
 							</a>
 						</div>
 					</div>

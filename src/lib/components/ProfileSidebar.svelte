@@ -7,9 +7,9 @@
 	let isMouseOverSidebar = false;
 
 	const sections = [
-		{ id: 'profile', icon: UserRoundPen, label: 'Profile Data', path: '/profile' },
-		{ id: 'tickets', icon: TicketCheck, label: 'Tickets', path: '/profile/tickets' },
-		{ id: 'bookings', icon: Film, label: 'Bookings', path: '/profile/bookings' }
+		{ id: 'profile', icon: UserRoundPen, label: m.profile_data({}), path: '/profile' },
+		{ id: 'tickets', icon: TicketCheck, label: m.tickets({}), path: '/profile/tickets' },
+		{ id: 'bookings', icon: Film, label: m.bookings({}), path: '/profile/bookings' }
 	];
 	$: currentPath = $page.url.pathname;
 

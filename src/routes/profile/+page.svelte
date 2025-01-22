@@ -68,14 +68,14 @@
 			{#if showSuccess}
 				<div class="success-message">
 					<span class="success-icon">✓</span>
-					Änderungen erfolgreich gespeichert
+					{m.changes_saved_successfully({})}
 				</div>
 			{/if}
 
 			{#if showPasswordChanged}
 				<div class="success-message">
 					<span class="success-icon">✓</span>
-					Passwort wurde erfolgreich geändert
+					{m.password_changed_successfully({})}
 				</div>
 			{/if}
 
@@ -87,7 +87,7 @@
 				class="edit-profile-form"
 			>
 				<div class="form-group">
-					<label for="firstname">Vorname</label>
+					<label for="firstname">{m.first_name({})}</label>
 					<input
 						type="text"
 						id="firstname"
@@ -99,7 +99,7 @@
 				</div>
 
 				<div class="form-group">
-					<label for="lastname">Nachname</label>
+					<label for="lastname">{m.last_name({})}</label>
 					<input
 						type="text"
 						id="lastname"
@@ -111,7 +111,7 @@
 				</div>
 
 				<div class="form-group">
-					<label for="email">Email</label>
+					<label for="email">{m.email({})}</label>
 					<p id="email" class="form-text">{user.email}</p>
 				</div>
 			</form>
@@ -125,9 +125,9 @@
 
 			<div class="button-container">
 				<button type="submit" form="updateProfile" class="save-btn" disabled={!isFormModified}>
-					Speichern
+					{m.save({})}
 				</button>
-				<a href="/profile/change-password" class="change-password-btn"> Passwort ändern </a>
+				<a href="/profile/change-password" class="change-password-btn"> {m.change_password({})} </a>
 				<form method="post" action="?/logout" use:enhance class="logout-form">
 					<button class="logout-btn">{m.logout({})}</button>
 				</form>

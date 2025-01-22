@@ -18,6 +18,7 @@
 		type PriceDiscount,
 		type GiftCode
 	} from '$lib/server/db/schema';
+	import { refreshTimer } from '$lib/stores/cartTimeStore';
 
 	let adress = '';
 	const PUBLIC_STRIPE_KEY = import.meta.env.PUBLIC_STRIPE_KEY;
@@ -98,6 +99,7 @@
 
 	onMount(async () => {
 		stripe = await loadStripe(PUBLIC_STRIPE_KEY);
+		refreshTimer();
 	});
 
 	function handleDeleteTicket(ticketId: number) {
@@ -145,7 +147,7 @@
 						{/each}
 						{#if giftCodes.length > 0}
 							<div class="discount-group">
-								<h3 class="showing-title">Gift Cards</h3>
+								<h3 class="showing-title">{m.gift_cards({})}</h3>
 								{#each giftCodes as giftCode}
 									<div class="discount-container">
 										<div class="discount-icon">

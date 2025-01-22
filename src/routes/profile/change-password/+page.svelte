@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { validatePassword } from '$lib/utils/user';
+	import * as m from '$lib/paraglide/messages.js';
 
 	interface ActionData {
 		error?: string;
@@ -75,7 +76,7 @@
 
 <div class="password-change-container">
 	<div class="password-change-card">
-		<h1>{data.hasNoPassword ? 'Passwort festlegen' : 'Passwort ändern'}</h1>
+		<h1>{data.hasNoPassword ? m.set_password({}) : m.change_password({})}</h1>
 
 		{#if form?.error}
 			<div class="error-message">
@@ -91,7 +92,7 @@
 		>
 			{#if !data.hasNoPassword}
 				<div class="form-group">
-					<label for="currentPassword">{'Derzeitiges Passwort'}</label>
+					<label for="currentPassword">{m.current_password({})}</label>
 					<div class="password-input-container">
 						<input
 							type={showPassword.current ? 'text' : 'password'}
@@ -111,13 +112,13 @@
 						</button>
 					</div>
 					{#if form?.invalidCurrent}
-						<span class="error-text">{'Das derzeitige Passwort ist nicht korrekt'}</span>
+						<span class="error-text">{m.current_password_incorrect({})}</span>
 					{/if}
 				</div>
 			{/if}
 
 			<div class="form-group">
-				<label for="newPassword">{data.hasNoPassword ? 'Password' : 'Neues Passwort'}</label>
+				<label for="newPassword">{data.hasNoPassword ? m.password({}) : m.new_password({})}</label>
 				<div class="password-input-container">
 					<input
 						type={showPassword.new ? 'text' : 'password'}
@@ -134,12 +135,12 @@
 					</button>
 				</div>
 				{#if validationErrors.newPassword}
-					<span class="error-text">{validationErrors.newPassword}</span>
+					<span class="error-text">{m.password_requirements({})}</span>
 				{/if}
 			</div>
 
 			<div class="form-group">
-				<label for="confirmPassword">{'Passwort bestätigen'}</label>
+				<label for="confirmPassword">{m.confirm_password({})}</label>
 				<div class="password-input-container">
 					<input
 						type={showPassword.confirm ? 'text' : 'password'}
@@ -160,14 +161,14 @@
 					</button>
 				</div>
 				{#if validationErrors.confirmPassword}
-					<span class="error-text">{validationErrors.confirmPassword}</span>
+					<span class="error-text">{m.passwords_do_not_match({})}</span>
 				{/if}
 			</div>
 
 			<div class="button-container">
-				<a href="/profile" class="cancel-btn">{'Abbrechen'}</a>
+				<a href="/profile" class="cancel-btn">{m.cancel({})}</a>
 				<button type="submit" class="submit-btn" disabled={isSubmitDisabled()}>
-					{data.hasNoPassword ? 'Passwort festlegen' : 'Passwort ändern'}
+					{data.hasNoPassword ? m.set_password({}) : m.change_password({})}
 				</button>
 			</div>
 		</form>

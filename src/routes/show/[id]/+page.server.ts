@@ -12,7 +12,7 @@ import {
 import { eq, inArray, sql, and, ne } from 'drizzle-orm';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../../$types';
-import { languageAwareGoto } from '$lib/utils/languageAware';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { notifySeatChange } from '$lib/server/sse';
 
 type SeatType = typeof seat.$inferSelect;
@@ -316,7 +316,7 @@ export const actions = {
 		}
 
 		if (shouldRedirect) {
-			throw redirect(303, '/cart');
+			throw languageAwareRedirect(303, '/cart');
 		}
 	}
 } satisfies Actions;

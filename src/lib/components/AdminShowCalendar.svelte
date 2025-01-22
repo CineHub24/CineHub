@@ -3,6 +3,7 @@
 	import type { showing } from '$lib/server/db/schema';
 	import ShowCard from './show_card.svelte';
 	import { ChevronLeft, ChevronRight, CalendarDays, Clock } from 'lucide-svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	type Show = typeof showing.$inferSelect;
 	let { shows, movies } = $props();
@@ -83,7 +84,10 @@
 		<!-- Calendar Header -->
 		<div class="flex items-center justify-between border-b p-4">
 			<h2 class="text-xl font-semibold text-gray-800">
-				{currentWeekStart.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+				{currentWeekStart.toLocaleDateString(m.language_date_string({}), {
+					month: 'long',
+					year: 'numeric'
+				})}
 			</h2>
 			<div class="flex items-center space-x-4">
 				<button
@@ -91,7 +95,7 @@
 					on:click={goToCurrentWeek}
 				>
 					<CalendarDays class="mr-2 h-4 w-4" />
-					Heute
+					{m.today({})}
 				</button>
 				<div class="flex space-x-2">
 					<button
@@ -127,7 +131,7 @@
 						<div class="flex items-center justify-between">
 							<div class="flex flex-col items-start">
 								<div class="text-sm font-medium text-gray-600">
-									{date.toLocaleDateString('de-DE', { weekday: 'long' })}
+									{date.toLocaleDateString(m.language_date_string({}), { weekday: 'long' })}
 								</div>
 								<div
 									class={`text-xl ${isToday(date) ? 'font-semibold text-blue-600' : 'text-gray-900'}`}
@@ -139,7 +143,8 @@
 								<span
 									class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-800"
 								>
-									{shows.length} Shows
+									{shows.length}
+									{m.shows({})}
 								</span>
 							{/if}
 						</div>
@@ -152,7 +157,8 @@
 				<!-- Shows Header - Always visible -->
 				<div class="border-b bg-white p-6">
 					<h3 class="text-xl font-semibold text-gray-800">
-						Vorstellungen am {selectedDate.toLocaleDateString('de-DE', {
+						{m.showings_on({})}
+						{selectedDate.toLocaleDateString(m.language_date_string({}), {
 							weekday: 'long',
 							day: 'numeric',
 							month: 'long'
@@ -164,7 +170,7 @@
 				<div class="flex-1 overflow-y-auto p-6">
 					{#if selectedShows.length === 0}
 						<div class="py-12 text-center">
-							<div class="text-lg text-gray-400">Keine Vorstellungen an diesem Tag</div>
+							<div class="text-lg text-gray-400">{m.no_showings_today({})}</div>
 						</div>
 					{:else}
 						<div class="space-y-6">
@@ -205,7 +211,7 @@
 												</div>
 
 												<h3 class="mb-1 text-lg font-semibold text-gray-900">
-													{movie?.title || 'Film titel'}
+													{movie?.title || m.movie_title({})}
 												</h3>
 
 												<p class="mb-3 text-sm text-gray-600">
@@ -217,13 +223,13 @@
 														href={`/admin/show/${show.id}`}
 														class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
 													>
-														Vorstellung bearbeiten
+														{m.edit_showing({})}
 													</a>
 													<a
 														href={`/admin/film/${movie?.id}`}
 														class="text-sm text-blue-600 hover:underline"
 													>
-														Film bearbeiten
+														{m.edit_movie({})}
 													</a>
 												</div>
 											</div>

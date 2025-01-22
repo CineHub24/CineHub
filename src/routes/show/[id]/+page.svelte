@@ -13,6 +13,10 @@
 	import type { PageData } from './$types';
 	import { onMount } from 'svelte';
 	import { createSSEManager } from '$lib/utils/sseManager';
+	import * as m from '$lib/paraglide/messages.js';
+
+
+    import { refreshTimer } from '../../../lib/stores/cartTimeStore';
 
 	interface SeatStatus {
 		status: 'available' | 'reserved' | 'paid';
@@ -402,6 +406,8 @@
 				}
 			}
 
+			refreshTimer(); // optional: Timer neu starten
+
 			console.log('[SSE] seats after update:', seats);
 			console.log('[SSE] selectedSeats after update:', selectedSeats);
 		},
@@ -489,21 +495,21 @@
 	<div class="mb-8 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50">
 		<div class="flex flex-col items-start justify-between p-6 md:flex-row md:items-center">
 			<div>
-				<h1 class="mb-2 text-3xl font-bold">Sitzplatzauswahl</h1>
+				<h1 class="mb-2 text-3xl font-bold">{m.seat_selection({})}</h1>
 				<div class="flex flex-col md:flex-row md:gap-8">
 					<div class="flex items-center gap-2">
-						<span class="text-gray-600">Vorstellung:</span>
+						<span class="text-gray-600">{m.showing({})}</span>
 						<span class="font-semibold">{showing.date}</span>
 					</div>
 					<div class="flex items-center gap-2">
-						<span class="text-gray-600">Saal:</span>
+						<span class="text-gray-600">{m.hall({})}</span>
 						<span class="font-semibold">{hall.name}</span>
 					</div>
 				</div>
 			</div>
 			<div class="mt-4 text-right md:mt-0">
-				<div class="text-sm text-gray-600">Gesamtpreis</div>
-				<div class="text-2xl font-bold">${total.toFixed(2)}</div>
+				<div class="text-sm text-gray-600">{m.total_price({})}</div>
+				<div class="text-2xl font-bold">{total.toFixed(2)}€</div>
 			</div>
 		</div>
 	</div>
@@ -513,7 +519,7 @@
 		<!-- Left Side: Summary -->
 		<div class="order-2 w-full lg:order-1 lg:w-80 lg:flex-shrink-0">
 			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-4 text-xl font-bold">Ausgewählte Sitze</h3>
+				<h3 class="mb-4 text-xl font-bold">{m.selected_seats({})}</h3>
 
 				{#if selectedSeats.length > 0}
 					<div class="space-y-4">
@@ -547,24 +553,24 @@
 
 					<div class="mt-6 border-t pt-4">
 						<div class="mb-4 flex justify-between">
-							<span class="font-bold">Summe:</span>
+							<span class="font-bold">{m.sum({})}</span>
 							<span class="text-xl font-bold">${total.toFixed(2)}</span>
 						</div>
 						<button
 							onclick={handleSubmit}
 							class="w-full rounded bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
 						>
-							Sitze buchen
+							{m.book_seats({})}
 						</button>
 					</div>
 				{:else}
-					<p class="text-gray-500">Keine Sitze ausgewählt</p>
+					<p class="text-gray-500">{m.no_seats_selected({})}</p>
 				{/if}
 			</div>
 
 			<!-- Legend -->
 			<div class="mt-4 rounded-lg bg-white p-4 shadow">
-				<h4 class="mb-3 font-bold">Legende</h4>
+				<h4 class="mb-3 font-bold">{m.legend({})}</h4>
 				<div class="grid grid-cols-2 gap-3">
 					{#each seatCategories as cat}
 						<div class="flex items-center gap-2">
@@ -574,22 +580,22 @@
 					{/each}
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-gray-500"></div>
-						<span class="text-sm">Bezahlt</span>
+						<span class="text-sm">{m.paid({})}</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-yellow-400"></div>
-						<span class="text-sm">Reserviert</span>
+						<span class="text-sm">{m.reserved({})}</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-green-500"></div>
-						<span class="text-sm">Ausgewählt</span>
+						<span class="text-sm">{m.selected({})}</span>
 					</div>
 				</div>
 			</div>
 
 			<!-- Price Overview -->
 			<div class="mt-4 rounded-lg bg-white p-4 shadow">
-				<h4 class="mb-3 font-bold">Preisübersicht</h4>
+				<h4 class="mb-3 font-bold">{m.price_overview({})}</h4>
 				<div class="space-y-2">
 					{#each seatCategories.filter((cat) => isCategoryAllowed(cat.id)) as category}
 						<div class="text-sm">
@@ -598,7 +604,7 @@
 								{#each getAvailableTicketTypes() as type}
 									<div class="flex justify-between">
 										<span>{type.name}:</span>
-										<span>${getFormattedPrice(category.id, type.id)}</span>
+										<span>{getFormattedPrice(category.id, type.id)}€</span>
 									</div>
 								{/each}
 							</div>
@@ -607,7 +613,7 @@
 				</div>
 				{#if Number(priceSet.priceFactor) !== 1}
 					<div class="mt-2 text-xs text-gray-500">
-						* Preise inkl. {((Number(priceSet.priceFactor) - 1) * 100).toFixed(0)}% Aufschlag
+						{m.price_markup({ 0: ((Number(priceSet.priceFactor) - 1) * 100).toFixed(0) })}
 					</div>
 				{/if}
 			</div>
@@ -629,7 +635,7 @@
 						<div class="absolute left-0 right-0 top-8">
 							<div class="mx-auto" style="width: {layoutWidth}px">
 								<div class="h-2 w-full -skew-y-1 transform rounded-lg bg-black shadow-md"></div>
-								<p class="mt-2 text-center text-sm text-gray-500">Leinwand</p>
+								<p class="mt-2 text-center text-sm text-gray-500">{m.screen({})}</p>
 							</div>
 						</div>
 						<!-- Seats -->
@@ -637,6 +643,8 @@
 							{@const category = seatCategories.find((c) => c.id === seat.categoryId)}
 							{@const dims = getBlockDimensions(seat.categoryId)}
 
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
 								class="absolute flex items-center justify-center rounded transition-colors duration-200"
 								class:cursor-pointer={!seat.booked || seat.reservedByUser}
