@@ -4,7 +4,7 @@ import { EmailService } from '$lib/utils/emailService';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { generateUniqueCode } from '$lib/utils/randomCode';
 import { fail, redirect } from '@sveltejs/kit'
-import { eq, inArray, sql, and } from 'drizzle-orm';
+import { eq, inArray, sql, and, ne } from 'drizzle-orm';
 import Stripe from 'stripe'
 
 const SECRET_STRIPE_KEY = import.meta.env.VITE_SECRET_STRIPE_KEY
@@ -39,6 +39,7 @@ export async function load({ locals, url }) {
         const ticketIdsArray = ticketIds.split(' ').map(Number);
         const giftCodesUsedIdsArray = giftCodesUsedIds.split(' ');
 
+		// Mark tickets as paid
         const updatedTickets = await db
 			.update(ticket)
 			.set({ status: 'paid' })
@@ -47,6 +48,30 @@ export async function load({ locals, url }) {
         if (updatedTickets.length > 0) {
             await db.update(showing).set({soldTickets: sql`${showing.soldTickets} + ${updatedTickets.length}`,}).where(eq(showing.id, Number(updatedTickets[0].showingId)));
         }
+
+		// Move tickets that are part of the booking but were left unpaid to a new booking
+		const unpaidTickets = await db
+			.select()
+			.from(ticket)
+			.where(
+				and(
+					eq(ticket.bookingId, <number><unknown>bookingId), ne(ticket.status, "paid")
+				)
+			);
+		// At least one ticket was not paid successfully
+		if (unpaidTickets.length > 0) {
+			// Create new booking
+			const newBookings = await db.insert(booking)
+				.values({
+					userId: locals.user.id,
+				})
+				.returning();
+
+            const userBooking = newBookings[0];
+
+			// Update bookingId to newly created booking
+			await db.update(ticket).set({ bookingId: userBooking.id }).where(and(eq(ticket.bookingId, Number(bookingId)), ne(ticket.status, "paid")))
+		}
 
         const codesToBuy = await db
 			.select({
