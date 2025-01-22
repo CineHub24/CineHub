@@ -1,4 +1,5 @@
 # CineHub
+cinehub.tech
 
 # Test Suite
 
