@@ -254,7 +254,7 @@
 	}
 
 	// Computed: Sorted seat categories (alphabetically)
-	const sortedSeatCategories = seatCategories.toSorted(
+	const sortedSeatCategories = [...seatCategories].sort(
 		(a, b) => a.name?.localeCompare(b.name ?? '') ?? 0
 	);
 
