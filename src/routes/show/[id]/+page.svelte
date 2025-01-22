@@ -15,6 +15,9 @@
 	import { createSSEManager } from '$lib/utils/sseManager';
 	import * as m from '$lib/paraglide/messages.js';
 
+
+    import { refreshTimer } from '../../../lib/stores/cartTimeStore';
+
 	interface SeatStatus {
 		status: 'available' | 'reserved' | 'paid';
 		userId: string | null;
@@ -402,6 +405,8 @@
 					addSelectedSeat(seatObj);
 				}
 			}
+
+			refreshTimer(); // optional: Timer neu starten
 
 			console.log('[SSE] seats after update:', seats);
 			console.log('[SSE] selectedSeats after update:', selectedSeats);
