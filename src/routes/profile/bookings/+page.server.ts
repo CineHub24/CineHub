@@ -17,7 +17,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async (event) => {
 	// Check if user is logged in
 	if (!event.locals.user) {
-		throw error(401, 'Unauthorized');
+		return fail(401,{ error:'Unauthorized'});
 	}
 
 	const user = event.locals.user;
