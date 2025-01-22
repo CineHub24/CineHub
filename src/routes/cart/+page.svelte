@@ -18,6 +18,7 @@
 		type PriceDiscount,
 		type GiftCode
 	} from '$lib/server/db/schema';
+	import { refreshTimer } from '$lib/stores/cartTimeStore';
 
 	let adress = '';
 	const PUBLIC_STRIPE_KEY = import.meta.env.PUBLIC_STRIPE_KEY;
@@ -98,6 +99,7 @@
 
 	onMount(async () => {
 		stripe = await loadStripe(PUBLIC_STRIPE_KEY);
+		refreshTimer();
 	});
 
 	function handleDeleteTicket(ticketId: number) {

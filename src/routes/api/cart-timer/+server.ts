@@ -36,17 +36,27 @@ export async function GET({ locals }) {
             return json({ timeLeft: null });
         }
 
+
+
         // get oldest ticket
         const oldestTicket = tickets.reduce((oldest, ticket) => {
             if (!oldest) return ticket;
             return ticket.ticket.createdAt! < oldest.ticket.createdAt! ? ticket : oldest;
         });
 
+        console.log('Oldest ticket createdAt:', oldestTicket.ticket.createdAt);
+
+
         // Calculate remaining time
         const BOOKING_WINDOW_MINUTES = 15;
         const currentTime = new Date();
-        const timeUntilShowing = Math.max(0, oldestTicket.ticket.createdAt!.getTime() + BOOKING_WINDOW_MINUTES - currentTime.getTime());
+        const timeUntilShowing = oldestTicket.ticket.createdAt!.getTime() + BOOKING_WINDOW_MINUTES * 60000 - currentTime.getTime();
+
+        console.log('Current time:', currentTime);
+        console.log('Time until showing:', timeUntilShowing);
         const remainingBookingTime = Math.floor(timeUntilShowing / 1000);
+
+        console.log('Remaining booking time:', remainingBookingTime);
 
         return json({
             timeLeft: remainingBookingTime > 0 ? remainingBookingTime : null
