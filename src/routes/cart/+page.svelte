@@ -147,7 +147,7 @@
 						{/each}
 						{#if giftCodes.length > 0}
 							<div class="discount-group">
-								<h3 class="showing-title">Gift Cards</h3>
+								<h3 class="showing-title">{m.gift_cards({})}</h3>
 								{#each giftCodes as giftCode}
 									<div class="discount-container">
 										<div class="discount-icon">

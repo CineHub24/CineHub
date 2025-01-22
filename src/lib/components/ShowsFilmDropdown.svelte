@@ -84,7 +84,7 @@
 		<!-- Calendar Header -->
 		<div class="flex items-center justify-between border-b p-4">
 			<h2 class="text-xl font-semibold text-gray-800">
-				{currentWeekStart.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+				{currentWeekStart.toLocaleDateString(m.language_date_string({}), { month: 'long', year: 'numeric' })}
 			</h2>
 			<div class="flex items-center space-x-4">
 				<button
@@ -128,7 +128,7 @@
 						<div class="flex items-center justify-between">
 							<div class="flex flex-col items-start">
 								<div class="text-sm font-medium text-gray-600">
-									{date.toLocaleDateString('de-DE', { weekday: 'long' })}
+									{date.toLocaleDateString(m.language_date_string({}), { weekday: 'long' })}
 								</div>
 								<div
 									class={`text-xl ${isToday(date) ? 'font-semibold text-blue-600' : 'text-gray-900'}`}
@@ -155,7 +155,7 @@
 				<div class="border-b bg-white p-6">
 					<h3 class="text-xl font-semibold text-gray-800">
 						{m.showings_on({})}
-						{selectedDate.toLocaleDateString('de-DE', {
+						{selectedDate.toLocaleDateString(m.language_date_string({}), {
 							weekday: 'long',
 							day: 'numeric',
 							month: 'long'
