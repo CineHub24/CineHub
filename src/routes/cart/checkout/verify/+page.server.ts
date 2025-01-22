@@ -3,7 +3,7 @@ import { booking, giftCodesUsed, showing, ticket } from '$lib/server/db/schema';
 import { EmailService } from '$lib/utils/emailService';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { fail, redirect } from '@sveltejs/kit';
-import { eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, ne, sql } from 'drizzle-orm';
 import Stripe from 'stripe';
 
 const SECRET_STRIPE_KEY = import.meta.env.VITE_SECRET_STRIPE_KEY;
@@ -49,6 +49,30 @@ export async function load({ locals, url }) {
 				.update(showing)
 				.set({ soldTickets: sql`${showing.soldTickets} + ${updatedTickets.length}` })
 				.where(eq(showing.id, Number(updatedTickets[0].showingId)));
+		}
+
+		// Move tickets that are part of the booking but were left unpaid to a new booking
+		const unpaidTickets = await db
+			.select()
+			.from(ticket)
+			.where(
+				and(
+					eq(ticket.bookingId, <number><unknown>bookingId), ne(ticket.status, "paid")
+				)
+			);
+		// At least one ticket was not paid successfully
+		if (unpaidTickets.length > 0) {
+			// Create new booking
+			const newBookings = await db.insert(booking)
+				.values({
+					userId: locals.user.id,
+				})
+				.returning();
+
+            const userBooking = newBookings[0];
+
+			// Update bookingId to newly created booking
+			await db.update(ticket).set({ bookingId: userBooking.id }).where(and(eq(ticket.bookingId, Number(bookingId)), ne(ticket.status, "paid")))
 		}
 
 		// ToDo: Mika is updating this coding to run the proper backend logic for price discounts
