@@ -21,22 +21,38 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
-      - name: Verify SSH Agent is Running
-        run: |
-          ssh-add -l
-        # Optional: Add debugging information
-        env:
-          SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
+
+      - name: Install netcat
+        run: sudo apt-get update && sudo apt-get install -y netcat
 
       - name: Create SSH Tunnel
         run: |
-          ssh -o StrictHostKeyChecking=no -N -L 5432:localhost:5432 your-username@your-server-ip &
+          setsid ssh -o StrictHostKeyChecking=no -N -L 5432:localhost:5432 your-username@your-server-ip > ssh_tunnel.log 2>&1 &
           echo $! > ssh_pid.txt
+          # Wait up to 15 seconds for the tunnel to establish
+          for i in {1..15}; do
+            if nc -z localhost 5432; then
+              echo "SSH tunnel established."
+              break
+            fi
+            sleep 1
+          done
+          # Verify tunnel
+          if ! nc -z localhost 5432; then
+            echo "ERROR: SSH tunnel could not be established."
+            cat ssh_tunnel.log
+            exit 1
+          fi
+
+      - name: Verify SSH Tunnel
+        run: |
+          lsof -i TCP:5432
+          # Optional: Try connecting to the database
+          PGPASSWORD=yourpassword psql -h localhost -U postgres -d cinehub -c '\conninfo' || echo "Cannot connect to PostgreSQL."
 
       - name: Validate DATABASE_URL secret
         env:
-          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "ERROR: DATABASE_URL secret is not set!"
@@ -46,14 +62,16 @@ jobs:
       - name: Generate migrations
         run: npx drizzle-kit generate
         env:
-          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Apply migrations
         run: npm run db:migrate
         env:
-          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Close SSH Tunnel
         if: always()
         run: |
-          kill $(cat ssh_pid.txt) || echo "SSH Tunnel already closed."
+          if [ -f ssh_pid.txt ]; then
+            kill $(cat ssh_pid.txt) || echo "SSH Tunnel already closed."
+          fi
