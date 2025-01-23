@@ -25,6 +25,7 @@ import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, and, inArray, not } from 'drizzle-orm';
 import * as m from '$lib/paraglide/messages.js';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 // Updated interface to match database structure
 interface TicketData {
@@ -333,7 +334,9 @@ export const actions = {
 			return fail(500, { error: m.server_error_discount({}) });
 		}
 	},
-	delete: async ({ request, locals }) => {
+	delete: async (event) => {
+		const request = event.request;
+		const locals = event.locals;
 		const data = await request.formData();
 		const ticketId = data.get('ticketId') as string | null;
 		const giftCodeId = data.get('giftCodeId') as string | null;
@@ -343,8 +346,18 @@ export const actions = {
 		try {
 			if (ticketId) {
 				await db.delete(ticket).where(eq(ticket.id, Number(ticketId)));
+				await logToDB(
+					LogLevel.INFO,
+					"Deleted ticket with id " + ticketId,	
+					event
+				);
 			} else if (giftCodeId) {
 				await db.delete(giftCodesUsed).where(eq(giftCodesUsed.giftCodeId, Number(giftCodeId)));
+				await logToDB(
+					LogLevel.INFO,
+					"Deleted gift code used with id " + giftCodeId,	
+					event
+				);
 			} else {
 				return fail(400, { error: m.no_valid_id({}) });
 			}

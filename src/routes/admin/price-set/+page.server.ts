@@ -3,6 +3,7 @@ import { priceSet, seatCategory, ticketType } from '$lib/server/db/schema';
 import { fail, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import * as m from '$lib/paraglide/messages.js';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 function JSONFormatter(seatCategories: string[], ticketTypes: string[]) {
 	const seatCategoryJSON = JSON.parse(seatCategories[0]);
@@ -36,7 +37,8 @@ export const load = async ({ url }) => {
 	};
 };
 export const actions = {
-	createPriceSet: async ({ request }) => {
+	createPriceSet: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 
 		const name = data.get('name') as string;
@@ -58,20 +60,31 @@ export const actions = {
 		};
 		try {
 			await db.insert(priceSet).values(newPriceSet);
+			await logToDB(
+				LogLevel.INFO,
+				"Created price set with name " + name,	
+				event
+			);
 		} catch (e) {
 			return fail(500, { message: m.error_creating_price_set });
 		}
 	},
-	delete: async ({ request }) => {
+	delete: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 		const id = data.get('priceSetId') as unknown as number;
 
 		if (!id) {
-			return fail(400, { message: m.missing_inputs });
+			return fail(400, { message: m.missing_inputs({}) });
 		}
 
 		try {
 			const result = await db.delete(priceSet).where(eq(priceSet.id, id));
+			await logToDB(
+				LogLevel.WARN,
+				"Deleted price set with id " + id,	
+				event
+			);
 		} catch (e) {
 			return fail(500, { message: m.error_deleting_price_set });
 		}

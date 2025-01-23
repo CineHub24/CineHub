@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { error, type Actions, type RequestEvent } from '@sveltejs/kit';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { fail } from '@sveltejs/kit';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 export type Movie = typeof film.$inferSelect;
 const apiKey = import.meta.env.VITE_OMDB_API_KEY;
@@ -84,7 +85,8 @@ export const actions = {
 			return fail(500, { error: 'Failed to fetch movie details' });
 		}
 	},
-	save: async ({ request }) => {
+	save: async (event) => {
+		const request = event.request;
 		const formData = await request.formData();
 
 		function extractNumberFromRuntime(runtime: string | null | undefined): number | null {
@@ -159,6 +161,11 @@ export const actions = {
 			}
 
 			[{ filmId }] = await db.insert(film).values(movieToSave).returning({ filmId: film.id });
+			await logToDB(
+				LogLevel.INFO,
+				"Created movie with id " + filmId,	
+				event
+			);
 
 			console.log(filmId);
 

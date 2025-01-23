@@ -1,8 +1,6 @@
-// src/routes/scanner/+page.server.ts
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { eq } from 'drizzle-orm';
-
 import { db } from '$lib/server/db';
 import {
 	cinemaHall,
@@ -63,11 +61,6 @@ export const actions = {
 				return fail(400, { error: 'Ticket wurde noch nicht bezahlt' });
 			}
 
-			// if (now > new Date(foundTicket.startTime.getTime() + 30 * 60000)) {
-			// 	return fail(400, {
-			// 		error: 'Einlass nur bis 30 Minuten vor und nach Vorstellungsbeginn'
-			// 	});
-			// }
 
 			// Ticket als verwendet markieren
 			const updatedTicket = await db
@@ -91,7 +84,7 @@ export const actions = {
 		} catch (error) {
 			console.error('Fehler bei der Ticket-Validierung:', error);
 			return fail(500, {
-				error: 'Ein interner Fehler ist aufgetreten'
+				error: 'Ticket nicht gefunden'
 			});
 		}
 	}

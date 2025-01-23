@@ -36,7 +36,7 @@
         <div class="relative">
             <ShoppingCart class="h-6 w-6 text-gray-700" />
             {#if $timeLeft > 0}
-                <div class="absolute -top-2 -right-2 {timerColor} text-xs font-medium">
+                <div class="absolute -top-3 -right-3 {timerColor} text-xs font-medium">
                     {formatTime($timeLeft)}
                 </div>
             {/if}

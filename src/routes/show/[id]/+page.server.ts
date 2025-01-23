@@ -14,6 +14,7 @@ import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../../$types';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { notifySeatChange } from '$lib/server/sse';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 type SeatType = typeof seat.$inferSelect;
 
@@ -32,7 +33,9 @@ type CinemaHall = typeof cinemaHall.$inferSelect;
 type Ticket = typeof ticket.$inferInsert;
 
 export const actions = {
-	reserveSeat: async ({ request, locals }) => {
+	reserveSeat: async (event) => {
+		const { request, locals } = event;
+
 		if (!locals.user) {
 			return fail(401, { error: 'Must be logged in to reserve seats' });
 		}
@@ -166,6 +169,11 @@ export const actions = {
 					price: finalPrice,
 					expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes from now
 				});
+				await logToDB(
+					LogLevel.INFO,
+					"Reserved seat " + seatId + " for showing " + showingId,	
+					event
+				);
 			}
 
 			if (showingId) {
@@ -180,7 +188,8 @@ export const actions = {
 		}
 	},
 
-	cancelSeat: async ({ request, locals }) => {
+	cancelSeat: async (event) => {
+		const { request, locals } = event;
 		if (!locals.user) {
 			return fail(401, { error: 'Must be logged in to cancel reservation' });
 		}
@@ -210,6 +219,11 @@ export const actions = {
 			}
 
 			await db.delete(ticket).where(eq(ticket.id, existingTicket[0].id));
+			await logToDB(
+				LogLevel.INFO,
+				"Cancelled reservation for seat " + seatId + " on showing " + showingId,	
+				event
+			);
 
 			if (showingId) {
 				await notifySeatChange(showingId.toString());
@@ -322,6 +336,9 @@ export const actions = {
 } satisfies Actions;
 
 export const load: PageServerLoad = async ({ params, locals }) => {
+	if (!locals.user) {
+		return languageAwareRedirect(301, '/login');
+	}
 	const showingId = Number(params.id);
 
 	// 1) Load showing
