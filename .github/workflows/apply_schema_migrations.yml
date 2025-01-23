@@ -54,6 +54,10 @@ jobs:
           echo "Verifying SSH Tunnel..."
           lsof -i TCP:5432
 
+          PGPASSWORD=${{ secrets.DB_PASSWORD }} psql -h localhost -U postgres -d cinehub -c '\conninfo' || {
+            echo "ERROR: Cannot connect to PostgreSQL."
+            exit 1
+          }
 
       - name: Validate DATABASE_URL
         run: |
