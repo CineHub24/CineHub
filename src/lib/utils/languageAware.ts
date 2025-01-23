@@ -17,7 +17,7 @@ export function languageAwareGoto(path: string, options?: Parameters<typeof goto
 export function languageAwareRedirect(status: number, path: string) {
 	const currentLanguage = languageTag();
 	if (currentLanguage === 'en') {
-		return redirect(status, path);
+		throw redirect(status, path);
 	}
 
 	// Ensure the path starts with the current language

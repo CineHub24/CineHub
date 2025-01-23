@@ -13,7 +13,8 @@ export const load = async (event) => {
 		preferredCinemaId = cinemas[0].id;
 	}
 
-	const movies = await db.select().from(table.film);
+	const allMovies = await db.select().from(table.film);
+	const movies = allMovies.sort(() => Math.random() - 0.5);
 
 	const shows = await db
 		.select({

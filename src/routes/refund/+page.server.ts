@@ -51,25 +51,6 @@ export const load = async ({ locals }) => {
 	};
 };
 export const actions: Actions = {
-	refund: async ({ request }) => {
-		//TODO: Grant Refund
-
-		const formData = await request.formData();
-		let ticketIds = formData.getAll('ticketIds') as unknown as number[];
-
-		console.log(ticketIds);
-
-		console.log('Refund Requested');
-		try {
-			await db
-				.update(ticket)
-				.set({ status: ticketStatusEnum.enumValues[3] })
-				.where(inArray(ticket.id, ticketIds));
-		} catch (e) {
-			console.log(e);
-			return dbFail;
-		}
-	},
 	bookNew: async ({ request }) => {
 		const formData = await request.formData();
 		let refundAmount = formData.get('totalPrice') as string;
@@ -86,7 +67,8 @@ export const actions: Actions = {
 				.values({
 					code: code,
 					value: refundAmount,
-					discountType: discountTypesEnum.enumValues[1]
+					discountType: discountTypesEnum.enumValues[1],
+					expiresAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365 * 2).toISOString()
 				})
 				.returning({ code: priceDiscount.code });
 			await db

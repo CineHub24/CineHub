@@ -2,7 +2,6 @@
 	import type { PageData, ActionData } from './$types';
 	import { languageAwareGoto } from '$lib/utils/languageAware.js';
 	import * as m from '$lib/paraglide/messages.js';
-	import { formatDate, formatTime } from '$lib/utils/formatter.js';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 	let { refundableShows } = data;
@@ -43,7 +42,7 @@
 					<div class="show-card">
 						<h2>{show.filmTitle}</h2>
 						<p class="show-details">
-							{m.date({})}: {formatDate(show.date)} | {m.time({})}: {formatTime(show.time)}
+							{m.date({})}: {new Date(show.date).toLocaleDateString(m.language_date_string({}))} | {m.time({})}: {new Date(show.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 						</p>
 						<p class="show-details">{m.booked_seats({})}: {show.ticketCount}</p>
 						<p class="refund-amount">{m.refund_amount({})}: {show.totalPrice}€</p>
@@ -54,9 +53,9 @@
 						<input class="form-input" name="totalPrice" type="hidden" value={show.totalPrice} />
 
 						<div class="options">
-							<button class="refund-btn" formaction="?/refund" type="submit">
+							<!-- <button class="refund-btn" formaction="?/refund" type="submit">
 								{m.collect_refund({})}
-							</button>
+							</button> -->
 							<button class="book-btn" formaction="?/bookNew" type="submit">
 								{m.book_new_ticket({})}
 							</button>
