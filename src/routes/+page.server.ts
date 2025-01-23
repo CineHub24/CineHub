@@ -50,6 +50,9 @@ export const load = async (event) => {
 };
 export const actions = {
 	addToCart: async ({ request, locals }) => {
+		if (!locals.user) {
+			return languageAwareRedirect(301, '/login');
+		}
 		const formData = await request.formData();
 		const giftCodeId = formData.get('giftCardId') as unknown as number;
 
@@ -59,30 +62,31 @@ export const actions = {
 				.from(table.giftCodes)
 				.where(eq(table.giftCodes.id, giftCodeId));
 
-			let userBooking = await db
-				.select()
-				.from(table.booking)
-				.where(
-					and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed'))
-				);
-			if (userBooking.length == 0) {
-				userBooking = await db
-					.insert(table.booking)
-					.values({
-						userId: locals.user!.id
-					})
-					.returning();
-			}
-			const currBooking = userBooking[0];
+
+		let userBooking = await db
+			.select()
+			.from(table.booking)
+			.where(and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed')));
+
+		if (userBooking.length == 0) {
+			userBooking = await db
+				.insert(table.booking)
+				.values({
+					userId: locals.user!.id
+				})
+				.returning();
+		}
+
+		const currBooking = userBooking[0];
 
 			await db
 				.insert(table.giftCodesUsed)
 				.values({ giftCodeId: giftCodeId, bookingId: currBooking.id });
 
-			await db
-				.update(table.booking)
-				.set({ finalPrice: currBooking.basePrice + giftCard[0].amount })
-				.where(eq(table.booking.id, currBooking.id));
+		await db
+			.update(table.booking)
+			.set({ finalPrice: String(Number(currBooking.basePrice) + Number(giftCard[0].amount)) })
+			.where(eq(table.booking.id, currBooking.id));
 
 			languageAwareRedirect(303, '/cart');
 		} catch (error) {

@@ -8,6 +8,7 @@ import { generateUserId } from '$lib/utils/user';
 import { validateEmail, validatePassword } from '$lib/utils/user';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { EmailService } from '$lib/utils/emailService';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 export const load: PageServerLoad = async (event) => {
 	return {};
@@ -37,6 +38,11 @@ export const actions: Actions = {
 
 		try {
 			await db.insert(table.user).values({ id: userId, email, password: passwordHash });
+			await logToDB(
+				LogLevel.INFO,
+				"Created user with email " + email,	
+				event
+			);
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, userId);
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);

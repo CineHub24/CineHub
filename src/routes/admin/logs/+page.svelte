@@ -1,74 +1,79 @@
 <script lang="ts">
-	import * as m from '$lib/paraglide/messages.js';
+	import { JSONEditor } from 'svelte-jsoneditor';
+
 	const { data } = $props();
-	const { logs } = data;
+	let logs = $state(data.logs);
+
+	function toggleMetadata(log) {
+		log.showMetadata = !log.showMetadata;
+		logs = [...logs];
+	}
 </script>
 
-<div class="container">
-	<h1 class="mb-4 text-2xl font-bold">{m.system_logs({})}</h1>
-	<table class="logs-table">
-		<thead>
-			<tr>
-				<th>{m.id({})}</th>
-				<th>{m.level({})}</th>
-				<th>{m.message({})}</th>
-				<th>{m.metadata({})}</th>
-				<th>{m.timestamp({})}</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each logs as log}
+<div class="container mx-auto px-4 py-8">
+	<h1 class="mb-6 text-3xl font-bold text-gray-800">System Logs</h1>
+
+	<div class="overflow-hidden rounded-lg bg-white shadow-md">
+		<table class="min-w-full divide-y divide-gray-200">
+			<thead class="bg-gray-50">
 				<tr>
-					<td>{log.id}</td>
-					<td class={log.level}>{log.level}</td>
-					<td>{log.message}</td>
-					<td><pre>{JSON.stringify(log.metadata, null, 2)}</pre></td>
-					<td>{log.createdAt ? new Date(log.createdAt).toLocaleString() : m.not_available({})}</td>
+					<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+						>ID</th
+					>
+					<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+						>Level</th
+					>
+					<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+						>Message</th
+					>
+					<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+						>Timestamp</th
+					>
+					<th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+						>Actions</th
+					>
 				</tr>
-			{/each}
-		</tbody>
-	</table>
+			</thead>
+			<tbody class="divide-y divide-gray-200 bg-white">
+				{#each logs as log}
+					<tr>
+						<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{log.id}</td>
+						<td class="whitespace-nowrap px-6 py-4">
+							<span
+								class="inline-flex rounded-full px-2 text-xs font-semibold leading-5
+{log.level.toLowerCase() === 'info'
+									? 'bg-green-100 text-green-800'
+									: log.level.toLowerCase() === 'warning'
+										? 'bg-yellow-100 text-yellow-800'
+										: 'bg-red-100 text-red-800'}"
+							>
+								{log.level}
+							</span>
+						</td>
+						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{log.message}</td>
+						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+							{log.createdAt ? new Date(log.createdAt).toLocaleString() : 'N/A'}
+						</td>
+						<td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
+							<button
+								on:click={() => toggleMetadata(log)}
+								class="text-indigo-600 hover:text-indigo-900"
+							>
+								{log.showMetadata ? 'Hide' : 'Show'} Metadata
+							</button>
+						</td>
+					</tr>
+					{#if log.showMetadata}
+						<tr>
+							<td colspan="5" class="px-6 py-4">
+								<div class="rounded-lg bg-gray-50 p-4">
+									<JSONEditor content={{ json: log.metadata }} readOnly={true} />
+								</div>
+							</td>
+						</tr>
+					{/if}
+				{/each}
+			</tbody>
+		</table>
+	</div>
 </div>
-
-<style>
-	.container {
-		max-width: 900px;
-		margin: 40px auto;
-		padding: 20px;
-		background-color: #f9f9f9;
-		border-radius: 10px;
-		box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-	}
-
-	.logs-table {
-		width: 100%;
-		border-collapse: collapse;
-	}
-
-	.logs-table th,
-	.logs-table td {
-		border: 1px solid #ddd;
-		padding: 10px;
-		text-align: left;
-	}
-
-	.logs-table th {
-		background-color: #f2f2f2;
-	}
-
-	.info {
-		color: blue;
-	}
-	.warn {
-		color: orange;
-	}
-	.error {
-		color: red;
-	}
-
-	pre {
-		white-space: pre-wrap;
-		word-wrap: break-word;
-		max-width: 300px;
-	}
-</style>

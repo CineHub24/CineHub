@@ -100,7 +100,7 @@ import ShoppingCart from '$lib/components/ShoppingCart.svelte';
 	}
 </script>
 
-<header class="relative flex items-center bg-gray-100 p-4 shadow-md">
+<header class="relative flex items-center bg-gray-100 p-4  shadow-md">
 	<!-- Left: Logo und Site Name -->
 	<div class="flex items-center justify-between">
 		<a class="flex items-center space-x-4" href="/">
