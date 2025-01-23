@@ -54,7 +54,7 @@ jobs:
 
       - name: Validate DATABASE_URL secret
         env:
-          DATABASE_URL: postgres://postgres:yourpassword@cinehub_db:5432/cinehub
+          DATABASE_URL: postgres://postgres:yourpassword@localhost:5432/cinehub
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "ERROR: DATABASE_URL secret is not set!"
@@ -64,12 +64,12 @@ jobs:
       - name: Generate migrations
         run: npx drizzle-kit generate
         env:
-          DATABASE_URL: postgres://postgres:yourpassword@cinehub_db:5432/cinehub
+          DATABASE_URL: postgres://postgres:yourpassword@localhost:5432/cinehub
 
       - name: Apply migrations
         run: npm run db:migrate
         env:
-          DATABASE_URL: postgres://postgres:yourpassword@cinehub_db:5432/cinehub
+          DATABASE_URL: postgres://postgres:yourpassword@localhost:5432/cinehub
 
       - name: Close SSH Tunnel
         if: always()
