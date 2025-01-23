@@ -53,7 +53,8 @@ jobs:
         run: |
           echo "Verifying SSH Tunnel..."
           lsof -i TCP:5432
-
+          
+          # Attempt to connect to PostgreSQL using psql
           PGPASSWORD=yourpassword psql -h localhost -U postgres -d cinehub -c '\conninfo' || {
             echo "ERROR: Cannot connect to PostgreSQL."
             exit 1
@@ -87,3 +88,7 @@ jobs:
           if [ -f ssh_pid.txt ]; then
             kill $(cat ssh_pid.txt) || echo "SSH Tunnel already closed."
           fi
+
+      - name: Display SSH Tunnel Logs on Failure
+        if: failure()
+        run: cat ssh_tunnel.log
