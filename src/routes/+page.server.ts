@@ -46,6 +46,9 @@ export const load = async (event) => {
 };
 export const actions = {
 	addToCart: async ({ request, locals }) => {
+		if (!locals.user) {
+			return languageAwareRedirect(301, '/login');
+		}
 		const formData = await request.formData();
 		const giftCodeId = formData.get('giftCardId') as unknown as number;
 		const giftCard = await db

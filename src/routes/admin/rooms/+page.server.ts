@@ -3,10 +3,9 @@
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
 import { cinema, cinemaHall } from '$lib/server/db/schema';
-import type { Actions, PageServerLoad } from './v2/$types';
+import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-import { logToDB } from '$lib/utils/dbLogger';
-import { url } from 'node:inspector';
+import { logToDB, LogLevel } from '$lib/utils/dbLogger';
 
 export const actions = {
 	deleteCinemaHall: async (event) => {
@@ -31,10 +30,7 @@ export const actions = {
 			const userEmail = event.locals.user?.email || 'unknown user';
 			const userId = event.locals.user?.id || 'unknown ID';
 
-			await logToDB(
-				'info',
-				`Cinema hall deleted with id: ${deletedId} by user: ${userEmail} (${userId})`
-			);
+		
 
 			return {
 				success: true,

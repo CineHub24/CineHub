@@ -3,6 +3,7 @@ import { ticketType } from '$lib/server/db/schema';
 import { error, fail, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne } from 'drizzle-orm';
 import * as m from '$lib/paraglide/messages.js';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 const dbFail = fail(500, { error: m.internal_server_error({}) });
 
@@ -18,7 +19,8 @@ export const load = async ({ url }) => {
 	}
 };
 export const actions = {
-	createTicketType: async ({ request }) => {
+	createTicketType: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 
 		const name = data.get('name') as string;
@@ -37,16 +39,27 @@ export const actions = {
 
 		try {
 			await db.insert(ticketType).values(newticketType).execute();
+			await logToDB(
+				LogLevel.INFO,
+				"Created ticket type with name " + name,	
+				event
+			);
 		} catch (e) {
 			return dbFail;
 		}
 	},
-	deleteTicketType: async ({ request, url }) => {
+	deleteTicketType: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 		const id = data.get('id') as unknown as number;
 
 		try {
 			await db.delete(ticketType).where(eq(ticketType.id, id));
+			await logToDB(
+				LogLevel.WARN,
+				"Deleted ticket type with id " + id,	
+				event
+			);
 		} catch (e) {
 			return dbFail;
 		}

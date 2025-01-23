@@ -5,6 +5,7 @@ import { db } from '$lib/server/db';
 import { cinemaHall, seatCategory, seat, type Seat, cinema } from '$lib/server/db/schema';
 import { eq, and, gte } from 'drizzle-orm';
 import { languageAwareGoto, languageAwareRedirect } from '$lib/utils/languageAware';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 interface Block {
 	id: number;
@@ -64,7 +65,8 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions: Actions = {
-	save: async ({ request }) => {
+	save: async (event) => {
+		const request = event.request;
 		let shouldRedirect = false;
 
 		let room = null;
@@ -175,6 +177,11 @@ export const actions: Actions = {
 				// Bulk insert seats
 				await tx.insert(seat).values(seatsToInsert);
 			});
+			await logToDB(
+				LogLevel.INFO,
+				"Created room with id " + room.id,	
+				event
+			);
 
 			if (isCreate) {
 				shouldRedirect = true;

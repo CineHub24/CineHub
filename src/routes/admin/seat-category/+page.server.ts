@@ -4,6 +4,7 @@ import type { Actions, PageServerLoad } from './v3/$types';
 import { db } from '$lib/server/db';
 import { seatCategory } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 export const load: PageServerLoad = async () => {
 	try {
@@ -21,8 +22,9 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions = {
-	create: async ({ request }) => {
-		const formData = await request.formData();
+	create: async (event) => {
+		
+		const formData = await event.request.formData();
 
 		// Convert and validate form data
 		const width = parseInt(formData.get('width') as string);
@@ -57,6 +59,11 @@ export const actions = {
 			} as const;
 
 			const newCategory = await db.insert(seatCategory).values(values).returning();
+			await logToDB(
+				LogLevel.INFO,
+				"Created new seat category with name '" + values.name + "'",	
+				event
+			);
 
 			console.log('newCategory:', newCategory);
 
@@ -107,13 +114,19 @@ export const actions = {
 		}
 	},
 
-	delete: async ({ request }) => {
+	delete: async (event) => {
+		const request = event.request;
 		const formData = await request.formData();
 		const id = parseInt(formData.get('id') as string);
 
 		try {
 			// Soft delete by setting isActive to false
 			await db.update(seatCategory).set({ isActive: false }).where(eq(seatCategory.id, id));
+			await logToDB(
+				LogLevel.INFO,
+				"Deaktivated seat category with id " + id,	
+				event
+			);
 
 			return {
 				type: 'success',
