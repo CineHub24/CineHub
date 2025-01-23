@@ -29,7 +29,7 @@ jobs:
 
       - name: Create SSH Tunnel
         run: |
-          setsid ssh -o StrictHostKeyChecking=no -N -L 5432:localhost:5432 your-username@your-server-ip > ssh_tunnel.log 2>&1 &
+          setsid ssh -o StrictHostKeyChecking=no -N -L 5432:localhost:5432 root@161.35.19.253 > ssh_tunnel.log 2>&1 &
           echo $! > ssh_pid.txt
           # Wait up to 15 seconds for the tunnel to establish
           for i in {1..15}; do
