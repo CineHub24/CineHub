@@ -14,7 +14,7 @@ export const logToDB = async (
 	event: RequestEvent
 ) => {
 	try {
-		const metadata = {};
+		let metadata = {};
 
 		const userEmail = event?.locals?.user?.email || 'unknown user';
 		const role = event?.locals?.user?.role || 'unknown role';
@@ -22,15 +22,16 @@ export const logToDB = async (
 		 
 		message = `${message} - User: ${userEmail} - Role: ${role} - Route: ${route}`;
 
-		const enrichedMetadata = {
-			...metadata,
-			event
-		};
+		metadata = JSON.parse(JSON.stringify(event, (key, value) => {
+			// Remove circular references
+			if (key === 'socket') return undefined;
+			return value;
+		}));
 
 		await db.insert(logs).values({
 			level,
 			message,
-			metadata: enrichedMetadata
+			metadata: metadata
 		});
 	} catch (error) {
 		console.error('Failed to log to database:', error);
