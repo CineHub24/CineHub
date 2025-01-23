@@ -21,6 +21,13 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Verify SSH Agent is Running
+        run: |
+          ssh-add -l
+        # Optional: Add debugging information
+        env:
+          SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
 
       - name: Create SSH Tunnel
         run: |
