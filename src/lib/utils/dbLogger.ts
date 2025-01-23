@@ -17,8 +17,8 @@ export const logToDB = async (
         const metadata = {
             url: event.url.toString(), // Store the URL as a string
             method: event.request.method,
-            // Add other relevant non-circular properties
-            clientIp: event.getClientAddress(),
+			locals: event.locals,
+            // clientIp: event.getClientAddress(),
             routeId: event.route.id,
             params: event.params
         };
