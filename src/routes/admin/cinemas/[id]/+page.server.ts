@@ -3,6 +3,7 @@ import { cinema, type Cinema } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
@@ -14,7 +15,8 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions = {
-	update: async ({ request }) => {
+	update: async (event) => {
+		const request = event.request;	
 		const formData = await request.formData();
 		const id = formData.get('id') as unknown as number;
 		const name = formData.get('name') as string;
@@ -34,6 +36,11 @@ export const actions = {
 		}
 		try {
 			await db.update(cinema).set({ name, address, opentime, closeTime }).where(eq(cinema.id, id));
+			await logToDB(
+				LogLevel.INFO,
+				"Updated cinema with id " + id,	
+				event
+			);
 			return { success: 'Cinema successfully updated!' };
 		} catch (error) {
 			console.log(error);

@@ -6,6 +6,7 @@ import { fail } from '@sveltejs/kit';
 import { EmailService } from '$lib/utils/emailService.js';
 import { validatePassword } from '$lib/utils/user.js';
 import { hash } from 'argon2';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 export const load = async ({ url }) => {
 	const token = url.searchParams.get('token');
@@ -50,7 +51,8 @@ export const actions = {
 			return fail(500, { error: 'Error while reseting password' });
 		}
 	},
-	setNewPassword: async ({ request, url }) => {
+	setNewPassword: async (event) => {
+		const request = event.request;
 		const formData = await request.formData();
 		const token = formData.get('token') as unknown as string;
 		const password = formData.get('password') as unknown as string;
@@ -84,6 +86,11 @@ export const actions = {
 				.set({ password: passwordHash })
 				.where(eq(user.id, userToChange[0].userId as string));
 			await db.delete(passwordReset).where(eq(passwordReset.token, token as string));
+			await logToDB(
+				LogLevel.INFO,
+				"Changed password for user with id " + userToChange[0].userId,	
+				event
+			);
 			return { success: 'Password has been changed' };
 		} catch (error) {
 			console.log(error);

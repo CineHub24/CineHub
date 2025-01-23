@@ -7,6 +7,7 @@ import {
 	type SeatCategory,
 	type TicketType
 } from '$lib/server/db/schema';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 export const load = async (event) => {
 	const seatCategories = await db.select().from(seatCategory).orderBy(seatCategory.price);
@@ -28,6 +29,11 @@ export const load = async (event) => {
 		newSeatCategory = (
 			await db.insert(seatCategory).values(standardSeat).returning({ id: seatCategory.id })
 		).map((cat) => cat.id);
+		await logToDB(
+			LogLevel.INFO,
+			"Created standard seat category 'Regular Seat' with price 10",	
+			event
+		);
 	}
 
 	const ticketTypes = await db.select().from(ticketType);

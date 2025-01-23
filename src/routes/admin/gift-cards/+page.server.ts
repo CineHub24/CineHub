@@ -3,6 +3,7 @@ import { giftCodes, priceSet, seatCategory, ticketType } from '$lib/server/db/sc
 import { fail, type Actions } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import * as m from '$lib/paraglide/messages.js';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 export const load = async ({ url }) => {
 	const giftCards = await db.select().from(giftCodes).orderBy(giftCodes.amount);
@@ -13,7 +14,8 @@ export const load = async ({ url }) => {
 };
 
 export const actions = {
-	createGiftCard: async ({ request }) => {
+	createGiftCard: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 
 		const description = data.get('description') as string;
@@ -30,11 +32,13 @@ export const actions = {
 
 		try {
 			await db.insert(giftCodes).values(newGiftCard);
+			await logToDB(LogLevel.INFO, 'Created gift card with amount ' + amount, event);
 		} catch (e) {
 			return fail(400, { message: m.invalid_factor({}) });
 		}
 	},
-	updateGiftCard: async ({ request }) => {
+	updateGiftCard: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 		const id = data.get('giftCardId') as unknown as number;
 		const description = data.get('description') as string;
@@ -46,16 +50,19 @@ export const actions = {
 
 		try {
 			await db.update(giftCodes).set({ amount, description }).where(eq(giftCodes.id, id));
+			await logToDB(LogLevel.INFO, 'Updated gift card with id ' + id, event);
 		} catch (e) {
 			return fail(400, { message: m.internal_server_error({}) });
 		}
 	},
-	deleteGiftCard: async ({ request }) => {
+	deleteGiftCard: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 		const id = data.get('giftCardId') as unknown as number;
 
 		try {
 			await db.delete(giftCodes).where(eq(giftCodes.id, id));
+			await logToDB(LogLevel.INFO, 'Deleted gift card with id ' + id, event);
 		} catch (e) {
 			return fail(400, { message: m.internal_server_error({}) });
 		}

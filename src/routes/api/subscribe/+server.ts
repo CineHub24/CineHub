@@ -2,8 +2,10 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { subscribersNewsletter } from '$lib/server/db/schema';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async (event) => {
+	const request = event.request;
 	try {
 		const { email } = await request.json();
 
@@ -15,6 +17,11 @@ export const POST: RequestHandler = async ({ request }) => {
 		console.log('Neue Newsletter-Anmeldung:', email);
 
 		await db.insert(subscribersNewsletter).values({ email });
+		await logToDB(
+			LogLevel.INFO,
+			"New subscriber with email " + email,	
+			event
+		);
 
 		return json({ message: 'Erfolgreich angemeldet!' });
 	} catch (error) {

@@ -16,6 +16,7 @@ import { conflictingShowings } from '$lib/utils/timeSlots.js';
 import { languageAwareRedirect } from '$lib/utils/languageAware.js';
 
 import { EmailService } from '$lib/utils/emailService';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 function getID(url: URL) {
 	const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
@@ -110,18 +111,26 @@ export const actions = {
 			return dbFail;
 		}
 	},
-	delete: async ({ url, request }) => {
+	delete: async (event) => {
+		const url = event.url;
+		const request = event.request;
 		const filmId = (await request.formData()).get('filmId') as unknown as number;
 
 		try {
 			await db.delete(showing).where(eq(showing.id, getID(url)));
+			await logToDB(
+				LogLevel.INFO,
+				"Deleted showing with id " + getID(url),	
+				event
+			);
 		} catch (e) {
 			console.log('error' + e);
 			return dbFail;
 		}
 		return languageAwareRedirect(302, `/admin/film/${filmId}`);
 	},
-	cancel: async ({ request, url }) => {
+	cancel: async (event) => {
+		const request = event.request;
 		const formData = await request.formData();
 
 		const showId = formData.get('showId') as unknown as number;
@@ -131,13 +140,19 @@ export const actions = {
 
 		try {
 			await db.update(showing).set({ cancelled: true }).where(eq(showing.id, showId));
+			await logToDB(
+				LogLevel.INFO,
+				"Cancelled showing with id " + showId,	
+				event
+			);
 			await notifyUsers(showId);
 		} catch (e) {
 			console.log('error' + e);
 			return dbFail;
 		}
 	},
-	uncancel: async ({ request, url }) => {
+	uncancel: async (event) => {
+		const request = event.request;
 		const formData = await request.formData();
 		const showId = formData.get('showId') as unknown as number;
 		const hallId = formData.get('hallId') as unknown as number;
@@ -163,6 +178,11 @@ export const actions = {
 		} else {
 			try {
 				await db.update(showing).set({ cancelled: false }).where(eq(showing.id, showId));
+				await logToDB(
+					LogLevel.INFO,
+					"Uncancelled showing with id " + showId,	
+					event
+				);
 			} catch (e) {
 				console.error('Fehler beim Wiederherstellen der Vorstellung:', e);
 				return dbFail;

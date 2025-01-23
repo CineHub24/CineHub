@@ -15,6 +15,7 @@ import {
 import { db } from '$lib/server/db';
 import { languageAwareRedirect } from '$lib/utils/languageAware.js';
 import repeat from 'lucide-svelte/icons/repeat';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 interface Conflict {
 	failed: any;
 	blocking: any;
@@ -92,7 +93,8 @@ export const actions = {
 		const times = getPossibletimes(timeWindow, totalDuration, 5);
 		return { success: true, times };
 	},
-	saveShowing: async ({ request }) => {
+	saveShowing: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 		const filmId = Number(data.get('filmId'));
 		const hallId = Number(data.get('hallId'));
@@ -140,6 +142,11 @@ export const actions = {
 							priceSetId: priceSetId,
 							date: show.date
 						});
+						await logToDB(
+							LogLevel.INFO,
+							"Created showing for film with id " + filmId,	
+							event
+						);
 						successfulShows.push(show);
 					} else {
 						const conflictedShow = await db
@@ -178,6 +185,11 @@ export const actions = {
 					priceSetId: priceSetId,
 					date: date
 				});
+				await logToDB(
+					LogLevel.INFO,
+					"Created showing for film with id " + filmId,	
+					event
+				);
 			}
 		} catch (error) {
 			console.log(error);
