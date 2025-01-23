@@ -53,12 +53,7 @@ jobs:
         run: |
           echo "Verifying SSH Tunnel..."
           lsof -i TCP:5432
-          
-          # Attempt to connect to PostgreSQL using psql
-          PGPASSWORD=yourpassword psql -h localhost -U postgres -d cinehub -c '\conninfo' || {
-            echo "ERROR: Cannot connect to PostgreSQL."
-            exit 1
-          }
+
 
       - name: Validate DATABASE_URL
         run: |
