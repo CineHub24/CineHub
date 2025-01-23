@@ -25,9 +25,17 @@ export const actions: Actions = {
 		if (!validateEmail(email)) {
 			return fail(400, { message: 'Invalid email' });
 		}
-		if (!validatePassword(password)) {
-			return fail(400, { message: 'Invalid password' });
+		try {
+			if (!validatePassword(password)) {
+				return fail(400, { message: 'Invalid password' });
+			}
+		} catch (e) {
+			console.log('e', e);
+			console.error(e);
+			// (Multiple error logs)
+			return fail(400, { message: e });
 		}
+
 
 		const results = await db.select().from(table.user).where(eq(table.user.email, email));
 

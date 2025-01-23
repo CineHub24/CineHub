@@ -17,9 +17,19 @@ jobs:
           npm install
           npm install -g drizzle-kit pg
 
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Create SSH Tunnel
+        run: |
+          ssh -N -L 5432:localhost:5432 your-username@your-server-ip &
+          echo $! > ssh_pid.txt
+
       - name: Validate DATABASE_URL secret
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "ERROR: DATABASE_URL secret is not set!"
@@ -29,9 +39,13 @@ jobs:
       - name: Generate migrations
         run: npx drizzle-kit generate
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
 
       - name: Apply migrations
         run: npm run db:migrate
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
+
+      - name: Close SSH Tunnel
+        run: |
+          kill $(cat ssh_pid.txt)

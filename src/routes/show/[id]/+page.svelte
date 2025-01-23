@@ -639,53 +639,82 @@
 						</div>
 						<!-- Seats -->
 						{#each seats as seat (seat.id)}
-							{@const category = seatCategories.find((c) => c.id === seat.categoryId)}
-							{@const dims = getBlockDimensions(seat.categoryId)}
-
-							<div
-								class="absolute flex items-center justify-center rounded transition-colors duration-200"
-								class:cursor-pointer={!seat.booked || seat.reservedByUser}
-								class:cursor-not-allowed={seat.booked && !seat.reservedByUser}
-								class:pending={seat.pending}
-								style="
-                                left: {seat.left}px;
-                                top: {seat.top}px;
-                                width: {dims.width}px;
-                                height: {dims.height}px;
-                                transform: rotate({seat.rotation}deg);
-                            "
-								onclick={() => toggleSeat(seat)}
-							>
-								{#if category?.customPath}
+						{@const category = seatCategories.find((c) => c.id === seat.categoryId)}
+						{@const dims = getBlockDimensions(seat.categoryId)}
+					
+						<div
+							class="absolute flex items-center justify-center rounded transition-colors duration-200"
+							class:cursor-pointer={!seat.booked || seat.reservedByUser}
+							class:cursor-not-allowed={seat.booked && !seat.reservedByUser}
+							style="
+								left: {seat.left}px;
+								top: {seat.top}px;
+								width: {dims.width}px;
+								height: {dims.height}px;
+								transform: rotate({seat.rotation}deg);
+							"
+							onclick={() => toggleSeat(seat)}
+						>
+							<!-- If seat is pending, show spinner overlay -->
+							{#if seat.pending}
+								<div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
+									<!-- Tailwind spinner -->
 									<svg
-										width={dims.width}
-										height={dims.height}
-										viewBox="0 0 {dims.width} {dims.height}"
+										class="animate-spin h-6 w-6 text-white"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
 									>
+										<circle
+											class="opacity-25"
+											cx="12"
+											cy="12"
+											r="10"
+											stroke="currentColor"
+											stroke-width="4"
+										></circle>
 										<path
-											d={category.customPath}
-											fill={seat.status === 'paid'
+											class="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 100 16v4l3.5-3.5L12 20v4a8 8 0 01-8-8z"
+										></path>
+									</svg>
+								</div>
+							{/if}
+					
+							<!-- The seat shape (SVG or path) -->
+							{#if category?.customPath}
+								<svg
+									width={dims.width}
+									height={dims.height}
+									viewBox="0 0 {dims.width} {dims.height}"
+								>
+									<path
+										d={category.customPath}
+										fill={
+											seat.status === 'paid'
 												? '#9CA3AF'
 												: seat.reservedByOthers
 													? '#FCD34D'
 													: seat.reservedByUser
 														? '#10B981'
-														: category.color}
-											stroke="white"
-											stroke-width="1"
-										/>
-									</svg>
-								{/if}
-
-								{#if seat.row && seat.seatNumber}
-									<div
-										class="absolute bottom-0 right-0 rounded-tl bg-black bg-opacity-50 px-1 py-0.5 text-xs text-white"
-									>
-										{seat.row}{seat.seatNumber}
-									</div>
-								{/if}
-							</div>
-						{/each}
+														: category.color
+										}
+										stroke="white"
+										stroke-width="1"
+									/>
+								</svg>
+							{/if}
+					
+							{#if seat.row && seat.seatNumber}
+								<div
+									class="absolute bottom-0 right-0 rounded-tl bg-black bg-opacity-50 px-1 py-0.5 text-xs text-white"
+								>
+									{seat.row}{seat.seatNumber}
+								</div>
+							{/if}
+						</div>
+					{/each}
 					</div>
 				</div>
 			</div>
@@ -693,23 +722,3 @@
 	</div>
 </div>
 
-<style>
-	.pending {
-		animation: pulse 1s infinite;
-	}
-
-	@keyframes pulse {
-		0% {
-			transform: scale(1);
-			opacity: 1;
-		}
-		50% {
-			transform: scale(1.05);
-			opacity: 0.7;
-		}
-		100% {
-			transform: scale(1);
-			opacity: 1;
-		}
-	}
-</style>

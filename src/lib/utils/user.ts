@@ -21,7 +21,7 @@ export function validatePassword(password: unknown): password is string {
 
 	// Min 8 chars
 	if (pwAsString.length < minLength) {
-		return false;
+		throw new Error('Password must be at least 8 characters long');
 	}
 
 	// Max 255 chars
@@ -31,17 +31,17 @@ export function validatePassword(password: unknown): password is string {
 
 	// Upper- and lower-case
 	if (!hasUpperCase || !hasLowerCase) {
-		return false;
+		throw new Error('Password must contain upper- and lower-case letters');
 	}
 
 	// Includes numbers
 	if (!hasNumbers) {
-		return false;
+		throw new Error('Password must contain numbers');
 	}
 
 	// Includes special characters
 	if (!hasSpecialChar) {
-		return false;
+		throw new Error('Password must contain special characters');
 	}
 
 	// Password meets min. requirements

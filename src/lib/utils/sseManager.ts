@@ -1,4 +1,3 @@
-// src/lib/utils/sseManager.ts
 export function createSSEManager(
 	showingId: number,
 	onUpdate: (seatStatus: any[]) => void,
