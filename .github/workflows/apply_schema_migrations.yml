@@ -13,7 +13,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-
       - name: Install dependencies & tooling
         run: |
           npm install
@@ -25,21 +24,25 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Install netcat
-        run: sudo apt-get update && sudo apt-get install netcat-openbsd
+        run: sudo apt-get update && sudo apt-get install -y netcat-openbsd
 
       - name: Create SSH Tunnel
         run: |
+          # Establish SSH tunnel in the background
           setsid ssh -o StrictHostKeyChecking=no -N -L 5432:localhost:5432 root@161.35.19.253 > ssh_tunnel.log 2>&1 &
           echo $! > ssh_pid.txt
-          # Wait up to 15 seconds for the tunnel to establish
-          for i in {1..15}; do
+          
+          # Wait up to 30 seconds for the tunnel to establish
+          for i in {1..30}; do
             if nc -z localhost 5432; then
               echo "SSH tunnel established."
               break
             fi
+            echo "Waiting for SSH tunnel to establish... ($i)"
             sleep 1
           done
-          # Verify tunnel
+          
+          # Verify tunnel establishment
           if ! nc -z localhost 5432; then
             echo "ERROR: SSH tunnel could not be established."
             cat ssh_tunnel.log
@@ -48,28 +51,36 @@ jobs:
 
       - name: Verify SSH Tunnel
         run: |
+          echo "Verifying SSH Tunnel..."
           lsof -i TCP:5432
-          # Optional: Try connecting to the database
-          PGPASSWORD=yourpassword psql -h localhost -U postgres -d cinehub -c '\conninfo' || echo "Cannot connect to PostgreSQL."
+          
+          # Attempt to connect to PostgreSQL using psql
+          PGPASSWORD=yourpassword psql -h localhost -U postgres -d cinehub -c '\conninfo' || {
+            echo "ERROR: Cannot connect to PostgreSQL."
+            exit 1
+          }
 
-      - name: Validate DATABASE_URL secret
-        env:
-          DATABASE_URL: postgres://postgres:yourpassword@localhost:5432/cinehub
+      - name: Validate DATABASE_URL
         run: |
+          DATABASE_URL="postgres://postgres:yourpassword@localhost:5432/cinehub"
           if [ -z "$DATABASE_URL" ]; then
-            echo "ERROR: DATABASE_URL secret is not set!"
+            echo "ERROR: DATABASE_URL is not set!"
             exit 1
           fi
+          echo "DATABASE_URL is set to: $DATABASE_URL"
+        # Hard-coded DATABASE_URL
+        env:
+          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
 
       - name: Generate migrations
         run: npx drizzle-kit generate
         env:
-          DATABASE_URL: postgres://postgres:yourpassword@localhost:5432/cinehub
+          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
 
       - name: Apply migrations
         run: npm run db:migrate
         env:
-          DATABASE_URL: postgres://postgres:yourpassword@localhost:5432/cinehub
+          DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
 
       - name: Close SSH Tunnel
         if: always()
