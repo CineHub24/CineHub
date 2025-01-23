@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { and, eq, gte, ne, sql, desc, asc } from 'drizzle-orm';
+import { and, eq, gte, ne, sql, desc, asc, or } from 'drizzle-orm';
 
 import type { RowList } from 'postgres';
 
@@ -47,7 +47,8 @@ export const load = async (event) => {
     COUNT(*) AS ticket_count
     FROM ${table.ticket}
     INNER JOIN ${table.showing} ON ${table.ticket.showingId} = ${table.showing.id}
-    WHERE ${table.ticket.status} = 'paid'
+    WHERE (${table.ticket.status} = 'paid'
+	OR ${table.ticket.status} = 'validated')
     AND ${table.showing.date} >= DATE_TRUNC('year', CURRENT_DATE)
     GROUP BY TO_CHAR(DATE_TRUNC('month', ${table.ticket.createdAt}), 'YYYY-MM')
     )
@@ -83,7 +84,7 @@ export const load = async (event) => {
 		.innerJoin(table.cinema, eq(table.cinemaHall.cinemaId, table.cinema.id))
 		.where(
 			and(
-				eq(table.ticket.status, 'paid'),
+				or(eq(table.ticket.status, 'paid'),eq(table.ticket.status, 'validated')),								
 				gte(table.showing.date, sql`DATE_TRUNC('year', CURRENT_DATE)`)
 			)
 		)
@@ -101,7 +102,7 @@ export const load = async (event) => {
 		.innerJoin(table.film, eq(table.showing.filmid, table.film.id))
 		.where(
 			and(
-				eq(table.ticket.status, 'paid'),
+				or(eq(table.ticket.status, 'paid'),eq(table.ticket.status, 'validated')),		
 				gte(table.showing.date, sql`DATE_TRUNC('month', CURRENT_DATE)`)
 			)
 		)
@@ -120,7 +121,7 @@ export const load = async (event) => {
 		.innerJoin(table.showing, eq(table.ticket.showingId, table.showing.id))
 		.where(
 			and(
-				eq(table.ticket.status, 'paid'),
+				or(eq(table.ticket.status, 'paid'),eq(table.ticket.status, 'validated')),		
 				gte(table.showing.date, sql`DATE_TRUNC('month', CURRENT_DATE)`)
 			)
 		);
