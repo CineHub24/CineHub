@@ -1,6 +1,6 @@
 // src/routes/seat-categories/+page.server.ts
 import { fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './v3/$types';
+import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { seatCategory } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';

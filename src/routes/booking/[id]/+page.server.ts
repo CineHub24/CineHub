@@ -121,7 +121,7 @@ export const load: PageServerLoad = async ({ locals, url, params }) => {
 		}
 	} catch (e) {
 		console.log(e);
-		throw error(500, 'Internal Server Error DB');
+		return fail(500, {error:'Internal Server Error DB'});
 	}
 	return languageAwareRedirect(302, '/profile/bookings');
 };

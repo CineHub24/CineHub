@@ -47,7 +47,7 @@ export const actions: Actions = {
 			const session = await auth.createSession(sessionToken, userId);
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		} catch (e) {
-			return fail(500, { message: 'An error has occurred ' + e });
+			return fail(500, { message: "An error occurred during registration"  });
 		}
 		try {
 			const gmailUser = import.meta.env.VITE_GMAIL_USER;

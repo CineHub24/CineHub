@@ -10,43 +10,45 @@ export function validateEmail(email: unknown): email is string {
 }
 
 export function validatePassword(password: unknown): password is string {
-	const pwAsString = <string>password;
-
+	if (typeof password !== 'string') {
+	return false;
+	}
+	
 	const minLength = 8;
 	const maxLength = 255;
-	const hasUpperCase = /[A-Z]/.test(pwAsString);
-	const hasLowerCase = /[a-z]/.test(pwAsString);
-	const hasNumbers = /\d/.test(pwAsString);
-	const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pwAsString);
-
+	const hasUpperCase = /[A-Z]/.test(password);
+	const hasLowerCase = /[a-z]/.test(password);
+	const hasNumbers = /\d/.test(password);
+	const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+	
 	// Min 8 chars
-	if (pwAsString.length < minLength) {
-		return false;
+	if (password.length < minLength) {
+	return false;
 	}
-
+	
 	// Max 255 chars
-	if (pwAsString.length > maxLength) {
-		return false;
+	if (password.length > maxLength) {
+	return false;
 	}
-
+	
 	// Upper- and lower-case
 	if (!hasUpperCase || !hasLowerCase) {
-		return false;
+	return false;
 	}
-
+	
 	// Includes numbers
 	if (!hasNumbers) {
-		return false;
+	return false;
 	}
-
+	
 	// Includes special characters
 	if (!hasSpecialChar) {
-		return false;
+	return false;
 	}
-
+	
 	// Password meets min. requirements
 	return true;
-}
+	}
 
 export function generateUserId() {
 	// ID with 120 bits of entropy, or about the same as UUID v4.

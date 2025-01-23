@@ -81,7 +81,7 @@ export const actions: Actions = {
 			const passwordHash = await hash(newPassword, {
 				memoryCost: 19456,
 				timeCost: 2,
-				outputLen: 32,
+				hashLength: 32,
 				parallelism: 1
 			});
 
