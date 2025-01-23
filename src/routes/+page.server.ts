@@ -53,10 +53,12 @@ export const actions = {
 			.from(table.giftCodes)
 			.where(eq(table.giftCodes.id, giftCodeId));
 
+
 		let userBooking = await db
 			.select()
 			.from(table.booking)
 			.where(and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed')));
+
 		if (userBooking.length == 0) {
 			userBooking = await db
 				.insert(table.booking)
@@ -65,6 +67,7 @@ export const actions = {
 				})
 				.returning();
 		}
+
 		const currBooking = userBooking[0];
 
 		await db
@@ -73,7 +76,7 @@ export const actions = {
 
 		await db
 			.update(table.booking)
-			.set({ finalPrice: currBooking.basePrice + giftCard[0].amount })
+			.set({ finalPrice: String(Number(currBooking.basePrice) + Number(giftCard[0].amount)) })
 			.where(eq(table.booking.id, currBooking.id));
 
 		languageAwareRedirect(303, '/cart');
