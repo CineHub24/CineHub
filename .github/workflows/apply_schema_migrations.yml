@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - db
 
 jobs:
   apply_migrations:
@@ -25,7 +24,7 @@ jobs:
 
       - name: Create SSH Tunnel
         run: |
-          ssh -N -L 5432:localhost:5432 your-username@your-server-ip &
+          ssh -o StrictHostKeyChecking=no -N -L 5432:localhost:5432 your-username@your-server-ip &
           echo $! > ssh_pid.txt
 
       - name: Validate DATABASE_URL secret
@@ -48,5 +47,6 @@ jobs:
           DATABASE_URL: "postgres://postgres:yourpassword@localhost:5432/cinehub"
 
       - name: Close SSH Tunnel
+        if: always()
         run: |
-          kill $(cat ssh_pid.txt)
+          kill $(cat ssh_pid.txt) || echo "SSH Tunnel already closed."
