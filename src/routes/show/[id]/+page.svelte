@@ -13,7 +13,6 @@
 	import type { PageData } from './$types';
 	import { onMount } from 'svelte';
 	import { createSSEManager } from '$lib/utils/sseManager';
-	import * as m from '$lib/paraglide/messages.js';
 
 
     import { refreshTimer } from '../../../lib/stores/cartTimeStore';
@@ -182,27 +181,26 @@
 	let layoutHeight = $state(0);
 
 	function centerSeats() {
-    if (!seatsContainerRef || !data.seats.length) return;
+		if (!seatsContainerRef || !data.seats.length) return;
 
-    // Use clientWidth/clientHeight to exclude padding
-    const containerWidth = seatsContainerRef.clientWidth;
-    const containerHeight = seatsContainerRef.clientHeight;
-    
-    const bounds = calculateSeatBounds();
-    layoutWidth = bounds.maxX - bounds.minX;
-    layoutHeight = bounds.maxY - bounds.minY;
+		const containerRect = seatsContainerRef.getBoundingClientRect();
+		const bounds = calculateSeatBounds();
 
-    // Calculate offsets based on content area
-    const offsetX = (containerWidth - layoutWidth) / 2;
-    const offsetY = (containerHeight - layoutHeight) / 2;
+		// Setze die Breite für die Leinwand
+		layoutWidth = bounds.maxX - bounds.minX;
+		layoutHeight = bounds.maxY - bounds.minY;
 
-    seats = data.seats.map((raw) => {
-        const s = { ...raw };
-        s.left = Number(raw.left) - bounds.minX + offsetX;
-        s.top = Number(raw.top) - bounds.minY + offsetY;
-        return transformSeat(s);
-    });
-}
+		// Calculate offsets to center the entire seat layout
+		const offsetX = (containerRect.width - layoutWidth) / 2;
+		const offsetY = (containerRect.height - layoutHeight) / 2;
+
+		seats = data.seats.map((raw) => {
+			const s = { ...raw };
+			s.left = Number(raw.left) - bounds.minX + offsetX;
+			s.top = Number(raw.top) - bounds.minY + offsetY;
+			return transformSeat(s);
+		});
+	}
 
 	/*************************************************************
 	 *           FUNKTION: SITZ TOGGLEN & RESERVIEREN
@@ -496,21 +494,21 @@
 	<div class="mb-8 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50">
 		<div class="flex flex-col items-start justify-between p-6 md:flex-row md:items-center">
 			<div>
-				<h1 class="mb-2 text-3xl font-bold">{m.seat_selection({})}</h1>
+				<h1 class="mb-2 text-3xl font-bold">Sitzplatzauswahl</h1>
 				<div class="flex flex-col md:flex-row md:gap-8">
 					<div class="flex items-center gap-2">
-						<span class="text-gray-600">{m.showing({})}</span>
+						<span class="text-gray-600">Vorstellung:</span>
 						<span class="font-semibold">{showing.date}</span>
 					</div>
 					<div class="flex items-center gap-2">
-						<span class="text-gray-600">{m.hall({})}</span>
+						<span class="text-gray-600">Saal:</span>
 						<span class="font-semibold">{hall.name}</span>
 					</div>
 				</div>
 			</div>
 			<div class="mt-4 text-right md:mt-0">
-				<div class="text-sm text-gray-600">{m.total_price({})}</div>
-				<div class="text-2xl font-bold">{total.toFixed(2)}€</div>
+				<div class="text-sm text-gray-600">Gesamtpreis</div>
+				<div class="text-2xl font-bold">${total.toFixed(2)}</div>
 			</div>
 		</div>
 	</div>
@@ -520,7 +518,7 @@
 		<!-- Left Side: Summary -->
 		<div class="order-2 w-full lg:order-1 lg:w-80 lg:flex-shrink-0">
 			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-4 text-xl font-bold">{m.selected_seats({})}</h3>
+				<h3 class="mb-4 text-xl font-bold">Ausgewählte Sitze</h3>
 
 				{#if selectedSeats.length > 0}
 					<div class="space-y-4">
@@ -554,24 +552,24 @@
 
 					<div class="mt-6 border-t pt-4">
 						<div class="mb-4 flex justify-between">
-							<span class="font-bold">{m.sum({})}</span>
+							<span class="font-bold">Summe:</span>
 							<span class="text-xl font-bold">${total.toFixed(2)}</span>
 						</div>
 						<button
 							onclick={handleSubmit}
 							class="w-full rounded bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
 						>
-							{m.book_seats({})}
+							Sitze buchen
 						</button>
 					</div>
 				{:else}
-					<p class="text-gray-500">{m.no_seats_selected({})}</p>
+					<p class="text-gray-500">Keine Sitze ausgewählt</p>
 				{/if}
 			</div>
 
 			<!-- Legend -->
 			<div class="mt-4 rounded-lg bg-white p-4 shadow">
-				<h4 class="mb-3 font-bold">{m.legend({})}</h4>
+				<h4 class="mb-3 font-bold">Legende</h4>
 				<div class="grid grid-cols-2 gap-3">
 					{#each seatCategories as cat}
 						<div class="flex items-center gap-2">
@@ -581,22 +579,22 @@
 					{/each}
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-gray-500"></div>
-						<span class="text-sm">{m.paid({})}</span>
+						<span class="text-sm">Bezahlt</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-yellow-400"></div>
-						<span class="text-sm">{m.reserved({})}</span>
+						<span class="text-sm">Reserviert</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-green-500"></div>
-						<span class="text-sm">{m.selected({})}</span>
+						<span class="text-sm">Ausgewählt</span>
 					</div>
 				</div>
 			</div>
 
 			<!-- Price Overview -->
 			<div class="mt-4 rounded-lg bg-white p-4 shadow">
-				<h4 class="mb-3 font-bold">{m.price_overview({})}</h4>
+				<h4 class="mb-3 font-bold">Preisübersicht</h4>
 				<div class="space-y-2">
 					{#each seatCategories.filter((cat) => isCategoryAllowed(cat.id)) as category}
 						<div class="text-sm">
@@ -605,7 +603,7 @@
 								{#each getAvailableTicketTypes() as type}
 									<div class="flex justify-between">
 										<span>{type.name}:</span>
-										<span>{getFormattedPrice(category.id, type.id)}€</span>
+										<span>${getFormattedPrice(category.id, type.id)}</span>
 									</div>
 								{/each}
 							</div>
@@ -614,7 +612,7 @@
 				</div>
 				{#if Number(priceSet.priceFactor) !== 1}
 					<div class="mt-2 text-xs text-gray-500">
-						{m.price_markup({ 0: ((Number(priceSet.priceFactor) - 1) * 100).toFixed(0) })}
+						* Preise inkl. {((Number(priceSet.priceFactor) - 1) * 100).toFixed(0)}% Aufschlag
 					</div>
 				{/if}
 			</div>
@@ -629,67 +627,94 @@
 					<!-- Wrapper div für Leinwand + Sitze -->
 					<div
 						bind:this={seatsContainerRef}
-						class="seats-container relative"
+						class="relative"
 						style="min-height: 600px; height: calc(100vh - 300px);"
 					>
 						<!-- Screen -->
 						<div class="absolute left-0 right-0 top-8">
 							<div class="mx-auto" style="width: {layoutWidth}px">
 								<div class="h-2 w-full -skew-y-1 transform rounded-lg bg-black shadow-md"></div>
-								<p class="mt-2 text-center text-sm text-gray-500">{m.screen({})}</p>
+								<p class="mt-2 text-center text-sm text-gray-500">Leinwand</p>
 							</div>
 						</div>
 						<!-- Seats -->
 						{#each seats as seat (seat.id)}
-							{@const category = seatCategories.find((c) => c.id === seat.categoryId)}
-							{@const dims = getBlockDimensions(seat.categoryId)}
-
-							<!-- svelte-ignore a11y_click_events_have_key_events -->
-							<!-- svelte-ignore a11y_no_static_element_interactions -->
-							<div
-								class="absolute flex items-center justify-center rounded transition-colors duration-200"
-								class:cursor-pointer={!seat.booked || seat.reservedByUser}
-								class:cursor-not-allowed={seat.booked && !seat.reservedByUser}
-								class:pending={seat.pending}
-								style="
-                                left: {seat.left}px;
-                                top: {seat.top}px;
-                                width: {dims.width}px;
-                                height: {dims.height}px;
-                                transform: rotate({seat.rotation}deg);
-                            "
-								onclick={() => toggleSeat(seat)}
-							>
-								{#if category?.customPath}
+						{@const category = seatCategories.find((c) => c.id === seat.categoryId)}
+						{@const dims = getBlockDimensions(seat.categoryId)}
+					
+						<div
+							class="absolute flex items-center justify-center rounded transition-colors duration-200"
+							class:cursor-pointer={!seat.booked || seat.reservedByUser}
+							class:cursor-not-allowed={seat.booked && !seat.reservedByUser}
+							style="
+								left: {seat.left}px;
+								top: {seat.top}px;
+								width: {dims.width}px;
+								height: {dims.height}px;
+								transform: rotate({seat.rotation}deg);
+							"
+							onclick={() => toggleSeat(seat)}
+						>
+							<!-- If seat is pending, show spinner overlay -->
+							{#if seat.pending}
+								<div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
+									<!-- Tailwind spinner -->
 									<svg
-										width={dims.width}
-										height={dims.height}
-										viewBox="0 0 {dims.width} {dims.height}"
+										class="animate-spin h-6 w-6 text-white"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
 									>
+										<circle
+											class="opacity-25"
+											cx="12"
+											cy="12"
+											r="10"
+											stroke="currentColor"
+											stroke-width="4"
+										></circle>
 										<path
-											d={category.customPath}
-											fill={seat.status === 'paid'
+											class="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 100 16v4l3.5-3.5L12 20v4a8 8 0 01-8-8z"
+										></path>
+									</svg>
+								</div>
+							{/if}
+					
+							<!-- The seat shape (SVG or path) -->
+							{#if category?.customPath}
+								<svg
+									width={dims.width}
+									height={dims.height}
+									viewBox="0 0 {dims.width} {dims.height}"
+								>
+									<path
+										d={category.customPath}
+										fill={
+											seat.status === 'paid'
 												? '#9CA3AF'
 												: seat.reservedByOthers
 													? '#FCD34D'
 													: seat.reservedByUser
 														? '#10B981'
-														: category.color}
-											stroke="white"
-											stroke-width="1"
-										/>
-									</svg>
-								{/if}
-
-								{#if seat.row && seat.seatNumber}
-									<div
-										class="absolute bottom-0 right-0 rounded-tl bg-black bg-opacity-50 px-1 py-0.5 text-xs text-white"
-									>
-										{seat.row}{seat.seatNumber}
-									</div>
-								{/if}
-							</div>
-						{/each}
+														: category.color
+										}
+										stroke="white"
+										stroke-width="1"
+									/>
+								</svg>
+							{/if}
+					
+							{#if seat.row && seat.seatNumber}
+								<div
+									class="absolute bottom-0 right-0 rounded-tl bg-black bg-opacity-50 px-1 py-0.5 text-xs text-white"
+								>
+									{seat.row}{seat.seatNumber}
+								</div>
+							{/if}
+						</div>
+					{/each}
 					</div>
 				</div>
 			</div>
@@ -697,29 +722,3 @@
 	</div>
 </div>
 
-<style>
-	.pending {
-		animation: pulse 1s infinite;
-	}
-
-	@keyframes pulse {
-		0% {
-			transform: scale(1);
-			opacity: 1;
-		}
-		50% {
-			transform: scale(1.05);
-			opacity: 0.7;
-		}
-		100% {
-			transform: scale(1);
-			opacity: 1;
-		}
-	}
-/* Add this to your component's style section */
-.seats-container {
-    box-sizing: border-box;
-    padding: 0; /* Ensure no padding affects positioning */
-    border: none;
-}
-</style>
