@@ -6,7 +6,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 export async function GET(event: RequestEvent): Promise<Response> {
 	const state = generateState();
 	const codeVerifier = generateCodeVerifier();
-	const url = google.createAuthorizationURL(state, codeVerifier, ["openid", "email", "profile"]);
+	const url = google.createAuthorizationURL(state, codeVerifier, ['openid', 'email', 'profile']);
 
 	event.cookies.set('google_oauth_state', state, {
 		path: '/',

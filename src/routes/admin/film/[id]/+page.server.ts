@@ -5,7 +5,8 @@ import { error, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, sql, and } from 'drizzle-orm';
 import { date } from 'drizzle-orm/mysql-core';
 import { fail } from '@sveltejs/kit';
-import { getFreeTimeSlots} from '$lib/utils/timeSlots.js';
+import { getFreeTimeSlots } from '$lib/utils/timeSlots.js';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 export type freeSlots = {
 	start: string;
 	end: string;
@@ -32,7 +33,7 @@ export const load = async ({ url }) => {
 			ageRating: film.ageRating,
 			poster: film.poster,
 			description: film.description,
-			year: film.year,
+			year: film.year
 		})
 		.from(film)
 		.where(eq(film.id, <number>id));
@@ -52,10 +53,16 @@ export const load = async ({ url }) => {
 };
 
 export const actions = {
-	delete: async ({ request, url }) => {
+	delete: async (event) => {
+		const url = event.url;
 		const id = parseInt(url.pathname.split('/').pop() ?? '0', 10);
 		try {
-			await db.delete(film).where(eq(film.id, id));			
+			await db.delete(film).where(eq(film.id, id));
+			await logToDB(
+				LogLevel.WARN,
+				"Deleted film with id " + id,	
+				event
+			);
 		} catch (e) {
 			console.log(e);
 			return fail(500, { error: 'Failed to delete film' });
@@ -65,12 +72,12 @@ export const actions = {
 
 	update: async ({ request, url }) => {
 		// Formular-Daten auslesen
-		
+
 		const formData = await request.formData();
 
 		// Einzelne Werte extrahieren
 		const titel = <string>formData.get('title');
-		const genre = (formData.get('genre') as string).split(',').map(item => item.trim());
+		const genre = (formData.get('genre') as string).split(',').map((item) => item.trim());
 		const runtimeString = formData.get('runtime') as string;
 		const director: string = <string>formData.get('director');
 		const description: string = <string>formData.get('description');
@@ -111,7 +118,7 @@ export const actions = {
 					director: director
 				})
 				.where(eq(film.id, <number>id));
-				return { success: 'Film erfolgreich aktualisiert' };
+			return { success: 'Film erfolgreich aktualisiert' };
 		} catch (e) {
 			console.log(e);
 			return fail(500, { error: 'Server error while updating film' });
@@ -128,10 +135,10 @@ export const actions = {
 		let priceSetId = formData.get('priceSet') as unknown as number;
 		try {
 			const filmRuntime = await db
-			.select({ runtime: film.runtime })
-			.from(film)
-			.where(eq(film.id, id as number))
-			.limit(1);
+				.select({ runtime: film.runtime })
+				.from(film)
+				.where(eq(film.id, id as number))
+				.limit(1);
 			const { runtime } = filmRuntime[0];
 			let freeSlots = await getFreeTimeSlots(
 				db, // Drizzle Datenbank-Instanz
@@ -152,12 +159,9 @@ export const actions = {
 			console.log(error);
 			return fail(500, { error: 'Failed to create showing' });
 		}
-		
-		
-		
-		
 	},
-	save: async ({ request, url }) => {
+	save: async (event) => {
+		const request = event.request;
 		const formData = await request.formData();
 		let date = formData.get('date') as string;
 		let start = formData.get('slotStart') as string;
@@ -169,17 +173,20 @@ export const actions = {
 		console.log(priceSet);
 
 		try {
-			await db
-				.insert(showing)
-				.values({
-					hallid: hall,
-					date: date,
-					time: start,
-					filmid: filmId,
-					endTime: end,
-					priceSetId: priceSet,
-					cancelled: false
-				});
+			await db.insert(showing).values({
+				hallid: hall,
+				date: date,
+				time: start,
+				filmid: filmId,
+				endTime: end,
+				priceSetId: priceSet,
+				cancelled: false
+			});
+			await logToDB(
+				LogLevel.INFO,
+				"Created showing for film with id " + filmId,	
+				event
+			);
 			return { success: 'Showing successfully saved' };
 		} catch (e) {
 			return fail(500, { error: 'Failed to save showing' });

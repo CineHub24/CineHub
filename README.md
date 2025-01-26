@@ -1,16 +1,21 @@
 # CineHub
+cinehub.tech
 
 # Test Suite
+
 [https://cinehub24.github.io/CineHub/](https://cinehub24.github.io/CineHub/)
 
 # Lokale Ausführung
 
 ### Voraussetzungen
+
 - [**Docker Compose**](https://formulae.brew.sh/formula/docker-compose)
 - [**Podman**](https://podman.io/)
 
 ### Einrichtung
+
 1. **Repository klonen**
+
 ```bash
    git clone https://github.com/CineHub24/CineHub  //Repo Klonen
    cd CineHub

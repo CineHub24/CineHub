@@ -70,7 +70,9 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const emails = await emailResponse.json();
 
 	const userId = generateUserId();
-	await db.insert(table.user).values({ id: userId, email: emails[0].email, githubId: githubUserId });
+	await db
+		.insert(table.user)
+		.values({ id: userId, email: emails[0].email, githubId: githubUserId });
 
 	const sessionToken = generateSessionToken();
 	const session = await createSession(sessionToken, userId);

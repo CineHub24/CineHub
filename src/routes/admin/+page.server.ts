@@ -1,6 +1,6 @@
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import { and, eq, gte, ne, sql, desc, asc } from 'drizzle-orm';
+import { and, eq, gte, ne, sql, desc, asc, or } from 'drizzle-orm';
 
 import type { RowList } from 'postgres';
 
@@ -9,7 +9,7 @@ export const load = async (event) => {
 
 	if (!preferredCinemaId) {
 		const cinemas = await db.select().from(table.cinema).orderBy(table.cinema.name);
-		 let preferredCinemaId = cinemas[0].id;
+		let preferredCinemaId = cinemas[0].id;
 	}
 
 	const movies = await db.select().from(table.film);
@@ -19,23 +19,20 @@ export const load = async (event) => {
 		.from(table.showing)
 		.innerJoin(table.cinemaHall, eq(table.showing.hallid, table.cinemaHall.id))
 		.where(
-			and(
-				gte(table.showing.date, new Date().toISOString()),
-				ne(table.showing.cancelled, true),				
-			)
+			and(gte(table.showing.date, new Date().toISOString()), ne(table.showing.cancelled, true))
 		)
 		.orderBy(asc(table.showing.date));
 
 	const showsFiltered = shows.map((show) => show.Showing);
-    interface MonthlyTicketSale {
-        month: string;
-        ticket_count: number;
-        }
+	interface MonthlyTicketSale {
+		month: string;
+		ticket_count: number;
+	}
 	// Monthly Ticket Sales
-    type PostgresResult = RowList<Record<string, unknown>[]>;
+	type PostgresResult = RowList<Record<string, unknown>[]>;
 
-    // Führen Sie die SQL-Abfrage aus
-    const monthlyTicketSales: PostgresResult = await db.execute(sql`
+	// Führen Sie die SQL-Abfrage aus
+	const monthlyTicketSales: PostgresResult = await db.execute(sql`
     WITH all_months AS (
     SELECT TO_CHAR(date_trunc('month', d), 'YYYY-MM') AS month
     FROM generate_series(
@@ -50,7 +47,8 @@ export const load = async (event) => {
     COUNT(*) AS ticket_count
     FROM ${table.ticket}
     INNER JOIN ${table.showing} ON ${table.ticket.showingId} = ${table.showing.id}
-    WHERE ${table.ticket.status} = 'paid'
+    WHERE (${table.ticket.status} = 'paid'
+	OR ${table.ticket.status} = 'validated')
     AND ${table.showing.date} >= DATE_TRUNC('year', CURRENT_DATE)
     GROUP BY TO_CHAR(DATE_TRUNC('month', ${table.ticket.createdAt}), 'YYYY-MM')
     )
@@ -61,20 +59,20 @@ export const load = async (event) => {
     LEFT JOIN ticket_sales ON all_months.month = ticket_sales.month
     ORDER BY all_months.month
     `);
-    
-    // Funktion zur Konvertierung des Postgres-Ergebnisses in ein Array von MonthlyTicketSale
-    function convertToMonthlyTicketSales(result: PostgresResult): MonthlyTicketSale[] {
-    return result.map((row) => ({
-    month: row.month as string,
-    ticket_count: Number(row.ticket_count)
-    }));
-    }
+
+	// Funktion zur Konvertierung des Postgres-Ergebnisses in ein Array von MonthlyTicketSale
+	function convertToMonthlyTicketSales(result: PostgresResult): MonthlyTicketSale[] {
+		return result.map((row) => ({
+			month: row.month as string,
+			ticket_count: Number(row.ticket_count)
+		}));
+	}
 
 	// Cinema Revenue
-    interface CinemaRevenue {
-    name: string;
-    revenue: number;
-    }
+	interface CinemaRevenue {
+		name: string;
+		revenue: number;
+	}
 	const cinemaRevenue = await db
 		.select({
 			name: table.cinema.name,
@@ -86,7 +84,7 @@ export const load = async (event) => {
 		.innerJoin(table.cinema, eq(table.cinemaHall.cinemaId, table.cinema.id))
 		.where(
 			and(
-				eq(table.ticket.status, 'paid'),
+				or(eq(table.ticket.status, 'paid'),eq(table.ticket.status, 'validated')),								
 				gte(table.showing.date, sql`DATE_TRUNC('year', CURRENT_DATE)`)
 			)
 		)
@@ -104,7 +102,7 @@ export const load = async (event) => {
 		.innerJoin(table.film, eq(table.showing.filmid, table.film.id))
 		.where(
 			and(
-				eq(table.ticket.status, 'paid'),
+				or(eq(table.ticket.status, 'paid'),eq(table.ticket.status, 'validated')),		
 				gte(table.showing.date, sql`DATE_TRUNC('month', CURRENT_DATE)`)
 			)
 		)
@@ -123,11 +121,10 @@ export const load = async (event) => {
 		.innerJoin(table.showing, eq(table.ticket.showingId, table.showing.id))
 		.where(
 			and(
-				eq(table.ticket.status, 'paid'),
+				or(eq(table.ticket.status, 'paid'),eq(table.ticket.status, 'validated')),		
 				gte(table.showing.date, sql`DATE_TRUNC('month', CURRENT_DATE)`)
 			)
 		);
-        
 
 	// Occupancy Rate
 	const occupancyRate = await db
@@ -137,14 +134,17 @@ export const load = async (event) => {
 		.from(table.showing)
 		.innerJoin(table.cinemaHall, eq(table.showing.hallid, table.cinemaHall.id))
 		.where(gte(table.showing.date, sql`DATE_TRUNC('month', CURRENT_DATE)`));
-        
-        console.log(occupancyRate[0].avgOccupancyRate);
-        
-        const cinemas = await db.select().from(table.cinema).innerJoin(table.cinemaHall, eq(table.cinemaHall.cinemaId,table.cinema.id)).orderBy(table.cinema.name);
-        
+
+	console.log(occupancyRate[0].avgOccupancyRate);
+
+	const cinemas = await db
+		.select()
+		.from(table.cinema)
+		.innerJoin(table.cinemaHall, eq(table.cinemaHall.cinemaId, table.cinema.id))
+		.orderBy(table.cinema.name);
 
 	return {
-        cinemas,
+		cinemas,
 		movies: movies,
 		shows: showsFiltered,
 		monthlyTicketSales: monthlyTicketSales,

@@ -37,7 +37,10 @@
 	<div class="show-edit-container">
 		{#if show}
 			<div class="header">
-				<h2>{m.show_for_movie({})}: {show.film_name} {show.cancelled ? `(${m.cancelled({})})` : ''}</h2>
+				<h2>
+					{m.show_for_movie({})}: {show.film_name}
+					{show.cancelled ? `(${m.cancelled({})})` : ''}
+				</h2>
 			</div>
 			{#if form}
 				<div class="message">
@@ -53,7 +56,9 @@
 					{:else if form.rescheduled}
 						<div class="confirmation">
 							{form.message}:
-							<a href="/admin/show/{form.newId}" data-sveltekit-reload class="confirmation-link">{m.new_show({})}</a>
+							<a href="/admin/show/{form.newId}" data-sveltekit-reload class="confirmation-link"
+								>{m.new_show({})}</a
+							>
 						</div>
 					{/if}
 				</div>

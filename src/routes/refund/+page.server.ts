@@ -1,5 +1,13 @@
 import { db } from '$lib/server/db';
-import { booking, film, priceDiscount, showing, ticket, ticketStatusEnum, discountTypesEnum } from '$lib/server/db/schema';
+import {
+	booking,
+	film,
+	priceDiscount,
+	showing,
+	ticket,
+	ticketStatusEnum,
+	discountTypesEnum
+} from '$lib/server/db/schema';
 import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import { eq, lt, gte, ne, asc, and, sql, inArray } from 'drizzle-orm';
 import { languageAwareRedirect } from '$lib/utils/languageAware.js';
@@ -38,50 +46,29 @@ export const load = async ({ locals }) => {
 		)
 		.groupBy(showing.id, film.title, showing.date, showing.time);
 
-
 	return {
 		refundableShows
 	};
 };
 export const actions: Actions = {
-	refund: async ({ request }) => {
-		//TODO: Grant Refund
-
-		const formData = await request.formData();
-		let ticketIds = formData.getAll('ticketIds') as unknown as number[];
-
-		console.log(ticketIds);
-
-		console.log('Refund Requested');
-		try{
-			await db
-				.update(ticket)
-				.set({ status: ticketStatusEnum.enumValues[3] })
-				.where(inArray(ticket.id, ticketIds));
-		}
-		catch(e){
-			console.log(e);
-			return dbFail;
-		}
-	},
 	bookNew: async ({ request }) => {
-
 		const formData = await request.formData();
 		let refundAmount = formData.get('totalPrice') as string;
 		const ticketIds = formData.getAll('ticketIds') as unknown as number[];
-		refundAmount = '10'
+		refundAmount = '10';
 
-		if(!refundAmount){
+		if (!refundAmount) {
 			return fail(400, { message: m.missing_inputs({}), missing: true });
 		}
-		const code = await generateUniqueCode(6) as string;
+		const code = (await generateUniqueCode(6)) as string;
 		try {
 			const newDiscount = await db
 				.insert(priceDiscount)
 				.values({
 					code: code,
 					value: refundAmount,
-					discountType: discountTypesEnum.enumValues[1]
+					discountType: discountTypesEnum.enumValues[1],
+					expiresAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365 * 2).toISOString()
 				})
 				.returning({ code: priceDiscount.code });
 			await db
@@ -89,17 +76,14 @@ export const actions: Actions = {
 				.set({ status: ticketStatusEnum.enumValues[3] })
 				.where(inArray(ticket.id, ticketIds));
 
-				
 			return {
 				code: newDiscount[0].code,
 				newCodeCreated: true,
 				message: m.discount_code_created({})
-			}
-		}
-		catch(e){
+			};
+		} catch (e) {
 			console.log(e);
 			return dbFail;
 		}
-
 	}
 } satisfies Actions;

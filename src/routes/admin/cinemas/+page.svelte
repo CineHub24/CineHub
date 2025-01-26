@@ -7,15 +7,15 @@
 </script>
 
 <div class="rounded-lg bg-white p-6 shadow">
-	<div class="flex justify-between items-center mb-8">
-        <h1 class="text-2xl font-bold">{m.cinema_management({})}</h1>
-        <button 
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" 
-            onclick={() => languageAwareGoto('/admin/cinemas/create')}
-        >
-            {m.new_cinema({})}
-        </button>
-    </div>
+	<div class="mb-8 flex items-center justify-between">
+		<h1 class="text-2xl font-bold">{m.cinema_management({})}</h1>
+		<button
+			class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+			onclick={() => languageAwareGoto('/admin/cinemas/create')}
+		>
+			{m.new_cinema({})}
+		</button>
+	</div>
 	<div class="overflow-x-auto">
 		<table class="w-full border bg-white">
 			<thead class="bg-gray-100">

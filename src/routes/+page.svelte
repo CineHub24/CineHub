@@ -8,16 +8,16 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { showNotification } from '$lib/stores/notification';
 	import GiftCard from '$lib/components/GiftCard.svelte';
-    import { tweened } from 'svelte/motion';
-    import { cubicOut } from 'svelte/easing';
+	import { tweened } from 'svelte/motion';
+	import { cubicOut } from 'svelte/easing';
 	import { ArrowRight } from 'lucide-svelte';
 
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 
 	const [send, receive] = crossfade({
-    duration: 800,
-    easing: cubicOut
-  });
+		duration: 800,
+		easing: cubicOut
+	});
 
 	const { data }: { data: PageServerData } = $props();
 
@@ -86,31 +86,31 @@
 </script>
 
 {#key hoveredMovie}
-  <div class="movie-details" in:fade={{ duration: 1500 }}>
-    <!-- Backdrop mit crossfade Animation -->
-    {#key hoveredMovie.backdrop}
-      <img
-        id="background"
-        src={hoveredMovie.backdrop}
-        alt={`${hoveredMovie.title} ${m.movie_poster({})}`}
-        in:receive={{ key: 'backdrop' }}
-        out:send={{ key: 'backdrop' }}
-      />
-    {/key}
+	<div class="movie-details" in:fade={{ duration: 1500 }}>
+		<!-- Backdrop mit crossfade Animation -->
+		{#key hoveredMovie.backdrop}
+			<img
+				id="background"
+				src={hoveredMovie.backdrop}
+				alt={`${hoveredMovie.title} ${m.movie_poster({})}`}
+				in:receive={{ key: 'backdrop' }}
+				out:send={{ key: 'backdrop' }}
+			/>
+		{/key}
 
-    <iframe
-      id="poster"
-      width="500"
-      height="300"
-      src={hoveredMovie.trailer}
-      frameborder="0"
-      allow="autoplay; encrypted-media"
-      allowfullscreen
-      title={m.trailer_title({})}
-    ></iframe>
-    <h3>{hoveredMovie.title}</h3>
-    <p>{hoveredMovie.description}</p>
-  </div>
+		<iframe
+			id="poster"
+			width="500"
+			height="300"
+			src={hoveredMovie.trailer}
+			frameborder="0"
+			allow="autoplay; encrypted-media"
+			allowfullscreen
+			title={m.trailer_title({})}
+		></iframe>
+		<h3>{hoveredMovie.title}</h3>
+		<p>{hoveredMovie.description}</p>
+	</div>
 {/key}
 
 <!-- <h2 class="px-5 text-2xl font-bold mt-4">
@@ -118,8 +118,8 @@
 </h2> -->
 
 <div class="relative overflow-x-auto">
-    <!-- Horizontal scrollbare Liste -->
-    <div class="movies-container mt-4 flex items-center justify-between relative">
+	<!-- Horizontal scrollbare Liste -->
+	<div class="movies-container relative mt-4 flex items-center justify-between">
 		<div class="movies-list flex items-center gap-4">
 			{#each movies as movie}
 				<div
@@ -143,22 +143,20 @@
 		</div>
 	</div>
 
-    <!-- Rechts positionierter Button -->
-    <a
-    href="/all"
-    class="absolute top-1/2 right-8 transform -translate-y-1/2 flex h-16 w-16 items-center justify-center
-           rounded-full bg-gray-100 border border-gray-300
-           hover:border-gray-400 transition duration-150 ease-in-out
+	<!-- Rechts positionierter Button -->
+	<a
+		href="/films"
+		class="absolute right-8 top-1/2 flex h-16 w-16 -translate-y-1/2 transform items-center justify-center
+           rounded-full border border-gray-300 bg-gray-100
+           transition duration-150 ease-in-out hover:border-gray-400
            focus:outline-none focus:ring-2 focus:ring-blue-500"
-    aria-label="Alle Filme anzeigen"
->
-	<div>
-		<ArrowRight size={30} />
-	</div>
-</a>
-
+		aria-label="Alle Filme anzeigen"
+	>
+		<div>
+			<ArrowRight size={30} />
+		</div>
+	</a>
 </div>
-
 
 <br />
 {#if shows.length > 0}
@@ -175,8 +173,6 @@
 	<ShowsFilmDropdown {shows} {movies} />
 {/if}
 
-
-
 <div class="relative pt-6">
 	<div class="absolute inset-0 flex items-center px-8" aria-hidden="true">
 		<div class="w-full border-t border-gray-200/80"></div>
@@ -186,7 +182,7 @@
 	</div>
 </div>
 
-<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 px-8">
+<div class="grid grid-cols-1 gap-6 px-8 md:grid-cols-2 lg:grid-cols-3">
 	{#each codes as giftCard}
 		<GiftCard {giftCard} isAdminPage={false} />
 	{/each}
@@ -345,34 +341,33 @@
 		}
 	}
 
-
 	.container {
-        position: relative;
-        display: inline-block; /* Passt sich der Größe des Buttons an */
-    }
+		position: relative;
+		display: inline-block; /* Passt sich der Größe des Buttons an */
+	}
 
-    .main-button {
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+	.main-button {
+		padding: 10px 20px;
+		font-size: 16px;
+		background-color: #007bff;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		cursor: pointer;
+	}
 
-    .overlay-button {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 8px 16px;
-        font-size: 14px;
-        background-color: #ffc107;
-        color: black;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        z-index: 1; /* Stellt sicher, dass der Button oben ist */
-    }
+	.overlay-button {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		padding: 8px 16px;
+		font-size: 14px;
+		background-color: #ffc107;
+		color: black;
+		border: none;
+		border-radius: 5px;
+		cursor: pointer;
+		z-index: 1; /* Stellt sicher, dass der Button oben ist */
+	}
 </style>

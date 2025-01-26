@@ -14,13 +14,13 @@
 	let isCreatingNewPriceSet = $state(false);
 
 	const sortedPriceSets = $derived(
-		priceSets.toSorted((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
+ 		[...priceSets].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))
 	);
 	const sortedSeatCategories = $derived(
-		seatCategories.toSorted((a, b) => parseFloat(a.price ?? '0') - parseFloat(b.price ?? '0'))
+		[...seatCategories].sort((a, b) => parseFloat(a.price ?? '0') - parseFloat(b.price ?? '0'))
 	);
 	const sortedTicketTypes = $derived(
-		ticketTypes.toSorted((a, b) => parseFloat(a.factor ?? '0') - parseFloat(b.factor ?? '0'))
+ 		[...ticketTypes].sort((a, b) => parseFloat(a.factor ?? '0') - parseFloat(b.factor ?? '0'))
 	);
 
 	const formattedSeatCategories = $derived(
@@ -87,11 +87,11 @@
 	}
 
 	function formatSeatCategory(category: any) {
-		return `${category.name}${category.description ? ' ('+ category.description + ')': ''}: ${category.price}€`;
+		return `${category.name}${category.description ? ' (' + category.description + ')' : ''}: ${category.price}€`;
 	}
 
 	function formatTicketType(type: any) {
-		return `${type.name}${type.description ? ' ('+ type.description + ')': ''}: (${Math.round(parseFloat(type.factor ?? '1') * 100)}%)`;
+		return `${type.name}${type.description ? ' (' + type.description + ')' : ''}: (${Math.round(parseFloat(type.factor ?? '1') * 100)}%)`;
 	}
 </script>
 

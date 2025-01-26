@@ -3,7 +3,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { Save, ArrowBigLeft } from 'lucide-svelte';
 	import type { ActionData } from './$types';
-	const {form}:{form:ActionData} = $props();
+	const { form }: { form: ActionData } = $props();
 	let discountType = $state('percentage');
 </script>
 
@@ -93,9 +93,8 @@
 			</div>
 			<div class="flex items-center">
 				<label for="newsletter" class="mb-2 block text-gray-700">Mit Newsletter versenden</label>
-				<input type="checkbox" id="newsletter" name="newsletter" class="ml-2">
+				<input type="checkbox" id="newsletter" name="newsletter" class="ml-2" />
 			</div>
-			
 
 			<button
 				type="submit"

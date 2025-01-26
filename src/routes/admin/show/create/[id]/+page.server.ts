@@ -10,15 +10,16 @@ import {
 	showing,
 	type Cinema,
 	type CinemaHall,
-	type Film,
+	type Film
 } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { languageAwareRedirect } from '$lib/utils/languageAware.js';
 import repeat from 'lucide-svelte/icons/repeat';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 interface Conflict {
-	failed:any;
+	failed: any;
 	blocking: any;
-	}
+}
 
 interface TimeWindow {
 	start: string | null;
@@ -92,7 +93,8 @@ export const actions = {
 		const times = getPossibletimes(timeWindow, totalDuration, 5);
 		return { success: true, times };
 	},
-	saveShowing: async ({ request }) => {
+	saveShowing: async (event) => {
+		const request = event.request;
 		const data = await request.formData();
 		const filmId = Number(data.get('filmId'));
 		const hallId = Number(data.get('hallId'));
@@ -119,7 +121,7 @@ export const actions = {
 					repeatUnit,
 					recurrenceEndDate
 				);
-				const conflicts:Conflict[] = [];
+				const conflicts: Conflict[] = [];
 				const successfulShows = [];
 
 				for (const show of shows) {
@@ -140,13 +142,29 @@ export const actions = {
 							priceSetId: priceSetId,
 							date: show.date
 						});
+						await logToDB(
+							LogLevel.INFO,
+							"Created showing for film with id " + filmId,	
+							event
+						);
 						successfulShows.push(show);
 					} else {
-						const conflictedShow = await db.select().from(showing).innerJoin(film,eq(film.id,showing.filmid)).where(and(eq(showing.hallid, hallId), eq(showing.date, show.date), gte(showing.time, show.startTime), lte(showing.time, show.endTime)));
-						const conflictMap:Conflict = {
+						const conflictedShow = await db
+							.select()
+							.from(showing)
+							.innerJoin(film, eq(film.id, showing.filmid))
+							.where(
+								and(
+									eq(showing.hallid, hallId),
+									eq(showing.date, show.date),
+									gte(showing.time, show.startTime),
+									lte(showing.time, show.endTime)
+								)
+							);
+						const conflictMap: Conflict = {
 							failed: show,
 							blocking: conflictedShow[0]
-						}
+						};
 						conflicts.push(conflictMap);
 					}
 				}
@@ -167,6 +185,11 @@ export const actions = {
 					priceSetId: priceSetId,
 					date: date
 				});
+				await logToDB(
+					LogLevel.INFO,
+					"Created showing for film with id " + filmId,	
+					event
+				);
 			}
 		} catch (error) {
 			console.log(error);
@@ -302,13 +325,7 @@ function generateRecurringShowings(
 	const showings = [];
 	let currentDate = new Date(startDate);
 	const endDate = new Date(recurrenceEndDate);
-	console.log(startDate,
-		startTime,
-		endTime,
-		repeatEvery,
-		repeatUnit,
-		recurrenceEndDate)
-	
+	console.log(startDate, startTime, endTime, repeatEvery, repeatUnit, recurrenceEndDate);
 
 	while (currentDate <= endDate) {
 		showings.push({
@@ -319,15 +336,15 @@ function generateRecurringShowings(
 
 		switch (repeatUnit) {
 			case 'Tag':
-			currentDate.setDate(currentDate.getDate() + repeatEvery);
-			break;
+				currentDate.setDate(currentDate.getDate() + repeatEvery);
+				break;
 			case 'Woche':
-			currentDate.setDate(currentDate.getDate() + (7 * repeatEvery));
-			break;
+				currentDate.setDate(currentDate.getDate() + 7 * repeatEvery);
+				break;
 			case 'Monat':
-			currentDate.setMonth(currentDate.getMonth() + repeatEvery);
-			break;
-			}
+				currentDate.setMonth(currentDate.getMonth() + repeatEvery);
+				break;
+		}
 	}
 	console.log('reapted shows', showings);
 	return showings;

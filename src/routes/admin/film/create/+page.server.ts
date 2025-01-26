@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { error, type Actions, type RequestEvent } from '@sveltejs/kit';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { fail } from '@sveltejs/kit';
+import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 export type Movie = typeof film.$inferSelect;
 const apiKey = import.meta.env.VITE_OMDB_API_KEY;
@@ -33,7 +34,7 @@ export const actions = {
 			const res = await fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`);
 			const data = await res.json();
 			console.log(data);
-			if(data.Response !== 'False') {
+			if (data.Response !== 'False') {
 				const movies: Movie[] = data.Search.map((movie: any) => ({
 					imdbID: movie.imdbID,
 					title: movie.Title,
@@ -41,7 +42,7 @@ export const actions = {
 					year: movie.Year,
 					poster: movie.Poster
 				}));
-	
+
 				return {
 					movies: movies
 				};
@@ -84,7 +85,8 @@ export const actions = {
 			return fail(500, { error: 'Failed to fetch movie details' });
 		}
 	},
-	save: async ({ request }) => {
+	save: async (event) => {
+		const request = event.request;
 		const formData = await request.formData();
 
 		function extractNumberFromRuntime(runtime: string | null | undefined): number | null {
@@ -111,7 +113,7 @@ export const actions = {
 		}
 
 		const imdbID = formData.get('imdbID')?.toString();
-		if (!imdbID) return fail(400, { error: 'IMDB ID is required' });	
+		if (!imdbID) return fail(400, { error: 'IMDB ID is required' });
 		const tmdbID = await gettmdbID(imdbID);
 
 		async function getBackdropImage(tmdbID: string): Promise<string | null> {
@@ -124,7 +126,7 @@ export const actions = {
 					return `https://image.tmdb.org/t/p/original/${data.backdrops[0].file_path}`;
 				}
 			} catch (error) {
-				console.error('Error fetching backdrop image:', error);		
+				console.error('Error fetching backdrop image:', error);
 			}
 			return null;
 		}
@@ -159,6 +161,11 @@ export const actions = {
 			}
 
 			[{ filmId }] = await db.insert(film).values(movieToSave).returning({ filmId: film.id });
+			await logToDB(
+				LogLevel.INFO,
+				"Created movie with id " + filmId,	
+				event
+			);
 
 			console.log(filmId);
 

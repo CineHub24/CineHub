@@ -18,28 +18,28 @@ export const load = async ({ cookies, url }) => {
 			.select()
 			.from(film)
 			.where(eq(film.id, <number>id));
-			const shows = await db
-		.select({
-			id: showing.id,
-			date: showing.date,
-			time: showing.time,
-			endTime: showing.endTime,
-			filmid: showing.filmid,
-			hallid: showing.hallid,
-			cancelled: showing.cancelled,
-			hallName: cinemaHall.name,
-		})
-		.from(showing)
-		.innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
-		.where(
-			and(
-				gte(showing.date, new Date().toISOString()),
-				ne(showing.cancelled, true),
-				eq(cinemaHall.cinemaId, parseInt(preferredCinemaId)),
-				eq(showing.filmid, id)
+		const shows = await db
+			.select({
+				id: showing.id,
+				date: showing.date,
+				time: showing.time,
+				endTime: showing.endTime,
+				filmid: showing.filmid,
+				hallid: showing.hallid,
+				cancelled: showing.cancelled,
+				hallName: cinemaHall.name
+			})
+			.from(showing)
+			.innerJoin(cinemaHall, eq(showing.hallid, cinemaHall.id))
+			.where(
+				and(
+					gte(showing.date, new Date().toISOString()),
+					ne(showing.cancelled, true),
+					eq(cinemaHall.cinemaId, parseInt(preferredCinemaId)),
+					eq(showing.filmid, id)
+				)
 			)
-		)
-		.orderBy(asc(showing.date));
+			.orderBy(asc(showing.date));
 
 		return {
 			movie: movie[0],

@@ -18,6 +18,7 @@
 		type PriceDiscount,
 		type GiftCode
 	} from '$lib/server/db/schema';
+	import { refreshTimer } from '$lib/stores/cartTimeStore';
 
 	let adress = '';
 	const PUBLIC_STRIPE_KEY = import.meta.env.PUBLIC_STRIPE_KEY;
@@ -98,6 +99,7 @@
 
 	onMount(async () => {
 		stripe = await loadStripe(PUBLIC_STRIPE_KEY);
+		refreshTimer();
 	});
 
 	function handleDeleteTicket(ticketId: number) {
@@ -145,7 +147,7 @@
 						{/each}
 						{#if giftCodes.length > 0}
 							<div class="discount-group">
-								<h3 class="showing-title">Gift Cards</h3>
+								<h3 class="showing-title">{m.gift_cards({})}</h3>
 								{#each giftCodes as giftCode}
 									<div class="discount-container">
 										<div class="discount-icon">
@@ -229,12 +231,13 @@
 					<h2 class="mb-6 text-xl font-semibold">{m.cart_payment_type({})}</h2>
 					<div class="flex max-w-md flex-col space-y-4">
 						<!-- Stripe Payment Button -->
-						<a href="/cart/checkout"
+						<a
+							href="/cart/checkout"
 							class="group flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-4 text-white shadow-md transition-all duration-200 hover:bg-blue-700 hover:shadow-lg"
 						>
 							<CreditCard class="mr-3 h-5 w-5 transition-transform group-hover:scale-110" />
 							<span class="font-medium">Pay with Stripe</span>
-					</a>
+						</a>
 
 						<!-- Cinema Payment Button (Disabled) -->
 						<button

@@ -1,11 +1,5 @@
 <script lang="ts">
-	import {
-		TicketCheck,
-		UserRoundPen,
-        Film,
-		ChevronRight,
-		ChevronLeft
-	} from 'lucide-svelte';
+	import { TicketCheck, UserRoundPen, Film, ChevronRight, ChevronLeft } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import * as m from '$lib/paraglide/messages.js';
 
@@ -13,15 +7,17 @@
 	let isMouseOverSidebar = false;
 
 	const sections = [
-		{ id: 'profile', icon: UserRoundPen, label: 'Profile Data', path: '/profile' },
-		{ id: 'tickets', icon: TicketCheck, label: 'Tickets', path: '/profile/tickets' },
-		{ id: 'bookings', icon: Film, label: 'Bookings', path: '/profile/bookings' },
+		{ id: 'profile', icon: UserRoundPen, label: m.profile_data({}), path: '/profile' },
+		{ id: 'tickets', icon: TicketCheck, label: m.tickets({}), path: '/profile/tickets' },
+		{ id: 'bookings', icon: Film, label: m.bookings({}), path: '/profile/bookings' }
 	];
 	$: currentPath = $page.url.pathname;
 
 	function isActive(sectionPath: string) {
 		if (sectionPath === '/profile') {
-			return currentPath === '/profile' || currentPath === '/de/profile' || currentPath === '/en/profile';
+			return (
+				currentPath === '/profile' || currentPath === '/de/profile' || currentPath === '/en/profile'
+			);
 		}
 		return (
 			currentPath.startsWith(sectionPath) ||
@@ -49,11 +45,11 @@
 <div
 	class="
 	{isMenuExpanded ? 'w-64' : 'w-16'}
-	relative overflow-hidden
-	bg-white shadow-md
+	relative min-h-[92vh]
+	overflow-hidden bg-white
+	shadow-md
 	transition-all
 	duration-300
-	min-h-[92vh]
 	"
 	on:mouseenter={handleMouseEnterSidebar}
 	on:mouseleave={handleMouseLeaveSidebar}

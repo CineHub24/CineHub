@@ -10,7 +10,6 @@ import { languageAwareRedirect } from '$lib/utils/languageAware';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
-
 		return languageAwareRedirect(302, '/');
 	}
 	console.log('event', event);
@@ -29,35 +28,38 @@ export const actions: Actions = {
 		if (!validatePassword(password)) {
 			return fail(400, { message: 'Invalid password' });
 		}
+		try {
+			const results = await db.select().from(table.user).where(eq(table.user.email, email));
+			const existingUser = results.at(0);
+			console.log('existingUser', existingUser);
+			if (!existingUser) {
+				return fail(400, { message: 'Incorrect username or password' });
+			}
 
-		const results = await db.select().from(table.user).where(eq(table.user.email, email));
+			let validPassword: boolean;
+			if (!existingUser.password) {
+				validPassword = false;
+			} else {
+				validPassword = await verify(existingUser.password, password, {
+					memoryCost: 19456,
+					timeCost: 2,
+					hashLength: 32,
+					parallelism: 1
+				});
+			}
+			if (!validPassword) {
+				return fail(400, { message: 'Incorrect username or password' });
+			}
 
-		const existingUser = results.at(0);
-		if (!existingUser) {
+			const sessionToken = auth.generateSessionToken();
+			const session = await auth.createSession(sessionToken, existingUser.id);
+			console.log('session', session);
+			console.log('sessionToken', sessionToken);
+			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
+
+			return languageAwareRedirect(302, '/');
+		} catch (error) {
 			return fail(400, { message: 'Incorrect username or password' });
 		}
-
-		let validPassword: boolean;
-		if (!existingUser.password) {
-			validPassword = false;
-		} else {
-			validPassword = await verify(existingUser.password, password, {
-				memoryCost: 19456,
-				timeCost: 2,
-				hashLength: 32,
-				parallelism: 1
-			});
-		}
-		if (!validPassword) {
-			return fail(400, { message: 'Incorrect username or password' });
-		}
-
-		const sessionToken = auth.generateSessionToken();
-		const session = await auth.createSession(sessionToken, existingUser.id);
-		console.log('session', session);
-		console.log('sessionToken', sessionToken);
-		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
-
-		return languageAwareRedirect(302, '/');
 	}
 };

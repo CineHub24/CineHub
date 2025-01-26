@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { showing } from '$lib/server/db/schema';
 	import ShowCard from './show_card.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	type Show = typeof showing.$inferSelect;
 
@@ -53,9 +54,9 @@
 		expandedDates = expandedDates;
 	}
 
-    function getMovieByShow(show: Show) {
-        return movies.find((movie: { id: number | null; }) => movie.id === show.filmid);
-    }
+	function getMovieByShow(show: Show) {
+		return movies.find((movie: { id: number | null }) => movie.id === show.filmid);
+	}
 </script>
 
 <div class="shows-container">
@@ -65,7 +66,7 @@
 				<span class="toggle-icon">
 					{expandedDates[date] ? '▼' : '►'}
 				</span>
-				{new Date(date).toLocaleDateString('de-DE', {
+				{new Date(date).toLocaleDateString(m.language_date_string({}), {
 					weekday: 'long',
 					year: 'numeric',
 					month: 'long',
@@ -88,7 +89,7 @@
 				</div> -->
 				<div class="movies-container">
 					{#each groupedShows[date] as show}
-						<ShowCard movie={getMovieByShow(show)} show={show} url="/show/{show.id}" />
+						<ShowCard movie={getMovieByShow(show)} {show} url="/show/{show.id}" />
 					{/each}
 				</div>
 			{/if}
