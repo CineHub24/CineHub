@@ -178,26 +178,27 @@
 	let layoutHeight = $state(0);
 
 	function centerSeats() {
-		if (!seatsContainerRef || !data.seats.length) return;
+    if (!seatsContainerRef || !data.seats.length) return;
 
-		const containerRect = seatsContainerRef.getBoundingClientRect();
-		const bounds = calculateSeatBounds();
+    // Use clientWidth/clientHeight to exclude padding
+    const containerWidth = seatsContainerRef.clientWidth;
+    const containerHeight = seatsContainerRef.clientHeight;
+    
+    const bounds = calculateSeatBounds();
+    layoutWidth = bounds.maxX - bounds.minX;
+    layoutHeight = bounds.maxY - bounds.minY;
 
-		// Setze die Breite für die Leinwand
-		layoutWidth = bounds.maxX - bounds.minX;
-		layoutHeight = bounds.maxY - bounds.minY;
+    // Calculate offsets based on content area
+    const offsetX = (containerWidth - layoutWidth) / 2;
+    const offsetY = (containerHeight - layoutHeight) / 2;
 
-		// Calculate offsets to center the entire seat layout
-		const offsetX = (containerRect.width - layoutWidth) / 2;
-		const offsetY = (containerRect.height - layoutHeight) / 2;
-
-		seats = data.seats.map((raw) => {
-			const s = { ...raw };
-			s.left = Number(raw.left) - bounds.minX + offsetX;
-			s.top = Number(raw.top) - bounds.minY + offsetY;
-			return transformSeat(s);
-		});
-	}
+    seats = data.seats.map((raw) => {
+        const s = { ...raw };
+        s.left = Number(raw.left) - bounds.minX + offsetX;
+        s.top = Number(raw.top) - bounds.minY + offsetY;
+        return transformSeat(s);
+    });
+}
 
 	/*************************************************************
 	 *           FUNKTION: SITZ TOGGLEN & RESERVIEREN
@@ -621,7 +622,7 @@
 					<!-- Wrapper div für Leinwand + Sitze -->
 					<div
 						bind:this={seatsContainerRef}
-						class="relative"
+						class="seats-container relative"
 						style="min-height: 600px; height: calc(100vh - 300px);"
 					>
 						<!-- Screen -->
@@ -706,4 +707,10 @@
 			opacity: 1;
 		}
 	}
+/* Add this to your component's style section */
+.seats-container {
+    box-sizing: border-box;
+    padding: 0; /* Ensure no padding affects positioning */
+    border: none;
+}
 </style>
