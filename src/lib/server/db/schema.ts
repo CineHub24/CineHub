@@ -19,6 +19,7 @@ import {
 	jsonb,
 	varchar
 } from 'drizzle-orm/pg-core';
+import { on } from 'events';
 
 export const rolesEnum = pgEnum('roles', ['user', 'admin', 'inspector']);
 export const bookingEnum = pgEnum('bookingStatus', ['cart', 'completed']);
@@ -200,7 +201,7 @@ export const ticket = pgTable('Ticket', {
 	type: integer('type').references(() => ticketType.id),
 	showingId: integer('showingId').references(() => showing.id),
 	bookingId: integer('bookingId').references(() => booking.id),
-	seatId: integer('seatId').references(() => seat.id),
+	seatId: integer('seatId').references(() => seat.id, { onDelete: 'cascade' }),
 	price: decimal('price', { precision: 10, scale: 2 }),
 	createdAt: timestamp('createdAt').defaultNow()
 });
