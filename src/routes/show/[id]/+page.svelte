@@ -1,7 +1,4 @@
 <script lang="ts">
-	/*************************************************************
-	 *           IMPORTS UND TYPEN
-	 *************************************************************/
 	import type {
 		seat,
 		seatCategory,
@@ -9,14 +6,13 @@
 		showing as showingT,
 		priceSet as priceSetDb
 	} from '$lib/server/db/schema';
-
 	import type { PageData } from './$types';
 	import { onMount } from 'svelte';
 	import { createSSEManager } from '$lib/utils/sseManager';
+	import * as m from '$lib/paraglide/messages.js';
+	import { refreshTimer } from '../../../lib/stores/cartTimeStore';
 
-
-    import { refreshTimer } from '../../../lib/stores/cartTimeStore';
-
+	// Types
 	interface SeatStatus {
 		status: 'available' | 'reserved' | 'paid';
 		userId: string | null;
@@ -31,9 +27,8 @@
 		row?: string;
 		seatNumber?: string;
 		categoryId: number;
-
-		booked?: boolean; // = true, wenn entweder paid oder von jemand anderem reserviert
-		reservedByUser?: boolean; // = true, wenn currentUser diesen Sitz reserviert hat
+		booked?: boolean;
+		reservedByUser?: boolean;
 		reservedByOthers?: boolean;
 		pending?: boolean;
 	};
@@ -46,7 +41,6 @@
 	};
 
 	type PriceSet = typeof priceSetDb.$inferSelect;
-
 	type Showing = typeof showingT.$inferSelect;
 	type TicketType = typeof ticketTypeT.$inferSelect;
 
@@ -56,29 +50,26 @@
 		selectedTicketType: number;
 	}
 
-	/*************************************************************
-	 *           PROP & ZUSTÄNDE
-	 *************************************************************/
+	// Props
 	let { data } = $props<{ data: PageData }>();
-
 	let showing: Showing = $state(data.showing!);
 	let hall = $state(data.hall!);
 	let seatCategories = $state<SeatCategory[]>(data.seatCategories!);
 	let ticketTypes: TicketType[] = $state(data.ticketTypes!);
 	let priceSet: PriceSet = $state(data.priceSet);
 
-	// Lokale States
+	// Local states
 	let selectedSeats: SeatSelection[] = $state([]);
-	let seats: Seat[] = $state([]); // nach centerSeats() + transformSeat() befüllt
+	let seats: Seat[] = $state([]);
 	let error = $state('');
 
-	// Ticket-Gesamtpreis
+	// Derived total price
 	let total = $derived(selectedSeats.reduce((sum, s) => sum + getTicketPrice(s), 0));
 
-	// Referenz auf das HTML-Element, das den Sitzplan umgibt (für Zentrierung)
+	// Reference for seat layout container
 	let seatsContainerRef: HTMLDivElement;
 
-	// SSE-Status
+	// SSE connection state
 	let connectionStatus = $state<'connecting' | 'connected' | 'disconnected' | 'error' | 'failed'>(
 		'disconnected'
 	);
@@ -86,87 +77,62 @@
 	let retryCount = $state(0);
 	const MAX_RETRIES = 5;
 
-	/*************************************************************
-	 *           FUNKTIONEN: PRICE & DIMENSIONS
-	 *************************************************************/
+	/**
+	 * Compute the ticket price for one seat selection
+	 */
 	function getTicketPrice(selection: SeatSelection): number {
 		const type = ticketTypes.find((t) => t.id === selection.selectedTicketType);
 		const factor = Number(type?.factor ?? 0);
 		const catPrice = Number(selection.seatCategory.price ?? 0);
-
 		if (isNaN(factor) || isNaN(catPrice)) return 0;
 
 		const basePrice = factor * catPrice;
-		const finalPrice = basePrice * Number(priceSet.priceFactor);
-
-		// console.log(
-		// 	`[getTicketPrice] SeatID=${selection.seat.id},
-		//  TicketType=${type?.name},
-		//  BasePrice=${basePrice},
-		//  PriceFactor=${priceSet.priceFactor},
-		//  FinalPrice=${finalPrice}`
-		// );
-
-		return finalPrice;
+		return basePrice * Number(priceSet.priceFactor);
 	}
+
+	/**
+	 * Retrieve the width/height for a seat category
+	 */
 	function getBlockDimensions(categoryId: number) {
 		const c = seatCategories.find((cat) => cat.id === categoryId);
 		const width = c?.width ?? 40;
 		const height = c?.height ?? 40;
-		// Wir loggen nicht jedes Mal, da es oft aufgerufen wird
 		return { width, height };
 	}
 
-	/*************************************************************
-	 *           FUNKTION: SITZ-TRANSFORMATION
-	 *************************************************************/
+	/**
+	 * Helper to transform server seat data into local seat objects
+	 */
 	function transformSeat(raw: Seat): Seat {
-		// console.log(`[transformSeat] Processing seat ${raw.id}:`, {
-		// 	status: raw.status,
-		// 	userId: raw.userId,
-		// 	currentUser: data.user?.id
-		// });
-
 		const s: Seat = {
 			...raw,
 			booked: false,
 			reservedByUser: false,
 			reservedByOthers: false
 		};
-
 		if (s.status === 'paid') {
 			s.booked = true;
 		} else if (s.status === 'reserved') {
-			// Wichtig: Stellen Sie sicher, dass beide IDs als Strings verglichen werden
 			const isCurrentUser = String(s.userId) === String(data.user?.id);
 			if (isCurrentUser) {
 				s.reservedByUser = true;
-				// Wichtig: Nicht als 'booked' markieren wenn es vom current user ist
 			} else {
 				s.reservedByOthers = true;
 				s.booked = true;
 			}
 		}
-
-		// console.log(`[transformSeat] Result for seat ${s.id}:`, {
-		// 	reservedByUser: s.reservedByUser,
-		// 	reservedByOthers: s.reservedByOthers,
-		// 	booked: s.booked
-		// });
-
 		return s;
 	}
 
-	/*************************************************************
-	 *           FUNKTION: SITZPLAN-ZENTRIERUNG
-	 *************************************************************/
+	/**
+	 * Calculate bounding box of all seats
+	 */
 	function calculateSeatBounds() {
 		return data.seats.reduce(
 			(bounds, rawSeat) => {
 				const dim = getBlockDimensions(rawSeat.categoryId);
 				const right = Number(rawSeat.left) + dim.width;
 				const bottom = Number(rawSeat.top) + dim.height;
-
 				return {
 					minX: Math.min(bounds.minX, Number(rawSeat.left)),
 					maxX: Math.max(bounds.maxX, right),
@@ -177,20 +143,21 @@
 			{ minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity }
 		);
 	}
+
 	let layoutWidth = $state(0);
 	let layoutHeight = $state(0);
 
+	/**
+	 * Center seats in the container
+	 */
 	function centerSeats() {
 		if (!seatsContainerRef || !data.seats.length) return;
-
 		const containerRect = seatsContainerRef.getBoundingClientRect();
 		const bounds = calculateSeatBounds();
 
-		// Setze die Breite für die Leinwand
 		layoutWidth = bounds.maxX - bounds.minX;
 		layoutHeight = bounds.maxY - bounds.minY;
 
-		// Calculate offsets to center the entire seat layout
 		const offsetX = (containerRect.width - layoutWidth) / 2;
 		const offsetY = (containerRect.height - layoutHeight) / 2;
 
@@ -202,25 +169,18 @@
 		});
 	}
 
-	/*************************************************************
-	 *           FUNKTION: SITZ TOGGLEN & RESERVIEREN
-	 *************************************************************/
+	/**
+	 * Toggle seat selection or cancellation
+	 */
 	async function toggleSeat(seat: Seat) {
-		// console.log(
-		// 	`[toggleSeat] clicked seatID=${seat.id}, booked=${seat.booked}, reservedByUser=${seat.reservedByUser}`
-		// );
-		// Falls Sitz bezahlt/gebucht ist, aber nicht vom aktuellen User => no action
-		if (seat.booked && !seat.reservedByUser) {
-			// console.log(' -> seat is booked but not by me. Doing nothing.');
-			return;
-		}
-
+		// If it's already booked by another user, do nothing
+		if (seat.booked && !seat.reservedByUser) return;
 		seat.pending = true;
 		seats = seats.map((s) => (s.id === seat.id ? { ...seat } : s));
 
-		// Prüfen, ob dieser Sitz schon in selectedSeats ist
 		const isSelected = selectedSeats.some((sel) => sel.seat.id === seat.id);
 		if (isSelected) {
+			// Cancel seat if currently selected
 			const res = await cancelSeat(seat);
 			if (res.type === 'error') {
 				error = res.error || 'Failed to cancel seat';
@@ -232,8 +192,7 @@
 			return;
 		}
 
-		// Andernfalls versuchen wir, den Sitz auf dem Server zu reservieren
-		// console.log(`[toggleSeat] seat not selected yet. Reserving seatID=${seat.id}...`);
+		// Otherwise, reserve seat
 		const res = await reserveSeat(seat);
 		if (res.type === 'error') {
 			error = res.error || 'Failed to reserve seat';
@@ -241,94 +200,72 @@
 			seats = seats.map((s) => (s.id === seat.id ? { ...seat } : s));
 			return;
 		}
-		// seats = seats.map((s) => (s.id === seat.id ? { ...seat, pending: false } : s));
 	}
 
+	/**
+	 * Cancel a seat reservation on server
+	 */
 	async function cancelSeat(seat: Seat) {
-		// console.log(`[cancelSeat] seatID=${seat.id}`);
 		const form = new FormData();
 		form.append('showingId', showing.id.toString());
 		form.append('seatId', seat.id.toString());
-
-		const resp = await fetch('?/cancelSeat', {
-			method: 'POST',
-			body: form
-		});
-		const json = await resp.json();
-		// console.log('[cancelSeat] server response:', json);
-		return json;
+		const resp = await fetch('?/cancelSeat', { method: 'POST', body: form });
+		return await resp.json();
 	}
 
+	/**
+	 * Reserve a seat on server
+	 */
 	async function reserveSeat(seat: Seat) {
-		// console.log(`[reserveSeat] sending request to reserve seatID=${seat.id}`);
 		const form = new FormData();
 		form.append('showingId', showing.id.toString());
 		form.append('seatId', seat.id.toString());
 		form.append(
 			'ticketType',
 			selectedSeats.find((s) => s.seat.id === seat.id)?.selectedTicketType.toString() ||
-				ticketTypes[0]?.id.toString() // default ticket type for first selection
+				ticketTypes[0]?.id.toString()
 		);
-
-		const resp = await fetch('?/reserveSeat', {
-			method: 'POST',
-			body: form
-		});
-		const json = await resp.json();
-		// console.log('[reserveSeat] server response:', json);
-		return json;
+		const resp = await fetch('?/reserveSeat', { method: 'POST', body: form });
+		return await resp.json();
 	}
 
+	/**
+	 * Add seat to the local selectedSeats array
+	 */
 	function addSelectedSeat(seat: Seat) {
-		// console.log(`[addSelectedSeat] seatID=${seat.id}`);
 		const category = seatCategories.find((c) => c.id === seat.categoryId);
-		if (!category) {
-			// console.error(`[addSelectedSeat] No category found for seatID=${seat.id}`);
-			return;
-		}
+		if (!category) return;
 		const defaultTicketType = ticketTypes[0]?.id;
-		if (!Number.isInteger(defaultTicketType)) {
-			// console.error('[addSelectedSeat] No valid default ticket type found');
-			return;
-		}
+		if (!Number.isInteger(defaultTicketType)) return;
 
 		const newSeat = { ...seat };
 		selectedSeats = [
 			...selectedSeats,
-			{
-				seat: newSeat,
-				seatCategory: category,
-				selectedTicketType: defaultTicketType
-			}
+			{ seat: newSeat, seatCategory: category, selectedTicketType: defaultTicketType }
 		];
-
 		seats = seats.map((s) => (s.id === seat.id ? newSeat : s));
-		// console.log('[addSelectedSeat] selectedSeats now:', selectedSeats);
 	}
 
+	/**
+	 * Update ticket type for a seat
+	 */
 	function updateTicketType(seatId: number, ticketTypeId: number) {
-		// console.log(`[updateTicketType] seatID=${seatId}, newTicketType=${ticketTypeId}`);
-
 		selectedSeats = selectedSeats.map((sel) => {
 			if (sel.seat.id === seatId) {
 				return { ...sel, selectedTicketType: ticketTypeId };
 			}
 			return sel;
 		});
-
 		reserveSeat(seats.find((s) => s.id === seatId)!);
 	}
 
+	/**
+	 * Submit booking for all selected seats
+	 */
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
-		// console.log(
-		// 	'[handleSubmit] Booking seats:',
-		// 	selectedSeats.map((s) => s.seat.id)
-		// );
-
 		if (selectedSeats.length === 0) {
 			error = 'Please select at least one seat.';
-			// console.warn('[handleSubmit] No seats selected => error');
 			return;
 		}
 
@@ -340,185 +277,160 @@
 			form.append('price', getTicketPrice(s).toString());
 		});
 
-		const resp = await fetch('?/bookSeats', {
-			method: 'POST',
-			body: form
-		});
-
+		const resp = await fetch('?/bookSeats', { method: 'POST', body: form });
 		if (resp.ok) {
-			// console.log('[handleSubmit] Booking success! Redirecting to /cart...');
 			window.location.href = '/cart';
 		} else {
 			error = 'Failed to book seats. Please try again.';
-			// console.warn('[handleSubmit] Booking failed:', error);
 		}
 	}
 
+	/**
+	 * SSE Manager for realtime seat updates
+	 */
 	const sseManager = createSSEManager(
 		showing.id,
-		// Callback für eingehende Sitz-Updates
 		(seatStatusData) => {
-			console.log('[SSE] got seat update:', seatStatusData);
+			// If invalid data, skip
+			if (!Array.isArray(seatStatusData)) return;
 
-			if (!Array.isArray(seatStatusData)) {
-				// console.error('[SSE] invalid seat status data:', seatStatusData);
-				return;
-			}
-
-			/**
-			 * seatStatusData enthält (seatId, status, userId) NUR für reservierte/bezahlt seats
-			 * => Alle seats, die NICHT in seatStatusData auftauchen, sind "available"
-			 */
-			const updatedSeatIds = new Set(seatStatusData.map((st) => st.seatId));
-
+			// Transform seat data
 			seats = seats.map((localSeat) => {
 				const update = seatStatusData.find((st) => st.seatId === localSeat.id);
-
 				if (!update) {
-					// Not in the server response => seat is "available"
 					return transformSeat({
 						...localSeat,
 						status: 'available',
 						userId: null,
-						pending: false // reset pending
+						pending: false
 					});
 				} else {
-					// seat is either reserved or paid
 					return transformSeat({
 						...localSeat,
 						status: update.status as 'reserved' | 'paid',
 						userId: update.userId,
-						pending: false // reset pending
+						pending: false
 					});
 				}
 			});
 
+			// Filter out seats no longer reserved by the user
 			selectedSeats = selectedSeats.filter((sel) => {
 				const updated = seats.find((s) => s.id === sel.seat.id);
 				return updated?.reservedByUser;
 			});
 
-			// optional: neu "reservedByUser" seats hinzufügen
+			// If new seats appear as reservedByUser, add them to selectedSeats
 			for (const seatObj of seats) {
 				if (seatObj.reservedByUser && !selectedSeats.some((sel) => sel.seat.id === seatObj.id)) {
 					addSelectedSeat(seatObj);
 				}
 			}
 
-			refreshTimer(); // optional: Timer neu starten
-
-			console.log('[SSE] seats after update:', seats);
-			console.log('[SSE] selectedSeats after update:', selectedSeats);
+			refreshTimer();
 		},
-		// Callback für Verbindungsstatus
 		(status) => {
 			connectionStatus = status.connectionStatus;
 			connectionError = status.connectionError;
 			retryCount = status.retryCount;
-			console.log('[SSE] Connection status changed:', status);
 		}
 	);
 
+	/**
+	 * Retry SSE connection manually
+	 */
 	function manualRetryConnection() {
-		// console.log('Manual SSE reconnect requested');
 		sseManager.reconnect();
 	}
 
-	/*************************************************************
-	 *           ONMOUNT
-	 *************************************************************/
+	/**
+	 * Lifecycle: On Mount
+	 */
 	onMount(() => {
-		// console.log('[onMount] data:', data);
-		// console.log(`[onMount] userId = ${data.user?.id}`);
-
-		// 1) Seats zentrieren (und transformieren)
 		centerSeats();
-
-		// 2) SSE-Verbindung starten
 		sseManager.connect();
 
-		// 3) Falls der User bereits reservierte Seats in userReservedSeats hatte
+		// Re-select seats the user had in a reserved state
 		if (data.userReservedSeats) {
-			// console.log('[onMount] userReservedSeats vorhanden:', data.userReservedSeats);
-
 			selectedSeats = data.userReservedSeats.map((res) => {
-				// Passender Eintrag in seats-Array
 				const seatObj = seats.find((s) => s.id === res.seatId)!;
 				const category = seatCategories.find((c) => c.id === seatObj.categoryId)!;
-
-				// console.log(`[onMount] Marking seatID=${seatObj.id} as selected (already reserved)`);
-
 				return {
 					seat: seatObj,
 					seatCategory: category,
 					selectedTicketType: res.type || ticketTypes[0]?.id || 0
 				};
 			});
-
-			// console.log('[onMount] selectedSeats now:', selectedSeats);
 		}
 
-		// Cleanup, wenn das Component unmountet
 		return () => {
-			// console.log('[onMount -> Unmount] Disconnecting SSE');
 			sseManager.disconnect();
 		};
 	});
 
+	/**
+	 * Helper: returns only ticket types allowed for the current price set
+	 */
 	function getAvailableTicketTypes(): TicketType[] {
 		return ticketTypes.filter((type) => priceSet.ticketTypes.includes(type.id));
 	}
 
+	/**
+	 * Formats a price (single seat + factor) for display
+	 */
 	function getFormattedPrice(categoryId: number, typeId: number): string {
 		const category = seatCategories.find((c) => c.id === categoryId);
 		const type = ticketTypes.find((t) => t.id === typeId);
-
 		if (!category || !type) return '0.00';
 
 		const price = Number(category.price) * Number(type.factor) * Number(priceSet.priceFactor);
 		return price.toFixed(2);
 	}
 
+	/**
+	 * Checks if a seat category is included in the price set
+	 */
 	function isCategoryAllowed(categoryId: number): boolean {
 		return priceSet.seatCategoryPrices.includes(categoryId);
 	}
 </script>
 
+<!-- Main Layout -->
 <div class="mx-auto w-full max-w-[1400px] p-4">
-	<!-- Error Message -->
+	<!-- Display error if any -->
 	{#if error}
 		<div class="mb-4 text-red-500">{error}</div>
 	{/if}
 
-	<!-- Header with Show Info -->
+	<!-- Header with showing/hall info -->
 	<div class="mb-8 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50">
 		<div class="flex flex-col items-start justify-between p-6 md:flex-row md:items-center">
 			<div>
-				<h1 class="mb-2 text-3xl font-bold">Sitzplatzauswahl</h1>
+				<h1 class="mb-2 text-3xl font-bold">{m.seat_selection({})}</h1>
 				<div class="flex flex-col md:flex-row md:gap-8">
 					<div class="flex items-center gap-2">
-						<span class="text-gray-600">Vorstellung:</span>
+						<span class="text-gray-600">{m.showing({})}</span>
 						<span class="font-semibold">{showing.date}</span>
 					</div>
 					<div class="flex items-center gap-2">
-						<span class="text-gray-600">Saal:</span>
+						<span class="text-gray-600">{m.hall({})}</span>
 						<span class="font-semibold">{hall.name}</span>
 					</div>
 				</div>
 			</div>
 			<div class="mt-4 text-right md:mt-0">
-				<div class="text-sm text-gray-600">Gesamtpreis</div>
-				<div class="text-2xl font-bold">${total.toFixed(2)}</div>
+				<div class="text-sm text-gray-600">{m.total_price({})}</div>
+				<div class="text-2xl font-bold">{total.toFixed(2)}€</div>
 			</div>
 		</div>
 	</div>
 
-	<!-- Main Content -->
 	<div class="flex flex-col gap-8 lg:flex-row">
-		<!-- Left Side: Summary -->
+		<!-- Left column: Selected seats summary & Legend -->
 		<div class="order-2 w-full lg:order-1 lg:w-80 lg:flex-shrink-0">
+			<!-- Selected seats summary -->
 			<div class="rounded-lg bg-white p-4 shadow">
-				<h3 class="mb-4 text-xl font-bold">Ausgewählte Sitze</h3>
+				<h3 class="mb-4 text-xl font-bold">{m.selected_seats({})}</h3>
 
 				{#if selectedSeats.length > 0}
 					<div class="space-y-4">
@@ -528,73 +440,77 @@
 									<span class="font-bold">
 										{sel.seat.row}{sel.seat.seatNumber}
 									</span>
-									<span class="text-gray-600">
-										{sel.seatCategory.name}
-									</span>
+									<span class="text-gray-600">{sel.seatCategory.name}</span>
 								</div>
 								<div class="flex items-center justify-between">
 									<select
 										class="rounded border p-1 text-sm"
 										value={sel.selectedTicketType}
-										onchange={(e) => updateTicketType(sel.seat.id, Number(e.currentTarget.value))}
+										onchange={(e) =>
+											updateTicketType(sel.seat.id, Number(e.currentTarget.value))
+										}
 									>
 										{#each getAvailableTicketTypes() as tt}
 											<option value={tt.id}>
-												{tt.name} (${getFormattedPrice(sel.seatCategory.id, tt.id)})
+												{tt.name} (€{getFormattedPrice(sel.seatCategory.id, tt.id)})
 											</option>
 										{/each}
 									</select>
-									<span class="font-bold">${getTicketPrice(sel).toFixed(2)}</span>
+									<span class="font-bold">€{getTicketPrice(sel).toFixed(2)}</span>
 								</div>
 							</div>
 						{/each}
 					</div>
 
+					<!-- Booking button -->
 					<div class="mt-6 border-t pt-4">
 						<div class="mb-4 flex justify-between">
-							<span class="font-bold">Summe:</span>
-							<span class="text-xl font-bold">${total.toFixed(2)}</span>
+							<span class="font-bold">{m.sum({})}</span>
+							<span class="text-xl font-bold">€{total.toFixed(2)}</span>
 						</div>
 						<button
 							onclick={handleSubmit}
 							class="w-full rounded bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
 						>
-							Sitze buchen
+							{m.book_seats({})}
 						</button>
 					</div>
 				{:else}
-					<p class="text-gray-500">Keine Sitze ausgewählt</p>
+					<p class="text-gray-500">{m.no_seats_selected({})}</p>
 				{/if}
 			</div>
 
 			<!-- Legend -->
 			<div class="mt-4 rounded-lg bg-white p-4 shadow">
-				<h4 class="mb-3 font-bold">Legende</h4>
+				<h4 class="mb-3 font-bold">{m.legend({})}</h4>
 				<div class="grid grid-cols-2 gap-3">
 					{#each seatCategories as cat}
 						<div class="flex items-center gap-2">
-							<div class="h-4 w-4 rounded" style="background-color: {cat.color}"></div>
+							<div
+								class="h-4 w-4 rounded"
+								style="background-color: {cat.color}"
+							></div>
 							<span class="text-sm">{cat.name}</span>
 						</div>
 					{/each}
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-gray-500"></div>
-						<span class="text-sm">Bezahlt</span>
+						<span class="text-sm">{m.paid({})}</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-yellow-400"></div>
-						<span class="text-sm">Reserviert</span>
+						<span class="text-sm">{m.reserved({})}</span>
 					</div>
 					<div class="flex items-center gap-2">
 						<div class="h-4 w-4 rounded bg-green-500"></div>
-						<span class="text-sm">Ausgewählt</span>
+						<span class="text-sm">{m.selected({})}</span>
 					</div>
 				</div>
 			</div>
 
-			<!-- Price Overview -->
+			<!-- Price overview -->
 			<div class="mt-4 rounded-lg bg-white p-4 shadow">
-				<h4 class="mb-3 font-bold">Preisübersicht</h4>
+				<h4 class="mb-3 font-bold">{m.price_overview({})}</h4>
 				<div class="space-y-2">
 					{#each seatCategories.filter((cat) => isCategoryAllowed(cat.id)) as category}
 						<div class="text-sm">
@@ -603,7 +519,7 @@
 								{#each getAvailableTicketTypes() as type}
 									<div class="flex justify-between">
 										<span>{type.name}:</span>
-										<span>${getFormattedPrice(category.id, type.id)}</span>
+										<span>{getFormattedPrice(category.id, type.id)}€</span>
 									</div>
 								{/each}
 							</div>
@@ -612,55 +528,111 @@
 				</div>
 				{#if Number(priceSet.priceFactor) !== 1}
 					<div class="mt-2 text-xs text-gray-500">
-						* Preise inkl. {((Number(priceSet.priceFactor) - 1) * 100).toFixed(0)}% Aufschlag
+						{m.price_markup({ 0: ((Number(priceSet.priceFactor) - 1) * 100).toFixed(0) })}
 					</div>
 				{/if}
 			</div>
 		</div>
 
-		<!-- Right Side: Seat Layout -->
+		<!-- Right column: Seat layout -->
 		<div class="order-1 flex-grow overflow-auto lg:order-2">
-			<!-- Scrollable Container -->
 			<div class="relative" style="min-width: {layoutWidth + 40}px">
-				<!-- Grauer Hintergrund-Container -->
+				<!-- SSE connection dot (top-right corner) -->
+				<div class="absolute right-2 top-2 group z-10">
+					<!-- Dot changes color based on connectionStatus -->
+					<div
+						class="h-3 w-3 rounded-full"
+						class:bg-green-500={connectionStatus === 'connected'}
+						class:bg-yellow-400={connectionStatus === 'connecting'}
+						class:bg-red-500={
+							connectionStatus === 'disconnected' ||
+							connectionStatus === 'error' ||
+							connectionStatus === 'failed'
+						}
+					></div>
+
+					<!-- Tooltip on hover -->
+					<div
+						class="absolute right-0 mt-1 hidden w-max rounded-md bg-gray-800 px-2 py-1 text-xs text-white group-hover:block"
+					>
+						{#if connectionStatus === 'connecting'}
+							<span>Connecting...</span>
+						{:else if connectionStatus === 'connected'}
+							<span>Connected</span>
+						{:else if connectionStatus === 'disconnected'}
+							<span class="flex items-center gap-1">
+								Disconnected
+								<button
+									class="rounded bg-blue-600 px-1 py-0.5 text-xs text-white"
+									onclick={manualRetryConnection}
+								>
+									Retry
+								</button>
+							</span>
+						{:else if connectionStatus === 'error'}
+							<span class="flex flex-col items-start gap-1">
+								<span>Error: {connectionError}</span>
+								<button
+									class="rounded bg-blue-600 px-1 py-0.5 text-xs text-white"
+									onclick={manualRetryConnection}
+								>
+									Retry
+								</button>
+							</span>
+						{:else if connectionStatus === 'failed'}
+							<span class="flex flex-col items-start gap-1">
+								<span>Failed after {retryCount} retries</span>
+								<button
+									class="rounded bg-blue-600 px-1 py-0.5 text-xs text-white"
+									onclick={manualRetryConnection}
+								>
+									Retry
+								</button>
+							</span>
+						{/if}
+					</div>
+				</div>
+
+				<!-- Main seat container -->
 				<div class="h-full w-full rounded-lg bg-gray-100">
-					<!-- Wrapper div für Leinwand + Sitze -->
 					<div
 						bind:this={seatsContainerRef}
 						class="relative"
 						style="min-height: 600px; height: calc(100vh - 300px);"
 					>
-						<!-- Screen -->
+						<!-- Screen / stage -->
 						<div class="absolute left-0 right-0 top-8">
 							<div class="mx-auto" style="width: {layoutWidth}px">
 								<div class="h-2 w-full -skew-y-1 transform rounded-lg bg-black shadow-md"></div>
-								<p class="mt-2 text-center text-sm text-gray-500">Leinwand</p>
+								<p class="mt-2 text-center text-sm text-gray-500">{m.screen({})}</p>
 							</div>
 						</div>
-						<!-- Seats -->
+
+						<!-- Actual seats -->
 						{#each seats as seat (seat.id)}
-						{@const category = seatCategories.find((c) => c.id === seat.categoryId)}
-						{@const dims = getBlockDimensions(seat.categoryId)}
-					
-						<div
-							class="absolute flex items-center justify-center rounded transition-colors duration-200"
-							class:cursor-pointer={!seat.booked || seat.reservedByUser}
-							class:cursor-not-allowed={seat.booked && !seat.reservedByUser}
-							style="
-								left: {seat.left}px;
-								top: {seat.top}px;
-								width: {dims.width}px;
-								height: {dims.height}px;
-								transform: rotate({seat.rotation}deg);
-							"
-							onclick={() => toggleSeat(seat)}
-						>
-							<!-- If seat is pending, show spinner overlay -->
-							{#if seat.pending}
-								<div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
-									<!-- Tailwind spinner -->
+							{@const category = seatCategories.find((c) => c.id === seat.categoryId)}
+							{@const dims = getBlockDimensions(seat.categoryId)}
+
+							<!-- svelte-ignore a11y_click_events_have_key_events -->
+							<!-- svelte-ignore a11y_no_static_element_interactions -->
+							<div
+								class="absolute flex items-center justify-center rounded transition-colors duration-200"
+								class:cursor-pointer={!seat.booked || seat.reservedByUser}
+								class:cursor-not-allowed={seat.booked && !seat.reservedByUser}
+								class:pending={seat.pending}
+								style="
+									left: {seat.left}px;
+									top: {seat.top}px;
+									width: {dims.width}px;
+									height: {dims.height}px;
+									transform: rotate({seat.rotation}deg);
+								"
+								onclick={() => toggleSeat(seat)}
+							>
+								{#if seat.pending}
+									<!-- Pending / loading spinner -->
 									<svg
-										class="animate-spin h-6 w-6 text-white"
+										class="h-6 w-6 animate-spin text-blue-600"
 										xmlns="http://www.w3.org/2000/svg"
 										fill="none"
 										viewBox="0 0 24 24"
@@ -672,49 +644,47 @@
 											r="10"
 											stroke="currentColor"
 											stroke-width="4"
-										></circle>
+										/>
 										<path
 											class="opacity-75"
 											fill="currentColor"
-											d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 100 16v4l3.5-3.5L12 20v4a8 8 0 01-8-8z"
-										></path>
+											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+										/>
 									</svg>
-								</div>
-							{/if}
-					
-							<!-- The seat shape (SVG or path) -->
-							{#if category?.customPath}
-								<svg
-									width={dims.width}
-									height={dims.height}
-									viewBox="0 0 {dims.width} {dims.height}"
-								>
-									<path
-										d={category.customPath}
-										fill={
-											seat.status === 'paid'
-												? '#9CA3AF'
-												: seat.reservedByOthers
-													? '#FCD34D'
-													: seat.reservedByUser
-														? '#10B981'
-														: category.color
-										}
-										stroke="white"
-										stroke-width="1"
-									/>
-								</svg>
-							{/if}
-					
-							{#if seat.row && seat.seatNumber}
-								<div
-									class="absolute bottom-0 right-0 rounded-tl bg-black bg-opacity-50 px-1 py-0.5 text-xs text-white"
-								>
-									{seat.row}{seat.seatNumber}
-								</div>
-							{/if}
-						</div>
-					{/each}
+								{:else}
+									{#if category?.customPath}
+										<!-- If there's a custom SVG path defined for this category -->
+										<svg
+											width={dims.width}
+											height={dims.height}
+											viewBox="0 0 {dims.width} {dims.height}"
+										>
+											<path
+												d={category.customPath}
+												fill={
+													seat.status === 'paid'
+														? '#9CA3AF' /* paid => grey */
+														: seat.reservedByOthers
+														? '#FCD34D' /* reserved => yellow */
+														: seat.reservedByUser
+														? '#10B981' /* selected => green */
+														: category.color /* default */
+												}
+												stroke="white"
+												stroke-width="1"
+											/>
+										</svg>
+									{/if}
+									{#if seat.row && seat.seatNumber}
+										<div
+											class="absolute bottom-0 right-0 rounded-tl bg-black bg-opacity-50 px-1 py-0.5 text-xs text-white"
+										>
+											{seat.row}{seat.seatNumber}
+										</div>
+									{/if}
+								{/if}
+							</div>
+						{/each}
 					</div>
 				</div>
 			</div>
@@ -722,3 +692,9 @@
 	</div>
 </div>
 
+<style>
+	.pending {
+		opacity: 0.7;
+		pointer-events: none;
+	}
+</style>
