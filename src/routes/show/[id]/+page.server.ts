@@ -342,21 +342,21 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const showingId = Number(params.id);
 
 	// 1) Load showing
-	const _showing = await db
+	const [_showing] = await db
 		.select()
 		.from(showing)
 		.where(eq(showing.id, showingId))
-		.then((rows) => rows[0]);
+		.limit(1)
 	if (!_showing) {
 		return fail(404, { error: true, message: 'Showing not found' });
 	}
 
 	// 2) Load hall
-	const hall = await db
+	const [hall] = await db
 		.select()
 		.from(cinemaHall)
 		.where(eq(cinemaHall.id, _showing.hallid!))
-		.then((rows) => rows[0]);
+		.limit(1);
 
 	// 3) Load seat + seatCategory
 	const seatsWithCategory = await db
@@ -424,11 +424,11 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const ticketTypesList = await db.select().from(ticketType);
 
 	// 8) Load price set for this showing
-	const _priceSet = await db
+	const [_priceSet] = await db
 		.select()
 		.from(priceSet)
 		.where(eq(priceSet.id, _showing.priceSetId))
-		.then((rows) => rows[0]);
+		.limit(1);
 
 	return {
 		showing: _showing,

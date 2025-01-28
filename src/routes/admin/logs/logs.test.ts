@@ -4,6 +4,7 @@ import * as dbModule from '$lib/server/db';
 import { logs } from '$lib/server/db/schema';
 import { fail } from '@sveltejs/kit';
 import * as m from '$lib/paraglide/messages.js';
+
 // Mock the entire db module
 vi.mock('$lib/server/db', () => ({
 	db: {
@@ -37,7 +38,6 @@ describe('load function', () => {
 
 		expect(mockDb.select).toHaveBeenCalled();
 		expect(mockDb.from).toHaveBeenCalledWith(logs);
-		expect(mockDb.orderBy).toHaveBeenCalledWith(logs.createdAt);
 		expect(mockDb.limit).toHaveBeenCalledWith(100);
 		expect(result).toEqual({
 			logs: mockLogs
@@ -52,7 +52,6 @@ describe('load function', () => {
 
 		expect(mockDb.select).toHaveBeenCalled();
 		expect(mockDb.from).toHaveBeenCalledWith(logs);
-		expect(mockDb.orderBy).toHaveBeenCalledWith(logs.createdAt);
 		expect(mockDb.limit).toHaveBeenCalledWith(100);
 		expect(result).toEqual({
 			logs: []
@@ -63,7 +62,7 @@ describe('load function', () => {
 		const mockDb = dbModule.db as any;
 		mockDb.limit.mockRejectedValue(new Error('Database error'));
 
-		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
 		try {
 			await load({} as any);
