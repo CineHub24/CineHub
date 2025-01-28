@@ -61,8 +61,13 @@ export const actions = {
 			return fail(400, { error: 'Passwords do not match' });
 		}
 		if (!validatePassword(password)) {
-			return fail(400, { error: 'Invalid password' });
+			return fail(400, { error: 'The password must be 8 to 255 characters long and include upper-/lower-case letters, numbers and special characters' });
 		}
+		// Min 8 chars	
+		// Max 255 chars
+		// Upper- and lower-case
+		// Includes numbers
+		// Includes special characters
 		try {
 			const userToChange = await db
 				.select()

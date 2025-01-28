@@ -24,7 +24,7 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid email' });
 		}
 		if (!validatePassword(password)) {
-			return fail(400, { message: 'Invalid password' });
+			return fail(400, { message: 'The password must be 8 to 255 characters long and include upper-/lower-case letters, numbers and special characters' });
 		}
 
 		const userId = generateUserId();

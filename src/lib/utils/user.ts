@@ -11,7 +11,7 @@ export function validateEmail(email: unknown): email is string {
 
 export function validatePassword(password: unknown): password is string {
 	if (typeof password !== 'string') {
-	return false;
+		return false;
 	}
 	
 	const minLength = 8;
@@ -23,32 +23,32 @@ export function validatePassword(password: unknown): password is string {
 	
 	// Min 8 chars
 	if (password.length < minLength) {
-	return false;
+		return false;
 	}
 	
 	// Max 255 chars
 	if (password.length > maxLength) {
-	return false;
+		return false;
 	}
 	
 	// Upper- and lower-case
 	if (!hasUpperCase || !hasLowerCase) {
-	return false;
+		return false;
 	}
 	
 	// Includes numbers
 	if (!hasNumbers) {
-	return false;
+		return false;
 	}
 	
 	// Includes special characters
 	if (!hasSpecialChar) {
-	return false;
+		return false;
 	}
 	
 	// Password meets min. requirements
 	return true;
-	}
+}
 
 export function generateUserId() {
 	// ID with 120 bits of entropy, or about the same as UUID v4.
