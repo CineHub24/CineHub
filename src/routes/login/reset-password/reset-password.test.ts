@@ -184,7 +184,7 @@ vi.mocked(validatePassword).mockReturnValue(false);
 
 const result = await actions.setNewPassword({ request: mockRequest as any, url: {} as any });
 
-expect(result).toEqual(fail(400, { error: 'Invalid password' }));
+expect(result).toEqual(fail(400, { error: 'The password must be 8 to 255 characters long and include upper-/lower-case letters, numbers and special characters' }));
 });
 
 it('should fail when token is invalid', async () => {

@@ -130,7 +130,7 @@ const result = await actions.register(mockEvent as any);
 
 expect(validateEmail).toHaveBeenCalledWith('test@example.com');
 expect(validatePassword).toHaveBeenCalledWith('weak');
-expect(result).toEqual({ status: 400, data: { message: 'Invalid password' } });
+expect(result).toEqual({ status: 400, data: { message: 'The password must be 8 to 255 characters long and include upper-/lower-case letters, numbers and special characters' } });
 });
 
 it('should handle database errors', async () => {
