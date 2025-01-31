@@ -7,6 +7,7 @@ import { EmailService } from '$lib/utils/emailService.js';
 import { validatePassword } from '$lib/utils/user.js';
 import { hash } from 'argon2';
 import { LogLevel, logToDB } from '$lib/utils/dbLogger';
+import * as m from '$lib/paraglide/messages.js';
 
 export const load = async ({ url }) => {
 	const token = url.searchParams.get('token');
@@ -61,7 +62,7 @@ export const actions = {
 			return fail(400, { error: 'Passwords do not match' });
 		}
 		if (!validatePassword(password)) {
-			return fail(400, { error: 'The password must be 8 to 255 characters long and include upper-/lower-case letters, numbers and special characters' });
+			return fail(400, { error: m.password_requirements({}) });
 		}
 		// Min 8 chars	
 		// Max 255 chars

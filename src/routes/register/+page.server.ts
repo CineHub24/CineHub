@@ -9,6 +9,7 @@ import { validateEmail, validatePassword } from '$lib/utils/user';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { EmailService } from '$lib/utils/emailService';
 import { LogLevel, logToDB } from '$lib/utils/dbLogger';
+import * as m from '$lib/paraglide/messages.js';
 
 export const load: PageServerLoad = async (event) => {
 	return {};
@@ -24,7 +25,7 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid email' });
 		}
 		if (!validatePassword(password)) {
-			return fail(400, { message: 'The password must be 8 to 255 characters long and include upper-/lower-case letters, numbers and special characters' });
+			return fail(400, { message: m.password_requirements({}) });
 		}
 
 		const userId = generateUserId();
