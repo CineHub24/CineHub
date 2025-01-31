@@ -1,62 +1,80 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { logToDB } from '$lib/utils/dbLogger'; // Angenommen, die Funktion ist in dieser Datei
+import { logToDB, LogLevel } from '$lib/utils/dbLogger';
 import { db } from '$lib/server/db';
 import { logs } from '$lib/server/db/schema';
 
-// Mock der Datenbankoperationen
 vi.mock('$lib/server/db', () => ({
 	db: {
-		insert: vi.fn().mockReturnValue({
-			values: vi.fn().mockResolvedValue(undefined)
-		})
+		insert: vi.fn(() => ({
+			values: vi.fn()
+		}))
 	}
 }));
 
-// Mock für console.error
-vi.spyOn(console, 'error').mockImplementation(() => {});
-describe('logToDB', () => {
+describe('logToDB function', () => {
 	beforeEach(() => {
-		vi.clearAllMocks();
+		vi.resetAllMocks();
 	});
 
-	it('should insert a log entry into the database', async () => {
-		const level = 'info';
-		const message = 'Test log message';
-		const metadata = { key: 'value' };
+	it('should log message to database with correct data', async () => {
+		vi.mocked(db.insert).mockReturnValue({
+			values: vi.fn().mockResolvedValue([])
+		} as any);
+		const mockEvent = {
+			url: new URL('http://example.com/test'),
+			request: { method: 'GET' },
+			locals: { user: { email: 'test@example.com', role: 'user' } },
+			route: { id: '/test' },
+			params: { id: '123' }
+		};
 
-		await logToDB(level, message, metadata);
+		await logToDB(LogLevel.INFO, 'Test message', mockEvent as any);
 
-		expect(vi.mocked(db.insert).mock.calls[0][0]).toBe(logs);
-		expect(vi.mocked(db.insert(logs).values).mock.calls[0][0]).toEqual({
-			level,
-			message,
-			metadata
+		expect(db.insert).toHaveBeenCalledWith(logs);
+		expect(db.insert(logs).values).toHaveBeenCalledWith({
+			level: LogLevel.INFO,
+			message: 'Test message - User: test@example.com - Role: user - Route: /test',
+			metadata: expect.any(String)
 		});
 	});
 
-	it('should use an empty object as default metadata', async () => {
-		const level = 'warn';
-		const message = 'Test log message without metadata';
+	it('should handle missing user information', async () => {
+		vi.mocked(db.insert).mockReturnValue({
+			values: vi.fn().mockResolvedValue([])
+		} as any);
+		const mockEvent = {
+			url: new URL('http://example.com/test'),
+			request: { method: 'POST' },
+			locals: {},
+			route: { id: '/test' },
+			params: {}
+		};
 
-		await logToDB(level, message);
+		await logToDB(LogLevel.WARN, 'Warning message', mockEvent as any);
 
-		expect(vi.mocked(db.insert).mock.calls[0][0]).toBe(logs);
-		expect(vi.mocked(db.insert(logs).values).mock.calls[0][0]).toEqual({
-			level,
-			message,
-			metadata: {}
+		expect(db.insert).toHaveBeenCalledWith(logs);
+		expect(db.insert(logs).values).toHaveBeenCalledWith({
+			level: LogLevel.WARN,
+			message: 'Warning message - User: unknown user - Role: unknown role - Route: /test',
+			metadata: expect.any(String)
 		});
 	});
 
-	it('should log to console.error if database insertion fails', async () => {
-		const error = new Error('Database error');
-		vi.mocked(db.insert(logs).values).mockRejectedValueOnce(error);
+	it('should handle database insertion error', async () => {
+		const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		vi.mocked(db.insert).mockRejectedValueOnce(new Error('DB Error'));
 
-		const level = 'error';
-		const message = 'Test error log';
+		const mockEvent = {
+			url: new URL('http://example.com/test'),
+			request: { method: 'GET' },
+			locals: {},
+			route: { id: '/test' },
+			params: {}
+		};
 
-		await logToDB(level, message);
+		await logToDB(LogLevel.ERROR, 'Error message', mockEvent as any);
 
-		expect(console.error).toHaveBeenCalledWith('Failed to log to database:', error);
+		expect(consoleSpy).toHaveBeenCalledWith('Failed to log to database:', expect.any(Error));
+		consoleSpy.mockRestore();
 	});
 });

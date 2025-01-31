@@ -55,7 +55,6 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		let refundAmount = formData.get('totalPrice') as string;
 		const ticketIds = formData.getAll('ticketIds') as unknown as number[];
-		refundAmount = '10';
 
 		if (!refundAmount) {
 			return fail(400, { message: m.missing_inputs({}), missing: true });

@@ -60,6 +60,7 @@ export const actions = {
 				)
 				.limit(1);
 
+
 			if (existingTicket.length > 0) {
 				return fail(400, {
 					error: 'Seat is no longer available'
@@ -68,6 +69,7 @@ export const actions = {
 
 			// 1. Get seat and its category.
 			const [currentSeat] = await db.select().from(seat).where(eq(seat.id, seatId));
+
 
 			if (!currentSeat) {
 				return fail(400, { error: 'Seat not found' });
@@ -133,6 +135,7 @@ export const actions = {
 					.returning();
 			}
 			const userBooking = bookings[0];
+			
 
 			// Check if there's already a reservation for this user on the same seat and showing.
 			const [userTicket] = await db
@@ -155,11 +158,22 @@ export const actions = {
 						status: 'reserved',
 						type: ticketTypeId,
 						price: finalPrice,
-						expiresAt: new Date(Date.now() + 15 * 60 * 1000)
 					})
 					.where(eq(ticket.id, userTicket.id));
 			} else {
 				// Otherwise, insert a new reservation.
+
+				const insertTicket: typeof ticket.$inferInsert = {
+					status: 'reserved',
+					showingId,
+					bookingId: userBooking.id,
+					seatId,
+					type: ticketTypeId,
+					price: finalPrice,
+				};
+
+				console.log('Inserting ticket:', insertTicket);
+
 				await db.insert(ticket).values({
 					status: 'reserved',
 					showingId,
@@ -167,8 +181,8 @@ export const actions = {
 					seatId,
 					type: ticketTypeId,
 					price: finalPrice,
-					expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes from now
 				});
+
 				await logToDB(
 					LogLevel.INFO,
 					"Reserved seat " + seatId + " for showing " + showingId,	
