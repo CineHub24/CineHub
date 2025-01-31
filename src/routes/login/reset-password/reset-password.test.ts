@@ -5,6 +5,7 @@ import { fail } from '@sveltejs/kit';
 import * as emailServiceModule from '$lib/utils/emailService.js';
 import { validatePassword } from '$lib/utils/user.js';
 import { hash } from 'argon2';
+import * as m from '$lib/paraglide/messages.js';
 
 // Mocks
 vi.mock('$lib/server/db', () => {
@@ -184,7 +185,7 @@ vi.mocked(validatePassword).mockReturnValue(false);
 
 const result = await actions.setNewPassword({ request: mockRequest as any, url: {} as any });
 
-expect(result).toEqual(fail(400, { error: 'Invalid password' }));
+expect(result).toEqual(fail(400, { error: m.password_requirements({}) }));
 });
 
 it('should fail when token is invalid', async () => {

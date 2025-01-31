@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { user } from '$lib/server/db/schema';
 import { validatePassword } from '$lib/utils/user.js';
 import { hash, verify } from 'argon2';
+import * as m from '$lib/paraglide/messages.js';
 
 export const load: PageServerLoad = async (event) => {
 	if (!event.locals.user) {
@@ -56,8 +57,7 @@ export const actions: Actions = {
 
 			if (!validatePassword(newPassword)) {
 				return fail(400, {
-					error:
-						'Das neue Passwort muss Groß- & Kleinbuchstaben, Zahlen sowie Sonderzeichen enthalten und zwischen 8 und 255 Zeichen lang sein.',
+					error: m.password_requirements({}),
 					invalid: true
 				});
 			}
