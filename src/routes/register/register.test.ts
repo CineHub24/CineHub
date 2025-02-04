@@ -6,6 +6,7 @@ import { EmailService } from '$lib/utils/emailService';
 import { fail } from '@sveltejs/kit';
 import { generateUserId, validateEmail, validatePassword } from '$lib/utils/user';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
+import * as m from '$lib/paraglide/messages.js';
 
 // Mocks
 vi.mock('$lib/server/db', () => ({
@@ -130,7 +131,7 @@ const result = await actions.register(mockEvent as any);
 
 expect(validateEmail).toHaveBeenCalledWith('test@example.com');
 expect(validatePassword).toHaveBeenCalledWith('weak');
-expect(result).toEqual({ status: 400, data: { message: 'Invalid password' } });
+expect(result).toEqual({ status: 400, data: { message: m.password_requirements({ }) }});
 });
 
 it('should handle database errors', async () => {
