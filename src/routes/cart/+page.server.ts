@@ -186,8 +186,6 @@ export const load = async ({ locals }) => {
 
 		const giftCodeAmount = giftCards.reduce((sum, code) => sum + Number(code.amount), 0);
 
-		console.log('booking discount: ', _booking[0].discount);	
-
 		let discount: PriceDiscountForInsert[] = [];
 		if(_booking[0].discount) {
 			discount = await db
@@ -200,9 +198,6 @@ export const load = async ({ locals }) => {
 					)
 				);
 		}
-
-		console.log('discount: ', discount);
-		console.log('length', discount.length === 0 ? null: discount);
 
 		let prices;
 		if (
@@ -235,11 +230,6 @@ export const load = async ({ locals }) => {
 				total: Number(_booking[0].finalPrice)
 			};
 		}
-		console.log('booking: ', _booking[0]);
-		console.log('tickets: ', tickets);
-		console.log('prices: ', prices);
-		console.log('giftCodes: ', giftCards);
-
 		return {
 			booking: _booking[0],
 			tickets,

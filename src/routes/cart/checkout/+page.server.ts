@@ -18,7 +18,6 @@ export async function load({ locals }) {
 		.select()
 		.from(booking)
 		.where(and(eq(booking.userId, userId), ne(booking.status, 'completed')));
-	console.log(_bookings);
 	if (_bookings.length == 0) {
 		return fail(500, { error: 'No current booking found' });
 	}
@@ -57,8 +56,6 @@ export async function load({ locals }) {
 	} else {
 		finalPrice += '00';
 	}
-
-	console.log('Price in cents: ' + finalPrice);
 
 	const session = await stripe.checkout.sessions.create({
 		ui_mode: 'embedded',

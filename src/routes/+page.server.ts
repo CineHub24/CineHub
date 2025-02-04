@@ -56,15 +56,11 @@ export const actions = {
 		const formData = await request.formData();
 		const giftCodeId = formData.get('giftCardId') as unknown as number;
 
-		console.log('giftCodeId', giftCodeId);
-
 		try {
 			const giftCard = await db
 				.select()
 				.from(table.giftCodes)
 				.where(eq(table.giftCodes.id, giftCodeId));
-
-				console.log('giftCard', giftCard);
 
 			let userBooking = await db
 				.select()
@@ -72,10 +68,6 @@ export const actions = {
 				.where(
 					and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed'))
 				);
-
-			console.log('userBooking', userBooking);
-
-
 
 			if (userBooking.length == 0) {
 				userBooking = await db
@@ -88,20 +80,15 @@ export const actions = {
 
 			const currBooking = userBooking[0];
 
-			console.log('currBooking', currBooking);
-
 			const test = await db
 				.insert(table.giftCodesUsed)
 				.values({ giftCodeId: giftCodeId, bookingId: currBooking.id });
-
 			console.log('test', test);
 
 			const test2 = await db
 				.update(table.booking)
 				.set({ finalPrice: String(Number(currBooking.basePrice) + Number(giftCard[0].amount)) })
 				.where(eq(table.booking.id, currBooking.id));
-
-			console.log('test2', test2);
 
 			languageAwareRedirect(303, '/cart');
 		} catch (error) {
