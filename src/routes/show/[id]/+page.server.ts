@@ -77,7 +77,6 @@ export const actions = {
 				.select()
 				.from(seatCategory)
 				.where(eq(seatCategory.id, currentSeat.categoryId));
-
 			if (!category) {
 				return fail(400, { error: 'Seat category not found' });
 			}
@@ -91,8 +90,7 @@ export const actions = {
 			const [currentPriceSet] = await db
 				.select()
 				.from(priceSet)
-				.where(eq(priceSet.id, currentShowing.priceSetId));
-
+				.where(eq(priceSet.id, currentShowing.priceSetId!));
 			if (!currentPriceSet) {
 				return fail(400, { error: 'Price set not found' });
 			}
@@ -123,7 +121,6 @@ export const actions = {
 				.select()
 				.from(booking)
 				.where(and(eq(booking.userId, locals.user.id), ne(booking.status, 'completed')));
-
 			if (bookings.length === 0) {
 				bookings = await db
 					.insert(booking)
@@ -146,7 +143,6 @@ export const actions = {
 					)
 				)
 				.limit(1);
-
 			if (userTicket) {
 				// Allow update if the ticket belongs to the current user.
 				await db
@@ -154,28 +150,36 @@ export const actions = {
 					.set({
 						status: 'reserved',
 						type: ticketTypeId,
-						price: finalPrice,
-						expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+						price: finalPrice
 					})
 					.where(eq(ticket.id, userTicket.id));
 			} else {
 				// Otherwise, insert a new reservation.
+
+				const insertTicket: typeof ticket.$inferInsert = {
+					status: 'reserved',
+					showingId,
+					bookingId: userBooking.id,
+					seatId,
+					type: ticketTypeId,
+					price: finalPrice
+				};
+
 				await db.insert(ticket).values({
 					status: 'reserved',
 					showingId,
 					bookingId: userBooking.id,
 					seatId,
 					type: ticketTypeId,
-					price: finalPrice,
-					expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes from now
+					price: finalPrice
 				});
+
 				await logToDB(
 					LogLevel.INFO,
-					"Reserved seat " + seatId + " for showing " + showingId,	
+					'Reserved seat ' + seatId + ' for showing ' + showingId,
 					event
 				);
 			}
-
 			if (showingId) {
 				await notifySeatChange(showingId.toString());
 			}
@@ -221,7 +225,7 @@ export const actions = {
 			await db.delete(ticket).where(eq(ticket.id, existingTicket[0].id));
 			await logToDB(
 				LogLevel.INFO,
-				"Cancelled reservation for seat " + seatId + " on showing " + showingId,	
+				'Cancelled reservation for seat ' + seatId + ' on showing ' + showingId,
 				event
 			);
 
@@ -342,11 +346,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	const showingId = Number(params.id);
 
 	// 1) Load showing
-	const [_showing] = await db
-		.select()
-		.from(showing)
-		.where(eq(showing.id, showingId))
-		.limit(1)
+	const [_showing] = await db.select().from(showing).where(eq(showing.id, showingId)).limit(1);
 	if (!_showing) {
 		return fail(404, { error: true, message: 'Showing not found' });
 	}

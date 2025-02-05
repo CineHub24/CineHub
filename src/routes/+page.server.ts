@@ -2,7 +2,6 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { languageAwareRedirect } from '$lib/utils/languageAware';
 import type { Actions } from '@sveltejs/kit';
-import { time } from 'console';
 import { gte, asc, and, ne, eq } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 
@@ -15,7 +14,7 @@ export const load = async (event) => {
 	}
 	try {
 		const allMovies = await db.select().from(table.film);
-	const movies = allMovies.sort(() => Math.random() - 0.5);
+		const movies = allMovies.sort(() => Math.random() - 0.5);
 
 		const shows = await db
 			.select({
@@ -63,31 +62,33 @@ export const actions = {
 				.from(table.giftCodes)
 				.where(eq(table.giftCodes.id, giftCodeId));
 
+			let userBooking = await db
+				.select()
+				.from(table.booking)
+				.where(
+					and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed'))
+				);
 
-		let userBooking = await db
-			.select()
-			.from(table.booking)
-			.where(and(eq(table.booking.userId, locals.user!.id), ne(table.booking.status, 'completed')));
+			if (userBooking.length == 0) {
+				userBooking = await db
+					.insert(table.booking)
+					.values({
+						userId: locals.user!.id
+					})
+					.returning();
+			}
 
-		if (userBooking.length == 0) {
-			userBooking = await db
-				.insert(table.booking)
-				.values({
-					userId: locals.user!.id
-				})
-				.returning();
-		}
+			const currBooking = userBooking[0];
 
-		const currBooking = userBooking[0];
-
-			await db
+			const test = await db
 				.insert(table.giftCodesUsed)
 				.values({ giftCodeId: giftCodeId, bookingId: currBooking.id });
+			console.log('test', test);
 
-		await db
-			.update(table.booking)
-			.set({ finalPrice: String(Number(currBooking.basePrice) + Number(giftCard[0].amount)) })
-			.where(eq(table.booking.id, currBooking.id));
+			const test2 = await db
+				.update(table.booking)
+				.set({ finalPrice: String(Number(currBooking.basePrice) + Number(giftCard[0].amount)) })
+				.where(eq(table.booking.id, currBooking.id));
 
 			languageAwareRedirect(303, '/cart');
 		} catch (error) {
