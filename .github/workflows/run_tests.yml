@@ -26,6 +26,10 @@ jobs:
 
       - name: Run tests and collect coverage
         run: npm run test:unit:coverage
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          VITE_DOMAIN: ${{ secrets.VITE_DOMAIN }}
+
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
