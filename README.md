@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://cinehub.tech/favicon_white_bg.png" alt="CineHub Logo" width="300" height="auto">
+</p
+
 # CineHub
 - Production System: https://cinehub.tech
 - Test Suite: [https://cinehub24.github.io/CineHub/](https://cinehub24.github.io/CineHub/)
@@ -102,10 +106,9 @@ will start Drizzle Studio, which is a webpage that provides a user interface for
 
 -> The coding of all pages can be found under [/src/routes](https://github.com/CineHub24/CineHub/tree/main/src/routes)
 
-# Pipelines
-## CI/CD Pipelines
+# CI/CD Pipelines
 
-### Docker Build and Push Workflow
+## Docker Build and Push Workflow
 
 Dieser Workflow wird ausgeführt bei:
 - Push auf den `main` Branch
@@ -122,14 +125,14 @@ Dieser Workflow wird ausgeführt bei:
 - Registry: `ghcr.io/cinehub24/cinehub:latest`
 - Build-Argumente werden als Secrets übergeben
 
-### Schema-Migrationen Workflow
+## Schema-Migrationen Workflow
 
 Wird ausgeführt bei Push auf den `main` Branch:
 - Installiert Abhängigkeiten
 - Generiert Datenbank-Migrationen
 - Wendet Migrationen an
 
-### Test Workflow
+## Test Workflow
 
 Wird ausgeführt bei:
 - Pull Requests zum `main` Branch
@@ -146,13 +149,6 @@ Wird ausgeführt bei:
 
 
 # Komponenten und Dependencies
-
-### Haupttechnologien
-- SvelteKit
-- TypeScript
-- Vite
-- Drizzle ORM
-- Tailwind CSS
 
 ### Entwicklungs-Dependencies
 - Testing: Vitest, Playwright
@@ -174,7 +170,6 @@ Wird ausgeführt bei:
 
 #### Zahlungsintegration
 - Stripe
-- PayPal
 
 #### Zusätzliche Funktionen
 - QR-Code Generation
