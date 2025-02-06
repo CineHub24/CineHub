@@ -133,3 +133,42 @@ Wird ausgeführt bei:
 4. Unit-Tests ausführen
 5. Coverage-Bericht generieren
 6. Coverage-Bericht auf GitHub Pages veröffentlichen
+
+
+
+# Komponenten und Dependencies
+
+### Haupttechnologien
+- SvelteKit
+- TypeScript
+- Vite
+- Drizzle ORM
+- Tailwind CSS
+
+### Entwicklungs-Dependencies
+- Testing: Vitest, Playwright
+- Linting: ESLint, Prettier
+- Build-Tools: Vite, SvelteKit
+
+### Zentrale Pakete
+
+#### Frontend
+- Svelte 5.0
+- Tailwind CSS
+- Lucide Icons
+- D3.js (Visualisierung)
+
+#### Authentifizierung
+- Arctic (OAuth)
+- Argon2 (Passwort-Hashing)
+- js-cookie
+
+#### Zahlungsintegration
+- Stripe
+- PayPal
+
+#### Zusätzliche Funktionen
+- QR-Code Generation
+- PDF-Generierung
+- Internationalisierung (Paraglide)
+- Email-Versand (Nodemailer)
