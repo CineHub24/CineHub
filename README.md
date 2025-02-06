@@ -1,6 +1,15 @@
 # CineHub
 - Production System: https://cinehub.tech
--  Test Suite: [https://cinehub24.github.io/CineHub/](https://cinehub24.github.io/CineHub/)
+- Test Suite: [https://cinehub24.github.io/CineHub/](https://cinehub24.github.io/CineHub/)
+
+# Used Technologies
+- SvelteKit
+- TypeScript
+- GitHub Actions
+- Drizzle (ORM)
+- Vite
+- Node
+- Paraglide (i18n)
 
 # Local Setup
 
