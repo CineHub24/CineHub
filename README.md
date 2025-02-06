@@ -93,5 +93,43 @@ will start Drizzle Studio, which is a webpage that provides a user interface for
 
 -> The coding of all pages can be found under [/src/routes](https://github.com/CineHub24/CineHub/tree/main/src/routes)
 
-# Pipeline
-(do we want to explain the workflows in greater detail here?)
+# Pipelines
+## CI/CD Pipelines
+
+### Docker Build and Push Workflow
+
+Dieser Workflow wird ausgeführt bei:
+- Push auf den `main` Branch
+- Pull Requests zum `main` Branch
+
+#### Schritte:
+1. Code auschecken
+2. Docker Buildx einrichten
+3. Anmeldung bei GitHub Container Registry
+4. Docker Image bauen und pushen
+
+#### Konfiguration:
+- Plattformen: `linux/amd64`, `linux/arm64`
+- Registry: `ghcr.io/cinehub24/cinehub:latest`
+- Build-Argumente werden als Secrets übergeben
+
+### Schema-Migrationen Workflow
+
+Wird ausgeführt bei Push auf den `main` Branch:
+- Installiert Abhängigkeiten
+- Generiert Datenbank-Migrationen
+- Wendet Migrationen an
+
+### Test Workflow
+
+Wird ausgeführt bei:
+- Pull Requests zum `main` Branch
+- Pushes auf den `main` Branch
+
+#### Schritte:
+1. Code auschecken
+2. Node.js einrichten
+3. Abhängigkeiten installieren
+4. Unit-Tests ausführen
+5. Coverage-Bericht generieren
+6. Coverage-Bericht auf GitHub Pages veröffentlichen
