@@ -44,13 +44,24 @@ describe('load function', () => {
 
 	it('should return priceSets, seatCategories, and ticketTypes', async () => {
 		const mockPriceSets = [{ id: 1, name: 'Standard' }];
-		const mockSeatCategories = [{ id: 1, name: 'VIP', price: 100 }];
+		const mockSeatCategories = [{ id: 1, name: 'VIP', price: 100, isActive: true }];
 		const mockTicketTypes = [{ id: 1, name: 'Adult' }];
 
 		vi.mocked(db.select).mockImplementation(
 			() =>
 				({
 					from: vi.fn().mockImplementation((table) => ({
+						where: vi.fn().mockImplementation(() => ({
+							orderBy: vi
+								.fn()
+								.mockResolvedValue(
+									table === priceSet
+										? mockPriceSets
+										: table === seatCategory
+											? mockSeatCategories.filter((category) => category.isActive === true)
+											: mockTicketTypes
+								)
+						})),
 						orderBy: vi
 							.fn()
 							.mockResolvedValue(
