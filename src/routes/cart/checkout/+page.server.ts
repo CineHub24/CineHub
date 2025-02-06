@@ -46,7 +46,7 @@ export async function load({ locals }) {
 		giftCodesUsedIds.push(<string>(<unknown>gft.id));
 	}
 
-	let finalPrice = <string>currentBooking.finalPrice;
+	let finalPrice = <string>currentBooking.finalPrice || '0.00';
 	const splittedPrice = finalPrice.split('.');
 	if (splittedPrice?.length > 1) {
 		const suffix = splittedPrice[1];
