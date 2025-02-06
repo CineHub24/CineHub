@@ -3,6 +3,7 @@
 	import { redirect } from '@sveltejs/kit';
     import type { PageData } from './$types';
     import { onMount } from 'svelte';
+	import HelpPopup from '$lib/components/HelpPopup.svelte';
 
     export let data: PageData;
 
@@ -1050,6 +1051,20 @@
             document.removeEventListener('mouseup', handleMouseUp);
         };
     });
+
+
+// Variable, die bestimmt, ob der Hilfepopup angezeigt wird
+let showHelp = false;
+
+// Funktion zum Öffnen des Hilfepopups
+function openHelp() {
+  showHelp = true;
+}
+
+// Funktion zum Schließen, wird vom HelpPopup per Event ausgelöst
+function handleCloseHelp() {
+  showHelp = false;
+}
 </script>
 
 <!-- Top Bar -->
@@ -1099,7 +1114,7 @@
                     height: {category.height}px;
                 "
                 draggable="true"
-                on:dragstart={(e) => handleDragStart(e, category.id)}
+                ondragstart={(e) => handleDragStart(e, category.id)}
                 title={category.description || category.name}
             >
                 <svg
@@ -1119,7 +1134,7 @@
     <div class="ml-8 flex space-x-2">
         <button
             class="rounded bg-green-500 px-4 py-2 font-medium text-white hover:bg-green-600"
-            on:click={duplicateBlocks}
+            onclick={duplicateBlocks}
             title="Duplicate selected blocks"
             aria-label="Duplicate selected blocks"
         >
@@ -1127,7 +1142,7 @@
         </button>
         <button
             class="rounded bg-red-500 px-4 py-2 font-medium text-white hover:bg-red-600"
-            on:click={deleteBlocks}
+            onclick={deleteBlocks}
             title="Delete selected blocks"
             aria-label="Delete selected blocks"
         >
@@ -1135,7 +1150,7 @@
         </button>
         <button
             class="rounded bg-yellow-500 px-4 py-2 font-medium text-white hover:bg-yellow-600"
-            on:click={undo}
+            onclick={undo}
             title="Undo last action"
             aria-label="Undo last action"
         >
@@ -1143,7 +1158,7 @@
         </button>
 
         <button
-            on:click={() => {
+            onclick={() => {
                 const rowLetter = prompt('Enter row letter (A-Z):');
                 if (rowLetter) assignRowLetter(rowLetter);
             }}
@@ -1155,7 +1170,7 @@
         </button>
 
         <button
-            on:click={() => handleSave()}
+            onclick={() => handleSave()}
             class="rounded bg-indigo-500 px-4 py-2 font-medium text-white hover:bg-indigo-600"
             title="Save room layout"
             aria-label="Save room layout"
@@ -1176,9 +1191,9 @@
 <div
     bind:this={workspace}
     class="relative h-[calc(100vh-64px)] w-full overflow-hidden bg-gray-200"
-    on:mousedown={handleMouseDownOnWorkspace}
-    on:dragover={handleDragOver}
-    on:drop={handleDrop}
+    onmousedown={handleMouseDownOnWorkspace}
+    ondragover={handleDragOver}
+    ondrop={handleDrop}
 >
     <!-- Snap Lines -->
     {#each activeSnapLines as line}
@@ -1220,7 +1235,7 @@
                 height: {category?.height}px;
                 transform: rotate({block.rotation}deg);
             "
-            on:mousedown={(e) => handleMouseDownOnBlock(e, block)}
+            onmousedown={(e) => handleMouseDownOnBlock(e, block)}
             title={category?.description || category?.name || ''}
         >
             <svg
@@ -1250,6 +1265,17 @@
             {/if}
         </div>
     {/each}
+
+    <button
+  class="fixed bottom-4 right-4 bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 z-50"
+  onclick={openHelp}
+>
+  Hilfe
+</button>
+
+<HelpPopup visible={showHelp} on:close={handleCloseHelp} />
+
+
 
     <!-- Optional: Save Status Notifications -->
     {#if saveStatus === 'success'}
