@@ -1,5 +1,6 @@
 <script lang="ts">
     import { languageAwareGoto } from '$lib/utils/languageAware';
+	import { redirect } from '@sveltejs/kit';
     import type { PageData } from './$types';
     import { onMount } from 'svelte';
 
@@ -964,7 +965,7 @@
 
             console.log(result);
 
-            if (result.type === 'success') {
+            if (result.sucess === true) {
                 console.log('Layout saved successfully');
                 saveStatus = 'success';
                 // Update blocks with the saved layout from the server
@@ -978,11 +979,12 @@
                     id: Number(seat.id),
                     categoryId: Number(seat.categoryId)
                 }));
-            } else if (result.type === 'error') {
+            } else if (result.success === false) {
                 throw new Error(result.message || 'Unknown error');
-            } else if (result.type === 'redirect') {
-                // languageAwareGoto(result.location);
+            } else if (result.type === "redirect") {
+                languageAwareGoto(result.location);
             }
+            console.log('Layout saved successfully');
             saveStatus = 'success';
         } catch (error) {
             console.error('Error saving:', error);
