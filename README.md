@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://cinehub.tech/favicon_white_bg.png" alt="CineHub Logo" width="300" height="auto">
-</p
+</p>
 
 # CineHub
 - Production System: https://cinehub.tech
