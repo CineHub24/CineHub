@@ -4,7 +4,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { cinemaHall, seatCategory, seat, type Seat, cinema } from '$lib/server/db/schema';
 import { eq, and, gte } from 'drizzle-orm';
-import { languageAwareGoto, languageAwareRedirect } from '$lib/utils/languageAware';
+import { languageAwareRedirect } from '$lib/utils/languageAware';
 import { LogLevel, logToDB } from '$lib/utils/dbLogger';
 
 interface Block {
@@ -199,7 +199,7 @@ export const actions: Actions = {
 			});
 		}
 		if (shouldRedirect) {
-			throw languageAwareRedirect(303, `/admin/rooms/${room.id}`);
+			return languageAwareRedirect(303, `/admin/rooms/${room.id}`);
 		}
 	}
 } satisfies Actions;
