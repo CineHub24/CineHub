@@ -140,11 +140,13 @@ export const load = async (event) => {
 	const cinemas = await db
 		.select()
 		.from(table.cinema)
-		.innerJoin(table.cinemaHall, eq(table.cinemaHall.cinemaId, table.cinema.id))
 		.orderBy(table.cinema.name);
+
+	const halls = await db.select().from(table.cinemaHall);
 
 	return {
 		cinemas,
+		halls,
 		movies: movies,
 		shows: showsFiltered,
 		monthlyTicketSales: monthlyTicketSales,

@@ -129,8 +129,12 @@ export async function load(event) {
 				time: new Date().toTimeString().split(' ')[0]
 			})
 			.where(eq(booking.id, Number(bookingId)));
-
-		await emailClient.sendBookingConfirmation(Number(bookingId), locals.user!.email as string);
+	
+			try {
+			await emailClient.sendBookingConfirmation(Number(bookingId), locals.user!.email as string);
+			} catch (e) {
+				console.error(e);
+			}
 	} catch (e) {
 		console.error(e);
 		return fail(500, { error: 'Internal Server Error' });
