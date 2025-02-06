@@ -27,7 +27,7 @@ function JSONFormatter(seatCategories: string[], ticketTypes: string[]) {
 
 export const load = async ({ url }) => {
 	const priceSets = await db.select().from(priceSet).orderBy(priceSet.name);
-	const seatCategories = await db.select().from(seatCategory).orderBy(seatCategory.price);
+	const seatCategories = await db.select().from(seatCategory).where(eq(seatCategory.isActive, true)).orderBy(seatCategory.price);
 	const ticketTypes = await db.select().from(ticketType).orderBy(ticketType.name);
 
 	return {

@@ -981,7 +981,7 @@
             } else if (result.type === 'error') {
                 throw new Error(result.message || 'Unknown error');
             } else if (result.type === 'redirect') {
-                languageAwareGoto(result.location);
+                // languageAwareGoto(result.location);
             }
             saveStatus = 'success';
         } catch (error) {
