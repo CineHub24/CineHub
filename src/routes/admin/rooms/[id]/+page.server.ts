@@ -1,5 +1,5 @@
 // src/routes/rooms/v2/[id]/+page.server.ts
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, json, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { cinemaHall, seatCategory, seat, type Seat, cinema } from '$lib/server/db/schema';
@@ -199,7 +199,7 @@ export const actions: Actions = {
 			});
 		}
 		if (shouldRedirect) {
-			return languageAwareRedirect(303, `/admin/rooms/${room.id}`);
+			throw redirect(303, `/admin/rooms/${room.id}`);
 		}
 	}
 } satisfies Actions;
