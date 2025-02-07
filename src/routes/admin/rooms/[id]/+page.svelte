@@ -1266,14 +1266,14 @@ function handleCloseHelp() {
         </div>
     {/each}
 
-    <button
+    <!-- <button
   class="fixed bottom-4 right-4 bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 z-50"
   onclick={openHelp}
 >
   Hilfe
 </button>
 
-<HelpPopup visible={showHelp} on:close={handleCloseHelp} />
+<HelpPopup visible={showHelp} on:close={handleCloseHelp} /> -->
 
 
 
