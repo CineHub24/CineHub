@@ -64,6 +64,7 @@ VITE_DOMAIN='%s'\n" \
 "$VITE_DOMAIN" > .env
 
 # Build application
+ENV POSTHOG_DISABLED=true
 RUN npm run build
 
 # Production stage
