@@ -1,5 +1,5 @@
 # Build stage
-FROM --platform=linux/amd64 node:18 AS builder
+FROM node:18 AS builder
 WORKDIR /app
 
 # Install necessary build dependencies
@@ -84,7 +84,7 @@ RUN npm install @rollup/rollup-linux-x64-gnu
 RUN npm run build
 
 # Production stage
-FROM --platform=linux/amd64 node:18-slim AS production
+FROM node:18-slim AS production
 WORKDIR /app
 
 # Copy production files
