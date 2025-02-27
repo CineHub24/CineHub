@@ -15,7 +15,7 @@ RUN apt-get update && \
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --force
 
 # Copy rest of the code
 COPY . .
