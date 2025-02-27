@@ -77,9 +77,6 @@ RUN touch .env && \
 RUN echo "==== Final .env file ====" && \
     cat .env | sed 's/^/    /'
 
-# Install architecture-specific rollup package
-RUN npm install @rollup/rollup-linux-x64-gnu
-
 # Build the application
 RUN npm run build
 
