@@ -65,7 +65,8 @@ VITE_DOMAIN='%s'\n" \
 
 # Build application
 ENV POSTHOG_DISABLED=true
-RUN npm run build
+ENV NODE_OPTIONS="--unhandled-rejections=warn"
+RUN npm run build -- --timeout 60000
 
 # Production stage
 FROM node:18-alpine
