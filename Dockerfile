@@ -81,14 +81,19 @@ RUN echo "==== Final .env file ====" && \
 RUN npm run build
 
 # Production stage
-FROM node:18-slim AS production
+FROM node:18-alpine AS production
 WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
+
 
 # Copy production files
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/.env ./
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/server ./server
+COPY --from=builder /app/server ./server
 
 EXPOSE 3000
 
