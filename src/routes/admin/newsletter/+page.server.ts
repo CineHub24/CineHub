@@ -4,7 +4,8 @@ import { subscribersNewsletter } from '$lib/server/db/schema';
 import { EmailService } from '$lib/utils/emailService';
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
-import { VITE_GMAIL_USER, VITE_GMAIL_APP_PASSWORD } from '$env/static/private';
+import { env } from '$env/dynamic/private'; // Ändere den Import
+
 
 export const actions = {
 	sendNewsletter: async ({ request }) => {
@@ -32,7 +33,7 @@ export const actions = {
 			}
 
 			// Initialize email service
-			const emailService = new EmailService(VITE_GMAIL_USER, VITE_GMAIL_APP_PASSWORD);
+			const emailService = new EmailService(env.VITE_GMAIL_USER, env.VITE_GMAIL_APP_PASSWORD);
 
 			// Send newsletter
 			await emailService.sendNewsletter(emails, subject, content);
