@@ -2,7 +2,7 @@ name: Docker Build and Push
 
 on:
   push:
-    branches: ['main'] # or your default branch
+    branches: ['main']
   pull_request:
     branches: ['main']
 
@@ -19,11 +19,6 @@ jobs:
       - name: Login to Docker Registry
         uses: docker/login-action@v3
         with:
-          # For Docker Hub:
-          # username: ${{ secrets.DOCKERHUB_USERNAME }}
-          # password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-          # For GitHub Container Registry:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -34,23 +29,4 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          # For Docker Hub:
-          # tags: yourusername/yourrepo:latest
-
-          # For GitHub Container Registry:
-          tags: ghcr.io/cinehub24/cinehub:latest # Changed to lowercase
-          build-args: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
-            GITHUB_CLIENT_ID=${{ secrets.GH_CLIENT_ID }}
-            GITHUB_CLIENT_SECRET=${{ secrets.GH_CLIENT_SECRET }}
-            VITE_GMAIL_USER=${{ secrets.VITE_GMAIL_USER }}
-            VITE_GMAIL_APP_PASSWORD=${{ secrets.VITE_GMAIL_APP_PASSWORD }}
-            VITE_TMDB_API_KEY=${{ secrets.VITE_TMDB_API_KEY }}
-            VITE_OMDB_API_KEY=${{ secrets.VITE_OMDB_API_KEY }}
-            VITE_SECRET_PAYPAL=${{ secrets.VITE_SECRET_PAYPAL }}
-            VITE_CLIENT_ID_PAYPAL=${{ secrets.VITE_CLIENT_ID_PAYPAL }}
-            VITE_PUBLIC_STRIPE_KEY=${{ secrets.VITE_PUBLIC_STRIPE_KEY }}
-            VITE_SECRET_STRIPE_KEY=${{ secrets.VITE_SECRET_STRIPE_KEY }}
-            VITE_DOMAIN=${{ secrets.VITE_DOMAIN }}
+          tags: ghcr.io/cinehub24/cinehub:latest
