@@ -3,6 +3,23 @@ import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
+	define: {
+		'import.meta.env.DATABASE_URL': JSON.stringify(''),
+		'import.meta.env.GOOGLE_CLIENT_ID': JSON.stringify(''),
+		'import.meta.env.GOOGLE_CLIENT_SECRET': JSON.stringify(''),
+		'import.meta.env.GITHUB_CLIENT_ID': JSON.stringify(''),
+		'import.meta.env.GITHUB_CLIENT_SECRET': JSON.stringify(''),
+		'import.meta.env.VITE_GMAIL_USER': JSON.stringify(''),
+		'import.meta.env.VITE_GMAIL_APP_PASSWORD': JSON.stringify(''),
+		'import.meta.env.VITE_TMDB_API_KEY': JSON.stringify(''),
+		'import.meta.env.VITE_OMDB_API_KEY': JSON.stringify(''),
+		'import.meta.env.VITE_SECRET_PAYPAL': JSON.stringify(''),
+		'import.meta.env.VITE_CLIENT_ID_PAYPAL': JSON.stringify(''),
+		'import.meta.env.VITE_PUBLIC_STRIPE_KEY': JSON.stringify(''),
+		'import.meta.env.VITE_SECRET_STRIPE_KEY': JSON.stringify(''),
+		'import.meta.env.VITE_DOMAIN': JSON.stringify(''),
+		'import.meta.env.VITE_PUBLIC_URL': JSON.stringify('')
+	},
 	plugins: [
 		sveltekit(),
 		paraglide({
@@ -38,15 +55,15 @@ export default defineConfig({
 
 			// Specify the types of coverage reports to generate
 			reporter: ['text', 'html', 'lcov']
-		},
+		}
 
 		// Optional: Uncomment and specify if you have a setup file for tests
 		// setupFiles: ['src/setupTests.js']
 	},
 	resolve: process.env.VITEST
 		? {
-			// Ensure the resolver uses browser conditions when running Vitest
-			conditions: ['browser']
-		}
+				// Ensure the resolver uses browser conditions when running Vitest
+				conditions: ['browser']
+			}
 		: undefined
 });
