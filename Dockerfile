@@ -22,7 +22,7 @@ ENV POSTHOG_DISABLED=true
 ENV NODE_OPTIONS="--unhandled-rejections=warn"
 
 
-ENV DATABASE_URL="your_database_connection_string"
+ENV DATABASE_URL="postgres://postgres:yourpassword@cinehub_db:5432/cinehub"
 
 RUN npm run build
 
