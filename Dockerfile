@@ -20,6 +20,10 @@ COPY . .
 # Build application
 ENV POSTHOG_DISABLED=true
 ENV NODE_OPTIONS="--unhandled-rejections=warn"
+
+
+ENV DATABASE_URL="your_database_connection_string"
+
 RUN npm run build
 
 # Production stage
