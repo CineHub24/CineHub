@@ -17,8 +17,8 @@ export default defineConfig({
 		'import.meta.env.VITE_CLIENT_ID_PAYPAL': JSON.stringify('your-paypal-client-id'),
 		'import.meta.env.VITE_PUBLIC_STRIPE_KEY': JSON.stringify('your-stripe-public-key'),
 		'import.meta.env.VITE_SECRET_STRIPE_KEY': JSON.stringify('your-stripe-secret-key'),
-		'import.meta.env.VITE_DOMAIN': JSON.stringify('your-domain.com'),
-		'import.meta.env.VITE_PUBLIC_URL': JSON.stringify('https://your-public-url.com'),
+		'import.meta.env.VITE_DOMAIN': JSON.stringify('https://your-public-url.com/'),
+		'import.meta.env.VITE_PUBLIC_URL': JSON.stringify('https://your-public-url.com/'),
 	  },
 	plugins: [
 		sveltekit(),
