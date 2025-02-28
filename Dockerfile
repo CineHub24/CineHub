@@ -20,6 +20,10 @@ COPY . .
 # Build application
 ENV POSTHOG_DISABLED=true
 ENV NODE_OPTIONS="--unhandled-rejections=warn"
+
+
+ENV DATABASE_URL="postgres://postgres:yourpassword@cinehub_db:5432/cinehub"
+
 RUN npm run build
 
 # Production stage
