@@ -4,22 +4,22 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	define: {
-		'import.meta.env.DATABASE_URL': JSON.stringify(''),
-		'import.meta.env.GOOGLE_CLIENT_ID': JSON.stringify(''),
-		'import.meta.env.GOOGLE_CLIENT_SECRET': JSON.stringify(''),
-		'import.meta.env.GITHUB_CLIENT_ID': JSON.stringify(''),
-		'import.meta.env.GITHUB_CLIENT_SECRET': JSON.stringify(''),
-		'import.meta.env.VITE_GMAIL_USER': JSON.stringify(''),
-		'import.meta.env.VITE_GMAIL_APP_PASSWORD': JSON.stringify(''),
-		'import.meta.env.VITE_TMDB_API_KEY': JSON.stringify(''),
-		'import.meta.env.VITE_OMDB_API_KEY': JSON.stringify(''),
-		'import.meta.env.VITE_SECRET_PAYPAL': JSON.stringify(''),
-		'import.meta.env.VITE_CLIENT_ID_PAYPAL': JSON.stringify(''),
-		'import.meta.env.VITE_PUBLIC_STRIPE_KEY': JSON.stringify(''),
-		'import.meta.env.VITE_SECRET_STRIPE_KEY': JSON.stringify(''),
-		'import.meta.env.VITE_DOMAIN': JSON.stringify(''),
-		'import.meta.env.VITE_PUBLIC_URL': JSON.stringify('')
-	},
+		'import.meta.env.DATABASE_URL': JSON.stringify('postgres://user:password@localhost:5432/database'),
+		'import.meta.env.GOOGLE_CLIENT_ID': JSON.stringify('your-google-client-id'),
+		'import.meta.env.GOOGLE_CLIENT_SECRET': JSON.stringify('your-google-client-secret'),
+		'import.meta.env.GITHUB_CLIENT_ID': JSON.stringify('your-github-client-id'),
+		'import.meta.env.GITHUB_CLIENT_SECRET': JSON.stringify('your-github-client-secret'),
+		'import.meta.env.VITE_GMAIL_USER': JSON.stringify('your-gmail-user'),
+		'import.meta.env.VITE_GMAIL_APP_PASSWORD': JSON.stringify('your-gmail-app-password'),
+		'import.meta.env.VITE_TMDB_API_KEY': JSON.stringify('your-tmdb-api-key'),
+		'import.meta.env.VITE_OMDB_API_KEY': JSON.stringify('your-omdb-api-key'),
+		'import.meta.env.VITE_SECRET_PAYPAL': JSON.stringify('your-paypal-secret'),
+		'import.meta.env.VITE_CLIENT_ID_PAYPAL': JSON.stringify('your-paypal-client-id'),
+		'import.meta.env.VITE_PUBLIC_STRIPE_KEY': JSON.stringify('your-stripe-public-key'),
+		'import.meta.env.VITE_SECRET_STRIPE_KEY': JSON.stringify('your-stripe-secret-key'),
+		'import.meta.env.VITE_DOMAIN': JSON.stringify('your-domain.com'),
+		'import.meta.env.VITE_PUBLIC_URL': JSON.stringify('https://your-public-url.com'),
+	  },
 	plugins: [
 		sveltekit(),
 		paraglide({
